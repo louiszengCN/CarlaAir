@@ -1,0 +1,79 @@
+[
+  {
+    "test_id": "T2.2",
+    "name": "地图与世界控制 - 同步模式精度",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 2.8,
+    "details": {
+      "current_map": "Carla/Maps/Town10HD",
+      "sync_100_ticks_expected": 5.0,
+      "sync_100_ticks_actual": 5.0,
+      "sync_tick_error": 0.0,
+      "topology_edges": 200
+    }
+  },
+  {
+    "test_id": "T2.4",
+    "name": "车辆生命周期 - 全量蓝图 spawn/destroy",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 1.2,
+    "details": {
+      "total_vehicle_bps": 41,
+      "spawn_success": 41,
+      "spawn_fail": []
+    }
+  },
+  {
+    "test_id": "T2.5",
+    "name": "行人生命周期 - 全量蓝图 spawn/destroy",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 1.5,
+    "details": {
+      "total_walker_bps": 52,
+      "spawn_success": 49,
+      "spawn_fail_count": 3,
+      "note": "Walker AI controllers (go_to_location) cause segfault - known limitation"
+    }
+  },
+  {
+    "test_id": "T2.6",
+    "name": "车辆控制 - 油门/刹车/转向/autopilot",
+    "priority": "P0",
+    "status": "ERROR",
+    "time": 0.6,
+    "details": "RuntimeError: Spawn failed because of collision at spawn position\nTraceback (most recent call last):\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 22, in wrapper\n    details = func()\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 209, in test_t2_6\n    vehicle = world.spawn_actor(bp, spawn_points[0])\nRuntimeError: Spawn failed because of collision at spawn position\n"
+  },
+  {
+    "test_id": "T2.8",
+    "name": "环境控制 - 14种天气预设",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 4.8,
+    "details": {
+      "total_presets": 14,
+      "success": 14,
+      "failures": [],
+      "custom_cloudiness": 50.0,
+      "custom_precipitation": 75.0
+    }
+  },
+  {
+    "test_id": "T2.9",
+    "name": "传感器系统 - RGB/深度/语义/LiDAR + 多传感器同步",
+    "priority": "P0",
+    "status": "ERROR",
+    "time": 0.9,
+    "details": "RuntimeError: Spawn failed because of collision at spawn position\nTraceback (most recent call last):\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 22, in wrapper\n    details = func()\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 335, in test_t2_9\n    vehicle = world.spawn_actor(bp_lib.find('vehicle.tesla.model3'), spawn_points[0])\nRuntimeError: Spawn failed because of collision at spawn position\n"
+  },
+  {
+    "test_id": "T2.10",
+    "name": "同步模式与录制回放",
+    "priority": "P0",
+    "status": "ERROR",
+    "time": 1.9,
+    "details": "RuntimeError: Spawn failed because of collision at spawn position\nTraceback (most recent call last):\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 22, in wrapper\n    details = func()\n  File \"/mnt/data1/tianle/carla_source/Progress_record/final_test/phase2_carla_core.py\", line 506, in test_t2_10\n    vehicle = world.spawn_actor(bp_lib.find('vehicle.tesla.model3'), spawn_points[0])\nRuntimeError: Spawn failed because of collision at spawn position\n"
+  }
+]

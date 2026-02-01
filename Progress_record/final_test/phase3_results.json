@@ -1,0 +1,108 @@
+[
+  {
+    "test_id": "T3.2",
+    "name": "无人机基础控制 - arm/takeoff/hover/move/land",
+    "priority": "P0",
+    "status": "FAIL",
+    "time": 7.0,
+    "details": "Hover drift 2.2052455966236115m > 1.0m"
+  },
+  {
+    "test_id": "T3.3",
+    "name": "无人机状态读取 - pose/IMU/GPS/velocity",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 15.0,
+    "details": {
+      "position": [
+        22.36,
+        1.15,
+        -10.08
+      ],
+      "velocity": [
+        3.15,
+        0.23,
+        -0.88
+      ],
+      "speed_mps": 3.28,
+      "imu_accel": [
+        0.02,
+        0.01,
+        -10.7
+      ],
+      "imu_gyro": [
+        -0.007,
+        -0.285,
+        -0.001
+      ],
+      "gps_lat": 47.640236,
+      "gps_lon": -122.137674,
+      "gps_alt": 161.24,
+      "baro_altitude": 160.68,
+      "baro_pressure": 99408.85
+    }
+  },
+  {
+    "test_id": "T3.4",
+    "name": "航拍图像传感器 - RGB/深度/语义分割",
+    "priority": "P0",
+    "status": "PASS",
+    "time": 107.4,
+    "details": {
+      "rgb_5m": {
+        "resolution": "1280x960",
+        "valid": true,
+        "mean_brightness": 177.6
+      },
+      "depth_5m": {
+        "min": 43.94,
+        "max": 65504.0,
+        "mean": 28449.64,
+        "no_nan_inf": true
+      },
+      "seg_5m": {
+        "unique_colors": 19,
+        "valid": true
+      },
+      "rgb_30m": {
+        "resolution": "1280x960",
+        "valid": true,
+        "mean_brightness": 179.4
+      },
+      "depth_30m": {
+        "min": 74.12,
+        "max": 65504.0,
+        "mean": 14223.96,
+        "no_nan_inf": true
+      },
+      "seg_30m": {
+        "unique_colors": 20,
+        "valid": true
+      },
+      "rgb_100m": {
+        "resolution": "1280x960",
+        "valid": true,
+        "mean_brightness": 183.0
+      },
+      "depth_100m": {
+        "min": 189.25,
+        "max": 65504.0,
+        "mean": 32901.36,
+        "no_nan_inf": true
+      },
+      "seg_100m": {
+        "unique_colors": 15,
+        "valid": true
+      },
+      "multi_cam_sync": true
+    }
+  },
+  {
+    "test_id": "T3.5",
+    "name": "飞行控制精度 - 5航点定位精度测试",
+    "priority": "P0",
+    "status": "FAIL",
+    "time": 31.4,
+    "details": "Mean position error 2.65m > 1.0m"
+  }
+]
