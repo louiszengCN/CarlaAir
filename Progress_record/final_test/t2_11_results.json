@@ -1,0 +1,32 @@
+[
+  {
+    "test": "test_carla_features.py",
+    "status": "PASS",
+    "details": "73 cam frames"
+  },
+  {
+    "test": "showcase_weather.py",
+    "status": "PASS",
+    "details": "5 presets"
+  },
+  {
+    "test": "showcase_traffic.py",
+    "status": "PASS",
+    "details": "8 vehicles"
+  },
+  {
+    "test": "showcase_sensors.py",
+    "status": "PASS",
+    "details": "rgb=25, depth=25, semantic_segmentation=25"
+  },
+  {
+    "test": "showcase_maps.py",
+    "status": "PASS",
+    "details": "12 Town maps"
+  },
+  {
+    "test": "spawn_traffic_fixed.py",
+    "status": "PASS",
+    "details": "5v + 5w"
+  }
+]

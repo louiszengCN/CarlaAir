@@ -1,0 +1,27 @@
+[
+  {
+    "test": "test_airsim_drone.py",
+    "status": "PASS",
+    "details": "alt=5.8m, rgb=True, depth=True"
+  },
+  {
+    "test": "fly_drone_city.py",
+    "status": "PASS",
+    "details": "4 waypoints"
+  },
+  {
+    "test": "test_combined.py",
+    "status": "PASS",
+    "details": "5 cars, brightness=176.3"
+  },
+  {
+    "test": "aerial_surveillance.py",
+    "status": "PASS",
+    "details": "6/6 images"
+  },
+  {
+    "test": "drone_car_chase.py",
+    "status": "PASS",
+    "details": "mean_err=20.0m"
+  }
+]
