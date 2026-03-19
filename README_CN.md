@@ -5,9 +5,8 @@
     </td>
     <td valign="middle" align="left">
       <h1>CarlaAir</h1>
-      <p><b>空地一体联合仿真平台</b><br/>
-      将 CARLA 0.9.16 与 AirSim 深度融合于单一 Unreal Engine 4 进程中。<br/>
-      <i>由南方科技大学 (SUSTech) 开发维护</i></p>
+      <p><b>在 CARLA 世界里飞无人机。</b><br/>
+      将 CARLA 与 AirSim 融合为一——地面车辆与空中无人机，同一世界，同一脚本。</p>
       <p>
         <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/版本-v0.1.6-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/许可证-MIT-yellow.svg" alt="License: MIT"/>
