@@ -123,12 +123,16 @@ When the simulator is running, click inside the window to capture the mouse:
 
 ## 📚 Documentation & Examples
 
-We provide **24 ready-to-run Python examples** covering various air-ground cooperative scenarios.
+We provide **6 curated Python examples** showcasing the core air-ground cooperative capabilities:
 
-- `drone_car_chase.py`: Drone tracking a moving ground vehicle
-- `aerial_surveillance.py`: Drone surveillance with camera capture
-- `data_collector.py`: Multi-sensor synchronized data collection
-- `city_tour.py`: Air-ground dual-perspective city tour
+| Example | Description |
+|---------|-------------|
+| `demo_drive_and_fly.py` | Simultaneous ground vehicle + drone control |
+| `drone_car_chase.py` | Drone tracking a moving ground vehicle |
+| `aerial_surveillance.py` | Drone surveillance with camera capture |
+| `data_collector.py` | Multi-sensor synchronized data collection |
+| `city_tour.py` | Air-ground dual-perspective city tour |
+| `fly_drone_keyboard.py` | Interactive keyboard drone flight |
 
 **Full Documentation:**
 - [Quick Start Guide](CarlaAir_Release/guide/Quick-Start.md)
