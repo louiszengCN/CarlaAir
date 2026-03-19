@@ -92,12 +92,16 @@ python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConne
 
 ## 📚 文档与示例脚本
 
-我们提供了 **24 个开箱即用的 Python 示例脚本**，覆盖了绝大多数空地协同场景：
+我们精选了 **6 个核心示例脚本**，展示空地协同仿真的关键能力：
 
-- `demo_drive_and_fly.py`：同时控制地面车辆与无人机
-- `drone_car_chase.py`：无人机视觉追踪移动的地面车辆
-- `data_collector.py`：多传感器同步数据采集
-- `aerial_surveillance.py`：无人机城市巡航与图像捕获
+| 脚本 | 说明 |
+|------|------|
+| `demo_drive_and_fly.py` | 同时控制地面车辆与无人机 |
+| `drone_car_chase.py` | 无人机视觉追踪移动的地面车辆 |
+| `aerial_surveillance.py` | 无人机城市巡航与图像捕获 |
+| `data_collector.py` | 多传感器同步数据采集 |
+| `city_tour.py` | 空地双视角城市巡游 |
+| `fly_drone_keyboard.py` | 交互式键盘控制无人机飞行 |
 
 **完整文档：**
 - [快速入门指南](CarlaAir_Release/guide/Quick-Start.md)
