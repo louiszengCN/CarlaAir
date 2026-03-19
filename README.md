@@ -1,31 +1,31 @@
-<p align="center">
-  <img src="logo_upload.png" alt="CarlaAir Logo" width="180"/>
-</p>
+<table>
+  <tr>
+    <td width="160" valign="middle" align="center">
+      <img src="logo_upload.png" alt="CarlaAir Logo" width="140"/>
+    </td>
+    <td valign="middle" align="left">
+      <h1>CarlaAir</h1>
+      <p><b>A Unified Air-Ground Co-Simulation Platform</b><br/>
+      Integrating CARLA 0.9.16 and AirSim into a single Unreal Engine 4 process.<br/>
+      <i>Developed by Southern University of Science and Technology (SUSTech)</i></p>
+      <p>
+        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/version-v0.1.6-blue" alt="Version"/></a>
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+        <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
+        <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
+        <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
+        <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
+        <img src="https://img.shields.io/badge/arXiv-coming%20soon-b31b1b" alt="arXiv"/>
+      </p>
+      <p>
+        <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
+      </p>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <img src="teaser_upload.png" alt="CarlaAir Teaser" width="100%"/>
-</p>
-
-<h3 align="center">CarlaAir: A Unified Air-Ground Co-Simulation Platform</h3>
-
-<p align="center">
-  <b>Integrating CARLA 0.9.16 and AirSim into a single Unreal Engine 4 process.</b>
-  <br>
-  <i>Developed by Southern University of Science and Technology (SUSTech)</i>
-</p>
-
-<p align="center">
-  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/version-v0.1.6-blue" alt="Version"/></a>
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
-  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
-  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
-  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
-  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
-  <img src="https://img.shields.io/badge/arXiv-coming%20soon-b31b1b" alt="arXiv"/>
-</p>
-
-<p align="center">
-  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
 </p>
 
 ---
