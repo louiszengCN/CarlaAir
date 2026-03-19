@@ -1,5 +1,3 @@
-# CarlaAir
-
 <p align="center">
   <img src="logo_upload.png" alt="CarlaAir Logo" width="180"/>
 </p>
@@ -8,168 +6,94 @@
   <img src="teaser_upload.png" alt="CarlaAir Teaser" width="100%"/>
 </p>
 
-> **CarlaAir**: A unified air-ground simulation platform integrating CARLA and AirSim.
+<h3 align="center">CarlaAir: A Unified Air-Ground Co-Simulation Platform</h3>
 
-[English](README.md) | [中文](README_CN.md)
+<p align="center">
+  <b>Integrating CARLA 0.9.16 and AirSim into a single Unreal Engine 4 process.</b>
+  <br>
+  <i>Developed by Southern University of Science and Technology (SUSTech)</i>
+</p>
 
-**Air-Ground Co-Simulation Platform** built on CARLA 0.9.16 + AirSim, providing unified FPS drone control, realistic urban traffic, and dual-API access in a single Unreal Engine 4.26 instance.
+<p align="center">
+  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
+</p>
 
 ---
 
-## Features
+**CarlaAir** is an open-source, in-process integration of the world's leading autonomous driving simulator (CARLA) and robotics simulator (AirSim). By merging both into a single `ASimWorldGameMode`, it provides frame-level sensor synchronization, unified physics, and dual Python APIs for seamless air-ground cooperative research.
 
-- **Unified Simulation** — CARLA ground simulation (vehicles, pedestrians, weather, sensors) and AirSim aerial simulation (multirotor drone, cameras) run in one UE4 process
-- **FPS Drone Control** — Fly a drone with WASD + mouse in the 3D viewport, with adjustable speed via scroll wheel
-- **Physics Collision** — UE4 native Sweep-based collision; drone stops on impact with buildings and terrain
-- **Auto Traffic** — 30 vehicles + 50 pedestrians auto-spawned on startup for realistic urban scenarios
-- **Dual API** — CARLA Python API (port 2000) + AirSim Python API (port 41451), both accessible simultaneously
-- **Weather System** — Cycle through weather presets (clear, rain, fog, night) with N key
-- **24 Example Scripts** — Ready-to-run demos for aerial surveillance, city tours, data collection, trajectory recording, and more
+## ✨ Highlights
 
-## System Requirements
+- 🚀 **Single-Process Integration**: No bridge, no latency. CARLA and AirSim share the same UE4 world, weather, and physics engine.
+- 🎯 **Absolute Coordinate Alignment**: Exact `0.0000m` error between CARLA (Left-handed) and AirSim (NED) coordinate systems.
+- 🚁 **Built-in FPS Drone Control**: Fly the drone directly in the viewport using `WASD` + Mouse, without writing any Python scripts.
+- 🚦 **Realistic Urban Traffic**: Auto-spawns 30 vehicles and 50 pedestrians on startup.
+- 📸 **18-Channel Synchronized Sensors**: Simultaneous data collection from RGB, LiDAR, Depth, Semantic Segmentation, IMU, and GNSS across both ground and aerial agents.
+- 🐍 **Dual API Support**: Use `carla.Client` (port 2000) and `airsim.MultirotorClient` (port 41451) in the exact same script.
 
-| Component | Minimum |
-|-----------|---------|
-| OS | Ubuntu 20.04 / 22.04 |
-| CPU | Intel i7 9th gen or AMD Ryzen 7 |
-| RAM | 32 GB |
-| GPU | NVIDIA RTX 3070 (8 GB VRAM) |
-| Disk | 100 GB free (source build) / 30 GB (binary) |
-| Driver | NVIDIA 525+ with Vulkan support |
+---
 
-## Quick Start
+## 🎮 Quick Start
 
-### Option A: Binary Release (recommended)
+### Option A: Binary Release (Recommended)
 
 ```bash
-# Download and extract CarlaAir-v0.1.6
+# 1. Download and extract CarlaAir-v0.1.6
 tar xzf CarlaAir-v0.1.6.tar.gz
 cd CarlaAir-v0.1.6
 
-# Launch (auto-spawns traffic)
-./CarlaAir.sh
+# 2. Launch the simulator (auto-spawns traffic)
+./CarlaAir.sh Town10HD
 
-# In another terminal — test connection
+# 3. In another terminal, test the Dual API
 python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
 python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
 ```
 
 ### Option B: Build from Source
 
-```bash
-# 1. Clone UE4 (CARLA fork)
-git clone --depth 1 -b carla https://github.com/CarlaUnreal/UnrealEngine.git ~/carla_ue4
-cd ~/carla_ue4 && ./Setup.sh && ./GenerateProjectFiles.sh && make
+Please refer to the [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md) for detailed instructions on compiling CarlaAir with UE4.26.
 
-# 2. Clone CarlaAir source
-git clone <this-repo> ~/carla_source
-cd ~/carla_source
+---
 
-# 3. Build dependencies
-./Util/BuildTools/Setup.sh
-./Util/BuildTools/BuildLibCarla.sh
-./Util/BuildTools/BuildPythonAPI.sh
-./Util/BuildTools/BuildCarlaUE4.sh --build
+## ⌨️ Flight Controls
 
-# 4. Launch in Editor mode
-./carlaAir.sh
-```
-
-See [BUILD_GUIDE.md](CarlaAir_Release/source/BUILD_GUIDE.md) for detailed instructions.
-
-## Controls
+When the simulator is running, click inside the window to capture the mouse and use the built-in FPS controller:
 
 | Key | Action |
 |-----|--------|
-| W / A / S / D | Move forward / left / back / right |
-| Space / Shift | Fly up / down |
-| Mouse | Yaw (turn left/right) |
-| Scroll Wheel | Adjust drone speed |
-| N | Cycle weather presets |
-| P | Toggle physics / invincible mode |
-| H | Show/hide help overlay |
-| Tab | Toggle mouse capture |
+| `W` / `A` / `S` / `D` | Move Forward / Left / Backward / Right |
+| `Space` / `Shift` | Ascend / Descend |
+| `Mouse` | Yaw (Turn Left/Right) |
+| `Scroll Wheel` | Adjust Flight Speed |
+| `N` | Cycle Weather Presets (Clear, Rain, Fog, Night, etc.) |
+| `P` | Toggle Collision Mode (Physics vs. Noclip/Invincible) |
+| `H` | Show/Hide On-Screen Help Menu |
+| `Tab` | Release / Capture Mouse |
 
-## Architecture
+---
 
-```
-┌──────────────────────────────────────────────────────┐
-│                 Unreal Engine 4.26                    │
-│  ┌────────────────────────────────────────────────┐  │
-│  │          ASimWorldGameMode (core)              │  │
-│  │  ┌──────────────────┐ ┌─────────────────────┐ │  │
-│  │  │  CARLA Subsystem  │ │  AirSim Subsystem   │ │  │
-│  │  │  - Episode        │ │  - SimModeBase      │ │  │
-│  │  │  - Weather        │ │  - HUD Widget       │ │  │
-│  │  │  - TrafficManager │ │  - Physics Engine   │ │  │
-│  │  │  - RPC :2000      │ │  - RPC :41451       │ │  │
-│  │  └──────────────────┘ └─────────────────────┘ │  │
-│  └────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────┘
-        │                          │
-        ▼                          ▼
-  CARLA Python API          AirSim Python API
-  (port 2000)               (port 41451)
-```
+## 📚 Documentation & Examples
 
-## Example Scripts
+We provide **24 ready-to-run Python examples** covering various air-ground cooperative scenarios.
 
-| Script | Description |
-|--------|-------------|
-| `fly_drone_keyboard.py` | Interactive keyboard drone control |
-| `demo_drive_and_fly.py` | Simultaneous ground vehicle + drone demo |
-| `demo_flight_city.py` | Automated city flyover |
-| `aerial_surveillance.py` | Drone surveillance with camera capture |
-| `city_tour.py` | Guided city tour route |
-| `data_collector.py` | Multi-sensor data collection |
-| `drone_car_chase.py` | Drone tracking a ground vehicle |
-| `drone_traj_col.py` | Drone trajectory recording |
-| `drone_traj_playback.py` | Trajectory replay |
-| `showcase_traffic.py` | Traffic visualization demo |
+- `demo_drive_and_fly.py`: Simultaneous ground vehicle + drone control
+- `drone_car_chase.py`: Drone tracking a moving ground vehicle
+- `data_collector.py`: Multi-sensor synchronized data collection
+- `aerial_surveillance.py`: Drone surveillance with camera capture
 
-See the full list in [`examples/`](examples/).
-
-## Project Structure
-
-```
-CarlaAir/
-├── carlaAir.sh              # Editor mode launcher
-├── auto_traffic.py          # Auto traffic generator
-├── Unreal/CarlaUE4/         # UE4 project + plugins
-│   └── Plugins/
-│       ├── AirSim/          # AirSim plugin (drone, HUD, physics)
-│       └── Carla/           # CARLA plugin (traffic, sensors, RPC)
-├── PythonAPI/               # Python client libraries
-├── LibCarla/                # C++ client library
-├── examples/                # Example scripts (24)
-├── test_script/             # Test scripts
-├── CarlaAir_Release/        # Release documentation
-│   ├── guide/               # Quick-Start, FAQ
-│   ├── install/             # Binary installation guide
-│   └── source/              # Source build guide, architecture
-├── Content/Blueprints/      # Custom UE4 blueprints
-├── Util/BuildTools/         # Build toolchain
-└── Progress_record/         # Development notes
-```
-
-## Documentation
-
+**Full Documentation:**
 - [Quick Start Guide](CarlaAir_Release/guide/Quick-Start.md)
-- [FAQ](CarlaAir_Release/guide/FAQ.md)
-- [Architecture](CarlaAir_Release/source/ARCHITECTURE.md)
-- [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md)
-- [Modifications from upstream CARLA](CarlaAir_Release/source/MODIFICATIONS.md)
-- [CHANGELOG](CHANGELOG.md)
+- [Architecture Details](CarlaAir_Release/source/ARCHITECTURE.md)
+- [Modifications from Upstream](CarlaAir_Release/source/MODIFICATIONS.md)
 
-## License
+---
 
-CARLA specific code is distributed under MIT License. CARLA specific assets are distributed under CC-BY License. AirSim is distributed under MIT License.
+## 📜 License & Acknowledgments
 
-See [LICENSE](LICENSE) for details.
+CarlaAir is built upon the shoulders of giants. We sincerely thank the developers of:
+- [CARLA Simulator](https://github.com/carla-simulator/carla) (MIT License)
+- [Microsoft AirSim](https://github.com/microsoft/AirSim) (MIT License)
+- [Unreal Engine](https://www.unrealengine.com/)
 
-## Acknowledgments
-
-CarlaAir builds on:
-- [CARLA](https://github.com/carla-simulator/carla) — Open-source autonomous driving simulator
-- [AirSim](https://github.com/microsoft/AirSim) — Open-source robotics simulation platform by Microsoft
-- [Unreal Engine 4.26](https://www.unrealengine.com/) — Epic Games
+CarlaAir specific code is distributed under the **MIT License**. CARLA specific assets are distributed under the CC-BY License.

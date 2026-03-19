@@ -1,165 +1,99 @@
-# CarlaAir
+<p align="center">
+  <img src="logo_upload.png" alt="CarlaAir Logo" width="180"/>
+</p>
 
-[English](README.md) | [中文](README_CN.md)
+<p align="center">
+  <img src="teaser_upload.png" alt="CarlaAir Teaser" width="100%"/>
+</p>
 
-**空地一体联合仿真平台**，基于 CARLA 0.9.16 + AirSim，在单一 Unreal Engine 4.26 实例中提供统一的 FPS 无人机控制、真实城市交通和双 API 接口。
+<h3 align="center">CarlaAir: 空地一体联合仿真平台</h3>
+
+<p align="center">
+  <b>将 CARLA 0.9.16 与 AirSim 深度融合于单一 Unreal Engine 4 进程中。</b>
+  <br>
+  <i>由南方科技大学 (SUSTech) 开发维护</i>
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
+</p>
 
 ---
 
-## 特性
+**CarlaAir** 是一个开源的空地联合仿真平台。它通过在底层 C++ 将全球领先的自动驾驶仿真器（CARLA）与机器人仿真器（AirSim）合并为单一的 `ASimWorldGameMode`，实现了真正的帧级传感器同步、统一的物理引擎，以及无缝的双 Python API 交互。
 
-- **统一仿真** — CARLA 地面仿真（车辆、行人、天气、传感器）与 AirSim 空中仿真（多旋翼无人机、相机）在同一 UE4 进程中运行
-- **FPS 无人机控制** — 在 3D 视口中使用 WASD + 鼠标飞行无人机，滚轮调节速度
-- **物理碰撞** — 基于 UE4 原生 Sweep 碰撞检测，无人机撞到建筑物和地形时会停住
-- **自动交通** — 启动时自动生成 30 辆车 + 50 个行人，营造真实城市场景
-- **双 API** — CARLA Python API（端口 2000）+ AirSim Python API（端口 41451），可同时访问
-- **天气系统** — 按 N 键循环切换天气预设（晴天、雨天、雾天、夜晚）
-- **24 个示例脚本** — 涵盖空中监控、城市巡游、数据采集、轨迹记录等场景
+## ✨ 核心亮点
 
-## 系统要求
+- 🚀 **单进程深度集成**：拒绝跨进程通信桥接（Bridge），无延迟损耗。CARLA 与 AirSim 共享同一个 UE4 世界、天气系统与物理引擎。
+- 🎯 **绝对坐标对齐**：彻底解决 CARLA（左手系）与 AirSim（NED）之间的坐标转换问题，误差精确控制在 `0.0000m`。
+- 🚁 **内置 FPS 无人机控制**：无需编写任何代码，在仿真窗口内直接使用 `WASD` + 鼠标 即可像玩 FPS 游戏一样丝滑驾驶无人机。
+- 🚦 **开箱即用的城市交通**：启动器默认自动生成 30 辆背景车辆与 50 个行人，立即构建逼真城市场景。
+- 📸 **18路同步传感器**：支持在地面车辆和空中无人机上同时挂载 RGB、激光雷达、深度图、语义分割、IMU 和 GNSS，数据严格对齐。
+- 🐍 **双 API 无缝协作**：在同一个 Python 脚本中，同时调用 `carla.Client`（端口 2000）和 `airsim.MultirotorClient`（端口 41451）。
 
-| 组件 | 最低要求 |
-|------|---------|
-| 操作系统 | Ubuntu 20.04 / 22.04 |
-| CPU | Intel i7 9代 或 AMD Ryzen 7 |
-| 内存 | 32 GB |
-| 显卡 | NVIDIA RTX 3070（8 GB 显存）|
-| 磁盘 | 100 GB 可用空间（源码编译）/ 30 GB（二进制版）|
-| 驱动 | NVIDIA 525+ 且支持 Vulkan |
+---
 
-## 快速开始
+## 🎮 快速开始
 
-### 方式 A：二进制发布版（推荐）
+### 选项 A：使用预编译版本（推荐）
 
 ```bash
-# 下载并解压 CarlaAir-v0.1.6
+# 1. 下载并解压 CarlaAir-v0.1.6
 tar xzf CarlaAir-v0.1.6.tar.gz
 cd CarlaAir-v0.1.6
 
-# 启动（自动生成交通）
-./CarlaAir.sh
+# 2. 启动仿真器（自动生成交通流）
+./CarlaAir.sh Town10HD
 
-# 在另一个终端测试连接
+# 3. 在另一个终端测试双 API 连接
 python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
 python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
 ```
 
-### 方式 B：从源码编译
+### 选项 B：从源码编译
 
-```bash
-# 1. 克隆 UE4（CARLA 分支）
-git clone --depth 1 -b carla https://github.com/CarlaUnreal/UnrealEngine.git ~/carla_ue4
-cd ~/carla_ue4 && ./Setup.sh && ./GenerateProjectFiles.sh && make
+如果您需要修改底层 C++ 代码，请参考 [源码编译指南](CarlaAir_Release/source/BUILD_GUIDE.md)，了解如何使用 UE4.26 编译 CarlaAir。
 
-# 2. 克隆 CarlaAir 源码
-git clone <本仓库> ~/carla_source
-cd ~/carla_source
+---
 
-# 3. 编译依赖
-./Util/BuildTools/Setup.sh
-./Util/BuildTools/BuildLibCarla.sh
-./Util/BuildTools/BuildPythonAPI.sh
-./Util/BuildTools/BuildCarlaUE4.sh --build
+## ⌨️ 飞行控制说明
 
-# 4. 以 Editor 模式启动
-./carlaAir.sh
-```
-
-详见 [BUILD_GUIDE.md](CarlaAir_Release/source/BUILD_GUIDE.md)。
-
-## 操控键位
+当仿真器运行时，点击窗口内部捕获鼠标，即可使用内置的 FPS 控制器驾驶无人机：
 
 | 按键 | 功能 |
-|------|------|
-| W / A / S / D | 前进 / 左移 / 后退 / 右移 |
-| 空格 / Shift | 上升 / 下降 |
-| 鼠标 | 偏航（左右转向）|
-| 滚轮 | 调节无人机速度 |
-| N | 切换天气预设 |
-| P | 切换物理/无敌模式 |
-| H | 显示/隐藏帮助面板 |
-| Tab | 切换鼠标捕获 |
+|-----|--------|
+| `W` / `A` / `S` / `D` | 前进 / 左移 / 后退 / 右移 |
+| `Space` / `Shift` | 垂直上升 / 垂直下降 |
+| `Mouse` (鼠标) | 偏航转向 (Yaw) |
+| `Scroll Wheel` (滚轮) | 调节飞行速度 |
+| `N` | 循环切换天气预设 (晴天、雨天、大雾、夜晚等) |
+| `P` | 切换碰撞模式 (物理碰撞 / 无敌穿墙模式) |
+| `H` | 显示/隐藏 屏幕帮助菜单 |
+| `Tab` | 释放 / 捕获 鼠标 |
 
-## 架构概览
+---
 
-```
-┌──────────────────────────────────────────────────────┐
-│                 Unreal Engine 4.26                    │
-│  ┌────────────────────────────────────────────────┐  │
-│  │       ASimWorldGameMode（核心 GameMode）        │  │
-│  │  ┌──────────────────┐ ┌─────────────────────┐ │  │
-│  │  │  CARLA 子系统     │ │  AirSim 子系统      │ │  │
-│  │  │  - Episode       │ │  - SimModeBase      │ │  │
-│  │  │  - Weather       │ │  - HUD Widget       │ │  │
-│  │  │  - TrafficMgr    │ │  - 物理引擎         │ │  │
-│  │  │  - RPC :2000     │ │  - RPC :41451       │ │  │
-│  │  └──────────────────┘ └─────────────────────┘ │  │
-│  └────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────┘
-        │                          │
-        ▼                          ▼
-  CARLA Python API          AirSim Python API
-  (端口 2000)               (端口 41451)
-```
+## 📚 文档与示例脚本
 
-## 示例脚本
+我们提供了 **24 个开箱即用的 Python 示例脚本**，覆盖了绝大多数空地协同场景：
 
-| 脚本 | 说明 |
-|------|------|
-| `fly_drone_keyboard.py` | 交互式键盘控制无人机 |
-| `demo_drive_and_fly.py` | 地面车辆 + 无人机同时演示 |
-| `demo_flight_city.py` | 自动城市飞行巡游 |
-| `aerial_surveillance.py` | 无人机空中监控与拍摄 |
-| `city_tour.py` | 城市导览路线 |
-| `data_collector.py` | 多传感器数据采集 |
-| `drone_car_chase.py` | 无人机跟踪地面车辆 |
-| `drone_traj_col.py` | 无人机轨迹录制 |
-| `drone_traj_playback.py` | 轨迹回放 |
-| `showcase_traffic.py` | 交通可视化演示 |
+- `demo_drive_and_fly.py`：同时控制地面车辆与无人机
+- `drone_car_chase.py`：无人机视觉追踪移动的地面车辆
+- `data_collector.py`：多传感器同步数据采集
+- `aerial_surveillance.py`：无人机城市巡航与图像捕获
 
-完整列表见 [`examples/`](examples/) 目录。
+**完整文档：**
+- [快速入门指南](CarlaAir_Release/guide/Quick-Start.md)
+- [技术架构详解](CarlaAir_Release/source/ARCHITECTURE.md)
+- [上游代码修改清单](CarlaAir_Release/source/MODIFICATIONS.md)
 
-## 项目结构
+---
 
-```
-CarlaAir/
-├── carlaAir.sh              # Editor 模式启动脚本
-├── auto_traffic.py          # 自动交通生成器
-├── Unreal/CarlaUE4/         # UE4 项目 + 插件
-│   └── Plugins/
-│       ├── AirSim/          # AirSim 插件（无人机、HUD、物理）
-│       └── Carla/           # CARLA 插件（交通、传感器、RPC）
-├── PythonAPI/               # Python 客户端库
-├── LibCarla/                # C++ 客户端库
-├── examples/                # 示例脚本（24个）
-├── test_script/             # 测试脚本
-├── CarlaAir_Release/        # 发布文档
-│   ├── guide/               # 快速开始、FAQ
-│   ├── install/             # 二进制安装指南
-│   └── source/              # 源码编译指南、架构文档
-├── Content/Blueprints/      # 自定义 UE4 蓝图
-├── Util/BuildTools/         # 编译工具链
-└── Progress_record/         # 开发记录
-```
+## 📜 许可证与致谢
 
-## 文档
+CarlaAir 站在巨人的肩膀上。我们诚挚感谢以下开源项目的开发者：
+- [CARLA Simulator](https://github.com/carla-simulator/carla) (MIT License)
+- [Microsoft AirSim](https://github.com/microsoft/AirSim) (MIT License)
+- [Unreal Engine](https://www.unrealengine.com/)
 
-- [快速开始](CarlaAir_Release/guide/Quick-Start.md)
-- [常见问题](CarlaAir_Release/guide/FAQ.md)
-- [技术架构](CarlaAir_Release/source/ARCHITECTURE.md)
-- [编译指南](CarlaAir_Release/source/BUILD_GUIDE.md)
-- [修改说明](CarlaAir_Release/source/MODIFICATIONS.md)
-- [更新日志](CHANGELOG.md)
-
-## 许可证
-
-CARLA 代码采用 MIT 许可证，CARLA 资产采用 CC-BY 许可证，AirSim 采用 MIT 许可证。
-
-详见 [LICENSE](LICENSE)。
-
-## 致谢
-
-CarlaAir 基于以下开源项目构建：
-- [CARLA](https://github.com/carla-simulator/carla) — 开源自动驾驶仿真器
-- [AirSim](https://github.com/microsoft/AirSim) — 微软开源机器人仿真平台
-- [Unreal Engine 4.26](https://www.unrealengine.com/) — Epic Games
+CarlaAir 特有的代码基于 **MIT 许可证** 开源。CARLA 相关的资产遵循 CC-BY 许可证。
