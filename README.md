@@ -5,9 +5,9 @@
     </td>
     <td valign="middle" align="left">
       <h1>CarlaAir</h1>
-      <p><b>A Unified Air-Ground Co-Simulation Platform</b><br/>
-      Integrating CARLA 0.9.16 and AirSim into a single Unreal Engine 4 process.<br/>
-      <i>Developed by Southern University of Science and Technology (SUSTech)</i></p>
+      <p><b>Fly drones inside a CARLA world.</b><br/>
+      A unified simulation platform that brings CARLA and AirSim together —<br/>
+      ground vehicles and aerial drones, one world, one script.</p>
       <p>
         <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/version-v0.1.6-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
