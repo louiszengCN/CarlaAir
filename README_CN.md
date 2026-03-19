@@ -15,8 +15,26 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/版本-v0.1.6-blue" alt="Version"/></a>
+  <img src="https://img.shields.io/badge/许可证-MIT-yellow.svg" alt="License: MIT"/>
+  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
+  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
+  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
+  <img src="https://img.shields.io/badge/平台-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
+  <img src="https://img.shields.io/badge/arXiv-即将发布-b31b1b" alt="arXiv"/>
+</p>
+
+<p align="center">
   <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
 </p>
+
+---
+
+## 🔥 最新动态
+
+- **[2026-03]** `v0.1.6` 发布 — 自动交通生成、UE4 原生 Sweep 碰撞、地面夹紧系统
+- **[2026-03]** `v0.1.5` 发布 — 12 方向碰撞系统、双语帮助菜单（`H`）
+- **[2026-03]** `v0.1.4` 发布 — ROS2 验证（63 个话题）、首个官方二进制发布
 
 ---
 

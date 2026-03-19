@@ -15,6 +15,16 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/version-v0.1.6-blue" alt="Version"/></a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
+  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
+  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
+  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
+  <img src="https://img.shields.io/badge/arXiv-coming%20soon-b31b1b" alt="arXiv"/>
+</p>
+
+<p align="center">
   <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
 </p>
 
@@ -22,14 +32,25 @@
 
 **CarlaAir** is an open-source, in-process integration of the world's leading autonomous driving simulator (CARLA) and robotics simulator (AirSim). By merging both into a single `ASimWorldGameMode`, it provides frame-level sensor synchronization, unified physics, and dual Python APIs for seamless air-ground cooperative research.
 
+## 🔥 News
+
+- **[2026-03]** `v0.1.6` released — Auto traffic spawn, UE4 native Sweep collision, ground clamping
+- **[2026-03]** `v0.1.5` released — 12-direction collision system, bilingual help overlay (`H`)
+- **[2026-03]** `v0.1.4` released — ROS2 validation (63 topics), first official binary release
+
+---
+
 ## ✨ Highlights
 
-- 🚀 **Single-Process Integration**: No bridge, no latency. CARLA and AirSim share the same UE4 world, weather, and physics engine.
-- 🎯 **Absolute Coordinate Alignment**: Exact `0.0000m` error between CARLA (Left-handed) and AirSim (NED) coordinate systems.
-- 🚁 **Built-in FPS Drone Control**: Fly the drone directly in the viewport using `WASD` + Mouse, without writing any Python scripts.
-- 🚦 **Realistic Urban Traffic**: Auto-spawns 30 vehicles and 50 pedestrians on startup.
-- 📸 **18-Channel Synchronized Sensors**: Simultaneous data collection from RGB, LiDAR, Depth, Semantic Segmentation, IMU, and GNSS across both ground and aerial agents.
-- 🐍 **Dual API Support**: Use `carla.Client` (port 2000) and `airsim.MultirotorClient` (port 41451) in the exact same script.
+| | |
+|---|---|
+| 🚀 **Single-Process Integration** | No bridge, no latency. CARLA and AirSim share the same UE4 world, weather, and physics engine. |
+| 🎯 **Absolute Coordinate Alignment** | Exact `0.0000m` error between CARLA (Left-handed) and AirSim (NED) coordinate systems. |
+| 🚁 **Built-in FPS Drone Control** | Fly the drone in the viewport using `WASD` + Mouse — no Python scripts needed. |
+| 🚦 **Realistic Urban Traffic** | Auto-spawns 30 vehicles and 50 pedestrians on startup across 13 maps. |
+| 📸 **18-Channel Synchronized Sensors** | RGB · LiDAR · Depth · Semantic Seg · IMU · GNSS — all frame-aligned across air and ground. |
+| 🐍 **Dual Python API** | `carla.Client` (port 2000) + `airsim.MultirotorClient` (port 41451) in one script. |
+| ✅ **89/89 API Tests Passed** | Full compatibility verified across both upstream APIs. |
 
 ---
 
@@ -56,9 +77,36 @@ Please refer to the [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md) for de
 
 ---
 
+## 🐍 Why CarlaAir? One Script, Two Worlds.
+
+The key difference from bridge-based approaches: both APIs share the **same simulated world**.
+
+```python
+import carla, airsim
+
+# Connect to both APIs simultaneously
+carla_client = carla.Client("localhost", 2000)
+air_client   = airsim.MultirotorClient(port=41451)
+
+world = carla_client.get_world()
+
+# Set weather once — affects BOTH ground sensors AND drone cameras
+world.set_weather(carla.WeatherParameters.HardRainSunset)
+
+# Spawn a ground vehicle with autopilot
+vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+vehicle.set_autopilot(True)
+
+# Fly the drone above the city — in the exact same world
+air_client.takeoffAsync().join()
+air_client.moveToPositionAsync(80, 30, -25, 5)  # 25m above ground
+```
+
+---
+
 ## ⌨️ Flight Controls
 
-When the simulator is running, click inside the window to capture the mouse and use the built-in FPS controller:
+When the simulator is running, click inside the window to capture the mouse:
 
 | Key | Action |
 |-----|--------|
@@ -77,10 +125,10 @@ When the simulator is running, click inside the window to capture the mouse and 
 
 We provide **24 ready-to-run Python examples** covering various air-ground cooperative scenarios.
 
-- `demo_drive_and_fly.py`: Simultaneous ground vehicle + drone control
 - `drone_car_chase.py`: Drone tracking a moving ground vehicle
-- `data_collector.py`: Multi-sensor synchronized data collection
 - `aerial_surveillance.py`: Drone surveillance with camera capture
+- `data_collector.py`: Multi-sensor synchronized data collection
+- `city_tour.py`: Air-ground dual-perspective city tour
 
 **Full Documentation:**
 - [Quick Start Guide](CarlaAir_Release/guide/Quick-Start.md)
