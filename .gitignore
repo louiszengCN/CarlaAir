@@ -1,0 +1,38 @@
+# Build artifacts
+Build/
+Dist/
+Intermediate/
+DerivedDataCache/
+Saved/
+Binaries/
+
+# UE4 Content (too large for git, distributed separately)
+Unreal/CarlaUE4/Content/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sln
+*.suo
+
+# Logs
+*.log
+
+# Compiled objects
+*.o
+*.a
+*.debug
+*.sym

@@ -1,0 +1,166 @@
+// Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma
+// de Barcelona (UAB).
+//
+// This work is licensed under the terms of the MIT license.
+// For a copy, see <https://opensource.org/licenses/MIT>.
+
+#pragma once
+
+#include "carla/AtomicSharedPtr.h"
+#include "carla/Logging.h"
+#include "carla/streaming/detail/Message.h"
+#include "carla/streaming/detail/StreamStateBase.h"
+
+#include <atomic>
+#include <mutex>
+#include <vector>
+#include <set>
+
+namespace carla {
+namespace streaming {
+namespace detail {
+
+  /// A stream state that can hold any number of sessions.
+  ///
+  /// @todo Lacking some optimization.
+  class MultiStreamState final : public StreamStateBase {
+  public:
+    using StreamStateBase::StreamStateBase;
+
+    MultiStreamState(const token_type &token) : StreamStateBase(token), _session(nullptr){};
+
+    template <typename... Buffers>
+    void Write(Buffers... buffers) {
+      // try write single stream
+      auto session = _session.load();
+      if (session != nullptr) {
+        auto message = Session::MakeMessage(buffers...);
+        session->WriteMessage(std::move(message));
+        log_debug("sensor ", session->get_stream_id(), " data sent");
+        // Return here, _session is only valid if we have a
+        // single session.
+        return;
+      }
+
+      // try write multiple stream
+      std::lock_guard<std::mutex> lock(_mutex);
+      if (_sessions.size() > 0) {
+        auto message = Session::MakeMessage(buffers...);
+        for (auto &s : _sessions) {
+          if (s != nullptr) {
+            s->WriteMessage(message);
+            log_debug("sensor ", s->get_stream_id(), " data sent ");
+          }
+        }
+      }
+    }
+
+    void ForceActive() {
+      _force_active = true;
+    }
+
+    void EnableForROS(actor_id_type actor_id) {
+      log_error("MultiStreamState enable for ros. Searching sessions.");
+      _enable_for_ros.insert(actor_id);
+      for (auto &s : _sessions) {
+        if (s != nullptr) {
+          s->EnableForROS(actor_id);
+          log_error("sensor ", s->get_stream_id(), " enable for ros ");
+        }
+      }
+    }
+
+    void DisableForROS(actor_id_type actor_id) {
+      _enable_for_ros.erase(actor_id);
+      for (auto &s : _sessions) {
+        if (s != nullptr) {
+          s->DisableForROS(actor_id);
+          log_error("sensor ", s->get_stream_id(), " disable for ros ");
+        }
+      }
+    }
+
+    bool IsEnabledForROS(actor_id_type actor_id) {
+      for (auto &s : _sessions) {
+        if (s != nullptr) {
+          if (s->IsEnabledForROS(actor_id)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    bool AreClientsListening() {
+      return (_sessions.size() > 0 || _force_active);
+    }
+
+    void ConnectSession(std::shared_ptr<Session> session) final {
+      DEBUG_ASSERT(session != nullptr);
+      std::lock_guard<std::mutex> lock(_mutex);
+      for (auto actor_id: _enable_for_ros) {
+        session->EnableForROS(actor_id);
+      }
+      _sessions.emplace_back(std::move(session));
+      log_debug("Connecting multistream sessions:", _sessions.size());
+      if (_sessions.size() == 1) {
+        _session.store(_sessions[0]);
+      }
+      else if (_sessions.size() > 1) {
+        _session.store(nullptr);
+      }
+    }
+
+    void DisconnectSession(std::shared_ptr<Session> session) final {
+      DEBUG_ASSERT(session != nullptr);
+      std::lock_guard<std::mutex> lock(_mutex);
+      log_debug("Calling DisconnectSession for ", session->get_stream_id());
+      if (_sessions.size() == 0) return;
+      if (_sessions.size() == 1) {
+        DEBUG_ASSERT(session == _session.load());
+        _session.store(nullptr);
+        _sessions.clear();
+        _force_active = false;
+        log_debug("Last session disconnected");
+      } else {
+        _sessions.erase(
+            std::remove(_sessions.begin(), _sessions.end(), session),
+            _sessions.end());
+
+        // set single session if only one
+        if (_sessions.size() == 1)
+          _session.store(_sessions[0]);
+        else
+          _session.store(nullptr);
+      }
+      log_debug("Disconnecting multistream sessions:", _sessions.size());
+    }
+
+    void ClearSessions() final {
+      std::lock_guard<std::mutex> lock(_mutex);
+      for (auto &s : _sessions) {
+        if (s != nullptr) {
+          s->Close();
+        }
+      }
+      _sessions.clear();
+      _force_active = false;
+      _session.store(nullptr);
+      log_debug("Disconnecting all multistream sessions");
+    }
+
+  private:
+
+    std::mutex _mutex;
+
+    // if there is only one session, then we use atomic
+    AtomicSharedPtr<Session> _session;
+    // if there are more than one session, we use vector of sessions with mutex
+    std::vector<std::shared_ptr<Session>> _sessions;
+    bool _force_active{false};
+    std::set<actor_id_type> _enable_for_ros;
+  };
+
+}  // namespace detail
+}  // namespace streaming
+}  // namespace carla

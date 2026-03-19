@@ -1,0 +1,6806 @@
+[CustomBuildSystem]
+CurrentConfiguration=BuildConfig0
+
+[CustomBuildSystem][BuildConfig0]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildMeFirst
+
+[CustomBuildSystem][BuildConfig0][ToolBuild]
+Arguments=-f Makefile UE4Editor UE4Game ShaderCompileWorker UnrealLightmass UnrealPak
+Enabled=true
+Environment=
+Executable=make
+Type=0
+
+[CustomBuildSystem][BuildConfig0][ToolClean]
+Arguments=-f Makefile UE4Editor UE4Game ShaderCompileWorker UnrealLightmass UnrealPak -clean
+Enabled=true
+Environment=
+Executable=make
+Type=3
+
+[CustomBuildSystem][BuildConfig0][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig1]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4-Linux-Debug
+
+[CustomBuildSystem][BuildConfig1][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Debug
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig1][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4 Linux Debug
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig1][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig2]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig2][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux DebugGame
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig2][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4 Linux DebugGame
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig2][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig3]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig3][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Shipping
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig3][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4 Linux Shipping
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig3][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig4]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4-Linux-Test
+
+[CustomBuildSystem][BuildConfig4][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Test
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig4][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4 Linux Test
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig4][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Test -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig5]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4
+
+[CustomBuildSystem][BuildConfig5][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Development
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig5][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4 Linux Development
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig5][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4 Linux Development -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig6]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4Editor-Linux-Debug
+
+[CustomBuildSystem][BuildConfig6][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Debug
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig6][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4Editor Linux Debug
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig6][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Debug -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig7]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4Editor-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig7][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux DebugGame
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig7][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4Editor Linux DebugGame
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig7][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig8]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4Editor-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig8][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Shipping
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig8][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4Editor Linux Shipping
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig8][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig9]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4Editor-Linux-Test
+
+[CustomBuildSystem][BuildConfig9][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Test
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig9][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4Editor Linux Test
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig9][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Test -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig10]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CarlaUE4Editor
+
+[CustomBuildSystem][BuildConfig10][ToolBuild]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Development
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=0
+
+[CustomBuildSystem][BuildConfig10][ToolConfigure]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -makefile -kdevelopfile  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" -game -engine  CarlaUE4Editor Linux Development
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=1
+
+[CustomBuildSystem][BuildConfig10][ToolClean]
+Arguments=Engine/Binaries/DotNET/UnrealBuildTool.exe  -editorrecompile -project="/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject" CarlaUE4Editor Linux Development -clean
+Enabled=true
+Environment=
+Executable=Engine/Build/BatchFiles/Linux/RunMono.sh
+Type=3
+
+[CustomBuildSystem][BuildConfig11]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BenchmarkTool-Linux-Debug
+
+[CustomBuildSystem][BuildConfig11][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig11][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BenchmarkTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig11][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig12]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BenchmarkTool-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig12][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig12][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BenchmarkTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig12][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig13]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BenchmarkTool-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig13][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig13][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BenchmarkTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig13][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig14]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BenchmarkTool-Linux-Test
+
+[CustomBuildSystem][BuildConfig14][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig14][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BenchmarkTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig14][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig15]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BenchmarkTool
+
+[CustomBuildSystem][BuildConfig15][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig15][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BenchmarkTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig15][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BenchmarkTool Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig16]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BlankProgram-Linux-Debug
+
+[CustomBuildSystem][BuildConfig16][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig16][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BlankProgram Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig16][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig17]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BlankProgram-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig17][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig17][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BlankProgram Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig17][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig18]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BlankProgram-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig18][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig18][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BlankProgram Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig18][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig19]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BlankProgram-Linux-Test
+
+[CustomBuildSystem][BuildConfig19][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig19][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BlankProgram Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig19][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig20]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BlankProgram
+
+[CustomBuildSystem][BuildConfig20][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig20][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BlankProgram Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig20][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BlankProgram Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig21]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildPatchTool-Linux-Debug
+
+[CustomBuildSystem][BuildConfig21][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig21][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BuildPatchTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig21][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig22]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildPatchTool-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig22][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig22][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BuildPatchTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig22][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig23]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildPatchTool-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig23][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig23][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BuildPatchTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig23][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig24]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildPatchTool-Linux-Test
+
+[CustomBuildSystem][BuildConfig24][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig24][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BuildPatchTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig24][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig25]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BuildPatchTool
+
+[CustomBuildSystem][BuildConfig25][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig25][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BuildPatchTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig25][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BuildPatchTool Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig26]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClient-Linux-Debug
+
+[CustomBuildSystem][BuildConfig26][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig26][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClient Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig26][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig27]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClient-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig27][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig27][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClient Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig27][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig28]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClient-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig28][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig28][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClient Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig28][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig29]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClient-Linux-Test
+
+[CustomBuildSystem][BuildConfig29][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig29][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClient Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig29][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig30]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClient
+
+[CustomBuildSystem][BuildConfig30][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig30][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClient Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig30][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClient Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig31]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClientEditor-Linux-Debug
+
+[CustomBuildSystem][BuildConfig31][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig31][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClientEditor Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig31][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig32]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClientEditor-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig32][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig32][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClientEditor Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig32][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig33]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClientEditor-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig33][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig33][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClientEditor Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig33][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig34]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClientEditor-Linux-Test
+
+[CustomBuildSystem][BuildConfig34][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig34][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClientEditor Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig34][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig35]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=CrashReportClientEditor
+
+[CustomBuildSystem][BuildConfig35][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig35][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  CrashReportClientEditor Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig35][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  CrashReportClientEditor Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig36]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithCADWorker-Linux-Debug
+
+[CustomBuildSystem][BuildConfig36][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig36][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithCADWorker Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig36][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig37]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithCADWorker-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig37][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig37][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithCADWorker Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig37][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig38]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithCADWorker-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig38][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig38][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithCADWorker Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig38][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig39]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithCADWorker-Linux-Test
+
+[CustomBuildSystem][BuildConfig39][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig39][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithCADWorker Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig39][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig40]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithCADWorker
+
+[CustomBuildSystem][BuildConfig40][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig40][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithCADWorker Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig40][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithCADWorker Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig41]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithFacadeCSharp-Linux-Debug
+
+[CustomBuildSystem][BuildConfig41][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig41][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithFacadeCSharp Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig41][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig42]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithFacadeCSharp-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig42][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig42][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithFacadeCSharp Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig42][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig43]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithFacadeCSharp-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig43][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig43][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithFacadeCSharp Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig43][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig44]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithFacadeCSharp-Linux-Test
+
+[CustomBuildSystem][BuildConfig44][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig44][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithFacadeCSharp Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig44][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig45]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithFacadeCSharp
+
+[CustomBuildSystem][BuildConfig45][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig45][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithFacadeCSharp Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig45][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithFacadeCSharp Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig46]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2016-Linux-Debug
+
+[CustomBuildSystem][BuildConfig46][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig46][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2016 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig46][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig47]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2016-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig47][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig47][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2016 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig47][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig48]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2016-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig48][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig48][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2016 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig48][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig49]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2016-Linux-Test
+
+[CustomBuildSystem][BuildConfig49][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig49][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2016 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig49][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig50]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2016
+
+[CustomBuildSystem][BuildConfig50][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig50][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2016 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig50][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2016 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig51]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2017-Linux-Debug
+
+[CustomBuildSystem][BuildConfig51][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig51][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2017 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig51][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig52]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2017-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig52][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig52][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2017 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig52][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig53]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2017-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig53][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig53][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2017 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig53][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig54]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2017-Linux-Test
+
+[CustomBuildSystem][BuildConfig54][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig54][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2017 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig54][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig55]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2017
+
+[CustomBuildSystem][BuildConfig55][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig55][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2017 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig55][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2017 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig56]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2018-Linux-Debug
+
+[CustomBuildSystem][BuildConfig56][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig56][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig56][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig57]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2018-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig57][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig57][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig57][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig58]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2018-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig58][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig58][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig58][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig59]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2018-Linux-Test
+
+[CustomBuildSystem][BuildConfig59][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig59][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig59][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig60]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2018
+
+[CustomBuildSystem][BuildConfig60][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig60][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig60][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2018 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig61]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2019-Linux-Debug
+
+[CustomBuildSystem][BuildConfig61][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig61][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig61][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig62]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2019-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig62][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig62][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig62][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig63]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2019-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig63][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig63][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig63][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig64]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2019-Linux-Test
+
+[CustomBuildSystem][BuildConfig64][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig64][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig64][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig65]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2019
+
+[CustomBuildSystem][BuildConfig65][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig65][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig65][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2019 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig66]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2020-Linux-Debug
+
+[CustomBuildSystem][BuildConfig66][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig66][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig66][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig67]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2020-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig67][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig67][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig67][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig68]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2020-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig68][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig68][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig68][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig69]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2020-Linux-Test
+
+[CustomBuildSystem][BuildConfig69][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig69][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig69][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig70]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2020
+
+[CustomBuildSystem][BuildConfig70][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig70][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig70][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2020 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig71]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2021-Linux-Debug
+
+[CustomBuildSystem][BuildConfig71][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig71][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2021 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig71][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig72]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2021-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig72][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig72][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2021 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig72][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig73]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2021-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig73][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig73][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2021 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig73][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig74]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2021-Linux-Test
+
+[CustomBuildSystem][BuildConfig74][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig74][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2021 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig74][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig75]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithMax2021
+
+[CustomBuildSystem][BuildConfig75][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig75][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithMax2021 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig75][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithMax2021 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig76]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2019-Linux-Debug
+
+[CustomBuildSystem][BuildConfig76][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig76][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig76][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig77]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2019-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig77][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig77][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig77][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig78]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2019-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig78][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig78][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig78][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig79]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2019-Linux-Test
+
+[CustomBuildSystem][BuildConfig79][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig79][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig79][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig80]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2019
+
+[CustomBuildSystem][BuildConfig80][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig80][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig80][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2019 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig81]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2020-Linux-Debug
+
+[CustomBuildSystem][BuildConfig81][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig81][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig81][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig82]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2020-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig82][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig82][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig82][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig83]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2020-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig83][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig83][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig83][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig84]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2020-Linux-Test
+
+[CustomBuildSystem][BuildConfig84][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig84][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig84][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig85]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithNavisworks2020
+
+[CustomBuildSystem][BuildConfig85][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig85][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithNavisworks2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig85][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithNavisworks2020 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig86]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2018-Linux-Debug
+
+[CustomBuildSystem][BuildConfig86][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig86][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig86][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig87]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2018-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig87][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig87][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig87][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig88]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2018-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig88][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig88][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig88][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig89]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2018-Linux-Test
+
+[CustomBuildSystem][BuildConfig89][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig89][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig89][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig90]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2018
+
+[CustomBuildSystem][BuildConfig90][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig90][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig90][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2018 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig91]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2019-Linux-Debug
+
+[CustomBuildSystem][BuildConfig91][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig91][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig91][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig92]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2019-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig92][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig92][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig92][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig93]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2019-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig93][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig93][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig93][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig94]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2019-Linux-Test
+
+[CustomBuildSystem][BuildConfig94][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig94][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig94][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig95]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2019
+
+[CustomBuildSystem][BuildConfig95][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig95][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig95][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2019 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig96]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2020-Linux-Debug
+
+[CustomBuildSystem][BuildConfig96][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig96][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig96][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig97]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2020-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig97][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig97][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig97][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig98]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2020-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig98][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig98][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig98][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig99]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2020-Linux-Test
+
+[CustomBuildSystem][BuildConfig99][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig99][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig99][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig100]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2020
+
+[CustomBuildSystem][BuildConfig100][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig100][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig100][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2020 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig101]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2021-Linux-Debug
+
+[CustomBuildSystem][BuildConfig101][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig101][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2021 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig101][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig102]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2021-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig102][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig102][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2021 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig102][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig103]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2021-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig103][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig103][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2021 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig103][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig104]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2021-Linux-Test
+
+[CustomBuildSystem][BuildConfig104][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig104][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2021 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig104][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig105]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRevit2021
+
+[CustomBuildSystem][BuildConfig105][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig105][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRevit2021 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig105][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRevit2021 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig106]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRhino6-Linux-Debug
+
+[CustomBuildSystem][BuildConfig106][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig106][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRhino6 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig106][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig107]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRhino6-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig107][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig107][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRhino6 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig107][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig108]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRhino6-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig108][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig108][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRhino6 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig108][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig109]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRhino6-Linux-Test
+
+[CustomBuildSystem][BuildConfig109][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig109][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRhino6 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig109][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig110]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithRhino6
+
+[CustomBuildSystem][BuildConfig110][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig110][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithRhino6 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig110][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithRhino6 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig111]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSDK-Linux-Debug
+
+[CustomBuildSystem][BuildConfig111][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig111][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSDK Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig111][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig112]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSDK-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig112][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig112][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSDK Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig112][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig113]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSDK-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig113][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig113][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSDK Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig113][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig114]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSDK-Linux-Test
+
+[CustomBuildSystem][BuildConfig114][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig114][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSDK Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig114][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig115]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSDK
+
+[CustomBuildSystem][BuildConfig115][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig115][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSDK Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig115][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSDK Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig116]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2017-Linux-Debug
+
+[CustomBuildSystem][BuildConfig116][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig116][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2017 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig116][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig117]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2017-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig117][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig117][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2017 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig117][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig118]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2017-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig118][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig118][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2017 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig118][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig119]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2017-Linux-Test
+
+[CustomBuildSystem][BuildConfig119][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig119][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2017 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig119][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig120]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2017
+
+[CustomBuildSystem][BuildConfig120][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig120][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2017 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig120][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2017 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig121]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2018-Linux-Debug
+
+[CustomBuildSystem][BuildConfig121][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig121][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2018 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig121][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig122]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2018-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig122][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig122][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2018 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig122][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig123]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2018-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig123][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig123][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2018 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig123][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig124]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2018-Linux-Test
+
+[CustomBuildSystem][BuildConfig124][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig124][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2018 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig124][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig125]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2018
+
+[CustomBuildSystem][BuildConfig125][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig125][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2018 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig125][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2018 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig126]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2019-Linux-Debug
+
+[CustomBuildSystem][BuildConfig126][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig126][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2019 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig126][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig127]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2019-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig127][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig127][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2019 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig127][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig128]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2019-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig128][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig128][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2019 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig128][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig129]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2019-Linux-Test
+
+[CustomBuildSystem][BuildConfig129][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig129][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2019 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig129][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig130]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2019
+
+[CustomBuildSystem][BuildConfig130][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig130][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2019 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig130][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2019 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig131]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2020-Linux-Debug
+
+[CustomBuildSystem][BuildConfig131][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig131][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2020 Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig131][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig132]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2020-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig132][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig132][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2020 Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig132][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig133]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2020-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig133][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig133][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2020 Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig133][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig134]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2020-Linux-Test
+
+[CustomBuildSystem][BuildConfig134][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig134][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2020 Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig134][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig135]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DatasmithSketchUp2020
+
+[CustomBuildSystem][BuildConfig135][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig135][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DatasmithSketchUp2020 Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig135][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DatasmithSketchUp2020 Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig136]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=HeadlessChaos-Linux-Debug
+
+[CustomBuildSystem][BuildConfig136][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig136][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  HeadlessChaos Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig136][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig137]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=HeadlessChaos-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig137][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig137][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  HeadlessChaos Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig137][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig138]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=HeadlessChaos-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig138][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig138][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  HeadlessChaos Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig138][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig139]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=HeadlessChaos-Linux-Test
+
+[CustomBuildSystem][BuildConfig139][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig139][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  HeadlessChaos Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig139][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig140]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=HeadlessChaos
+
+[CustomBuildSystem][BuildConfig140][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig140][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  HeadlessChaos Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig140][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  HeadlessChaos Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig141]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLaunchDaemon-Linux-Debug
+
+[CustomBuildSystem][BuildConfig141][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig141][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLaunchDaemon Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig141][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig142]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLaunchDaemon-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig142][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig142][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLaunchDaemon Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig142][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig143]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLaunchDaemon-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig143][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig143][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLaunchDaemon Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig143][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig144]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLaunchDaemon-Linux-Test
+
+[CustomBuildSystem][BuildConfig144][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig144][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLaunchDaemon Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig144][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig145]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLaunchDaemon
+
+[CustomBuildSystem][BuildConfig145][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig145][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLaunchDaemon Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig145][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLaunchDaemon Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig146]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=LiveCodingConsole-Linux-Debug
+
+[CustomBuildSystem][BuildConfig146][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig146][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  LiveCodingConsole Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig146][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig147]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=LiveCodingConsole-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig147][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig147][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  LiveCodingConsole Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig147][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig148]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=LiveCodingConsole-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig148][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig148][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  LiveCodingConsole Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig148][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig149]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=LiveCodingConsole-Linux-Test
+
+[CustomBuildSystem][BuildConfig149][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig149][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  LiveCodingConsole Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig149][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig150]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=LiveCodingConsole
+
+[CustomBuildSystem][BuildConfig150][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig150][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  LiveCodingConsole Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig150][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  LiveCodingConsole Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig151]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DsymExporter-Linux-Debug
+
+[CustomBuildSystem][BuildConfig151][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig151][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DsymExporter Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig151][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig152]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DsymExporter-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig152][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig152][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DsymExporter Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig152][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig153]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DsymExporter-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig153][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig153][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DsymExporter Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig153][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig154]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DsymExporter-Linux-Test
+
+[CustomBuildSystem][BuildConfig154][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig154][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DsymExporter Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig154][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig155]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=DsymExporter
+
+[CustomBuildSystem][BuildConfig155][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig155][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  DsymExporter Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig155][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  DsymExporter Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig156]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4EditorServices-Linux-Debug
+
+[CustomBuildSystem][BuildConfig156][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig156][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4EditorServices Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig156][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig157]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4EditorServices-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig157][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig157][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4EditorServices Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig157][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig158]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4EditorServices-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig158][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig158][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4EditorServices Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig158][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig159]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4EditorServices-Linux-Test
+
+[CustomBuildSystem][BuildConfig159][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig159][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4EditorServices Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig159][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig160]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4EditorServices
+
+[CustomBuildSystem][BuildConfig160][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig160][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4EditorServices Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig160][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4EditorServices Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig161]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealAtoS-Linux-Debug
+
+[CustomBuildSystem][BuildConfig161][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig161][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealAtoS Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig161][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig162]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealAtoS-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig162][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig162][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealAtoS Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig162][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig163]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealAtoS-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig163][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig163][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealAtoS Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig163][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig164]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealAtoS-Linux-Test
+
+[CustomBuildSystem][BuildConfig164][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig164][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealAtoS Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig164][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig165]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealAtoS
+
+[CustomBuildSystem][BuildConfig165][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig165][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealAtoS Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig165][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealAtoS Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig166]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=ShaderCompileWorker-Linux-Debug
+
+[CustomBuildSystem][BuildConfig166][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig166][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  ShaderCompileWorker Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig166][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig167]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=ShaderCompileWorker-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig167][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig167][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  ShaderCompileWorker Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig167][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig168]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=ShaderCompileWorker-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig168][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig168][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  ShaderCompileWorker Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig168][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig169]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=ShaderCompileWorker-Linux-Test
+
+[CustomBuildSystem][BuildConfig169][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig169][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  ShaderCompileWorker Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig169][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig170]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=ShaderCompileWorker
+
+[CustomBuildSystem][BuildConfig170][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig170][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  ShaderCompileWorker Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig170][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  ShaderCompileWorker Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig171]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SlateViewer-Linux-Debug
+
+[CustomBuildSystem][BuildConfig171][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig171][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SlateViewer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig171][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig172]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SlateViewer-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig172][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig172][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SlateViewer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig172][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig173]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SlateViewer-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig173][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig173][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SlateViewer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig173][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig174]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SlateViewer-Linux-Test
+
+[CustomBuildSystem][BuildConfig174][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig174][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SlateViewer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig174][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig175]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SlateViewer
+
+[CustomBuildSystem][BuildConfig175][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig175][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SlateViewer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig175][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SlateViewer Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig176]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SwitchboardListener-Linux-Debug
+
+[CustomBuildSystem][BuildConfig176][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig176][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SwitchboardListener Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig176][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig177]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SwitchboardListener-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig177][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig177][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SwitchboardListener Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig177][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig178]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SwitchboardListener-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig178][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig178][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SwitchboardListener Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig178][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig179]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SwitchboardListener-Linux-Test
+
+[CustomBuildSystem][BuildConfig179][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig179][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SwitchboardListener Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig179][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig180]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=SwitchboardListener
+
+[CustomBuildSystem][BuildConfig180][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig180][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  SwitchboardListener Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig180][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  SwitchboardListener Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig181]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TestPAL-Linux-Debug
+
+[CustomBuildSystem][BuildConfig181][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig181][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TestPAL Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig181][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig182]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TestPAL-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig182][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig182][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TestPAL Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig182][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig183]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TestPAL-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig183][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig183][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TestPAL Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig183][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig184]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TestPAL-Linux-Test
+
+[CustomBuildSystem][BuildConfig184][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig184][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TestPAL Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig184][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig185]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TestPAL
+
+[CustomBuildSystem][BuildConfig185][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig185][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TestPAL Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig185][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TestPAL Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig186]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TextureShareSDK-Linux-Debug
+
+[CustomBuildSystem][BuildConfig186][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig186][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TextureShareSDK Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig186][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig187]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TextureShareSDK-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig187][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig187][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TextureShareSDK Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig187][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig188]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TextureShareSDK-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig188][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig188][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TextureShareSDK Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig188][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig189]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TextureShareSDK-Linux-Test
+
+[CustomBuildSystem][BuildConfig189][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig189][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TextureShareSDK Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig189][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig190]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=TextureShareSDK
+
+[CustomBuildSystem][BuildConfig190][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig190][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  TextureShareSDK Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig190][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  TextureShareSDK Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig191]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealCEFSubProcess-Linux-Debug
+
+[CustomBuildSystem][BuildConfig191][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig191][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealCEFSubProcess Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig191][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig192]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealCEFSubProcess-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig192][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig192][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealCEFSubProcess Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig192][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig193]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealCEFSubProcess-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig193][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig193][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealCEFSubProcess Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig193][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig194]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealCEFSubProcess-Linux-Test
+
+[CustomBuildSystem][BuildConfig194][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig194][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealCEFSubProcess Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig194][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig195]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealCEFSubProcess
+
+[CustomBuildSystem][BuildConfig195][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig195][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealCEFSubProcess Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig195][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealCEFSubProcess Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig196]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFileServer-Linux-Debug
+
+[CustomBuildSystem][BuildConfig196][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig196][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFileServer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig196][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig197]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFileServer-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig197][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig197][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFileServer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig197][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig198]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFileServer-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig198][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig198][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFileServer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig198][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig199]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFileServer-Linux-Test
+
+[CustomBuildSystem][BuildConfig199][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig199][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFileServer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig199][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig200]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFileServer
+
+[CustomBuildSystem][BuildConfig200][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig200][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFileServer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig200][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFileServer Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig201]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFrontend-Linux-Debug
+
+[CustomBuildSystem][BuildConfig201][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig201][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFrontend Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig201][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig202]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFrontend-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig202][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig202][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFrontend Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig202][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig203]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFrontend-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig203][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig203][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFrontend Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig203][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig204]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFrontend-Linux-Test
+
+[CustomBuildSystem][BuildConfig204][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig204][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFrontend Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig204][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig205]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealFrontend
+
+[CustomBuildSystem][BuildConfig205][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig205][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealFrontend Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig205][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealFrontend Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig206]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealHeaderTool-Linux-Debug
+
+[CustomBuildSystem][BuildConfig206][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig206][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealHeaderTool Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig206][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig207]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealHeaderTool-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig207][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig207][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealHeaderTool Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig207][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig208]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealHeaderTool-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig208][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig208][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealHeaderTool Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig208][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig209]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealHeaderTool-Linux-Test
+
+[CustomBuildSystem][BuildConfig209][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig209][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealHeaderTool Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig209][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig210]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealHeaderTool
+
+[CustomBuildSystem][BuildConfig210][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig210][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealHeaderTool Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig210][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealHeaderTool Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig211]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealInsights-Linux-Debug
+
+[CustomBuildSystem][BuildConfig211][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig211][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealInsights Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig211][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig212]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealInsights-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig212][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig212][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealInsights Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig212][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig213]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealInsights-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig213][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig213][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealInsights Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig213][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig214]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealInsights-Linux-Test
+
+[CustomBuildSystem][BuildConfig214][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig214][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealInsights Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig214][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig215]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealInsights
+
+[CustomBuildSystem][BuildConfig215][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig215][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealInsights Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig215][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealInsights Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig216]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLightmass-Linux-Debug
+
+[CustomBuildSystem][BuildConfig216][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig216][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLightmass Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig216][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig217]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLightmass-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig217][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig217][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLightmass Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig217][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig218]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLightmass-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig218][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig218][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLightmass Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig218][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig219]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLightmass-Linux-Test
+
+[CustomBuildSystem][BuildConfig219][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig219][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLightmass Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig219][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig220]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealLightmass
+
+[CustomBuildSystem][BuildConfig220][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig220][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealLightmass Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig220][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealLightmass Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig221]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealMultiUserServer-Linux-Debug
+
+[CustomBuildSystem][BuildConfig221][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig221][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealMultiUserServer Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig221][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig222]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealMultiUserServer-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig222][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig222][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealMultiUserServer Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig222][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig223]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealMultiUserServer-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig223][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig223][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealMultiUserServer Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig223][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig224]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealMultiUserServer-Linux-Test
+
+[CustomBuildSystem][BuildConfig224][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig224][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealMultiUserServer Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig224][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig225]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealMultiUserServer
+
+[CustomBuildSystem][BuildConfig225][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig225][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealMultiUserServer Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig225][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealMultiUserServer Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig226]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealPak-Linux-Debug
+
+[CustomBuildSystem][BuildConfig226][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig226][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealPak Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig226][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig227]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealPak-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig227][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig227][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealPak Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig227][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig228]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealPak-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig228][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig228][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealPak Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig228][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig229]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealPak-Linux-Test
+
+[CustomBuildSystem][BuildConfig229][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig229][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealPak Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig229][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig230]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealPak
+
+[CustomBuildSystem][BuildConfig230][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig230][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealPak Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig230][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealPak Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig231]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealRecoverySvc-Linux-Debug
+
+[CustomBuildSystem][BuildConfig231][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig231][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealRecoverySvc Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig231][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig232]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealRecoverySvc-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig232][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig232][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealRecoverySvc Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig232][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig233]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealRecoverySvc-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig233][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig233][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealRecoverySvc Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig233][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig234]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealRecoverySvc-Linux-Test
+
+[CustomBuildSystem][BuildConfig234][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig234][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealRecoverySvc Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig234][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig235]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealRecoverySvc
+
+[CustomBuildSystem][BuildConfig235][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig235][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealRecoverySvc Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig235][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealRecoverySvc Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig236]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealVersionSelector-Linux-Debug
+
+[CustomBuildSystem][BuildConfig236][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig236][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealVersionSelector Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig236][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig237]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealVersionSelector-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig237][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig237][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealVersionSelector Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig237][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig238]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealVersionSelector-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig238][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig238][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealVersionSelector Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig238][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig239]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealVersionSelector-Linux-Test
+
+[CustomBuildSystem][BuildConfig239][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig239][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealVersionSelector Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig239][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig240]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UnrealVersionSelector
+
+[CustomBuildSystem][BuildConfig240][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig240][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UnrealVersionSelector Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig240][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UnrealVersionSelector Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig241]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BootstrapPackagedGame-Linux-Debug
+
+[CustomBuildSystem][BuildConfig241][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig241][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BootstrapPackagedGame Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig241][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig242]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BootstrapPackagedGame-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig242][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig242][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BootstrapPackagedGame Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig242][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig243]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BootstrapPackagedGame-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig243][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig243][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BootstrapPackagedGame Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig243][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig244]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BootstrapPackagedGame-Linux-Test
+
+[CustomBuildSystem][BuildConfig244][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig244][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BootstrapPackagedGame Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig244][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig245]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=BootstrapPackagedGame
+
+[CustomBuildSystem][BuildConfig245][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig245][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  BootstrapPackagedGame Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig245][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  BootstrapPackagedGame Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig246]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Client-Linux-Debug
+
+[CustomBuildSystem][BuildConfig246][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig246][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Client Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig246][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig247]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Client-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig247][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig247][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Client Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig247][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig248]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Client-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig248][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig248][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Client Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig248][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig249]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Client-Linux-Test
+
+[CustomBuildSystem][BuildConfig249][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig249][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Client Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig249][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig250]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Client
+
+[CustomBuildSystem][BuildConfig250][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig250][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Client Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig250][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Client Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig251]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Editor-Linux-Debug
+
+[CustomBuildSystem][BuildConfig251][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig251][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Editor Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig251][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig252]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Editor-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig252][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig252][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Editor Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig252][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig253]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Editor-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig253][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig253][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Editor Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig253][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig254]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Editor-Linux-Test
+
+[CustomBuildSystem][BuildConfig254][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig254][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Editor Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig254][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig255]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Editor
+
+[CustomBuildSystem][BuildConfig255][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig255][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Editor Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig255][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Editor Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig256]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Game-Linux-Debug
+
+[CustomBuildSystem][BuildConfig256][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig256][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Game Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig256][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig257]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Game-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig257][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig257][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Game Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig257][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig258]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Game-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig258][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig258][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Game Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig258][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig259]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Game-Linux-Test
+
+[CustomBuildSystem][BuildConfig259][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig259][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Game Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig259][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig260]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Game
+
+[CustomBuildSystem][BuildConfig260][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig260][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Game Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig260][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Game Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig261]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Server-Linux-Debug
+
+[CustomBuildSystem][BuildConfig261][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig261][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Server Linux Debug
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig261][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Debug -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig262]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Server-Linux-DebugGame
+
+[CustomBuildSystem][BuildConfig262][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig262][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Server Linux DebugGame
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig262][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux DebugGame -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig263]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Server-Linux-Shipping
+
+[CustomBuildSystem][BuildConfig263][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig263][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Server Linux Shipping
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig263][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Shipping -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig264]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Server-Linux-Test
+
+[CustomBuildSystem][BuildConfig264][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig264][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Server Linux Test
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig264][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Test -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[CustomBuildSystem][BuildConfig265]
+BuildDir=file:///mnt/data1/tianle/carla_ue4
+Title=UE4Server
+
+[CustomBuildSystem][BuildConfig265][ToolBuild]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=0
+
+[CustomBuildSystem][BuildConfig265][ToolConfigure]
+Arguments=./GenerateProjectFiles.sh  UE4Server Linux Development
+Enabled=true
+Environment=
+Executable=bash
+Type=1
+
+[CustomBuildSystem][BuildConfig265][ToolClean]
+Arguments=Engine/Build/BatchFiles/Linux/Build.sh  UE4Server Linux Development -clean
+Enabled=true
+Environment=
+Executable=bash
+Type=3
+
+[Filters]
+size=30
+
+[Filters][0]
+inclusive=0
+pattern=.*
+targets=3
+
+[Filters][1]
+inclusive=0
+pattern=.git
+targets=2
+
+[Filters][10]
+inclusive=0
+pattern=*.o
+targets=1
+
+[Filters][11]
+inclusive=0
+pattern=*.a
+targets=1
+
+[Filters][12]
+inclusive=0
+pattern=*.so
+targets=1
+
+[Filters][13]
+inclusive=0
+pattern=*.so.*
+targets=1
+
+[Filters][14]
+inclusive=0
+pattern=moc_*.cpp
+targets=1
+
+[Filters][15]
+inclusive=0
+pattern=*.moc
+targets=1
+
+[Filters][16]
+inclusive=0
+pattern=ui_*.h
+targets=1
+
+[Filters][17]
+inclusive=0
+pattern=qrc_*.cpp
+targets=1
+
+[Filters][18]
+inclusive=0
+pattern=*~
+targets=1
+
+[Filters][19]
+inclusive=0
+pattern=*.orig
+targets=1
+
+[Filters][2]
+inclusive=0
+pattern=CVS
+targets=2
+
+[Filters][20]
+inclusive=0
+pattern=.*.kate-swp
+targets=1
+
+[Filters][21]
+inclusive=0
+pattern=.*.swp
+targets=1
+
+[Filters][22]
+inclusive=0
+pattern=*.pyc
+targets=1
+
+[Filters][23]
+inclusive=0
+pattern=*.pyo
+targets=1
+
+[Filters][24]
+inclusive=0
+pattern=Engine/Intermediate
+targets=2
+
+[Filters][25]
+inclusive=0
+pattern=*PCH.h
+targets=1
+
+[Filters][26]
+inclusive=0
+pattern=*.gch
+targets=1
+
+[Filters][27]
+inclusive=0
+pattern=*.generated.h
+targets=1
+
+[Filters][28]
+inclusive=0
+pattern=Intermediate
+targets=2
+
+[Filters][3]
+inclusive=0
+pattern=.svn
+targets=2
+
+[Filters][4]
+inclusive=0
+pattern=_svn
+targets=2
+
+[Filters][5]
+inclusive=0
+pattern=SCCS
+targets=2
+
+[Filters][6]
+inclusive=0
+pattern=_darcs
+targets=2
+
+[Filters][7]
+inclusive=0
+pattern=.hg
+targets=2
+
+[Filters][8]
+inclusive=0
+pattern=.bzr
+targets=2
+
+[Filters][9]
+inclusive=0
+pattern=__pycache__
+targets=2
+
+[Filters][29]
+inclusive=0
+pattern=Engine/Source/ThirdParty
+targets=2
+

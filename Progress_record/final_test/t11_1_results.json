@@ -1,0 +1,41 @@
+[
+  {
+    "carla_vehicles": 5,
+    "carla_cam_frames": 76,
+    "carla_ok": true,
+    "takeoff_alt": 3.53,
+    "fly_pos": [
+      22.7,
+      0.2,
+      -10.5
+    ],
+    "img_brightness": 176.6,
+    "airsim_ok": true
+  },
+  {
+    "carla_vehicles": 5,
+    "carla_cam_frames": 75,
+    "carla_ok": true,
+    "takeoff_alt": 3.53,
+    "fly_pos": [
+      22.6,
+      0.2,
+      -10.5
+    ],
+    "img_brightness": 174.7,
+    "airsim_ok": true
+  },
+  {
+    "carla_vehicles": 5,
+    "carla_cam_frames": 77,
+    "carla_ok": true,
+    "takeoff_alt": 3.55,
+    "fly_pos": [
+      22.6,
+      0.2,
+      -10.5
+    ],
+    "img_brightness": 175.7,
+    "airsim_ok": true
+  }
+]

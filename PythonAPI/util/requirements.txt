@@ -1,0 +1,8 @@
+numpy<2.0.0
+psutil
+py-cpuinfo
+GPUtil
+pygame
+python-tr
+imageio
+

@@ -1,0 +1,32 @@
+[
+  {
+    "test_id": "T10.1",
+    "status": "PASS",
+    "details": "5 docs checked"
+  },
+  {
+    "test_id": "T10.2",
+    "status": "PASS",
+    "details": "14 scripts"
+  },
+  {
+    "test_id": "T10.3",
+    "status": "PASS",
+    "details": "PythonAPI available"
+  },
+  {
+    "test_id": "T10.4",
+    "status": "PASS",
+    "details": "Package verified"
+  },
+  {
+    "test_id": "T10.5",
+    "status": "PASS",
+    "details": "13 videos, 3143MB"
+  },
+  {
+    "test_id": "T10.6",
+    "status": "PASS",
+    "details": "Launchers available"
+  }
+]

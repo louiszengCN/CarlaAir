@@ -1,0 +1,20 @@
+[
+  {
+    "name": "5sensor_10min",
+    "n": 5,
+    "tick": 0.1,
+    "dur": "10min",
+    "status": "PASS",
+    "frames": 24866,
+    "vram_delta": 228
+  },
+  {
+    "name": "6sensor_10min",
+    "n": 6,
+    "tick": 0.1,
+    "dur": "10min",
+    "status": "PASS",
+    "frames": 59053,
+    "vram_delta": 17
+  }
+]

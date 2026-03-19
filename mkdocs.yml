@@ -1,0 +1,72 @@
+site_name: CARLA Simulator
+repo_url: https://github.com/carla-simulator/carla
+docs_dir: Docs
+edit_uri: 'edit/master/Docs/'
+theme: readthedocs
+extra_javascript: [extra.js]
+
+nav:
+- Home: 'index.md'
+- Getting started:
+  - 'Introduction': 'start_introduction.md'
+  - 'Quick start package installation': 'start_quickstart.md'
+  - 'First steps' : 'tuto_first_steps.md'
+  - 'Building CARLA' : 'build_carla.md'
+
+- Next steps:
+  - 'Content authoring - maps': 'tuto_content_authoring_maps.md'  
+  - 'Content authoring - vehicles': 'tuto_content_authoring_vehicles.md'  
+  - 'Content authoring - props': 'content_authoring_props.md'  
+
+- CARLA topics:
+  - 'Coordinates and transformations': 'coordinates.md'
+  - 'Foundations': 'foundations.md'
+  - 'Actors': 'core_actors.md'
+  - 'Maps': 'core_map.md'
+  - 'Sensors and data': 'core_sensors.md'
+  - 'Traffic' : 'ts_traffic_simulation_overview.md'
+  - 'AI rendering': 'ai_rendering.md'
+  - 'Development': 'development_tutorials.md'
+  - 'Custom assets': 'custom_assets_tutorials.md'
+
+- Resources:
+  - 'Python API': 'python_api.md'
+  - 'Catalogue': 'catalogue.md'  
+  - 'C++ reference': 'ref_cpp.md'
+  - 'Blueprint library': 'bp_library.md'  
+  - 'Tutorials': 'tutorials.md'
+  - 'Extended documentation': 'ext_docs.md'
+  - 'Downloads': 'download.md'
+
+- CARLA Ecosystem:
+  - 'ANSYS': 'ecosys_ansys.md'
+  - 'AWS': 'tuto_G_rllib_integration.md'
+  - 'CarSIM': 'tuto_G_carsim_integration.md'
+  - 'Chrono': 'tuto_G_chrono.md'
+  - 'MathWorks': 'large_map_roadrunner.md'
+  - 'Inverted AI': 'inverted_ai.md'
+  - 'NVIDIA': 'nvidia.md'
+  - 'ASAM OpenDRIVE': 'adv_opendrive.md'
+  - 'PTV Vissim': 'adv_ptv.md'
+  - 'RSS': 'adv_rss.md'
+  - 'ROS': https://carla.readthedocs.io/projects/ros-bridge/en/latest/
+  - 'Scenic': 'tuto_G_scenic.md'
+  - 'SUMO': 'adv_sumo.md'
+  - 'SYNKROTRON': 'ecosys_synkrotron.md'
+
+- Contributing:
+  - 'Guidelines': 'cont_contribution_guidelines.md' 
+  - 'Coding standards': 'cont_coding_standard.md'
+  - 'Documentation standard': 'cont_doc_standard.md'
+  - '': ''
+ 
+markdown_extensions:
+  - admonition 
+  #- fenced_code
+  #- codehilite
+  #- pymdownx.superfences
+  - attr_list
+
+extra_css: 
+ - extra.css
+ 

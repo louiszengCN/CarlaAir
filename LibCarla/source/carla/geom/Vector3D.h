@@ -1,0 +1,237 @@
+// Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma
+// de Barcelona (UAB).
+//
+// This work is licensed under the terms of the MIT license.
+// For a copy, see <https://opensource.org/licenses/MIT>.
+
+#pragma once
+
+#include "carla/MsgPack.h"
+
+#include <cmath>
+#include <limits>
+#include <ostream>
+
+namespace carla {
+namespace geom {
+
+  class Vector3D {
+  public:
+
+    // =========================================================================
+    // -- Public data members --------------------------------------------------
+    // =========================================================================
+
+    float x = 0.0f;
+
+    float y = 0.0f;
+
+    float z = 0.0f;
+
+    // =========================================================================
+    // -- Constructors ---------------------------------------------------------
+    // =========================================================================
+
+    Vector3D() = default;
+
+    Vector3D(float ix, float iy, float iz)
+      : x(ix),
+        y(iy),
+        z(iz) {}
+
+    // =========================================================================
+    // -- Other methods --------------------------------------------------------
+    // =========================================================================
+
+    float SquaredLength() const {
+      return x * x + y * y + z * z;
+    }
+
+    float Length() const {
+       return std::sqrt(SquaredLength());
+    }
+
+    double ExactLength() const {
+       return std::sqrt(double(x) * x + double(y) * y + double(z) * z);
+    }
+
+    float SquaredLength2D() const {
+      return x * x + y * y;
+    }
+
+    float Length2D() const {
+      return std::sqrt(SquaredLength2D());
+    }
+
+    Vector3D Abs() const {
+       return Vector3D(abs(x), abs(y), abs(z));
+    }
+
+    Vector3D MakeUnitVectorLengthInput(const double length, const float epsilon = 2.0f * std::numeric_limits<float>::epsilon()) const {
+      if (length < epsilon) {
+        return *this;
+      }
+      const double k = 1.0 / length;
+      Vector3D result(float(x * k), float(y * k), float(z * k));
+      return result;
+    }
+
+    Vector3D MakeUnitVector(const float epsilon = 2.0f * std::numeric_limits<float>::epsilon()) const  {
+      const double length = ExactLength();
+      return MakeUnitVectorLengthInput(length, epsilon);
+    }
+
+    std::pair<Vector3D, double> GetUnitVectorAndLength() const {
+      const auto length = ExactLength();
+      const auto unit_vector = MakeUnitVectorLengthInput(length);
+      return std::make_pair(unit_vector, length);
+    }
+
+    // =========================================================================
+    // -- Arithmetic operators -------------------------------------------------
+    // =========================================================================
+
+    Vector3D &operator+=(const Vector3D &rhs) {
+      x += rhs.x;
+      y += rhs.y;
+      z += rhs.z;
+      return *this;
+    }
+
+    friend Vector3D operator+(Vector3D lhs, const Vector3D &rhs) {
+      lhs += rhs;
+      return lhs;
+    }
+
+    Vector3D &operator-=(const Vector3D &rhs) {
+      x -= rhs.x;
+      y -= rhs.y;
+      z -= rhs.z;
+      return *this;
+    }
+
+    friend Vector3D operator-(Vector3D lhs, const Vector3D &rhs) {
+      lhs -= rhs;
+      return lhs;
+    }
+
+    Vector3D& operator-=(const float f) {
+      x -= f;
+      y -= f;
+      z -= f;
+      return *this;
+    }
+
+    Vector3D &operator*=(float rhs) {
+      x *= rhs;
+      y *= rhs;
+      z *= rhs;
+      return *this;
+    }
+
+    friend Vector3D operator*(Vector3D lhs, float rhs) {
+      lhs *= rhs;
+      return lhs;
+    }
+
+    friend Vector3D operator*(float lhs, Vector3D rhs) {
+      rhs *= lhs;
+      return rhs;
+    }
+
+    Vector3D &operator/=(float rhs) {
+      x /= rhs;
+      y /= rhs;
+      z /= rhs;
+      return *this;
+    }
+
+    friend Vector3D operator/(Vector3D lhs, float rhs) {
+      lhs /= rhs;
+      return lhs;
+    }
+
+    friend Vector3D operator/(float lhs, Vector3D rhs) {
+      rhs /= lhs;
+      return rhs;
+    }
+
+    // =========================================================================
+    // -- Comparison operators -------------------------------------------------
+    // =========================================================================
+
+    bool operator==(const Vector3D &rhs) const {
+      return (x == rhs.x) && (y == rhs.y) && (z == rhs.z);
+    }
+
+    bool operator!=(const Vector3D &rhs) const {
+      return !(*this == rhs);
+    }
+
+    // =========================================================================
+    // -- Conversions to UE4 types ---------------------------------------------
+    // =========================================================================
+
+#ifdef LIBCARLA_INCLUDED_FROM_UE4
+
+    /// These 2 methods are explicitly deleted to avoid creating them by other users,
+    /// unlike locations, some vectors have units and some don't, by removing
+    /// these methods we found several places were the conversion from cm to m was missing
+    Vector3D(const FVector &v) = delete;
+    Vector3D& operator=(const FVector &rhs) = delete;
+
+    /// Return a Vector3D converted from centimeters to meters.
+    Vector3D ToMeters() const {
+      return *this * 1e-2f;
+    }
+
+    /// Return a Vector3D converted from meters to centimeters.
+    Vector3D ToCentimeters() const {
+      return *this * 1e2f;
+    }
+
+    FVector ToFVector() const {
+      return FVector{x, y, z};
+    }
+
+#endif // LIBCARLA_INCLUDED_FROM_UE4
+
+    // =========================================================================
+    /// @todo The following is copy-pasted from MSGPACK_DEFINE_ARRAY.
+    /// This is a workaround for an issue in msgpack library. The
+    /// MSGPACK_DEFINE_ARRAY macro is shadowing our `z` variable.
+    /// https://github.com/msgpack/msgpack-c/issues/709
+    // =========================================================================
+    template <typename Packer>
+    void msgpack_pack(Packer& pk) const
+    {
+        clmdep_msgpack::type::make_define_array(x, y, z).msgpack_pack(pk);
+    }
+    void msgpack_unpack(clmdep_msgpack::object const& o)
+    {
+        clmdep_msgpack::type::make_define_array(x, y, z).msgpack_unpack(o);
+    }
+    template <typename MSGPACK_OBJECT>
+    void msgpack_object(MSGPACK_OBJECT* o, clmdep_msgpack::zone& sneaky_variable_that_shadows_z) const
+    {
+        clmdep_msgpack::type::make_define_array(x, y, z).msgpack_object(o, sneaky_variable_that_shadows_z);
+    }
+    // =========================================================================
+  };
+
+
+  template <typename T>
+  static void WriteVector3D(std::ostream &out, const char *name, const T &vector3D) {
+    out << name
+        << "(x=" << std::to_string(vector3D.x)
+        << ", y=" << std::to_string(vector3D.y)
+        << ", z=" << std::to_string(vector3D.z) << ')';
+  }
+
+  inline std::ostream &operator<<(std::ostream &out, const Vector3D &vector3D) {
+    WriteVector3D(out, "Vector3D", vector3D);
+    return out;
+  }
+
+} // namespace geom
+} // namespace carla

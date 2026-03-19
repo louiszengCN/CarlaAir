@@ -1,0 +1,5 @@
+{
+  "test_D": "PASS: 5 walkers + drone, 0 moved, no crash",
+  "test_E": "PASS: 20 walkers, 15s, no crash",
+  "test_F": "PASS: 5v + 5w + drone, no crash"
+}
