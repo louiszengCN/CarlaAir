@@ -1,5 +1,15 @@
 # CarlaAir
 
+<p align="center">
+  <img src="logo_upload.png" alt="CarlaAir Logo" width="180"/>
+</p>
+
+<p align="center">
+  <img src="teaser_upload.png" alt="CarlaAir Teaser" width="100%"/>
+</p>
+
+> **CarlaAir**: A unified air-ground simulation platform integrating CARLA and AirSim.
+
 [English](README.md) | [中文](README_CN.md)
 
 **Air-Ground Co-Simulation Platform** built on CARLA 0.9.16 + AirSim, providing unified FPS drone control, realistic urban traffic, and dual-API access in a single Unreal Engine 4.26 instance.
