@@ -25,7 +25,7 @@
 </table>
 
 <p align="center">
-  <img src="teaser_upload.png" alt="CarlaAir Teaser" width="100%"/>
+  <img src="teaser_upload.gif" alt="CarlaAir Teaser" width="100%"/>
 </p>
 
 ---
