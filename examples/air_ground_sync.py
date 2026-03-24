@@ -138,6 +138,7 @@ def main():
 
         # Start driving
         tm = client.get_trafficmanager(8000)
+        tm.set_synchronous_mode(True)  # TM must match world sync mode
         tm.set_global_distance_to_leading_vehicle(2.5)
         tm.global_percentage_speed_difference(-100.0)
         tm.set_hybrid_physics_mode(True)
