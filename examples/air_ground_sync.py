@@ -192,7 +192,8 @@ def main():
                     air_client.moveToPositionAsync(nx, ny, nz, 15,
                         drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
                         yaw_mode=airsim.YawMode(False, yaw))
-            except: pass
+                except Exception:
+                    pass
 
             # Render
             display.fill((15, 15, 20))
