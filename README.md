@@ -79,13 +79,6 @@ python3 examples/quick_start_showcase.py
 
 > **What you'll see:** A Tesla cruises through the city while a drone chases it from above. A 4-panel display shows **RGB · Depth · Semantic Segmentation · LiDAR BEV** — all synchronized. Weather cycles automatically.
 
-**Want more?** Try these interactive demos:
-
-```bash
-python3 examples/drive_vehicle.py      # 🚗 Drive a Tesla with WASD
-python3 examples/walk_pedestrian.py    # 🚶 Walk the city on foot (mouse look)
-```
-
 ### Option B: Build from Source
 
 Please refer to the [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md) for detailed instructions on compiling CarlaAir with UE4.26.
@@ -94,21 +87,19 @@ Please refer to the [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md) for de
 
 ## 🐍 One Script, Two Worlds
 
-The key difference from bridge-based approaches: both APIs share the **same simulated world**. One weather call affects every sensor — on the ground and in the air.
+Both APIs share the **same simulated world** — no bridge, no sync headaches.
 
 ```python
 import carla, airsim
 
-# Two APIs, one world
 carla_client = carla.Client("localhost", 2000)
 air_client   = airsim.MultirotorClient(port=41451)
-
 world = carla_client.get_world()
 
-# Weather affects ALL sensors — ground vehicle cameras AND drone cameras
+# One weather call affects EVERY sensor — ground AND air
 world.set_weather(carla.WeatherParameters.HardRainSunset)
 
-# Spawn a car and let it drive
+# Spawn a car, let it drive
 vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 vehicle.set_autopilot(True)
 
@@ -117,13 +108,16 @@ air_client.takeoffAsync().join()
 air_client.moveToPositionAsync(80, 30, -25, 5)
 ```
 
-Try it yourself — three ready-to-run scripts included:
+**6 ready-to-run scripts** — try them all:
 
-| Script | What it does |
-|--------|-------------|
-| [`quick_start_showcase.py`](examples/quick_start_showcase.py) | 4-panel sensor display: car + drone chase + weather cycling |
-| [`drive_vehicle.py`](examples/drive_vehicle.py) | Drive a Tesla through the city with WASD |
-| [`walk_pedestrian.py`](examples/walk_pedestrian.py) | Walk the streets on foot with mouse look |
+```bash
+python3 examples/quick_start_showcase.py   # 🎬 4-panel sensors + drone chase + weather cycling
+python3 examples/drive_vehicle.py          # 🚗 Drive a Tesla with WASD
+python3 examples/walk_pedestrian.py        # 🚶 Walk the city on foot (mouse look)
+python3 examples/switch_maps.py            # 🗺️  Fly through all 13 maps automatically
+python3 examples/sensor_gallery.py         # 📸 6-grid sensor showcase on one vehicle
+python3 examples/air_ground_sync.py        # 🔄 Car + drone split-screen: same rain, same world
+```
 
 ---
 
