@@ -1,584 +1,259 @@
-# CarlaAir Quick Start Guide
+# CarlaAir Quick-Start Guide / 快速入门指南
 
-欢迎使用 **CarlaAir** — 空地一体联合仿真平台。本指南将帮助你在 10 分钟内完成从启动到运行第一个联合仿真脚本。
-
-## 目录
-
-1. [启动仿真器](#1-启动仿真器)
-2. [Hello World: 连接验证](#2-hello-world)
-3. [控制天气](#3-控制天气)
-4. [生成交通](#4-生成交通)
-5. [传感器采集](#5-传感器采集)
-6. [无人机起飞](#6-无人机起飞)
-7. [无人机传感器](#7-无人机传感器)
-8. [联合仿真：地面+空中](#8-联合仿真)
-9. [完整演示](#9-完整演示)
-10. [下一步](#10-下一步)
+欢迎使用 **CarlaAir** — 空地一体联合仿真平台。
+本指南帮助你从零开始，10 分钟内完成首次体验。
 
 ---
 
-## 1. 启动仿真器
+## Prerequisites / 前置条件
+
+在开始之前，请确认以下环境已准备好：
+
+- **Conda** — 已安装 Miniconda 或 Anaconda
+- **CarlaAir 二进制包** — 已下载并解压 CarlaAir 发行包
+- **NVIDIA GPU** — 至少 8GB 显存（Town10HD 需要约 8GB）
+- **Ubuntu 系统** — 推荐 Ubuntu 20.04 / 22.04
+
+---
+
+## Environment Setup / 环境配置
+
+使用自动化脚本一键配置 Python 环境和依赖：
 
 ```bash
-# Shipping 构建（推荐）
-cd /mnt/data1/tianle/carla_source/Dist/CARLA_Shipping_1ae5356-dirty/LinuxNoEditor
-./carla_air.sh
+# 创建 conda 环境并安装所有依赖
+bash env_setup/setup_env.sh
 
-# 或 Editor 构建（开发调试用）
-cd /mnt/data1/tianle/carla_source
-./carlaAir.sh
+# 验证环境是否正确配置
+bash env_setup/test_env.sh
 ```
 
-等待看到 "Ready! Both servers are running." 即可。
+`setup_env.sh` 会创建 `carlaAir` conda 环境，安装 CARLA Python API、AirSim、PyGame、OpenCV 等依赖。
+`test_env.sh` 会检查所有依赖是否可导入。
 
-**端口说明**:
-- CARLA API: `localhost:2000` (地面仿真：车辆、行人、天气、传感器)
-- AirSim API: `localhost:41451` (空中仿真：无人机飞行、相机)
-
----
-
-## 2. Hello World
-
-运行 `examples/01_hello_world.py` 验证连接：
-
-```python
-import carla
-import airsim
-
-# 连接 CARLA（地面仿真）
-client = carla.Client('localhost', 2000)
-client.set_timeout(10)
-world = client.get_world()
-print(f"CARLA 连接成功: {world.get_map().name}")
-print(f"可用生成点: {len(world.get_map().get_spawn_points())} 个")
-
-# 连接 AirSim（空中仿真）
-air = airsim.MultirotorClient(port=41451)
-air.confirmConnection()
-print("AirSim 连接成功: 无人机就绪")
-
-# 查看当前天气
-weather = world.get_weather()
-print(f"当前天气: 太阳高度={weather.sun_altitude_angle}°, 云量={weather.cloudiness}%")
-
-print("\nCarlaAir 已就绪！地面 + 空中 API 均可用。")
-```
-
-**预期输出**:
-```
-CARLA 连接成功: Carla/Maps/Town10HD/Town10HD
-可用生成点: 155 个
-AirSim 连接成功: 无人机就绪
-当前天气: 太阳高度=45.0°, 云量=0.0%
-
-CarlaAir 已就绪！地面 + 空中 API 均可用。
-```
-
----
-
-## 3. 控制天气
-
-CarlaAir 的天气系统支持实时切换，同时影响地面和空中视角。
-
-运行 `examples/02_weather_control.py`:
-
-```python
-import carla
-import time
-
-client = carla.Client('localhost', 2000)
-world = client.get_world()
-
-# 定义天气预设
-presets = {
-    "晴天":    {"sun_altitude_angle": 70, "cloudiness": 10},
-    "多云":    {"sun_altitude_angle": 50, "cloudiness": 80},
-    "暴雨":    {"precipitation": 100, "cloudiness": 90, "wetness": 100,
-                "precipitation_deposits": 80, "wind_intensity": 50},
-    "大雾":    {"fog_density": 80, "fog_distance": 10, "cloudiness": 60},
-    "日落":    {"sun_altitude_angle": 5, "cloudiness": 30},
-}
-
-for name, params in presets.items():
-    weather = carla.WeatherParameters()
-    for k, v in params.items():
-        setattr(weather, k, v)
-    world.set_weather(weather)
-    print(f"天气切换: {name}")
-    time.sleep(3)
-
-# 恢复晴天
-world.set_weather(carla.WeatherParameters.ClearNoon)
-print("天气已恢复为晴天")
-```
-
----
-
-## 4. 生成交通
-
-运行 `examples/03_spawn_traffic.py`:
-
-```python
-import carla
-import random
-import time
-
-client = carla.Client('localhost', 2000)
-world = client.get_world()
-bp_lib = world.get_blueprint_library()
-
-# 在城市中心附近生成车辆
-spawn_points = world.get_map().get_spawn_points()
-# 选择城市中心的生成点 (x > 55, 远离海岸)
-city_spawns = [sp for sp in spawn_points if sp.location.x > 55][:10]
-
-vehicles = []
-for sp in city_spawns:
-    bp = random.choice(bp_lib.filter('vehicle.*'))
-    if bp.has_attribute('color'):
-        bp.set_attribute('color', random.choice(bp.get_attribute('color').recommended_values))
-    v = world.try_spawn_actor(bp, sp)
-    if v:
-        v.set_autopilot(True)
-        vehicles.append(v)
-
-print(f"已生成 {len(vehicles)} 辆自动驾驶车辆")
-
-# 生成行人（静态，不使用 AI 控制器以避免崩溃）
-walkers = []
-for _ in range(15):
-    loc = world.get_random_location_from_navigation()
-    if loc:
-        bp = random.choice(bp_lib.filter('walker.pedestrian.*'))
-        if bp.has_attribute('is_invincible'):
-            bp.set_attribute('is_invincible', 'true')
-        w = world.try_spawn_actor(bp, carla.Transform(loc))
-        if w:
-            walkers.append(w)
-
-print(f"已生成 {len(walkers)} 个行人")
-
-# 观察 20 秒
-print("观察交通运行... (20秒)")
-time.sleep(20)
-
-# 清理
-for v in vehicles: v.destroy()
-for w in walkers: w.destroy()
-print("清理完成")
-```
-
----
-
-## 5. 传感器采集
-
-运行 `examples/04_sensor_capture.py`:
-
-```python
-import carla
-import numpy as np
-import cv2
-import queue
-import time
-
-client = carla.Client('localhost', 2000)
-world = client.get_world()
-bp_lib = world.get_blueprint_library()
-
-# 生成一辆带传感器的车辆
-spawn_points = world.get_map().get_spawn_points()
-vehicle = world.spawn_actor(
-    bp_lib.find('vehicle.tesla.model3'),
-    [sp for sp in spawn_points if sp.location.x > 55][0]
-)
-vehicle.set_autopilot(True)
-
-# 在车辆上安装 RGB 相机
-cam_bp = bp_lib.find('sensor.camera.rgb')
-cam_bp.set_attribute('image_size_x', '1280')
-cam_bp.set_attribute('image_size_y', '720')
-cam_bp.set_attribute('fov', '100')
-
-cam_transform = carla.Transform(carla.Location(x=1.5, z=2.0))
-camera = world.spawn_actor(cam_bp, cam_transform, attach_to=vehicle)
-
-# 采集图像
-img_queue = queue.Queue()
-camera.listen(lambda img: img_queue.put(img) if not img_queue.full() else None)
-
-print("采集 5 帧图像...")
-time.sleep(2)  # 等待传感器预热
-
-for i in range(5):
-    time.sleep(0.5)
-    try:
-        img = img_queue.get(timeout=2)
-        arr = np.frombuffer(img.raw_data, dtype=np.uint8)
-        frame = arr.reshape(img.height, img.width, 4)[:, :, :3]  # BGRA -> BGR
-        cv2.imwrite(f'/tmp/carla_frame_{i}.png', frame)
-        print(f"  保存帧 {i}: {img.width}x{img.height}")
-    except queue.Empty:
-        print(f"  帧 {i}: 超时")
-
-# 清理
-camera.stop()
-camera.destroy()
-vehicle.destroy()
-print(f"采集完成! 图像保存在 /tmp/carla_frame_*.png")
-```
-
----
-
-## 6. 无人机起飞
-
-运行 `examples/05_drone_takeoff.py`:
-
-```python
-import airsim
-import time
-
-client = airsim.MultirotorClient(port=41451)
-client.confirmConnection()
-client.enableApiControl(True)
-client.armDisarm(True)
-
-print("无人机解锁，准备起飞...")
-
-# 起飞
-client.takeoffAsync().join()
-print("已起飞!")
-
-# 飞到城市中心上空 (NED坐标: x=80向内陆, y=0, z=-30即30米高)
-print("飞往城市中心...")
-client.moveToPositionAsync(80, 0, -30, 5).join()
-print("到达城市中心上空 (高度30米)")
-
-# 获取状态
-state = client.getMultirotorState()
-pos = state.kinematics_estimated.position
-print(f"当前位置: NED({pos.x_val:.1f}, {pos.y_val:.1f}, {pos.z_val:.1f})")
-print(f"海拔高度: {abs(pos.z_val):.1f}m")
-
-# 悬停 5 秒
-print("悬停 5 秒...")
-client.hoverAsync().join()
-time.sleep(5)
-
-# 正方形飞行
-print("执行正方形航线...")
-waypoints = [
-    (90, 0, -30),   # 前方
-    (90, 10, -30),   # 右方
-    (80, 10, -30),   # 后方
-    (80, 0, -30),    # 返回起点
-]
-for i, (x, y, z) in enumerate(waypoints):
-    print(f"  航点 {i+1}/4: ({x}, {y}, {z})")
-    client.moveToPositionAsync(x, y, z, 5).join()
-
-# 降落
-print("降落中...")
-client.landAsync().join()
-client.armDisarm(False)
-client.enableApiControl(False)
-print("降落完成!")
-```
-
----
-
-## 7. 无人机传感器
-
-运行 `examples/06_drone_sensors.py`:
-
-```python
-import airsim
-import numpy as np
-import cv2
-import time
-
-client = airsim.MultirotorClient(port=41451)
-client.confirmConnection()
-client.enableApiControl(True)
-client.armDisarm(True)
-
-# 起飞并飞到城市中心
-client.takeoffAsync().join()
-client.moveToPositionAsync(80, 0, -25, 5).join()
-print("无人机已到达城市中心上空")
-
-# 采集三种图像: RGB, 深度, 语义分割
-print("采集多模态图像...")
-
-responses = client.simGetImages([
-    airsim.ImageRequest("0", airsim.ImageType.Scene, False, False),           # RGB
-    airsim.ImageRequest("0", airsim.ImageType.DepthPerspective, True, False),  # 深度 (float)
-    airsim.ImageRequest("0", airsim.ImageType.Segmentation, False, False),     # 语义分割
-])
-
-# RGB
-if responses[0].height > 0:
-    img = np.frombuffer(responses[0].image_data_uint8, dtype=np.uint8)
-    rgb = img.reshape(responses[0].height, responses[0].width, 3)
-    cv2.imwrite('/tmp/drone_rgb.png', rgb)
-    print(f"  RGB: {responses[0].width}x{responses[0].height}")
-
-# 深度
-if responses[1].height > 0:
-    depth = airsim.list_to_2d_float_array(
-        responses[1].image_data_float, responses[1].width, responses[1].height)
-    depth_vis = np.clip(depth / 100.0 * 255, 0, 255).astype(np.uint8)
-    depth_color = cv2.applyColorMap(depth_vis, cv2.COLORMAP_JET)
-    cv2.imwrite('/tmp/drone_depth.png', depth_color)
-    print(f"  Depth: range [{depth.min():.1f}, {depth.max():.1f}]m")
-
-# 语义分割
-if responses[2].height > 0:
-    img = np.frombuffer(responses[2].image_data_uint8, dtype=np.uint8)
-    seg = img.reshape(responses[2].height, responses[2].width, 3)
-    cv2.imwrite('/tmp/drone_seg.png', seg)
-    print(f"  Segmentation: {responses[2].width}x{responses[2].height}")
-
-# 降落
-client.landAsync().join()
-client.armDisarm(False)
-client.enableApiControl(False)
-print(f"\n图像保存在 /tmp/drone_*.png")
-```
-
----
-
-## 8. 联合仿真
-
-这是 CarlaAir 的核心能力：**同时操控地面车辆和空中无人机**。
-
-运行 `examples/07_combined_demo.py`:
-
-```python
-import carla
-import airsim
-import time
-import math
-
-# === 连接两个 API ===
-client_carla = carla.Client('localhost', 2000)
-client_carla.set_timeout(10)
-world = client_carla.get_world()
-
-client_air = airsim.MultirotorClient(port=41451)
-client_air.confirmConnection()
-client_air.enableApiControl(True)
-client_air.armDisarm(True)
-
-print("双 API 连接成功!")
-
-# === CARLA: 设置天气 + 生成车辆 ===
-weather = carla.WeatherParameters()
-weather.sun_altitude_angle = 45.0
-weather.cloudiness = 20.0
-world.set_weather(weather)
-
-bp_lib = world.get_blueprint_library()
-spawn_points = world.get_map().get_spawn_points()
-city_spawns = [sp for sp in spawn_points if sp.location.x > 55]
-
-vehicles = []
-for sp in city_spawns[:8]:
-    bp = bp_lib.filter('vehicle.*')[len(vehicles) % 20]
-    v = world.try_spawn_actor(bp, sp)
-    if v:
-        v.set_autopilot(True)
-        vehicles.append(v)
-print(f"CARLA: 已生成 {len(vehicles)} 辆车辆")
-
-# === AirSim: 无人机起飞 ===
-client_air.takeoffAsync().join()
-client_air.moveToPositionAsync(80, 0, -30, 5).join()
-print("AirSim: 无人机已到达城市中心上空 30m")
-
-# === 联合运行: 无人机巡航 + 地面交通 ===
-print("\n联合仿真运行中...")
-print("  - 地面: 8辆自动驾驶车辆")
-print("  - 空中: 无人机在城市上空巡航")
-
-# 无人机绕城市中心飞行
-orbit_duration = 15  # 秒
-for i in range(orbit_duration * 2):
-    t = i / (orbit_duration * 2) * 2 * math.pi
-    x = 80 + 15 * math.cos(t)
-    y = 0 + 15 * math.sin(t)
-    client_air.moveToPositionAsync(x, y, -30, 8)
-
-    # 打印状态
-    if i % 10 == 0:
-        drone_pos = client_air.getMultirotorState().kinematics_estimated.position
-        car_count = len([a for a in world.get_actors().filter('vehicle.*')])
-        print(f"  [{i//2}s] 无人机: ({drone_pos.x_val:.0f},{drone_pos.y_val:.0f},{drone_pos.z_val:.0f}), "
-              f"地面车辆: {car_count}")
-
-    time.sleep(0.5)
-
-# === 清理 ===
-print("\n清理中...")
-client_air.landAsync().join()
-client_air.armDisarm(False)
-client_air.enableApiControl(False)
-for v in vehicles:
-    v.destroy()
-
-print("联合仿真演示完成!")
-```
-
----
-
-## 9. 完整演示
-
-运行 `examples/08_full_showcase.py` 展示所有核心功能：
-
-```python
-"""
-CarlaAir 完整功能展示
-演示内容: 天气切换 → 交通生成 → 传感器采集 → 无人机飞行 → 联合巡航
-"""
-import carla
-import airsim
-import numpy as np
-import cv2
-import time
-import math
-
-# === 初始化 ===
-print("=" * 50)
-print("CarlaAir 完整功能展示")
-print("=" * 50)
-
-client = carla.Client('localhost', 2000)
-client.set_timeout(10)
-world = client.get_world()
-bp_lib = world.get_blueprint_library()
-
-air = airsim.MultirotorClient(port=41451)
-air.confirmConnection()
-air.enableApiControl(True)
-air.armDisarm(True)
-
-# === 1. 天气展示 ===
-print("\n[1/5] 天气系统")
-for name, w in [("晴天", carla.WeatherParameters.ClearNoon),
-                ("雨天", carla.WeatherParameters.HardRainNoon),
-                ("日落", carla.WeatherParameters.ClearSunset)]:
-    world.set_weather(w)
-    print(f"  天气: {name}")
-    time.sleep(2)
-world.set_weather(carla.WeatherParameters.ClearNoon)
-
-# === 2. 交通生成 ===
-print("\n[2/5] 交通系统")
-spawns = [sp for sp in world.get_map().get_spawn_points() if sp.location.x > 55]
-vehicles = []
-for sp in spawns[:8]:
-    v = world.try_spawn_actor(bp_lib.filter('vehicle.*')[len(vehicles)], sp)
-    if v:
-        v.set_autopilot(True)
-        vehicles.append(v)
-print(f"  已生成 {len(vehicles)} 辆车辆")
-
-# === 3. 地面传感器 ===
-print("\n[3/5] 地面传感器")
-cam_bp = bp_lib.find('sensor.camera.rgb')
-cam_bp.set_attribute('image_size_x', '1920')
-cam_bp.set_attribute('image_size_y', '1080')
-cam = world.spawn_actor(cam_bp,
-    carla.Transform(carla.Location(x=80, y=30, z=25), carla.Rotation(pitch=-30)))
-import queue
-q = queue.Queue(10)
-cam.listen(lambda img: q.put(img) if not q.full() else None)
-time.sleep(1)
-try:
-    img = q.get(timeout=3)
-    arr = np.frombuffer(img.raw_data, dtype=np.uint8).reshape(img.height, img.width, 4)[:,:,:3]
-    cv2.imwrite('/tmp/showcase_ground.png', arr)
-    print("  地面相机: 已保存 /tmp/showcase_ground.png")
-except: pass
-cam.stop(); cam.destroy()
-
-# === 4. 无人机飞行 ===
-print("\n[4/5] 无人机飞行")
-air.takeoffAsync().join()
-air.moveToPositionAsync(80, 0, -30, 5).join()
-print("  已飞到城市中心上空 30m")
-
-responses = air.simGetImages([
-    airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)])
-if responses[0].height > 0:
-    img = np.frombuffer(responses[0].image_data_uint8, dtype=np.uint8)
-    frame = img.reshape(responses[0].height, responses[0].width, 3)
-    cv2.imwrite('/tmp/showcase_aerial.png', frame)
-    print("  航拍相机: 已保存 /tmp/showcase_aerial.png")
-
-# === 5. 联合巡航 ===
-print("\n[5/5] 联合巡航 (10秒)")
-for i in range(20):
-    t = i / 20 * 2 * math.pi
-    air.moveToPositionAsync(80 + 12*math.cos(t), 12*math.sin(t), -30, 8)
-    time.sleep(0.5)
-
-# === 清理 ===
-print("\n清理中...")
-air.landAsync().join()
-air.armDisarm(False)
-air.enableApiControl(False)
-for v in vehicles: v.destroy()
-
-print("\n" + "=" * 50)
-print("展示完成! 核心功能:")
-print("  - CARLA 天气系统")
-print("  - CARLA 交通管理")
-print("  - CARLA 传感器采集")
-print("  - AirSim 无人机飞行")
-print("  - 地面+空中联合仿真")
-print("=" * 50)
-```
-
----
-
-## 10. 下一步
-
-### 更多示例脚本
-
-完整的示例脚本集合在 `source/python_api/examples/` 目录中，包括：
-
-| 脚本 | 功能 |
-|------|------|
-| `fly_drone_keyboard.py` | 键盘实时控制无人机 |
-| `drone_car_chase.py` | 无人机追踪地面车辆 |
-| `aerial_surveillance.py` | 无人机航拍巡逻 |
-| `data_collector.py` | 多模态数据采集 |
-| `showcase_traffic.py` | 大规模交通展示 |
-
-### 录制演示视频
+配置完成后，激活环境：
 
 ```bash
-# 运行 13 个自动录制 Demo
-cd /mnt/data1/tianle/carla_source
-bash DEMO/scripts/run_all_v2.sh
+conda activate carlaAir
 ```
 
-### CARLA Python API 参考
+---
 
-- 官方文档: https://carla.readthedocs.io/en/0.9.16/
-- 核心类: `carla.Client`, `carla.World`, `carla.Actor`, `carla.Transform`
+## Launch / 启动仿真器
 
-### AirSim Python API 参考
+```bash
+./CarlaAir.sh Town10HD
+```
 
-- 官方文档: https://microsoft.github.io/AirSim/
-- 核心类: `airsim.MultirotorClient`, `airsim.ImageRequest`
+等待看到 "Ready! Both servers are running." 即表示启动成功。
 
-### 常见问题
+**端口说明 / Ports:**
+| 服务 Service | 端口 Port | 用途 Purpose |
+|---|---|---|
+| CARLA API | `localhost:2000` | 地面仿真：车辆、行人、天气、传感器 |
+| AirSim API | `localhost:41451` | 空中仿真：无人机飞行与相机 |
 
-| 问题 | 解决方案 |
-|------|---------|
-| CARLA 连接超时 | 等待服务器启动完成（首次 2-5 分钟） |
-| AirSim 连接失败 | 检查 `~/Documents/AirSim/settings.json` |
-| 车辆穿过地面 | 这个 Bug 已修复，确保使用最新构建 |
-| Walker AI 崩溃 | 不要对 Walker 使用 `go_to_location()`，保持静态 |
-| 10+ 车辆 + 无人机崩溃 | 使用 `try_spawn_actor`，限制 autopilot 车辆 ≤8 |
+> **提示**: 首次启动需要 2-5 分钟加载资源和编译着色器，请耐心等待。
+
+---
+
+## First Experience / 首次体验
+
+启动成功后，运行你的第一个 CarlaAir 脚本：
+
+```bash
+python3 examples/quick_start_showcase.py
+```
+
+这个脚本会自动演示 CarlaAir 的核心能力：
+1. 在城市中生成一辆 Tesla，无人机起飞并锁定跟踪
+2. 车辆沿道路行驶，无人机在上方自动跟随
+3. 4 分屏传感器展示：RGB 画面 / 深度图 / 语义分割 / 无人机 FPV
+4. 天气自动循环切换（晴天、雨天、雾天、日落等）
+
+**操作 / Controls:** `N` 手动切换天气，`ESC` 退出。
+
+---
+
+## Interactive Demos / 交互式示例
+
+`examples/` 目录包含 6 个经过测试的示例脚本，涵盖 CarlaAir 的各项能力：
+
+| 脚本 Script | 功能 Description | 操作 Controls |
+|---|---|---|
+| `quick_start_showcase.py` | 全自动演示：车辆+无人机跟踪+4分屏传感器+天气循环 | `N` 切换天气, `ESC` 退出 |
+| `drive_vehicle.py` | 键盘驾驶车辆，第三人称追踪相机 | `WASD` 驾驶, `Space` 手刹, `R` 倒车, `N` 天气 |
+| `walk_pedestrian.py` | 第一人称行人漫游，鼠标控制视角 | `WASD` 行走, `Shift` 加速, `Space` 跳跃, `Mouse` 视角 |
+| `switch_maps.py` | 自动遍历所有地图，每张地图无人机飞越展示 | `N` 跳过当前地图, `ESC` 退出 |
+| `sensor_gallery.py` | 6 格传感器展示：RGB/深度/语义/实例/LiDAR/光流 | `N` 切换天气, `ESC` 退出 |
+| `air_ground_sync.py` | 左右分屏：地面车辆+空中无人机，同一世界同步天气 | `N` 切换天气, `ESC` 退出 |
+
+运行方式 / Usage:
+
+```bash
+conda activate carlaAir
+python3 examples/drive_vehicle.py
+```
+
+---
+
+## Recording Toolkit / 录制工具
+
+`examples_record_demo/` 目录提供了轨迹录制与回放工具，用于制作高质量演示视频：
+
+| 脚本 Script | 用途 Purpose |
+|---|---|
+| `record_vehicle.py` | 录制车辆行驶轨迹（键盘操控 + 轨迹保存） |
+| `record_drone.py` | 录制无人机飞行轨迹（键盘操控 + 轨迹保存） |
+| `record_walker.py` | 录制行人行走轨迹 |
+| `demo_director.py` | 读取轨迹文件，同步回放并录制高质量视频帧 |
+| `trajectory_helpers.py` | 轨迹文件的读写工具函数 |
+
+**工作流 / Workflow:**
+1. 用 `record_*.py` 脚本交互录制轨迹（保存为 JSON 文件）
+2. 用 `demo_director.py` 加载轨迹并以同步模式回放，输出帧序列
+3. 用 ffmpeg 将帧序列合成视频
+
+详见 `examples_record_demo/README.md`。
+
+---
+
+## Synchronous vs Asynchronous Mode / 同步与异步模式
+
+CarlaAir 支持两种运行模式，不同场景下需要选择合适的模式：
+
+### Asynchronous Mode / 异步模式（默认）
+
+适用于**交互式操作**：在 CarlaAir 窗口中驾驶车辆、操控无人机。
+
+- 仿真器按自身节奏推进，客户端随时读取最新状态
+- 帧率不固定，画面流畅但时间步不均匀
+- 适合：键盘驾驶、实时飞行、手动探索
+
+### Synchronous Mode / 同步模式
+
+适用于**数据采集、演示回放、视频录制**等需要精确控制的场景。
+
+- 仿真器每帧等待客户端调用 `world.tick()` 后才推进
+- 时间步固定，帧帧一致，适合录制平滑视频
+
+**同步模式配置要求 / Configuration:**
+
+```python
+# 开启同步模式
+settings = world.get_settings()
+settings.synchronous_mode = True
+settings.fixed_delta_seconds = 1.0 / 30  # 固定 30 FPS
+world.apply_settings(settings)
+
+# Traffic Manager 也需要同步
+tm = client.get_trafficmanager(8000)
+tm.set_synchronous_mode(True)
+
+# 主循环中每帧调用
+world.tick()
+```
+
+> **重要提示**: 脚本退出时**必须恢复异步模式**，否则仿真器会冻结：
+>
+> ```python
+> settings = world.get_settings()
+> settings.synchronous_mode = False
+> settings.fixed_delta_seconds = None
+> world.apply_settings(settings)
+> ```
+
+---
+
+## Coordinate Systems / 坐标系统
+
+CarlaAir 中有两套坐标系统并存，编写脚本时需注意转换：
+
+| | CARLA | AirSim (NED) |
+|---|---|---|
+| X | 向前 (East) | 向前 (North) |
+| Y | 向右 | 向右 (East) |
+| Z | **向上为正** | **向下为正** |
+
+**关键换算**: AirSim NED z = -CARLA z。例如 CARLA 中 30 米高空 = AirSim NED z = -30。
+
+两套 API 的世界原点不同，具体换算关系详见：
+`examples_record_demo/COORDINATE_SYSTEMS.md`
+
+---
+
+## Available Maps / 可用地图
+
+CarlaAir 内置 6 张城市地图：
+
+| 地图 Map | 描述 Description |
+|---|---|
+| **Town01** | 小镇，T 字路口为主，简单路网 |
+| **Town02** | 小镇，住宅区风格 |
+| **Town03** | 较大城区，环岛和隧道 |
+| **Town04** | 高速公路 + 小镇，8 字形高架桥 |
+| **Town05** | 多车道城市，方格路网 |
+| **Town10HD** | 高清滨海城市（默认地图），最丰富的场景 |
+
+启动时指定地图 / Launch with specific map:
+
+```bash
+./CarlaAir.sh Town03
+```
+
+> **关于 _Opt 变体**: 从 CARLA 官方包中可以获取 `Town01_Opt` 等优化版地图。`_Opt` 变体使用分层加载（Level Streaming），减少显存占用，适合低配 GPU。
+
+---
+
+## API Reference / API 参考
+
+### CARLA Python API (port 2000)
+
+核心类 / Core classes:
+- `carla.Client` — 连接仿真器
+- `carla.World` — 世界管理（天气、Actor、传感器）
+- `carla.Actor` — 车辆、行人、传感器等实体
+- `carla.Transform` / `carla.Location` — 位姿与坐标
+
+官方文档 / Official docs: https://carla.readthedocs.io/en/0.9.16/
+
+### AirSim Python API (port 41451)
+
+核心类 / Core classes:
+- `airsim.MultirotorClient` — 无人机控制
+- `airsim.ImageRequest` — 图像采集请求
+
+官方文档 / Official docs: https://microsoft.github.io/AirSim/
+
+---
+
+## FAQ / Troubleshooting / 常见问题
+
+### 仿真器启动相关
+
+| 问题 Problem | 解决方案 Solution |
+|---|---|
+| CARLA 连接超时 | 首次启动需要 2-5 分钟加载资源，请耐心等待。用 `ss -tlnp \| grep 2000` 检查端口 |
+| AirSim 连接失败 | AirSim 在 CARLA 之后启动，需额外等待。确认 `~/Documents/AirSim/settings.json` 存在 |
+| GPU 显存不足 | Town10HD 需约 8GB 显存。尝试更小地图（Town01）或添加 `-quality-level=Low` |
+| 帧率低 | 减少 Actor 数量，降低窗口分辨率，使用较小地图 |
+
+### 脚本运行相关
+
+| 问题 Problem | 解决方案 Solution |
+|---|---|
+| 无人机不响应指令 | 确保调用了 `enableApiControl(True)` + `armDisarm(True)` + `takeoffAsync().join()` |
+| Walker AI Controller 崩溃 | 已知限制，不要对 Walker 调用 `go_to_location()`，仅使用静态 Walker |
+| 10+ 车辆 + 无人机崩溃 | 使用 `try_spawn_actor()` 并限制 autopilot 车辆 ≤ 8 辆 |
+| 同步模式下仿真器冻结 | 脚本退出前必须恢复异步模式（见上方同步模式章节） |
+| `simSetCameraPose` 崩溃 | 在 Shipping 构建中此函数会触发 C++ abort，不要调用。用无人机 yaw + 轨道飞行替代 |
+| 车辆行驶异常/抽搐 | 使用 `hybrid_physics_mode` 启用混合物理模式 |
+| AirSim 客户端干扰无人机控制 | 使用 `examples_record_demo/record_drone.py` 进行无人机录制 |
+
+### 坐标与地图相关
+
+| 问题 Problem | 解决方案 Solution |
+|---|---|
+| 无人机位置和 CARLA 车辆位置对不上 | 两套 API 的坐标原点和 Z 轴方向不同，详见 COORDINATE_SYSTEMS.md |
+| 如何切换地图 | 启动时指定：`./CarlaAir.sh Town03` |
+| 天气变化是否影响无人机 | 是的，`set_weather()` 同时影响地面和空中视角 |
