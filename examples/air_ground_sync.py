@@ -127,13 +127,14 @@ def main():
 
         # Start driving
         tm = client.get_trafficmanager(8000)
-        tm.set_global_distance_to_leading_vehicle(3.0)
-        tm.global_percentage_speed_difference(-80.0)
+        tm.set_global_distance_to_leading_vehicle(2.5)
+        tm.global_percentage_speed_difference(-100.0)
+        tm.set_hybrid_physics_mode(True)
+        tm.set_hybrid_physics_radius(50.0)
         vehicle.set_autopilot(True, 8000)
         tm.auto_lane_change(vehicle, False)
         tm.ignore_lights_percentage(vehicle, 100)
         tm.distance_to_leading_vehicle(vehicle, 5.0)
-        tm.vehicle_percentage_speed_difference(vehicle, -80.0)
         print("  Ground vehicle + Drone — split screen ready!\n")
 
         pygame.init()
