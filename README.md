@@ -25,13 +25,13 @@
 </table>
 
 <p align="center">
-  <a href="https://github.com/louiszengCN/CarlaAir/releases/download/v0.1.7/CarlaAirTeaser_1080p.mp4">
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7">
     <img src="teaser_upload.gif" alt="CarlaAir Teaser — click to watch the full demo with Hans Zimmer soundtrack" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <i>Click the GIF or </i><a href="https://github.com/louiszengCN/CarlaAir/releases/download/v0.1.7/CarlaAirTeaser_1080p.mp4"><b>watch our 30s demo video with Hans Zimmer soundtrack</b></a> 🎵
+  <i>Click the GIF or </i><a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>watch our 30s demo video with Hans Zimmer soundtrack</b></a> 🎵
 </p>
 
 ---
