@@ -148,9 +148,12 @@ def main():
         world.set_weather(WEATHERS[0][1])
         last_weather = time.time()
         running = True
+        frame_count = 0
 
         while running:
             clock.tick(30)
+            frame_count += 1
+
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT: running = False
                 elif ev.type == pygame.KEYDOWN:
@@ -165,7 +168,22 @@ def main():
                 world.set_weather(WEATHERS[weather_idx][1])
                 last_weather = time.time()
 
-            # Drone follow
+            # Drone follow (every 5 frames — smooth, not jittery)
+            if frame_count % 5 == 0:
+                try:
+                    vt = vehicle.get_transform()
+                    yaw = vt.rotation.yaw
+                    yr = math.radians(yaw)
+                    cx = vt.location.x - DRONE_BACK * math.cos(yr)
+                    cy = vt.location.y - DRONE_BACK * math.sin(yr)
+                    cz = vt.location.z + DRONE_HEIGHT
+                    nx = cx + ox; ny = cy + oy; nz = -cz + oz
+                    air_client.moveToPositionAsync(nx, ny, nz, 15,
+                        drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
+                        yaw_mode=airsim.YawMode(False, yaw))
+                except: pass
+
+            # Drone camera follows vehicle smoothly (CARLA side, every frame is fine)
             try:
                 vt = vehicle.get_transform()
                 yaw = vt.rotation.yaw
@@ -173,12 +191,6 @@ def main():
                 cx = vt.location.x - DRONE_BACK * math.cos(yr)
                 cy = vt.location.y - DRONE_BACK * math.sin(yr)
                 cz = vt.location.z + DRONE_HEIGHT
-                nx = cx + ox; ny = cy + oy; nz = -cz + oz
-                air_client.moveToPositionAsync(nx, ny, nz, 20,
-                    drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
-                    yaw_mode=airsim.YawMode(False, yaw))
-
-                # Move drone camera to match drone view (looking down at car)
                 drone_cam.set_transform(carla.Transform(
                     carla.Location(x=cx, y=cy, z=cz),
                     carla.Rotation(pitch=-30, yaw=yaw)))
