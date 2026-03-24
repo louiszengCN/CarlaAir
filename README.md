@@ -9,7 +9,7 @@
       A unified simulation platform that brings CARLA and AirSim together —<br/>
       ground vehicles and aerial drones, one world, one script.</p>
       <p>
-        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/version-v0.1.6-blue" alt="Version"/></a>
+        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
         <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
         <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
@@ -34,6 +34,7 @@
 
 ## 🔥 News
 
+- **[2026-03]** `v0.1.7` released — VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs
 - **[2026-03]** `v0.1.6` released — Auto traffic spawn, UE4 native Sweep collision, ground clamping
 - **[2026-03]** `v0.1.5` released — 12-direction collision system, bilingual help overlay (`H`)
 - **[2026-03]** `v0.1.4` released — ROS2 validation (63 topics), first official binary release
@@ -59,9 +60,9 @@
 ### Option A: Binary Release (Recommended)
 
 ```bash
-# 1. Download and extract CarlaAir-v0.1.6
-tar xzf CarlaAir-v0.1.6.tar.gz
-cd CarlaAir-v0.1.6
+# 1. Download and extract CarlaAir-v0.1.7
+tar xzf CarlaAir-v0.1.7.tar.gz
+cd CarlaAir-v0.1.7
 
 # 2. Launch the simulator (auto-spawns traffic)
 ./CarlaAir.sh Town10HD

@@ -287,13 +287,21 @@ void ACameraDirector::inputEventBackupView()
 
 void ACameraDirector::inputEventFrontView()
 {
+    // Toggle: if already in Front view → switch back to default (FlyWithMe)
+    if (mode_ == ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FRONT
+        || mode_ == ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FPV) {
+        // Return to default CarlaAir view
+        inputEventFlyWithView();
+        return;
+    }
+
     if (front_camera_) {
         setMode(ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FRONT);
         front_camera_->showToScreen();
         disableCameras(true, true, true, false);
     }
     else
-        UAirBlueprintLib::LogMessageString("Camera is not available: ", "backup_camera", LogDebugLevel::Failure);
+        UAirBlueprintLib::LogMessageString("Camera is not available: ", "front_camera", LogDebugLevel::Failure);
 
     notifyViewModeChanged();
 }

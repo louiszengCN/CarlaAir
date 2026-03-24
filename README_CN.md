@@ -8,7 +8,7 @@
       <p><b>在 CARLA 世界里飞无人机。</b><br/>
       将 CARLA 与 AirSim 融合为一——地面车辆与空中无人机，同一世界，同一脚本。</p>
       <p>
-        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.6"><img src="https://img.shields.io/badge/版本-v0.1.6-blue" alt="Version"/></a>
+        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/版本-v0.1.7-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/许可证-MIT-yellow.svg" alt="License: MIT"/>
         <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
         <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
@@ -31,6 +31,7 @@
 
 ## 🔥 最新动态
 
+- **[2026-03]** `v0.1.7` 发布 — VSync 全屏修复、稳定交通系统、一键环境配置、无人机录制工具、坐标系文档
 - **[2026-03]** `v0.1.6` 发布 — 自动交通生成、UE4 原生 Sweep 碰撞、地面夹紧系统
 - **[2026-03]** `v0.1.5` 发布 — 12 方向碰撞系统、双语帮助菜单（`H`）
 - **[2026-03]** `v0.1.4` 发布 — ROS2 验证（63 个话题）、首个官方二进制发布
@@ -55,9 +56,9 @@
 ### 选项 A：使用预编译版本（推荐）
 
 ```bash
-# 1. 下载并解压 CarlaAir-v0.1.6
-tar xzf CarlaAir-v0.1.6.tar.gz
-cd CarlaAir-v0.1.6
+# 1. 下载并解压 CarlaAir-v0.1.7
+tar xzf CarlaAir-v0.1.7.tar.gz
+cd CarlaAir-v0.1.7
 
 # 2. 启动仿真器（自动生成交通流）
 ./CarlaAir.sh Town10HD

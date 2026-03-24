@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-auto_traffic.py — CarlaAir 自动交通生成器
+auto_traffic.py — CarlaAir 自动交通生成器 (v0.1.7)
 启动后在异步模式下生成车辆和行人，保持后台运行。
+定时健康检查：冻结的行人自动重启，车辆自动恢复。
 Ctrl+C 或 SIGTERM 时自动清理所有生成的 actor。
 
 Usage:
@@ -11,7 +12,6 @@ Usage:
 import carla
 import random
 import time
-import math
 import signal
 import sys
 import argparse
@@ -39,7 +39,6 @@ def spawn_vehicles(world, client, count=30, tm_port=8000):
     """Spawn vehicles with autopilot via Traffic Manager (async mode)."""
     bp_lib = world.get_blueprint_library()
     vehicle_bps = bp_lib.filter('vehicle.*')
-    # Prefer cars over bikes/trucks for a natural look
     car_bps = [bp for bp in vehicle_bps if int(bp.get_attribute('number_of_wheels')) == 4]
     if not car_bps:
         car_bps = list(vehicle_bps)
@@ -49,11 +48,10 @@ def spawn_vehicles(world, client, count=30, tm_port=8000):
 
     tm = client.get_trafficmanager(tm_port)
     tm.set_global_distance_to_leading_vehicle(2.5)
-    tm.global_percentage_speed_difference(10.0)  # slightly slower than speed limit
-    # IMPORTANT: Traffic Manager must be in async mode (no set_synchronous_mode)
+    tm.global_percentage_speed_difference(10.0)
 
     batch = []
-    for i, sp in enumerate(spawn_points[:count]):
+    for sp in spawn_points[:count]:
         bp = random.choice(car_bps)
         if bp.has_attribute('color'):
             bp.set_attribute('color', random.choice(bp.get_attribute('color').recommended_values))
@@ -63,7 +61,7 @@ def spawn_vehicles(world, client, count=30, tm_port=8000):
             .then(carla.command.SetAutopilot(carla.command.FutureActor, True, tm.get_port()))
         )
 
-    results = client.apply_batch_sync(batch, False)  # do_tick=False for async
+    results = client.apply_batch_sync(batch, False)
     spawned = 0
     for r in results:
         if not r.error:
@@ -80,25 +78,22 @@ def spawn_walkers(world, client, count=50):
     walker_bps = bp_lib.filter('walker.pedestrian.*')
     controller_bp = bp_lib.find('controller.ai.walker')
 
-    # 1) Get random spawn locations from navigation mesh
     spawn_points = []
-    for _ in range(count * 3):  # oversample
+    for _ in range(count * 3):
         loc = world.get_random_location_from_navigation()
         if loc:
             spawn_points.append(carla.Transform(loc))
         if len(spawn_points) >= count:
             break
 
-    # 2) Spawn walker actors
     batch = []
     speeds = []
     for sp in spawn_points[:count]:
         bp = random.choice(walker_bps)
         if bp.has_attribute('is_invincible'):
             bp.set_attribute('is_invincible', 'false')
-        # Speed: most walk (1.2-1.8 m/s), some run (3-4 m/s)
         if bp.has_attribute('speed'):
-            if random.random() < 0.15:  # 15% runners
+            if random.random() < 0.15:
                 speeds.append(float(bp.get_attribute('speed').recommended_values[2]))
             else:
                 speeds.append(float(bp.get_attribute('speed').recommended_values[1]))
@@ -113,7 +108,6 @@ def spawn_walkers(world, client, count=50):
             walkers_list.append({"id": r.actor_id})
             valid_speeds.append(speeds[i])
 
-    # 3) Spawn AI controllers
     batch_ctrl = []
     for w in walkers_list:
         batch_ctrl.append(
@@ -121,22 +115,16 @@ def spawn_walkers(world, client, count=50):
         )
     ctrl_results = client.apply_batch_sync(batch_ctrl, False)
     for i, r in enumerate(ctrl_results):
-        if not r.error:
-            walkers_list[i]["con"] = r.actor_id
-        else:
-            walkers_list[i]["con"] = None
+        walkers_list[i]["con"] = r.actor_id if not r.error else None
 
-    # Build all_id list
     for w in walkers_list:
         if w.get("con"):
             all_walker_ids.append(w["con"])
         all_walker_ids.append(w["id"])
 
-    # Wait a tick for transforms to be ready
     world.wait_for_tick()
 
-    # 4) Start controllers: walk to random destinations
-    world.set_pedestrians_cross_factor(0.05)  # 5% may cross roads
+    world.set_pedestrians_cross_factor(0.05)
     all_actors = world.get_actors(all_walker_ids)
     for i in range(0, len(all_walker_ids), 2):
         try:
@@ -150,6 +138,49 @@ def spawn_walkers(world, client, count=50):
     return len(walkers_list)
 
 
+def health_check_walkers(world):
+    """Reassign destinations to all walkers. Fixes frozen walkers."""
+    if not all_walker_ids:
+        return
+    try:
+        actors = world.get_actors(all_walker_ids)
+        reassigned = 0
+        for i in range(0, len(all_walker_ids), 2):
+            try:
+                ctrl = actors[i]
+                loc = world.get_random_location_from_navigation()
+                if loc and ctrl.is_alive:
+                    ctrl.go_to_location(loc)
+                    reassigned += 1
+            except Exception:
+                pass
+        return reassigned
+    except Exception:
+        return 0
+
+
+def health_check_vehicles(world, client, tm_port=8000):
+    """Re-enable autopilot on any vehicle that lost it."""
+    if not vehicles_list:
+        return
+    try:
+        actors = world.get_actors(vehicles_list)
+        restarted = 0
+        for a in actors:
+            try:
+                vel = a.get_velocity()
+                speed = (vel.x**2 + vel.y**2 + vel.z**2) ** 0.5
+                # If vehicle is nearly stopped and not at a traffic light, re-enable autopilot
+                if speed < 0.01:
+                    a.set_autopilot(True, tm_port)
+                    restarted += 1
+            except Exception:
+                pass
+        return restarted
+    except Exception:
+        return 0
+
+
 def cleanup():
     """Destroy all spawned actors."""
     global client, vehicles_list, walkers_list, all_walker_ids
@@ -158,7 +189,6 @@ def cleanup():
         return
 
     try:
-        # Stop walker controllers
         if all_walker_ids:
             all_actors = world.get_actors(all_walker_ids)
             for i in range(0, len(all_walker_ids), 2):
@@ -167,12 +197,10 @@ def cleanup():
                 except Exception:
                     pass
 
-        # Destroy vehicles
         if vehicles_list:
             client.apply_batch([carla.command.DestroyActor(x) for x in vehicles_list])
             log(f"Destroyed {len(vehicles_list)} vehicles")
 
-        # Destroy walkers + controllers
         if all_walker_ids:
             client.apply_batch([carla.command.DestroyActor(x) for x in all_walker_ids])
             log(f"Destroyed {len(walkers_list)} walkers")
@@ -184,23 +212,35 @@ def main():
     global client, world, running
 
     parser = argparse.ArgumentParser(description='CarlaAir Auto Traffic Generator')
-    parser.add_argument('--vehicles', '-n', type=int, default=30, help='Number of vehicles (default: 30)')
-    parser.add_argument('--walkers', '-w', type=int, default=50, help='Number of walkers (default: 50)')
-    parser.add_argument('--port', '-p', type=int, default=2000, help='CARLA port (default: 2000)')
-    parser.add_argument('--tm-port', type=int, default=8000, help='Traffic Manager port (default: 8000)')
+    parser.add_argument('--vehicles', '-n', type=int, default=30)
+    parser.add_argument('--walkers', '-w', type=int, default=50)
+    parser.add_argument('--port', '-p', type=int, default=2000)
+    parser.add_argument('--tm-port', type=int, default=8000)
     args = parser.parse_args()
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    log(f"Connecting to CARLA (port {args.port})...")
-    client = carla.Client('localhost', args.port)
-    client.set_timeout(20.0)
-    world = client.get_world()
+    # Retry connection (CarlaAir may still be starting)
+    for attempt in range(10):
+        try:
+            log(f"Connecting to CARLA (port {args.port})...")
+            client = carla.Client('localhost', args.port)
+            client.set_timeout(20.0)
+            world = client.get_world()
+            break
+        except Exception as e:
+            if attempt < 9:
+                log(f"  Waiting for CARLA... ({e})")
+                time.sleep(5)
+            else:
+                log(f"Failed to connect after 10 attempts.")
+                sys.exit(1)
+
     map_name = world.get_map().name.split('/')[-1]
     log(f"Connected: {map_name}")
 
-    # Ensure async mode (don't interfere with FPS drone control)
+    # Ensure async mode
     settings = world.get_settings()
     if settings.synchronous_mode:
         log("WARNING: World is in sync mode, switching to async for traffic")
@@ -212,28 +252,26 @@ def main():
     nv = spawn_vehicles(world, client, count=args.vehicles, tm_port=args.tm_port)
     nw = spawn_walkers(world, client, count=args.walkers)
     log(f"Traffic ready: {nv} vehicles + {nw} walkers on {map_name}")
-    log("Running in background (kill with Ctrl+C or SIGTERM)...")
+    log("Running in background. Health checks every 10s.")
 
-    # Keep alive — periodically reassign walker destinations so they keep moving
-    tick = 0
+    # Keep alive with periodic health checks
+    last_health = time.time()
+    HEALTH_INTERVAL = 10.0  # seconds
+
     while running:
         try:
-            world.wait_for_tick()
-            tick += 1
+            time.sleep(0.5)
 
-            # Every ~30 seconds, give walkers new destinations (prevent idle standing)
-            if tick % 900 == 0:  # ~30s at ~30fps
-                actors = world.get_actors(all_walker_ids)
-                for i in range(0, len(all_walker_ids), 2):
-                    try:
-                        loc = world.get_random_location_from_navigation()
-                        if loc:
-                            actors[i].go_to_location(loc)
-                    except Exception:
-                        pass
+            now = time.time()
+            if now - last_health >= HEALTH_INTERVAL:
+                last_health = now
+                rw = health_check_walkers(world)
+                rv = health_check_vehicles(world, client, args.tm_port)
+                # Only log if something was fixed
+                if rv and rv > 5:
+                    log(f"Health: restarted {rv} stalled vehicles")
 
         except RuntimeError:
-            # Connection lost or world reset
             log("Connection interrupted, waiting to reconnect...")
             time.sleep(5)
             try:
@@ -244,7 +282,7 @@ def main():
         except Exception as e:
             if running:
                 log(f"Error: {e}")
-                time.sleep(1)
+                time.sleep(2)
 
     cleanup()
     log("Traffic generator stopped.")
