@@ -26,7 +26,6 @@ import numpy as np
 import math
 import time
 import sys
-import io
 
 # ─── Display ──────────────────────────────────────────────
 W, H = 640, 360
@@ -55,8 +54,7 @@ WEATHERS = [
         fog_density=80, fog_distance=10, fog_falloff=1, wetness=0)),
 ]
 
-# AirSim camera names to try for FPV
-_CAM_NAMES = ("0", "front_center", "FrontCenter", "bottom_center")
+LIDAR_RANGE = 50.0  # meters
 
 
 def depth_to_rgb(depth_image):
@@ -118,35 +116,40 @@ def cleanup_previous(world):
         time.sleep(0.5)
 
 
-def pick_airsim_camera(air_client):
-    """Find a working AirSim camera name."""
-    for name in _CAM_NAMES:
-        try:
-            # compressed=True → PNG bytes that pygame can decode
-            resp = air_client.simGetImages([
-                airsim.ImageRequest(name, airsim.ImageType.Scene, False, True)
-            ])
-            if resp and resp[0].image_data_uint8 and len(resp[0].image_data_uint8) > 100:
-                return name
-        except:
-            pass
-    return "0"
+def lidar_to_bev(lidar_data, img_w, img_h, max_range):
+    """Render LiDAR point cloud as a bird's-eye-view RGB image."""
+    img = np.zeros((img_h, img_w, 3), dtype=np.uint8)
+    img[:] = (15, 15, 20)  # dark background
 
+    if lidar_data is None:
+        return img
 
-def grab_drone_fpv(air_client, cam_name):
-    """Get one frame from AirSim camera as compressed PNG, return numpy RGB or None."""
-    try:
-        resp = air_client.simGetImages([
-            airsim.ImageRequest(cam_name, airsim.ImageType.Scene, False, True)  # compressed=True
-        ])
-        if not resp or not resp[0].image_data_uint8 or len(resp[0].image_data_uint8) < 100:
-            return None
-        png_bytes = bytes(resp[0].image_data_uint8)
-        surf = pygame.image.load(io.BytesIO(png_bytes))
-        arr = pygame.surfarray.array3d(surf)
-        return np.transpose(arr, (1, 0, 2))
-    except:
-        return None
+    points = np.frombuffer(lidar_data.raw_data, dtype=np.float32).reshape(-1, 4)
+    if len(points) == 0:
+        return img
+
+    x = points[:, 0]  # forward
+    y = points[:, 1]  # right
+    z = points[:, 2]  # up
+
+    # Map to pixel coords (centered, forward = up)
+    px = ((y / max_range) * 0.45 + 0.5) * img_w
+    py = ((-x / max_range) * 0.45 + 0.5) * img_h
+
+    # Color by height
+    z_norm = np.clip((z + 2.0) / 6.0, 0, 1)
+    r = (np.clip(1.5 - np.abs(z_norm * 4 - 3), 0, 1) * 255).astype(np.uint8)
+    g = (np.clip(1.5 - np.abs(z_norm * 4 - 2), 0, 1) * 255).astype(np.uint8)
+    b = (np.clip(1.5 - np.abs(z_norm * 4 - 1), 0, 1) * 255).astype(np.uint8)
+
+    valid = (px >= 0) & (px < img_w) & (py >= 0) & (py < img_h)
+    px = px[valid].astype(int)
+    py = py[valid].astype(int)
+    img[py, px, 0] = r[valid]
+    img[py, px, 1] = g[valid]
+    img[py, px, 2] = b[valid]
+
+    return img
 
 
 def main():
@@ -221,7 +224,21 @@ def main():
                  lambda img: images.__setitem__("depth", depth_to_rgb(img)))
         make_cam("sensor.camera.semantic_segmentation", chase_tf,
                  lambda img: images.__setitem__("semantic", semantic_to_rgb(img)))
-        print("  Sensors: RGB + Depth + Semantic Segmentation")
+
+        # LiDAR on vehicle roof
+        lidar_bp = bp_lib.find("sensor.lidar.ray_cast")
+        lidar_bp.set_attribute("range", str(LIDAR_RANGE))
+        lidar_bp.set_attribute("channels", "32")
+        lidar_bp.set_attribute("points_per_second", "200000")
+        lidar_bp.set_attribute("rotation_frequency", "20")
+        lidar_bp.set_attribute("upper_fov", "15")
+        lidar_bp.set_attribute("lower_fov", "-25")
+        lidar_tf = carla.Transform(carla.Location(x=0, z=2.5))
+        lidar_sensor = world.spawn_actor(lidar_bp, lidar_tf, attach_to=vehicle)
+        lidar_sensor.listen(lambda data: images.__setitem__("lidar", data))
+        actors.append(lidar_sensor)
+        sensors.append(lidar_sensor)
+        print("  Sensors: RGB + Depth + Semantic + LiDAR (32ch)")
 
         # ── Phase 1: Drone → fly to vehicle ──
         print("\n  Drone taking off...")
@@ -237,16 +254,13 @@ def main():
         time.sleep(1.0)
         print("  Drone locked above vehicle!")
 
-        # ── Pick working AirSim camera ──
         pygame.init()
         pygame_started = True
-        fpv_cam = pick_airsim_camera(air_client)
-        print(f"  Drone FPV camera: '{fpv_cam}'")
 
         # ── Phase 2: Start driving (Traffic Manager) ──
         tm = carla_client.get_trafficmanager(8000)
         tm.set_global_distance_to_leading_vehicle(2.5)
-        tm.global_percentage_speed_difference(-50.0)   # 50% FASTER than speed limit (~60 km/h)
+        tm.global_percentage_speed_difference(-100.0)  # 2x speed limit (~80-90 km/h)
         tm.set_hybrid_physics_mode(True)
         tm.set_hybrid_physics_radius(50.0)
         vehicle.set_autopilot(True, 8000)
@@ -305,10 +319,11 @@ def main():
                 except:
                     pass
 
-            # ── Drone FPV (every 3rd frame to reduce load) ──
-            drone_img = None
-            if frame_count % 3 == 0:
-                drone_img = grab_drone_fpv(air_client, fpv_cam)
+            # ── LiDAR BEV render ──
+            lidar_bev = None
+            lidar_raw = images.get("lidar")
+            if lidar_raw is not None:
+                lidar_bev = lidar_to_bev(lidar_raw, W, H, LIDAR_RANGE)
 
             # ── Render 2x2 ──
             display.fill((15, 15, 20))
@@ -316,7 +331,7 @@ def main():
                 ("RGB Chase Camera",        images.get("rgb")),
                 ("Depth Map",               images.get("depth")),
                 ("Semantic Segmentation",   images.get("semantic")),
-                ("Drone FPV (AirSim)",      drone_img),
+                ("LiDAR Bird's Eye View",   lidar_bev),
             ]
             positions = [(0, 0), (W, 0), (0, H), (W, H)]
 
