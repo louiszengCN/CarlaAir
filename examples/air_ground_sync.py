@@ -84,6 +84,13 @@ def main():
 
         ox, oy, oz = calibrate_offset(world, air_client)
 
+        # Synchronous mode — smooth deterministic physics
+        original_settings = world.get_settings()
+        settings = world.get_settings()
+        settings.synchronous_mode = True
+        settings.fixed_delta_seconds = 1.0 / 30.0  # 30 Hz physics
+        world.apply_settings(settings)
+
         # Spawn vehicle
         vbp = bp_lib.find("vehicle.tesla.model3")
         vehicle = None
@@ -220,6 +227,7 @@ def main():
             display.blit(hs, (8, H - 24))
 
             pygame.display.flip()
+            world.tick()  # advance simulation one step (sync mode)
 
     except KeyboardInterrupt: pass
     except Exception as e:
@@ -232,6 +240,8 @@ def main():
         for a in actors:
             try: a.destroy()
             except: pass
+        try: world.apply_settings(original_settings)
+        except: pass
         if air_client:
             try: air_client.armDisarm(False); air_client.enableApiControl(False)
             except: pass
