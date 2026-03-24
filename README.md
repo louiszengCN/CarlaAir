@@ -108,7 +108,7 @@ air_client.takeoffAsync().join()
 air_client.moveToPositionAsync(80, 30, -25, 5)
 ```
 
-**6 ready-to-run scripts** — try them all:
+**6 demo scripts** — try them all:
 
 ```bash
 python3 examples/quick_start_showcase.py   # 🎬 4-panel sensors + drone chase + weather cycling
@@ -118,6 +118,18 @@ python3 examples/switch_maps.py            # 🗺️  Fly through all 13 maps au
 python3 examples/sensor_gallery.py         # 📸 6-grid sensor showcase on one vehicle
 python3 examples/air_ground_sync.py        # 🔄 Car + drone split-screen: same rain, same world
 ```
+
+**Recording toolkit** — record trajectories for vehicle, drone, and pedestrian, then replay them with a director camera:
+
+```bash
+python3 examples/recording/record_vehicle.py     # 🚗 Drive & record vehicle trajectory
+python3 examples/recording/record_drone.py       # 🚁 Fly & record drone trajectory (zero intrusion)
+python3 examples/recording/record_walker.py      # 🚶 Walk & record pedestrian trajectory
+python3 examples/recording/demo_director.py \    # 🎬 Replay all + free camera + MP4 recording
+    trajectories/vehicle_*.json trajectories/drone_*.json
+```
+
+> **Docs:** [Coordinate Systems (CARLA↔AirSim)](CarlaAir_Release/guide/COORDINATE_SYSTEMS.md) · [Quick Start Guide](CarlaAir_Release/guide/Quick-Start.md) · [FAQ](CarlaAir_Release/guide/FAQ.md)
 
 ---
 
