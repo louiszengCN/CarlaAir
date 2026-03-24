@@ -108,8 +108,12 @@ def main():
         actors.append(ground_cam)
         sensors.append(ground_cam)
 
-        # Drone camera (right panel) — attach to a CARLA camera on spectator, moved by drone pos
-        drone_cam = world.spawn_actor(cam_bp, carla.Transform())
+        # Aerial camera (right panel) — attached to vehicle at high offset for smooth following
+        aerial_tf = carla.Transform(
+            carla.Location(x=-DRONE_BACK, z=DRONE_HEIGHT),
+            carla.Rotation(pitch=-30)
+        )
+        drone_cam = world.spawn_actor(cam_bp, aerial_tf, attach_to=vehicle)
         drone_cam.listen(lambda i: images.__setitem__("drone",
             np.frombuffer(i.raw_data, np.uint8).reshape((i.height, i.width, 4))[:,:,:3][:,:,::-1]))
         actors.append(drone_cam)
@@ -168,7 +172,7 @@ def main():
                 world.set_weather(WEATHERS[weather_idx][1])
                 last_weather = time.time()
 
-            # Drone follow (every 5 frames — smooth, not jittery)
+            # Drone follow (every 5 frames)
             if frame_count % 5 == 0:
                 try:
                     vt = vehicle.get_transform()
@@ -181,19 +185,6 @@ def main():
                     air_client.moveToPositionAsync(nx, ny, nz, 15,
                         drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
                         yaw_mode=airsim.YawMode(False, yaw))
-                except: pass
-
-            # Drone camera follows vehicle smoothly (CARLA side, every frame is fine)
-            try:
-                vt = vehicle.get_transform()
-                yaw = vt.rotation.yaw
-                yr = math.radians(yaw)
-                cx = vt.location.x - DRONE_BACK * math.cos(yr)
-                cy = vt.location.y - DRONE_BACK * math.sin(yr)
-                cz = vt.location.z + DRONE_HEIGHT
-                drone_cam.set_transform(carla.Transform(
-                    carla.Location(x=cx, y=cy, z=cz),
-                    carla.Rotation(pitch=-30, yaw=yaw)))
             except: pass
 
             # Render
