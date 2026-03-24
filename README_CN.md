@@ -8,7 +8,7 @@
       <p><b>在 CARLA 世界里飞无人机。</b><br/>
       将 CARLA 与 AirSim 融合为一——地面车辆与空中无人机，同一世界，同一脚本。</p>
       <p>
-        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/版本-v0.1.7-blue" alt="Version"/></a>
+        <a href="https://youtu.be/a0fZG2dmT1Q"><img src="https://img.shields.io/badge/版本-v0.1.7-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/许可证-MIT-yellow.svg" alt="License: MIT"/>
         <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
         <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
@@ -24,13 +24,13 @@
 </table>
 
 <p align="center">
-  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7">
+  <a href="https://youtu.be/a0fZG2dmT1Q">
     <img src="teaser_upload.gif" alt="CarlaAir Teaser — 点击观看完整演示视频" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <i>点击 GIF 或 </i><a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>观看 30 秒完整演示视频（汉斯·季默配乐）</b></a> 🎵
+  <i>点击 GIF 或 </i><a href="https://youtu.be/a0fZG2dmT1Q"><b>观看 30 秒完整演示视频（汉斯·季默配乐）</b></a> 🎵
 </p>
 
 ---
