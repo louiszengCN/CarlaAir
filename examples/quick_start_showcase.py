@@ -122,8 +122,9 @@ def pick_airsim_camera(air_client):
     """Find a working AirSim camera name."""
     for name in _CAM_NAMES:
         try:
+            # compressed=True → PNG bytes that pygame can decode
             resp = air_client.simGetImages([
-                airsim.ImageRequest(name, airsim.ImageType.Scene, False, False)
+                airsim.ImageRequest(name, airsim.ImageType.Scene, False, True)
             ])
             if resp and resp[0].image_data_uint8 and len(resp[0].image_data_uint8) > 100:
                 return name
@@ -133,14 +134,15 @@ def pick_airsim_camera(air_client):
 
 
 def grab_drone_fpv(air_client, cam_name):
-    """Get one frame from AirSim camera, return numpy RGB or None."""
+    """Get one frame from AirSim camera as compressed PNG, return numpy RGB or None."""
     try:
         resp = air_client.simGetImages([
-            airsim.ImageRequest(cam_name, airsim.ImageType.Scene, False, False)
+            airsim.ImageRequest(cam_name, airsim.ImageType.Scene, False, True)  # compressed=True
         ])
         if not resp or not resp[0].image_data_uint8 or len(resp[0].image_data_uint8) < 100:
             return None
-        surf = pygame.image.load(io.BytesIO(bytes(resp[0].image_data_uint8)))
+        png_bytes = bytes(resp[0].image_data_uint8)
+        surf = pygame.image.load(io.BytesIO(png_bytes))
         arr = pygame.surfarray.array3d(surf)
         return np.transpose(arr, (1, 0, 2))
     except:
@@ -244,7 +246,7 @@ def main():
         # ── Phase 2: Start driving (Traffic Manager) ──
         tm = carla_client.get_trafficmanager(8000)
         tm.set_global_distance_to_leading_vehicle(2.5)
-        tm.global_percentage_speed_difference(-20.0)   # 20% FASTER than speed limit
+        tm.global_percentage_speed_difference(-50.0)   # 50% FASTER than speed limit (~60 km/h)
         tm.set_hybrid_physics_mode(True)
         tm.set_hybrid_physics_radius(50.0)
         vehicle.set_autopilot(True, 8000)
