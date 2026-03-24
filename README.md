@@ -72,11 +72,12 @@ bash env_setup/test_env.sh        # verify: should show all PASS
 # 3. Launch the simulator (auto-spawns traffic)
 ./CarlaAir.sh Town10HD
 
-# 4. In another terminal, test the Dual API
+# 4. Run the showcase! (in another terminal)
 conda activate carlaAir
-python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
-python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
+python3 examples/quick_start_showcase.py
 ```
+
+> **What you'll see:** A Tesla drives itself through the city while a drone chases it from above. A 4-panel display shows **RGB · Depth · Semantic Segmentation · Drone FPV** — all synchronized. Weather cycles automatically. Press **WASD** to take over the car anytime!
 
 ### Option B: Build from Source
 

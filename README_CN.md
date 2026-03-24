@@ -68,11 +68,12 @@ bash env_setup/test_env.sh        # 验证环境：应全部显示 PASS
 # 3. 启动仿真器（自动生成交通流）
 ./CarlaAir.sh Town10HD
 
-# 4. 在另一个终端测试双 API 连接
+# 4. 运行展示脚本！（另开一个终端）
 conda activate carlaAir
-python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
-python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
+python3 examples/quick_start_showcase.py
 ```
+
+> **你将看到：** 一辆特斯拉在城市中自动驾驶，无人机从空中追踪。4 分屏同时展示 **RGB · 深度图 · 语义分割 · 无人机第一视角** — 全部实时同步。天气自动轮换。按 **WASD** 随时接管驾驶！
 
 ### 选项 B：从源码编译
 
