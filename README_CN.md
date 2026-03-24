@@ -60,10 +60,16 @@
 tar xzf CarlaAir-v0.1.7.tar.gz
 cd CarlaAir-v0.1.7
 
-# 2. 启动仿真器（自动生成交通流）
+# 2. 一键环境配置（仅首次需要）
+bash env_setup/setup_env.sh      # 创建 conda 环境，安装依赖，部署 carla 模块
+conda activate carlaAir
+bash env_setup/test_env.sh        # 验证环境：应全部显示 PASS
+
+# 3. 启动仿真器（自动生成交通流）
 ./CarlaAir.sh Town10HD
 
-# 3. 在另一个终端测试双 API 连接
+# 4. 在另一个终端测试双 API 连接
+conda activate carlaAir
 python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
 python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
 ```
