@@ -43,7 +43,9 @@ def main():
         air_client.enableApiControl(True)
         air_client.armDisarm(True)
 
-        maps = sorted(set(m.split("/")[-1] for m in client.get_available_maps()))
+        all_maps = sorted(set(m.split("/")[-1] for m in client.get_available_maps()))
+        # Filter: only real Town maps (skip AirSimAssets, Annotation, _Opt variants)
+        maps = [m for m in all_maps if m.startswith("Town") and "_Opt" not in m]
         print(f"  Found {len(maps)} maps: {', '.join(maps)}\n")
 
         pygame.init()
