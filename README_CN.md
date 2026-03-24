@@ -24,13 +24,13 @@
 </table>
 
 <p align="center">
-  <a href="https://youtu.be/a0fZG2dmT1Q">
+  <a href="https://www.bilibili.com/video/BV1pTQzBkES7/">
     <img src="teaser_upload.gif" alt="CarlaAir Teaser — 点击观看完整演示视频" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <i>点击 GIF 或 </i><a href="https://youtu.be/a0fZG2dmT1Q"><b>观看 30 秒完整演示视频（汉斯·季默配乐）</b></a> 🎵
+  <i>点击 GIF 或 </i><a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>B站观看 30 秒完整演示视频（汉斯·季默配乐）</b></a> 🎵 | <a href="https://youtu.be/a0fZG2dmT1Q">YouTube</a>
 </p>
 
 ---
