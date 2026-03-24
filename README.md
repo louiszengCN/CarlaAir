@@ -64,10 +64,16 @@
 tar xzf CarlaAir-v0.1.7.tar.gz
 cd CarlaAir-v0.1.7
 
-# 2. Launch the simulator (auto-spawns traffic)
+# 2. One-click environment setup (first time only)
+bash env_setup/setup_env.sh      # creates conda env, installs deps, deploys carla module
+conda activate carlaAir
+bash env_setup/test_env.sh        # verify: should show all PASS
+
+# 3. Launch the simulator (auto-spawns traffic)
 ./CarlaAir.sh Town10HD
 
-# 3. In another terminal, test the Dual API
+# 4. In another terminal, test the Dual API
+conda activate carlaAir
 python3 -c "import carla; c=carla.Client('localhost',2000); print(c.get_world().get_map().name)"
 python3 -c "import airsim; c=airsim.MultirotorClient(port=41451); c.confirmConnection()"
 ```
