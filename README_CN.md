@@ -73,7 +73,14 @@ conda activate carlaAir
 python3 examples/quick_start_showcase.py
 ```
 
-> **你将看到：** 一辆特斯拉在城市中自动驾驶，无人机从空中追踪。4 分屏同时展示 **RGB · 深度图 · 语义分割 · 无人机第一视角** — 全部实时同步。天气自动轮换。按 **WASD** 随时接管驾驶！
+> **你将看到：** 一辆特斯拉在城市中自动巡航，无人机从空中追踪。4 分屏同时展示 **RGB · 深度图 · 语义分割 · LiDAR 鸟瞰** — 全部实时同步。天气自动轮换。
+
+**想要更多？** 试试这些交互式体验：
+
+```bash
+python3 examples/drive_vehicle.py      # 🚗 WASD 驾驶特斯拉
+python3 examples/walk_pedestrian.py    # 🚶 鼠标+键盘 城市漫步
+```
 
 ### 选项 B：从源码编译
 
@@ -81,39 +88,64 @@ python3 examples/quick_start_showcase.py
 
 ---
 
+## 🐍 一个脚本，两个世界
+
+与桥接方案的根本区别：两套 API 共享**同一个仿真世界**。一次天气设置，同时影响地面与空中的所有传感器。
+
+```python
+import carla, airsim
+
+# 两个 API，一个世界
+carla_client = carla.Client("localhost", 2000)
+air_client   = airsim.MultirotorClient(port=41451)
+
+world = carla_client.get_world()
+
+# 天气影响所有传感器 — 地面车辆相机和无人机相机
+world.set_weather(carla.WeatherParameters.HardRainSunset)
+
+# 生成一辆汽车，自动驾驶
+vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+vehicle.set_autopilot(True)
+
+# 无人机起飞 — 同一个世界，同一场雨，同一套物理
+air_client.takeoffAsync().join()
+air_client.moveToPositionAsync(80, 30, -25, 5)
+```
+
+三个即开即用的体验脚本：
+
+| 脚本 | 功能 |
+|------|------|
+| [`quick_start_showcase.py`](examples/quick_start_showcase.py) | 4 分屏传感器展示：自动驾驶 + 无人机追踪 + 天气轮换 |
+| [`drive_vehicle.py`](examples/drive_vehicle.py) | WASD 驾驶特斯拉穿越城市 |
+| [`walk_pedestrian.py`](examples/walk_pedestrian.py) | 鼠标+键盘 第三人称城市漫步 |
+
+---
+
 ## ⌨️ 飞行控制说明
 
-当仿真器运行时，点击窗口内部捕获鼠标，即可使用内置的 FPS 控制器驾驶无人机：
+在 CarlaAir 窗口中，使用内置 FPS 控制器直接驾驶无人机（无需代码）：
 
 | 按键 | 功能 |
 |-----|--------|
 | `W` / `A` / `S` / `D` | 前进 / 左移 / 后退 / 右移 |
-| `Space` / `Shift` | 垂直上升 / 垂直下降 |
-| `Mouse` (鼠标) | 偏航转向 (Yaw) |
-| `Scroll Wheel` (滚轮) | 调节飞行速度 |
-| `N` | 循环切换天气预设 (晴天、雨天、大雾、夜晚等) |
-| `P` | 切换碰撞模式 (物理碰撞 / 无敌穿墙模式) |
-| `H` | 显示/隐藏 屏幕帮助菜单 |
-| `Tab` | 释放 / 捕获 鼠标 |
+| `Space` / `Shift` | 上升 / 下降 |
+| `Mouse` | 偏航转向 |
+| `Scroll` | 调节速度 |
+| `N` | 切换天气 |
+| `P` | 碰撞模式切换 |
+| `H` | 帮助菜单 |
+| `1` / `2` / `3` | 传感器画面 |
 
 ---
 
-## 📚 文档与示例脚本
-
-我们精选了 **6 个核心示例脚本**，展示空地协同仿真的关键能力：
-
-| 脚本 | 说明 |
-|------|------|
-| `demo_drive_and_fly.py` | 同时控制地面车辆与无人机 |
-| `drone_car_chase.py` | 无人机视觉追踪移动的地面车辆 |
-| `aerial_surveillance.py` | 无人机城市巡航与图像捕获 |
-| `data_collector.py` | 多传感器同步数据采集 |
-| `city_tour.py` | 空地双视角城市巡游 |
-| `fly_drone_keyboard.py` | 交互式键盘控制无人机飞行 |
+## 📚 文档与示例
 
 **完整文档：**
 - [快速入门指南](CarlaAir_Release/guide/Quick-Start.md)
 - [技术架构详解](CarlaAir_Release/source/ARCHITECTURE.md)
+- [坐标系换算](examples_record_demo/COORDINATE_SYSTEMS.md)
 - [上游代码修改清单](CarlaAir_Release/source/MODIFICATIONS.md)
 
 ---

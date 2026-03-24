@@ -77,7 +77,14 @@ conda activate carlaAir
 python3 examples/quick_start_showcase.py
 ```
 
-> **What you'll see:** A Tesla drives itself through the city while a drone chases it from above. A 4-panel display shows **RGB · Depth · Semantic Segmentation · Drone FPV** — all synchronized. Weather cycles automatically. Press **WASD** to take over the car anytime!
+> **What you'll see:** A Tesla cruises through the city while a drone chases it from above. A 4-panel display shows **RGB · Depth · Semantic Segmentation · LiDAR BEV** — all synchronized. Weather cycles automatically.
+
+**Want more?** Try these interactive demos:
+
+```bash
+python3 examples/drive_vehicle.py      # 🚗 Drive a Tesla with WASD
+python3 examples/walk_pedestrian.py    # 🚶 Walk the city on foot (mouse look)
+```
 
 ### Option B: Build from Source
 
@@ -85,30 +92,38 @@ Please refer to the [Build Guide](CarlaAir_Release/source/BUILD_GUIDE.md) for de
 
 ---
 
-## 🐍 Why CarlaAir? One Script, Two Worlds.
+## 🐍 One Script, Two Worlds
 
-The key difference from bridge-based approaches: both APIs share the **same simulated world**.
+The key difference from bridge-based approaches: both APIs share the **same simulated world**. One weather call affects every sensor — on the ground and in the air.
 
 ```python
 import carla, airsim
 
-# Connect to both APIs simultaneously
+# Two APIs, one world
 carla_client = carla.Client("localhost", 2000)
 air_client   = airsim.MultirotorClient(port=41451)
 
 world = carla_client.get_world()
 
-# Set weather once — affects BOTH ground sensors AND drone cameras
+# Weather affects ALL sensors — ground vehicle cameras AND drone cameras
 world.set_weather(carla.WeatherParameters.HardRainSunset)
 
-# Spawn a ground vehicle with autopilot
+# Spawn a car and let it drive
 vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 vehicle.set_autopilot(True)
 
-# Fly the drone above the city — in the exact same world
+# Fly the drone above — same world, same rain, same physics
 air_client.takeoffAsync().join()
-air_client.moveToPositionAsync(80, 30, -25, 5)  # 25m above ground
+air_client.moveToPositionAsync(80, 30, -25, 5)
 ```
+
+Try it yourself — three ready-to-run scripts included:
+
+| Script | What it does |
+|--------|-------------|
+| [`quick_start_showcase.py`](examples/quick_start_showcase.py) | 4-panel sensor display: car + drone chase + weather cycling |
+| [`drive_vehicle.py`](examples/drive_vehicle.py) | Drive a Tesla through the city with WASD |
+| [`walk_pedestrian.py`](examples/walk_pedestrian.py) | Walk the streets on foot with mouse look |
 
 ---
 
