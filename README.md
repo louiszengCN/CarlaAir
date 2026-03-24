@@ -9,7 +9,7 @@
       A unified simulation platform that brings CARLA and AirSim together —<br/>
       ground vehicles and aerial drones, one world, one script.</p>
       <p>
-        <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
+        <a href="https://youtu.be/a0fZG2dmT1Q"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
         <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
         <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
         <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
@@ -25,13 +25,13 @@
 </table>
 
 <p align="center">
-  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7">
+  <a href="https://youtu.be/a0fZG2dmT1Q">
     <img src="teaser_upload.gif" alt="CarlaAir Teaser — click to watch the full demo with Hans Zimmer soundtrack" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <i>Click the GIF or </i><a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>watch our 30s demo video with Hans Zimmer soundtrack</b></a> 🎵
+  <i>Click the GIF or </i><a href="https://youtu.be/a0fZG2dmT1Q"><b>watch our 30s demo video with Hans Zimmer soundtrack</b></a> 🎵
 </p>
 
 ---
