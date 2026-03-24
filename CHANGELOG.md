@@ -1,3 +1,25 @@
+## CarlaAir v0.1.7 (2026-03-24)
+
+### Fixes
+ * **Fullscreen VSync tearing** — Enabled VSync, frame rate smoothing (60fps cap), fixed FullscreenMode config. Added `-UseVSync` launch parameter.
+ * **Traffic freeze** — Pedestrians and vehicles no longer freeze after extended runs. Added 10-second health checks: walkers get new destinations, stalled vehicles re-enable autopilot.
+ * **Launcher portability** — `CarlaAir.sh` no longer hardcodes conda paths. Uses current `python3` with clear error if `carla` module not found.
+ * **I key camera toggle** — Pressing `I` now cycles between first-person and default view (previously stuck in first-person).
+
+### New Features
+ * **One-click environment setup** — `env_setup/setup_env.sh` + pre-built `carla_python_module.tar.gz` (35MB). Solves pip carla vs source-built server ABI mismatch.
+ * **Environment auto-test** — `env_setup/test_env.sh` validates Python modules + server connectivity, outputs PASS/FAIL report.
+ * **Drone recording toolkit** — Terminal-based `record_drone.py` reads from CARLA (zero AirSim intrusion, no control loss). Supports multi-segment recording, ghost vehicle loop with playback controls.
+ * **Demo director** — `demo_director.py` replays vehicle + drone + walker trajectories with free-fly camera, weather presets, sensor panels, and MP4 recording.
+ * **Coordinate system docs** — `COORDINATE_SYSTEMS.md` with CARLA↔AirSim conversion formula, calibration code, per-script coordinate table.
+
+### Help Overlay (H)
+ * Added sensor view keys: `1` / `2` / `3`
+ * Documented `I` (first-person toggle) and `B` (FPV yaw mode) with expert-only warning
+ * Version bumped to v0.1.7
+
+---
+
 ## CarlaAir v0.1.6 (2026-03-19)
 
 ### New Features

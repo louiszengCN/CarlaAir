@@ -865,10 +865,10 @@ void ASimWorldGameMode::UpdateHelpOverlayText()
     if (HelpTitleBlock_.IsValid())
         HelpTitleBlock_->SetText(FText::FromString(TEXT("CarlaAir")));
 
-    // Subtitle — v0.1.6
+    // Subtitle — v0.1.7
     if (HelpSubtitleBlock_.IsValid())
         HelpSubtitleBlock_->SetText(FText::FromString(
-            TEXT("v0.1.6  \x7A7A\x5730\x4E00\x4F53\x8054\x5408\x4EFF\x771F\x5E73\x53F0")));
+            TEXT("v0.1.7  \x7A7A\x5730\x4E00\x4F53\x8054\x5408\x4EFF\x771F\x5E73\x53F0")));
     // Chinese: 空地一体联合仿真平台
 
     // Content — detailed bilingual help
@@ -887,10 +887,22 @@ void ASimWorldGameMode::UpdateHelpOverlayText()
         "  N                \x5207\x6362\x5929\x6C14\x9884\x8BBE  Cycle Weather Presets\n"
         "  P                \x7269\x7406\x78B0\x649E / \x7A7F\x8D8A\x6A21\x5F0F  Physics / Noclip\n"
         "  Tab              \x91CA\x653E / \x6355\x83B7\x9F20\x6807  Release / Capture Mouse\n"
-        "  H                \x663E\x793A / \x9690\x85CF\x5E2E\x52A9  Show / Hide Help"
+        "  H                \x663E\x793A / \x9690\x85CF\x5E2E\x52A9  Show / Hide Help\n"
+        "  1 / 2 / 3        \x4F20\x611F\x5668\x753B\x9762  Sensor Camera Views\n"
+        "\n"
+        "AirSim \x9AD8\x7EA7  ADVANCED (for AirSim experts)\n"
+        "\n"
+        "  I                \x5207\x6362\x7B2C\x4E00\x4EBA\x79F0 / \x9ED8\x8BA4\x89C6\x89D2\n"
+        "                   Toggle First-Person / Default View\n"
+        "  B                FPV\x6A21\x5F0F (\x9F20\x6807\x63A7\x5236\x65E0\x4EBA\x673A\x504F\x822A)\n"
+        "                   FPV Mode (mouse controls drone yaw)\n"
+        "  \x26A0 I/B \x4EC5\x5EFA\x8BAE\x719F\x6089 AirSim \x7684\x7528\x6237\x4F7F\x7528\n"
+        "    I/B for experienced AirSim users only"
     ));
     // Chinese decoded: 飞行控制, 前进/后退, 左移/右移, 偏航旋转方向, 上升无人机, 下降无人机,
-    // 调节飞行速度, 系统功能, 切换天气预设, 物理碰撞/穿越模式, 释放/捕获鼠标, 显示/隐藏帮助
+    // 调节飞行速度, 系统功能, 切换天气预设, 物理碰撞/穿越模式, 释放/捕获鼠标, 显示/隐藏帮助,
+    // 传感器画面, AirSim高级, 切换第一人称/默认视角, FPV模式(鼠标控制无人机偏航),
+    // 仅建议熟悉AirSim的用户使用
     HelpContentBlock_->SetText(FText::FromString(Content));
 
     // Status line — white, same style as content
