@@ -75,13 +75,6 @@ python3 examples/quick_start_showcase.py
 
 > **你将看到：** 一辆特斯拉在城市中自动巡航，无人机从空中追踪。4 分屏同时展示 **RGB · 深度图 · 语义分割 · LiDAR 鸟瞰** — 全部实时同步。天气自动轮换。
 
-**想要更多？** 试试这些交互式体验：
-
-```bash
-python3 examples/drive_vehicle.py      # 🚗 WASD 驾驶特斯拉
-python3 examples/walk_pedestrian.py    # 🚶 鼠标+键盘 城市漫步
-```
-
 ### 选项 B：从源码编译
 
 如果您需要修改底层 C++ 代码，请参考 [源码编译指南](CarlaAir_Release/source/BUILD_GUIDE.md)，了解如何使用 UE4.26 编译 CarlaAir。
@@ -90,18 +83,16 @@ python3 examples/walk_pedestrian.py    # 🚶 鼠标+键盘 城市漫步
 
 ## 🐍 一个脚本，两个世界
 
-与桥接方案的根本区别：两套 API 共享**同一个仿真世界**。一次天气设置，同时影响地面与空中的所有传感器。
+两套 API 共享**同一个仿真世界** — 无桥接、无同步烦恼。
 
 ```python
 import carla, airsim
 
-# 两个 API，一个世界
 carla_client = carla.Client("localhost", 2000)
 air_client   = airsim.MultirotorClient(port=41451)
-
 world = carla_client.get_world()
 
-# 天气影响所有传感器 — 地面车辆相机和无人机相机
+# 一次天气调用，影响所有传感器 — 地面和空中
 world.set_weather(carla.WeatherParameters.HardRainSunset)
 
 # 生成一辆汽车，自动驾驶
@@ -113,13 +104,16 @@ air_client.takeoffAsync().join()
 air_client.moveToPositionAsync(80, 30, -25, 5)
 ```
 
-三个即开即用的体验脚本：
+**6 个即开即用的体验脚本** — 逐个试试：
 
-| 脚本 | 功能 |
-|------|------|
-| [`quick_start_showcase.py`](examples/quick_start_showcase.py) | 4 分屏传感器展示：自动驾驶 + 无人机追踪 + 天气轮换 |
-| [`drive_vehicle.py`](examples/drive_vehicle.py) | WASD 驾驶特斯拉穿越城市 |
-| [`walk_pedestrian.py`](examples/walk_pedestrian.py) | 鼠标+键盘 第三人称城市漫步 |
+```bash
+python3 examples/quick_start_showcase.py   # 🎬 4分屏传感器 + 无人机追踪 + 天气轮换
+python3 examples/drive_vehicle.py          # 🚗 WASD 驾驶特斯拉
+python3 examples/walk_pedestrian.py        # 🚶 鼠标+键盘 城市漫步
+python3 examples/switch_maps.py            # 🗺️  自动飞越全部 13 张地图
+python3 examples/sensor_gallery.py         # 📸 单车 6 传感器网格展示
+python3 examples/air_ground_sync.py        # 🔄 车+无人机分屏：同一场雨，同一世界
+```
 
 ---
 
