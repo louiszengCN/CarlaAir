@@ -244,14 +244,13 @@ def main():
         # ── Phase 2: Start driving (Traffic Manager) ──
         tm = carla_client.get_trafficmanager(8000)
         tm.set_global_distance_to_leading_vehicle(2.5)
-        tm.global_percentage_speed_difference(20.0)    # 20% slower = smooth cruising
+        tm.global_percentage_speed_difference(-20.0)   # 20% FASTER than speed limit
         tm.set_hybrid_physics_mode(True)
         tm.set_hybrid_physics_radius(50.0)
         vehicle.set_autopilot(True, 8000)
-        # Force lane keeping, no lane changes
-        tm.ignore_lights_percentage(vehicle, 0)
+        tm.ignore_lights_percentage(vehicle, 100)      # don't stop at lights for demo
         tm.auto_lane_change(vehicle, False)
-        tm.distance_to_leading_vehicle(vehicle, 3.0)
+        tm.distance_to_leading_vehicle(vehicle, 5.0)
         print("  Tesla cruising — drone following!\n")
 
         # ── Pygame display ──
@@ -285,25 +284,24 @@ def main():
                 world.set_weather(WEATHERS[weather_idx][1])
                 last_weather_change = time.time()
 
-            # ── Drone follow (every frame) ──
-            try:
-                veh_tf = vehicle.get_transform()
-                yaw = veh_tf.rotation.yaw
-                yaw_rad = math.radians(yaw)
-                cx = veh_tf.location.x - DRONE_BACK * math.cos(yaw_rad)
-                cy = veh_tf.location.y - DRONE_BACK * math.sin(yaw_rad)
-                cz = veh_tf.location.z + DRONE_HEIGHT
-                nx, ny, nz = carla_to_ned(cx, cy, cz, ox, oy, oz)
-                pose = airsim.Pose(
-                    airsim.Vector3r(nx, ny, nz),
-                    airsim.to_quaternion(
-                        math.radians(-15),  # slight pitch down to look at car
-                        0,
-                        math.radians(yaw))
-                )
-                air_client.simSetVehiclePose(pose, True)
-            except:
-                pass
+            # ── Drone follow (smooth async flight, not teleport) ──
+            if frame_count % 5 == 0:  # update target every ~5 frames to avoid flooding
+                try:
+                    veh_tf = vehicle.get_transform()
+                    yaw = veh_tf.rotation.yaw
+                    yaw_rad = math.radians(yaw)
+                    cx = veh_tf.location.x - DRONE_BACK * math.cos(yaw_rad)
+                    cy = veh_tf.location.y - DRONE_BACK * math.sin(yaw_rad)
+                    cz = veh_tf.location.z + DRONE_HEIGHT
+                    nx, ny, nz = carla_to_ned(cx, cy, cz, ox, oy, oz)
+                    # moveToPositionAsync: AirSim flies smoothly toward target (no join = non-blocking)
+                    air_client.moveToPositionAsync(
+                        nx, ny, nz, velocity=15.0,
+                        drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
+                        yaw_mode=airsim.YawMode(False, yaw),
+                    )
+                except:
+                    pass
 
             # ── Drone FPV (every 3rd frame to reduce load) ──
             drone_img = None
