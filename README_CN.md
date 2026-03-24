@@ -24,7 +24,13 @@
 </table>
 
 <p align="center">
-  <img src="teaser_upload.gif" alt="CarlaAir Teaser" width="100%"/>
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/download/v0.1.7/CarlaAirTeaser_1080p.mp4">
+    <img src="teaser_upload.gif" alt="CarlaAir Teaser — 点击观看完整演示视频" width="100%"/>
+  </a>
+</p>
+
+<p align="center">
+  <i>点击 GIF 或 </i><a href="https://github.com/louiszengCN/CarlaAir/releases/download/v0.1.7/CarlaAirTeaser_1080p.mp4"><b>观看 30 秒完整演示视频（汉斯·季默配乐）</b></a> 🎵
 </p>
 
 ---
