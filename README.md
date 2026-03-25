@@ -40,6 +40,7 @@
 
 ## 🔥 News
 
+- **[2026-03-31]** 🚀 Coming soon — Technical report, tutorial docs, project page, and ready-to-use binary release. Stay tuned!
 - **[2026-03]** `v0.1.7` released — VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs
 - **[2026-03]** `v0.1.6` released — Auto traffic spawn, UE4 native Sweep collision, ground clamping
 - **[2026-03]** `v0.1.5` released — 12-direction collision system, bilingual help overlay (`H`)
