@@ -1,3 +1,4 @@
+.kdev4
 .vscode
 Intermediate
 Plugins/AirSim/Content
@@ -20,7 +21,6 @@ Plugins/Converters/SimReady/Dependencies
 Plugins/Converters/SimReady/Intermediate
 Plugins/Converters/SimReady/Licenses
 Plugins/Converters/SimReady/packman
-Plugins/Streetmap/.git
 Plugins/Streetmap/Content
 Plugins/Streetmap/Docs
 Plugins/Streetmap/Intermediate

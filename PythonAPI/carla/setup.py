@@ -41,8 +41,17 @@ def get_libcarla_extensions():
         linux_distro = distro.id().lower()
         if linux_distro in supported_dists:
             pwd = os.path.dirname(os.path.realpath(__file__))
-            pylib = "libboost_python%d%d.a" % (sys.version_info.major,
+            pylib_static = "libboost_python%d%d.a" % (sys.version_info.major,
                                                sys.version_info.minor)
+            pylib_so = "libboost_python%d%d.so" % (sys.version_info.major,
+                                               sys.version_info.minor)
+            # Prefer static .a, fallback to dynamic .so
+            if os.path.exists(os.path.join(pwd, 'dependencies/lib', pylib_static)):
+                pylib = pylib_static
+            elif os.path.exists(os.path.join(pwd, 'dependencies/lib', pylib_so)):
+                pylib = pylib_so
+            else:
+                pylib = pylib_static  # will error at link time
             if is_rss_variant_enabled():
                 print('Building AD RSS variant.')
                 extra_link_args = [ os.path.join(pwd, 'dependencies/lib/libcarla_client_rss.a') ]

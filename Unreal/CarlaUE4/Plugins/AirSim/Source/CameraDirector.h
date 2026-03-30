@@ -82,6 +82,7 @@ private:
     USceneComponent* last_parent_ = nullptr;
 
     ECameraDirectorMode mode_;
+    ECameraDirectorMode mode_before_front_;  // saved mode before I-key toggle
     UPROPERTY()
     UManualPoseController* manual_pose_controller_;
 

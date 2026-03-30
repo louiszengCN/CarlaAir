@@ -751,13 +751,13 @@ void ASimWorldGameMode::CreateHelpOverlayWidget()
 
     // Font setup — DroidSansFallback for CJK support
     FString FontPath = FPaths::EngineContentDir() / TEXT("Slate/Fonts/DroidSansFallback.ttf");
-    FSlateFontInfo TitleFont(FontPath, 30);
+    FSlateFontInfo TitleFont(FontPath, 36);
     TitleFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo SubtitleFont(FontPath, 16);
+    FSlateFontInfo SubtitleFont(FontPath, 18);
     SubtitleFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo ContentFont(FontPath, 20);
+    FSlateFontInfo ContentFont(FontPath, 28);
     ContentFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo StatusFont(FontPath, 18);
+    FSlateFontInfo StatusFont(FontPath, 22);
     StatusFont.TypefaceFontName = FName("Bold");
     FSlateFontInfo KeyFont(FontPath, 18);
     KeyFont.TypefaceFontName = FName("Bold");
@@ -867,42 +867,21 @@ void ASimWorldGameMode::UpdateHelpOverlayText()
 
     // Subtitle — v0.1.7
     if (HelpSubtitleBlock_.IsValid())
-        HelpSubtitleBlock_->SetText(FText::FromString(
-            TEXT("v0.1.7  \x7A7A\x5730\x4E00\x4F53\x8054\x5408\x4EFF\x771F\x5E73\x53F0")));
-    // Chinese: 空地一体联合仿真平台
+        HelpSubtitleBlock_->SetText(FText::FromString(TEXT("v0.1.7")));
 
-    // Content — detailed bilingual help
+    // Content — three columns: Key | English | Chinese
     FString Content = FString::Printf(TEXT(
-        "\x98DE\x884C\x63A7\x5236  FLIGHT CONTROLS\n"
-        "\n"
-        "  W / S            \x524D\x8FDB / \x540E\x9000  Forward / Backward\n"
-        "  A / D            \x5DE6\x79FB / \x53F3\x79FB  Strafe Left / Right\n"
-        "  Mouse            \x504F\x822A\x65CB\x8F6C\x65B9\x5411  Yaw Turn Direction\n"
-        "  Space            \x4E0A\x5347\x65E0\x4EBA\x673A  Ascend Drone\n"
-        "  Left Shift       \x4E0B\x964D\x65E0\x4EBA\x673A  Descend Drone\n"
-        "  Scroll Wheel     \x8C03\x8282\x98DE\x884C\x901F\x5EA6 (+/- 1 m/s)\n"
-        "\n"
-        "\x7CFB\x7EDF\x529F\x80FD  SYSTEM FUNCTIONS\n"
-        "\n"
-        "  N                \x5207\x6362\x5929\x6C14\x9884\x8BBE  Cycle Weather Presets\n"
-        "  P                \x7269\x7406\x78B0\x649E / \x7A7F\x8D8A\x6A21\x5F0F  Physics / Noclip\n"
-        "  Tab              \x91CA\x653E / \x6355\x83B7\x9F20\x6807  Release / Capture Mouse\n"
-        "  H                \x663E\x793A / \x9690\x85CF\x5E2E\x52A9  Show / Hide Help\n"
-        "  1 / 2 / 3        \x4F20\x611F\x5668\x753B\x9762  Sensor Camera Views\n"
-        "\n"
-        "AirSim \x9AD8\x7EA7  ADVANCED (for AirSim experts)\n"
-        "\n"
-        "  I                \x5207\x6362\x7B2C\x4E00\x4EBA\x79F0 / \x9ED8\x8BA4\x89C6\x89D2\n"
-        "                   Toggle First-Person / Default View\n"
-        "  B                FPV\x6A21\x5F0F (\x9F20\x6807\x63A7\x5236\x65E0\x4EBA\x673A\x504F\x822A)\n"
-        "                   FPV Mode (mouse controls drone yaw)\n"
-        "  \x26A0 I/B \x4EC5\x5EFA\x8BAE\x719F\x6089 AirSim \x7684\x7528\x6237\x4F7F\x7528\n"
-        "    I/B for experienced AirSim users only"
+        "W / S        Forward / Backward      \x524D\x8FDB / \x540E\x9000\n"
+        "A / D        Strafe Left / Right      \x5DE6\x79FB / \x53F3\x79FB\n"
+        "Mouse        Yaw Direction             \x504F\x822A\x65B9\x5411\n"
+        "Space        Ascend                    \x4E0A\x5347\n"
+        "Shift        Descend                   \x4E0B\x964D\n"
+        "Scroll       Speed +/- 1 m/s           \x8C03\x8282\x901F\x5EA6\n"
+        "N            Cycle Weather              \x5207\x6362\x5929\x6C14\n"
+        "P            Physics / Noclip           \x78B0\x649E / \x7A7F\x8D8A\n"
+        "Tab          Release Mouse              \x91CA\x653E\x9F20\x6807\n"
+        "1 / 2 / 3    Sensor Views               \x4F20\x611F\x5668\x89C6\x56FE"
     ));
-    // Chinese decoded: 飞行控制, 前进/后退, 左移/右移, 偏航旋转方向, 上升无人机, 下降无人机,
-    // 调节飞行速度, 系统功能, 切换天气预设, 物理碰撞/穿越模式, 释放/捕获鼠标, 显示/隐藏帮助,
-    // 传感器画面, AirSim高级, 切换第一人称/默认视角, FPV模式(鼠标控制无人机偏航),
-    // 仅建议熟悉AirSim的用户使用
     HelpContentBlock_->SetText(FText::FromString(Content));
 
     // Status line — white, same style as content

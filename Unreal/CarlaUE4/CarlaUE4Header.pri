@@ -18011,6 +18011,7 @@ HEADERS += \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/PawnEvents.h" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/PawnSimApi.h" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/RenderRequest.h" \
+	"$$CarlaUE4RootPath/Plugins/AirSim/Source/SimWorldGameMode.h" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/TextureShuffleActor.h" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/UnrealImageCapture.h" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/WorldSimApi.h" \

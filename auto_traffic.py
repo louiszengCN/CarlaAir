@@ -212,8 +212,8 @@ def main():
     global client, world, running
 
     parser = argparse.ArgumentParser(description='CarlaAir Auto Traffic Generator')
-    parser.add_argument('--vehicles', '-n', type=int, default=30)
-    parser.add_argument('--walkers', '-w', type=int, default=50)
+    parser.add_argument('--vehicles', '-n', type=int, default=10)
+    parser.add_argument('--walkers', '-w', type=int, default=10)
     parser.add_argument('--port', '-p', type=int, default=2000)
     parser.add_argument('--tm-port', type=int, default=8000)
     args = parser.parse_args()

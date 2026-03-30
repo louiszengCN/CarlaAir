@@ -9,10 +9,10 @@ CONFIG -= qt
 
 TARGET = UE4 
 
-unrealRootPath=/mnt/data1/tianle/carla_ue4
-CarlaUE4RootPath=/mnt/data1/tianle/carla_source/Unreal/CarlaUE4
+unrealRootPath=/home/lenovo/carla_ue4
+CarlaUE4RootPath=/home/lenovo/CarlaAirRelease/CarlaAir-v0.1.6-source/Unreal/CarlaUE4
 
-gameProjectFile=/mnt/data1/tianle/carla_source/Unreal/CarlaUE4/CarlaUE4.uproject
+gameProjectFile=/home/lenovo/CarlaAirRelease/CarlaAir-v0.1.6-source/Unreal/CarlaUE4/CarlaUE4.uproject
 build=bash $$unrealRootPath/Engine/Build/BatchFiles/Linux/RunMono.sh $$unrealRootPath/Engine/Binaries/DotNET/UnrealBuildTool.exe
 
 args=$(ARGS)
