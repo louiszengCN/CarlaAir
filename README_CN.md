@@ -28,8 +28,7 @@
   📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>论文</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>项目主页</b></a> <i>(即将上线)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>文档</b></a> &nbsp;|&nbsp;
-  🎬 <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>视频</b></a> &nbsp;|&nbsp;
-  💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>二进制发布包</b></a>
+  🎬 <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>视频</b></a>
 </p>
 
 <p align="center">

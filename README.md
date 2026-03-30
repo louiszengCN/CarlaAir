@@ -28,8 +28,7 @@
   📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>Paper</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>Project Page</b></a> <i>(coming soon)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>Docs</b></a> &nbsp;|&nbsp;
-  🎬 <a href="https://youtu.be/a0fZG2dmT1Q"><b>Video</b></a> &nbsp;|&nbsp;
-  💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>Binary Release</b></a>
+  🎬 <a href="https://youtu.be/a0fZG2dmT1Q"><b>Video</b></a>
 </p>
 
 <p align="center">
