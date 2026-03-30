@@ -7,7 +7,10 @@
   </a>
 </p>
 
-**CARLA-Air** 是一个开源仿真基础设施，在单一 Unreal Engine 进程中统一了高保真城市驾驶与物理精确的多旋翼飞行，为空地一体具身智能研究提供了实用的仿真基础。
+**CARLA-Air** 是一个开源仿真基础设施，在单一 Unreal Engine 进程中统一了高保真城市驾驶与物理精确的多旋翼飞行，为空地一体具身智能研究提供了实用的仿真基础。  
+
+👉 **无需编译，下载即用的预构建可执行版本：**  
+[百度网盘](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
   <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
