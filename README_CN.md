@@ -1,4 +1,5 @@
-# CARLA-Air：在 CARLA 世界里飞无人机 — 空地一体具身智能统一仿真基础设施
+<h1 align="center">CARLA-Air：在 CARLA 世界里飞无人机</h1>
+<h3 align="center">空地一体具身智能统一仿真基础设施</h3>
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1pTQzBkES7/">
@@ -29,6 +30,12 @@
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>文档</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>视频</b></a> &nbsp;|&nbsp;
   💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>二进制发布包</b></a>
+</p>
+
+<p align="center">
+  <a href="https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai"><img src="https://img.shields.io/badge/百度网盘-下载-2932E1?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="Baidu Pan"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/HuggingFace-下载-FFD21E?logo=huggingface&logoColor=black" alt="HuggingFace"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/ModelScope-下载-6B4FBB?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="ModelScope"/></a>
 </p>
 
 ## 📌 目录
