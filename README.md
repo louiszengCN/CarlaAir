@@ -1,4 +1,5 @@
-# CARLA-Air: Fly Drones Inside a CARLA World — A Unified Infrastructure for Air-Ground Embodied Intelligence
+<h1 align="center">CARLA-Air: Fly Drones Inside a CARLA World</h1>
+<h3 align="center">A Unified Infrastructure for Air-Ground Embodied Intelligence</h3>
 
 <p align="center">
   <a href="https://youtu.be/a0fZG2dmT1Q">
@@ -29,6 +30,12 @@
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>Docs</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://youtu.be/a0fZG2dmT1Q"><b>Video</b></a> &nbsp;|&nbsp;
   💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>Binary Release</b></a>
+</p>
+
+<p align="center">
+  <a href="https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai"><img src="https://img.shields.io/badge/Baidu%20Pan-Download-2932E1?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="Baidu Pan"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/HuggingFace-Download-FFD21E?logo=huggingface&logoColor=black" alt="HuggingFace"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/ModelScope-Download-6B4FBB?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="ModelScope"/></a>
 </p>
 
 ## 📌 Table of Contents
