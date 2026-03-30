@@ -1,26 +1,4 @@
-<h1 align="center">CARLA-Air</h1>
-
-<p align="center">
-  <b>在 CARLA 世界里飞无人机</b><br/>
-  空地一体具身智能统一仿真基础设施
-</p>
-
-<p align="center">
-  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b" alt="arXiv"/></a>
-  <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
-  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
-  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
-  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
-  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
-</p>
-
-<p align="center">
-  <a href="README.md">English</a> | <b>简体中文</b>
-</p>
-
----
+# CARLA-Air：在 CARLA 世界里飞无人机 — 空地一体具身智能统一仿真基础设施
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1pTQzBkES7/">
@@ -28,13 +6,24 @@
   </a>
 </p>
 
-<p align="center">
-  点击 GIF 或观看演示视频：<a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>Bilibili</b></a> | <a href="https://youtu.be/a0fZG2dmT1Q"><b>YouTube</b></a>
-</p>
+**CARLA-Air** 是一个开源仿真基础设施，在单一 Unreal Engine 进程中统一了高保真城市驾驶与物理精确的多旋翼飞行，为空地一体具身智能研究提供了实用的仿真基础。
 
----
+<div align="center">
+  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
+  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
+  <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
+  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
+  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
+  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
+</div>
+
+<br>
 
 <p align="center">
+  <a href="README.md">English</a> | <b>简体中文</b> &nbsp;&nbsp;|&nbsp;&nbsp;
   📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>论文</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>项目主页</b></a> <i>(即将上线)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>文档</b></a> &nbsp;|&nbsp;
@@ -42,24 +31,20 @@
   💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>二进制发布包</b></a>
 </p>
 
----
+## 📌 目录
 
-CARLA-Air 是一个开源仿真基础设施，在单一 Unreal Engine 进程中统一了高保真城市驾驶与物理精确的多旋翼飞行，为空地一体具身智能研究提供了实用的仿真基础。该平台完整保留了 CARLA 和 AirSim 原生的 Python API 及 ROS 2 接口，支持现有代码库的零修改迁移复用。
-
-## 目录
-
-- [最新动态](#-最新动态)
-- [核心亮点](#-核心亮点)
-- [平台对比](#-平台对比)
-- [快速开始](#-快速开始)
-- [一个脚本，两个世界](#-一个脚本两个世界)
-- [研究方向与工作流](#-研究方向与工作流)
-- [飞行控制说明](#️-飞行控制说明)
-- [文档与教程](#-文档与教程)
-- [路线图](#️-路线图)
-- [引用](#-引用)
-- [许可证与致谢](#-许可证与致谢)
-- [Star History](#-star-history)
+- [🔥 最新动态](#最新动态)
+- [✨ 核心亮点](#核心亮点)
+- [🏆 平台对比](#平台对比) — 15 款仿真器横向对比
+- [🎮 快速开始](#快速开始) — 4 步上手
+- [🐍 一个脚本，两个世界](#一个脚本两个世界) — 双 API 代码示例
+- [🔬 研究方向与工作流](#研究方向与工作流) — W1–W5 验证工作流
+- [⌨️ 飞行控制说明](#飞行控制说明)
+- [📚 文档与教程](#文档与教程) — 8 个渐进式教程
+- [🗺️ 路线图](#路线图)
+- [📝 引用](#引用)
+- [📜 许可证与致谢](#许可证与致谢)
+- [⭐ Star History](#star-history)
 
 ## 🔥 最新动态
 
