@@ -7,7 +7,10 @@
   </a>
 </p>
 
-**CARLA-Air** is an open-source infrastructure that unifies high-fidelity urban driving and physics-accurate multirotor flight within a single Unreal Engine process, providing a practical simulation foundation for air-ground embodied intelligence research.
+**CARLA-Air** is an open-source infrastructure that unifies high-fidelity urban driving and physics-accurate multirotor flight within a single Unreal Engine process, providing a practical simulation foundation for air-ground embodied intelligence research.  
+
+👉 **Get started instantly with our pre-built executable (no compilation required):**  
+[Baidu Pan](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
   <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
