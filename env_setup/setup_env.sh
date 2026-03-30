@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-#  CarlaAir v0.1.6 — One-click Environment Setup
+#  CarlaAir v0.1.7 — One-click Environment Setup
 #  Usage: bash setup_env.sh
 # ============================================================
 set -e
@@ -22,7 +22,7 @@ fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 
 echo ""
 echo "=========================================="
-echo "  CarlaAir v0.1.6 Environment Setup"
+echo "  CarlaAir v0.1.7 Environment Setup"
 echo "=========================================="
 echo ""
 

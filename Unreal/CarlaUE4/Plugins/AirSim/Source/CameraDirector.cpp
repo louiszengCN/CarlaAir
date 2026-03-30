@@ -57,6 +57,7 @@ void ACameraDirector::initializeForBeginPlay(ECameraDirectorMode view_mode,
     setupInputBindings();
 
     mode_ = view_mode;
+    mode_before_front_ = view_mode;  // default restore target = initial view
 
     follow_actor_ = follow_actor;
     fpv_camera_ = fpv_camera;
@@ -287,13 +288,33 @@ void ACameraDirector::inputEventBackupView()
 
 void ACameraDirector::inputEventFrontView()
 {
-    // Toggle: if already in Front view → switch back to default (FlyWithMe)
+    // Toggle: if already in Front view → restore the view that was active before pressing I
     if (mode_ == ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FRONT
         || mode_ == ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FPV) {
-        // Return to default CarlaAir view
-        inputEventFlyWithView();
+        // Restore previous mode
+        switch (mode_before_front_) {
+        case ECameraDirectorMode::CAMERA_DIRECTOR_MODE_GROUND_OBSERVER:
+            inputEventGroundView();
+            break;
+        case ECameraDirectorMode::CAMERA_DIRECTOR_MODE_MANUAL:
+            inputEventManualView();
+            break;
+        case ECameraDirectorMode::CAMERA_DIRECTOR_MODE_SPRINGARM_CHASE:
+            inputEventSpringArmChaseView();
+            break;
+        case ECameraDirectorMode::CAMERA_DIRECTOR_MODE_BACKUP:
+            inputEventBackupView();
+            break;
+        default:
+            // FLY_WITH_ME or anything else
+            inputEventFlyWithView();
+            break;
+        }
         return;
     }
+
+    // Save current mode before switching to front view
+    mode_before_front_ = mode_;
 
     if (front_camera_) {
         setMode(ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FRONT);

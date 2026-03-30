@@ -13631,6 +13631,7 @@ SOURCES += \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/PawnEvents.cpp" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/PawnSimApi.cpp" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/RenderRequest.cpp" \
+	"$$CarlaUE4RootPath/Plugins/AirSim/Source/SimWorldGameMode.cpp" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/TextureShuffleActor.cpp" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/UnrealImageCapture.cpp" \
 	"$$CarlaUE4RootPath/Plugins/AirSim/Source/WorldSimApi.cpp" \
