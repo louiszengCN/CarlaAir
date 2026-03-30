@@ -1,26 +1,4 @@
-<h1 align="center">CARLA-Air</h1>
-
-<p align="center">
-  <b>Fly Drones Inside a CARLA World</b><br/>
-  A Unified Infrastructure for Air-Ground Embodied Intelligence
-</p>
-
-<p align="center">
-  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b" alt="arXiv"/></a>
-  <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
-  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
-  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
-  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
-  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
-</p>
-
-<p align="center">
-  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
-</p>
-
----
+# CARLA-Air: Fly Drones Inside a CARLA World — A Unified Infrastructure for Air-Ground Embodied Intelligence
 
 <p align="center">
   <a href="https://youtu.be/a0fZG2dmT1Q">
@@ -28,13 +6,24 @@
   </a>
 </p>
 
-<p align="center">
-  Click the GIF or watch our demo video: <a href="https://youtu.be/a0fZG2dmT1Q"><b>YouTube</b></a> | <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>Bilibili</b></a>
-</p>
+**CARLA-Air** is an open-source infrastructure that unifies high-fidelity urban driving and physics-accurate multirotor flight within a single Unreal Engine process, providing a practical simulation foundation for air-ground embodied intelligence research.
 
----
+<div align="center">
+  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
+  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
+  <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
+  <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+  <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
+  <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
+  <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>
+  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%20%7C%2022.04-lightgrey" alt="Platform"/>
+</div>
+
+<br>
 
 <p align="center">
+  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a> &nbsp;&nbsp;|&nbsp;&nbsp;
   📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>Paper</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>Project Page</b></a> <i>(coming soon)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>Docs</b></a> &nbsp;|&nbsp;
@@ -42,24 +31,20 @@
   💻 <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><b>Binary Release</b></a>
 </p>
 
----
+## 📌 Table of Contents
 
-CARLA-Air is an open-source infrastructure that unifies high-fidelity urban driving and physics-accurate multirotor flight within a single Unreal Engine process, providing a practical simulation foundation for air-ground embodied intelligence research. The platform preserves both CARLA and AirSim native Python APIs and ROS 2 interfaces, enabling zero-modification reuse of existing codebases.
-
-## Table of Contents
-
-- [News](#news)
-- [Highlights](#highlights)
-- [Platform Comparison](#platform-comparison)
-- [Quick Start](#quick-start)
-- [One Script, Two Worlds](#one-script-two-worlds)
-- [Research Directions & Workflows](#research-directions--workflows)
-- [Flight Controls](#flight-controls)
-- [Documentation & Tutorials](#documentation--tutorials)
-- [Roadmap](#roadmap)
-- [Citation](#citation)
-- [License & Acknowledgments](#license--acknowledgments)
-- [Star History](#star-history)
+- [🔥 News](#news)
+- [✨ Highlights](#highlights)
+- [🏆 Platform Comparison](#platform-comparison) — 15 simulators, side-by-side
+- [🎮 Quick Start](#quick-start) — up and running in 4 steps
+- [🐍 One Script, Two Worlds](#one-script-two-worlds) — dual API code examples
+- [🔬 Research Directions & Workflows](#research-directions--workflows) — W1–W5 validated workflows
+- [⌨️ Flight Controls](#flight-controls)
+- [📚 Documentation & Tutorials](#documentation--tutorials) — 8 step-by-step tutorials
+- [🗺️ Roadmap](#roadmap)
+- [📝 Citation](#citation)
+- [📜 License & Acknowledgments](#license--acknowledgments)
+- [⭐ Star History](#star-history)
 
 <a id="news"></a>
 
