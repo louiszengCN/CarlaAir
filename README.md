@@ -305,7 +305,7 @@ The platform provides five reference workflows that cover these directions:
 
 | | Workflow | Direction | Key Result |
 |---|---|---|---|
-| W1 | Cooperative Precision Landing | Air-ground cooperation | < 0.5 m landing error |
+| W1 | Air-Ground Cooperation | Air-ground cooperation | Real-time cross-domain coordination |
 | W2 | VLN/VLA Data Generation | Embodied navigation | Cross-view VLN data pipeline |
 | W3 | Multi-Modal Dataset Collection | Perception and dataset | 12-stream sync, 1-tick alignment |
 | W4 | Cross-View Perception | Perception and dataset | 14/14 weather presets verified |
@@ -314,21 +314,21 @@ The platform provides five reference workflows that cover these directions:
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/images/landing.jpg" alt="W1: Cooperative Precision Landing" width="100%"/><br/>
-      <b>W1: Cooperative Precision Landing</b>
+      <img src="docs/gifs/W1.gif" alt="W1: Air-Ground Cooperation" width="100%"/><br/>
+      <b>W1: Air-Ground Cooperation</b>
     </td>
     <td align="center" width="50%">
-      <img src="docs/images/vln.jpg" alt="W2: VLN/VLA Data Generation" width="100%"/><br/>
+      <img src="docs/gifs/W2.gif" alt="W2: VLN/VLA Data Generation" width="100%"/><br/>
       <b>W2: VLN/VLA Data Generation</b>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/images/datasets.jpg" alt="W3: Multi-Modal Dataset Collection" width="100%"/><br/>
+      <img src="docs/gifs/W3.gif" alt="W3: Multi-Modal Dataset Collection" width="100%"/><br/>
       <b>W3: Multi-Modal Dataset Collection</b>
     </td>
     <td align="center">
-      <img src="docs/images/w4.jpg" alt="W4: Cross-View Perception" width="100%"/><br/>
+      <img src="docs/gifs/W4.gif" alt="W4: Cross-View Perception" width="100%"/><br/>
       <b>W4: Cross-View Perception</b>
     </td>
   </tr>
@@ -338,8 +338,14 @@ The platform provides five reference workflows that cover these directions:
       <b>W5: RL Training Environment</b>
     </td>
     <td align="center">
-      <img src="docs/images/asset.jpg" alt="Custom Asset Import" width="100%"/><br/>
+      <img src="docs/gifs/customAsset.gif" alt="Custom Asset Import" width="100%"/><br/>
       <b>Custom Asset Import</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/gifs/ROS_demo.gif" alt="ROS 2 Support" width="100%"/><br/>
+      <b>ROS 2 Integration — 63 Topics across Both Backends</b>
     </td>
   </tr>
 </table>

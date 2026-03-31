@@ -293,7 +293,7 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
 
 | | 工作流 | 研究方向 | 关键成果 |
 |---|---|---|---|
-| W1 | 协同精准降落 | 空地协同 | < 0.5 m 降落误差 |
+| W1 | 空地协同 | 空地协同 | 实时跨域协调控制 |
 | W2 | VLN/VLA 数据生成 | 具身导航 | 跨视角 VLN 数据管线 |
 | W3 | 多模态数据集采集 | 感知与数据集 | 12 路同步，1-tick 对齐 |
 | W4 | 跨视角感知 | 感知与数据集 | 14/14 天气预设验证通过 |
@@ -302,21 +302,21 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/images/landing.jpg" alt="W1：协同精准降落" width="100%"/><br/>
-      <b>W1：协同精准降落</b>
+      <img src="docs/gifs/W1.gif" alt="W1：空地协同" width="100%"/><br/>
+      <b>W1：空地协同</b>
     </td>
     <td align="center" width="50%">
-      <img src="docs/images/vln.jpg" alt="W2：VLN/VLA 数据生成" width="100%"/><br/>
+      <img src="docs/gifs/W2.gif" alt="W2：VLN/VLA 数据生成" width="100%"/><br/>
       <b>W2：VLN/VLA 数据生成</b>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/images/datasets.jpg" alt="W3：多模态数据集采集" width="100%"/><br/>
+      <img src="docs/gifs/W3.gif" alt="W3：多模态数据集采集" width="100%"/><br/>
       <b>W3：多模态数据集采集</b>
     </td>
     <td align="center">
-      <img src="docs/images/w4.jpg" alt="W4：跨视角感知" width="100%"/><br/>
+      <img src="docs/gifs/W4.gif" alt="W4：跨视角感知" width="100%"/><br/>
       <b>W4：跨视角感知</b>
     </td>
   </tr>
@@ -326,8 +326,14 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
       <b>W5：RL 训练环境</b>
     </td>
     <td align="center">
-      <img src="docs/images/asset.jpg" alt="自定义资产导入" width="100%"/><br/>
+      <img src="docs/gifs/customAsset.gif" alt="自定义资产导入" width="100%"/><br/>
       <b>自定义资产导入</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/gifs/ROS_demo.gif" alt="ROS 2 支持" width="100%"/><br/>
+      <b>ROS 2 集成 — 63 个 Topic 覆盖双仿真后端</b>
     </td>
   </tr>
 </table>
