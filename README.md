@@ -13,8 +13,8 @@
 [Baidu Pan](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
-  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
+  <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
+  <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/arXiv-2603.28032-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
@@ -28,7 +28,7 @@
 
 <p align="center">
   <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-  📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>Paper</b></a> &nbsp;|&nbsp;
+  📄 <a href="https://arxiv.org/abs/2603.28032"><b>Paper</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>Project Page</b></a> <i>(coming soon)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>Docs</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://youtu.be/a0fZG2dmT1Q"><b>Video</b></a>
@@ -59,7 +59,7 @@
 ## 🔥 News
 
 - **[2026-03-31]** 🚀 Coming soon -- Project page, tutorial docs, and ready-to-use binary release. Stay tuned!
-- **[2026-03-30]** 📄 Technical report released -- [Read the paper](report/CarlaAir_arxiv_version.pdf)
+- **[2026-03-30]** 📄 Technical report released -- [Read the paper](https://arxiv.org/abs/2603.28032)
 - **[2026-03]** `v0.1.7` released -- VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs
 - **[2026-03]** `v0.1.6` released -- Auto traffic spawn, UE4 native Sweep collision, ground clamping
 - **[2026-03]** `v0.1.5` released -- 12-direction collision system, bilingual help overlay (`H`)
@@ -93,7 +93,7 @@
 
 ## 🏆 Platform Comparison
 
-A comprehensive comparison of CARLA-Air against 14 existing simulation platforms (based on Table 1 from the [technical report](report/CarlaAir_arxiv_version.pdf)).
+A comprehensive comparison of CARLA-Air against 14 existing simulation platforms (based on Table 1 from the [technical report](https://arxiv.org/abs/2603.28032)).
 
 <table>
   <thead>
@@ -413,7 +413,7 @@ We provide **6 curated Python examples** showcasing the core air-ground cooperat
 - [x] ROS2 validation (63 topics)
 - [x] One-click environment setup
 - [x] Recording toolkit (vehicle, drone, pedestrian trajectories)
-- [x] Technical report ([PDF](report/CarlaAir_arxiv_version.pdf))
+- [x] Technical report ([PDF](https://arxiv.org/abs/2603.28032))
 - [ ] Project page (in progress)
 - [ ] Tutorial documentation
 - [ ] 3DGS rendering pipeline integration
@@ -433,7 +433,7 @@ If you find CARLA-Air useful in your research, please consider citing our paper:
   title   = {CARLA-Air: Fly Drones Inside a CARLA World --
              A Unified Infrastructure for Air-Ground Embodied Intelligence},
   author  = {Zeng, Tianle and Chen, Hanxuan and Wen, Yanci and Zhang, Hong},
-  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  journal = {arXiv preprint arXiv:2603.28032},
   year    = {2026}
 }
 ```

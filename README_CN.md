@@ -13,8 +13,8 @@
 [百度网盘](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
-  <a href="report/CarlaAir_arxiv_version.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
+  <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
+  <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/arXiv-2603.28032-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
@@ -28,7 +28,7 @@
 
 <p align="center">
   <a href="README.md">English</a> | <b>简体中文</b> &nbsp;&nbsp;|&nbsp;&nbsp;
-  📄 <a href="report/CarlaAir_arxiv_version.pdf"><b>论文</b></a> &nbsp;|&nbsp;
+  📄 <a href="https://arxiv.org/abs/2603.28032"><b>论文</b></a> &nbsp;|&nbsp;
   🌐 <a href="#"><b>项目主页</b></a> <i>(即将上线)</i> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>文档</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>视频</b></a>
@@ -56,7 +56,7 @@
 
 ## 🔥 最新动态
 
-- **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](report/CarlaAir_arxiv_version.pdf)
+- **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](https://arxiv.org/abs/2603.28032)
 - **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！
 - **[2026-03]** `v0.1.7` 发布 -- VSync 修复、稳定交通系统、一键环境配置、无人机录制工具、坐标系文档
 - **[2026-03]** `v0.1.6` 发布 -- 自动交通生成、UE4 原生 Sweep 碰撞、地面夹紧系统
@@ -87,7 +87,7 @@
 
 ## 🏆 平台对比
 
-CARLA-Air 与 14 个现有仿真平台的全面对比（基于[技术报告](report/CarlaAir_arxiv_version.pdf)表 1）。
+CARLA-Air 与 14 个现有仿真平台的全面对比（基于[技术报告](https://arxiv.org/abs/2603.28032)表 1）。
 
 <table>
   <thead>
@@ -395,7 +395,7 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
 - [x] ROS2 验证（63 个话题）
 - [x] 一键环境配置
 - [x] 录制工具（车辆、无人机、行人轨迹）
-- [x] 技术报告（[PDF](report/CarlaAir_arxiv_version.pdf)）
+- [x] 技术报告（[PDF](https://arxiv.org/abs/2603.28032)）
 - [ ] 项目主页（开发中）
 - [ ] 教程文档
 - [ ] 3DGS 渲染管线集成
@@ -413,7 +413,7 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
   title   = {CARLA-Air: Fly Drones Inside a CARLA World --
              A Unified Infrastructure for Air-Ground Embodied Intelligence},
   author  = {Zeng, Tianle and Chen, Hanxuan and Wen, Yanci and Zhang, Hong},
-  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  journal = {arXiv preprint arXiv:2603.28032},
   year    = {2026}
 }
 ```
