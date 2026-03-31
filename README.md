@@ -306,7 +306,7 @@ The platform provides five reference workflows that cover these directions:
 | | Workflow | Direction | Key Result |
 |---|---|---|---|
 | W1 | Air-Ground Cooperation | Air-ground cooperation | Real-time cross-domain coordination |
-| W2 | VLN/VLA Data Generation | Embodied navigation | Cross-view VLN data pipeline |
+| W2 | VLN/VLA Tasks | Embodied navigation | Cross-view VLN data pipeline |
 | W3 | Multi-Modal Dataset Collection | Perception and dataset | 12-stream sync, 1-tick alignment |
 | W4 | Cross-View Perception | Perception and dataset | 14/14 weather presets verified |
 | W5 | RL Training Environment | RL policy training | 357 reset cycles, 0 crashes |
