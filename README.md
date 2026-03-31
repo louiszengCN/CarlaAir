@@ -319,7 +319,7 @@ The platform provides five reference workflows that cover these directions:
     </td>
     <td align="center" width="50%">
       <img src="docs/gifs/W2.gif" alt="W2: VLN/VLA Data Generation" width="100%"/><br/>
-      <b>W2: VLN/VLA Data Generation</b>
+      <b>W2: VLN/VLA Tasks</b>
     </td>
   </tr>
   <tr>
