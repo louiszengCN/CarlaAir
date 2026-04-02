@@ -58,7 +58,7 @@
 
 ## 🔥 最新动态
 
-- **[2026-04-01]** 🏆 **[Hugging Face Daily Papers #1 Paper of the Day](https://huggingface.co/papers/2603.28032)**！
+- **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **登顶 [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)！**
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](https://arxiv.org/abs/2603.28032)
 - **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！
 - **[2026-03]** `v0.1.7` 发布 -- VSync 修复、稳定交通系统、一键环境配置、无人机录制工具、坐标系文档

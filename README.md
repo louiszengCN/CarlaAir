@@ -60,7 +60,7 @@
 
 ## 🔥 News
 
-- **[2026-04-01]** 🏆 **[#1 Paper of the Day](https://huggingface.co/papers/2603.28032)** on Hugging Face Daily Papers!
+- **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **on [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)!**
 - **[2026-03-30]** 📄 Technical report released -- [Read the paper](https://arxiv.org/abs/2603.28032)
 - **[2026-03]** `v0.1.7` released -- VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs
 - **[2026-03]** `v0.1.6` released -- Auto traffic spawn, UE4 native Sweep collision, ground clamping
