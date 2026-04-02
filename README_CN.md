@@ -13,6 +13,7 @@
 [百度网盘](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
+  <a href="https://huggingface.co/papers/2603.28032"><img src="https://img.shields.io/badge/%F0%9F%8F%86%20HF%20Daily%20Papers-%231%20Paper%20of%20the%20Day-FFD700" alt="#1 Paper of the Day"/></a>
   <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
   <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/arXiv-2603.28032-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
@@ -57,6 +58,7 @@
 
 ## 🔥 最新动态
 
+- **[2026-04-01]** 🏆 **[Hugging Face Daily Papers #1 Paper of the Day](https://huggingface.co/papers/2603.28032)**！
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](https://arxiv.org/abs/2603.28032)
 - **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！
 - **[2026-03]** `v0.1.7` 发布 -- VSync 修复、稳定交通系统、一键环境配置、无人机录制工具、坐标系文档
