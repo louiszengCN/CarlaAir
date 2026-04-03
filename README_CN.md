@@ -418,12 +418,11 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
 如果 CARLA-Air 对您的研究有所帮助，请考虑引用我们的论文：
 
 ```bibtex
-@article{zeng2026carlaair,
-  title   = {CARLA-Air: Fly Drones Inside a CARLA World --
-             A Unified Infrastructure for Air-Ground Embodied Intelligence},
-  author  = {Zeng, Tianle and Chen, Hanxuan and Wen, Yanci and Zhang, Hong},
-  journal = {arXiv preprint arXiv:2603.28032},
-  year    = {2026}
+@article{zeng2026carla,
+  title={CARLA-Air: Fly Drones Inside a CARLA World--A Unified Infrastructure for Air-Ground Embodied Intelligence},
+  author={Zeng, Tianle and Chen, Hanxuan and Wen, Yanci and Zhang, Hong},
+  journal={arXiv preprint arXiv:2603.28032},
+  year={2026}
 }
 ```
 
