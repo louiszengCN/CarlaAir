@@ -195,7 +195,6 @@ class CodeFormat:
     def __init__(self):
         self.failure = False
         self.codeFormatterInstances = []
-        return
 
     def parseCommandLine(self):
         parser = argparse.ArgumentParser(

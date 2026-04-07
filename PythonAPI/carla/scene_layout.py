@@ -68,14 +68,14 @@ def get_scene_layout(carla_map):
 
                 # Get left and right waypoint ids only if they are valid
                 left_lane_waypoint_id = -1
-                if left_lane_key in map_dict[road_key]:
-                    left_lane_waypoints = map_dict[road_key][left_lane_key]["waypoints"]
+                if left_lane_key in road_value:
+                    left_lane_waypoints = road_value[left_lane_key]["waypoints"]
                     if i < len(left_lane_waypoints):
                         left_lane_waypoint_id = left_lane_waypoints[i].id
 
                 right_lane_waypoint_id = -1
-                if right_lane_key in map_dict[road_key]:
-                    right_lane_waypoints = map_dict[road_key][right_lane_key]["waypoints"]
+                if right_lane_key in road_value:
+                    right_lane_waypoints = road_value[right_lane_key]["waypoints"]
                     if i < len(right_lane_waypoints):
                         right_lane_waypoint_id = right_lane_waypoints[i].id
 

@@ -1212,7 +1212,7 @@ class World:
                        ]
             v[1].transform(corners)
             corners = [world_to_pixel(p) for p in corners]
-            pygame.draw.lines(surface, color, False, corners, int(math.ceil(4.0 * self.map_image.scale)))
+            pygame.draw.lines(surface, color, False, corners, math.ceil(4.0 * self.map_image.scale))
 
     def render_actors(self, surface, vehicles, traffic_lights, speed_limits, walkers):
         """Renders all the actors"""
