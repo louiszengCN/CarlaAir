@@ -27,16 +27,14 @@ import math
 import os
 import random
 import re
-import sys
 import weakref
+from configparser import ConfigParser
 
 # ==============================================================================
 # -- imports -------------------------------------------------------------------
 # ==============================================================================
 import carla
 from carla import ColorConverter as cc
-
-from configparser import ConfigParser
 
 try:
     import pygame

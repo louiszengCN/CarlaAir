@@ -22,7 +22,6 @@ Please, make sure you install the following dependencies:
 # @todo Include this file in the Pylint checks.
 # pylint: skip-file
 
-import sys
 
 
 import argparse

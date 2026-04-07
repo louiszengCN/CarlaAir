@@ -432,7 +432,7 @@ def import_assets_from_json_list(json_list, batch_size):
             package_name = filename.replace(".json", "")
 
             # we need to build the binary file for navigation of pedestrians
-            thr = threading.Thread(target=build_binary_for_navigation, args=(package_name, dirname, maps,))
+            thr = threading.Thread(target=build_binary_for_navigation, args=(package_name, dirname, maps))
             thr.start()
 
             if (len(maps) > 0 and "tiles" in maps[0]):
