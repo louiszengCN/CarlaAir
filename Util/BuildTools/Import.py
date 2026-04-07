@@ -63,8 +63,8 @@ def generate_json_package(folder, package_name, use_carla_materials):
         for file_name in files:
             xodr = file_name[:-5]
             # check if exist the .fbx file
-            if os.path.exists("{}/{}.fbx".format(root, xodr)):
-                maps.append([os.path.relpath(root, folder), xodr, ["{}.fbx".format(xodr)]])
+            if os.path.exists(f"{root}/{xodr}.fbx"):
+                maps.append([os.path.relpath(root, folder), xodr, [f"{xodr}.fbx"]])
             else:
                 # check if exist the map by tiles
                 tiles = fnmatch.filter(filenames, "*_Tile_*.fbx")
@@ -79,10 +79,10 @@ def generate_json_package(folder, package_name, use_carla_materials):
             path = map_name[0].replace('\\', '/')
             name = map_name[1]
             tiles = map_name[2]
-            tiles = ["{}/{}".format(path, x) for x in tiles]
+            tiles = [f"{path}/{x}" for x in tiles]
             map_dict = {
                 'name': name,
-                'xodr':   '{}/{}.xodr'.format(path, name),
+                'xodr':   f'{path}/{name}.xodr',
                 'use_carla_materials': use_carla_materials
             }
             # check for only one 'source' or map in 'tiles'
@@ -95,13 +95,13 @@ def generate_json_package(folder, package_name, use_carla_materials):
             # write
             json_maps.append(map_dict)
         # build and write the .json
-        f = open("{}/{}.json".format(folder, package_name), "w")
+        f = open(f"{folder}/{package_name}.json", "w")
         my_json = {'maps': json_maps, 'props': []}
         serialized = json.dumps(my_json, sort_keys=False, indent=3)
         f.write(serialized)
         f.close()
         # add
-        json_files.append([folder, "{}.json".format(package_name)])
+        json_files.append([folder, f"{package_name}.json"])
 
     return json_files
 
@@ -114,8 +114,8 @@ def generate_decals_file(folder):
         for file_name in files:
             xodr = file_name[:-5]
             # check if exist the .fbx file
-            if os.path.exists("{}/{}.fbx".format(root, xodr)):
-                maps.append([os.path.relpath(root, folder), xodr, ["{}.fbx".format(xodr)]])
+            if os.path.exists(f"{root}/{xodr}.fbx"):
+                maps.append([os.path.relpath(root, folder), xodr, [f"{xodr}.fbx"]])
             else:
                 # check if exist the map by tiles
                 tiles = fnmatch.filter(filenames, "*_Tile_*.fbx")
@@ -189,18 +189,18 @@ def invoke_commandlet(name, arguments):
     """Generic function for running a commandlet with its arguments."""
     ue4_path = os.environ["UE4_ROOT"]
     uproject_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "CarlaUE4.uproject")
-    run = "-run={}".format(name)
+    run = f"-run={name}"
 
     if os.name == "nt":
         sys_name = "Win64"
-        editor_path = "{}/Engine/Binaries/{}/UE4Editor".format(ue4_path, sys_name)
+        editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
         command = [editor_path, uproject_path, run]
         command.extend(arguments)
         print("Commandlet:", command)
         subprocess.check_call(command, shell=True)
     elif os.name == "posix":
         sys_name = "Linux"
-        editor_path = "{}/Engine/Binaries/{}/UE4Editor".format(ue4_path, sys_name)
+        editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
         full_command = "{} {} {} {}".format(editor_path, uproject_path, run, " ".join(arguments))
         print("Commandlet:", full_command)
         subprocess.call([full_command], shell=True)
@@ -256,7 +256,7 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
             if "source" in umap:
                 tiles = [os.path.join(json_dirname, umap["source"])]
             else:
-                tiles = ["{}".format(os.path.join(json_dirname, x)) for x in umap["tiles"]]
+                tiles = [f"{os.path.join(json_dirname, x)}" for x in umap["tiles"]]
             import_groups.append({
                 "ImportSettings": import_settings,
                 "FactoryName": "FbxFactory",
@@ -360,7 +360,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
                 # import when the size of the group of tiles surpasses the specified size in MB
                 if current_batch_size >= batch_size:
                     import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                    commandlet_arguments = ['-importSettings="{}"'.format(import_setting_file), "-nosourcecontrol", "-replaceexisting"]
+                    commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
                     invoke_commandlet(commandlet_name, commandlet_arguments)
                     os.remove(import_setting_file)
                     current_batch_map = copy.deepcopy(map_template)
@@ -369,13 +369,13 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             # import remaining tiles
             if current_batch > 0:
                 import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                commandlet_arguments = ['-importSettings="{}"'.format(import_setting_file), "-nosourcecontrol", "-replaceexisting"]
+                commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
                 invoke_commandlet(commandlet_name, commandlet_arguments)
                 os.remove(import_setting_file)
     else:
         # Import Props
         import_setting_file = generate_import_setting_file(package_name, json_dirname, props, maps, do_tiles, tile_size)
-        commandlet_arguments = ['-importSettings="{}"'.format(import_setting_file), "-nosourcecontrol", "-replaceexisting"]
+        commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
         invoke_commandlet(commandlet_name, commandlet_arguments)
         os.remove(import_setting_file)
 
@@ -459,24 +459,24 @@ def import_assets_from_json_list(json_list, batch_size):
 
 def load_asset_materials_commandlet(package_name):
     commandlet_name = "LoadAssetMaterials"
-    commandlet_arguments = ["-PackageName={}".format(package_name)]
+    commandlet_arguments = [f"-PackageName={package_name}"]
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 def prepare_maps_commandlet_for_cooking(package_name, only_prepare_maps):
     commandlet_name = "PrepareAssetsForCooking"
-    commandlet_arguments = ["-PackageName={}".format(package_name)]
+    commandlet_arguments = [f"-PackageName={package_name}"]
     commandlet_arguments.append("-OnlyPrepareMaps=%d" % only_prepare_maps)
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 
 def move_assets_commandlet(package_name, maps):
     commandlet_name = "MoveAssets"
-    commandlet_arguments = ["-PackageName={}".format(package_name)]
+    commandlet_arguments = [f"-PackageName={package_name}"]
 
     umap_names = ""
     for umap in maps:
         umap_names += umap["name"] + " "
-    commandlet_arguments.append("-Maps={}".format(umap_names))
+    commandlet_arguments.append(f"-Maps={umap_names}")
 
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
@@ -533,18 +533,18 @@ def build_binary_for_navigation(package_name, dirname, maps):
                 subprocess.call(["build.bat", fbx_name_no_ext, xodr_filename], cwd=folder, shell=True)
             else:
                 subprocess.call(["chmod +x build.sh"], cwd=folder, shell=True)
-                subprocess.call("./build.sh {} {}".format(fbx_name_no_ext, xodr_filename), cwd=folder, shell=True)
+                subprocess.call(f"./build.sh {fbx_name_no_ext} {xodr_filename}", cwd=folder, shell=True)
 
             # rename the xodr with the original name
             # os.rename(os.path.join(folder, "%s.xodr" % fbx_name_no_ext), os.path.join(folder, xodr_filename))
 
             # copy the binary file
-            nav_path_source = os.path.join(folder, "{}.bin".format(fbx_name_no_ext))
+            nav_path_source = os.path.join(folder, f"{fbx_name_no_ext}.bin")
             nav_folder_target = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Maps", target_name, "Nav")
             if os.path.exists(nav_path_source):
                 if not os.path.exists(nav_folder_target):
                     os.makedirs(nav_folder_target)
-                nav_path_target = os.path.join(nav_folder_target, "{}.bin".format(fbx_name_no_ext))
+                nav_path_target = os.path.join(nav_folder_target, f"{fbx_name_no_ext}.bin")
                 print('Copying "' + nav_path_source + '" to "' + nav_path_target + '"')
                 shutil.copy2(nav_path_source, nav_path_target)
 
@@ -583,7 +583,7 @@ def build_binary_for_tm(package_name, dirname, maps):
             os.makedirs(tm_folder_target)
 
         m = carla.Map(str(target_name), data)
-        m.cook_in_memory_map(str(os.path.join(tm_folder_target, "{}.bin".format(target_name))))
+        m.cook_in_memory_map(str(os.path.join(tm_folder_target, f"{target_name}.bin")))
 
 
 def main():

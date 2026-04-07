@@ -617,13 +617,13 @@ class HUD:
         c = player.get_control()
 
         self._info_text = [
-            'Server:  {: 16.0f} FPS'.format(self.server_fps),
-            'Client:  {: 16.0f} FPS'.format(clock.get_fps()),
+            f'Server:  {self.server_fps: 16.0f} FPS',
+            f'Client:  {clock.get_fps(): 16.0f} FPS',
             'Map:     % 20s' % self.map_name,
             '',
             'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
-            'Location:% 20s' % ('({: 5.1f}, {: 5.1f})'.format(t.location.x, t.location.y)),
-            'Heading: {: 20.2f}'.format(math.radians(t.rotation.yaw)),
+            'Location:% 20s' % (f'({t.location.x: 5.1f}, {t.location.y: 5.1f})'),
+            f'Heading: {math.radians(t.rotation.yaw): 20.2f}',
             '']
         if self.original_vehicle_control:
             orig_control = self.original_vehicle_control
@@ -644,7 +644,7 @@ class HUD:
         self._notifications.set_text(text, seconds=seconds)
 
     def error(self, text):
-        self._notifications.set_text('Error: {}'.format(text), (255, 0, 0))
+        self._notifications.set_text(f'Error: {text}', (255, 0, 0))
 
     def render(self, display):
         if self._show_info:

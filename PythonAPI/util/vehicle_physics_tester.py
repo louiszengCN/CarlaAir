@@ -146,7 +146,7 @@ class TelemetryPoint:
         self.velocity = velocity
 
     def __str__(self):
-        return "{:.2f} {} {} {}".format(self.time, str(self.location), str(self.rotation), str(self.velocity))
+        return f"{self.time:.2f} {str(self.location)} {str(self.rotation)} {str(self.velocity)}"
 
     def __sub__(self, other):
         t = self.time - other.time
@@ -257,7 +257,7 @@ def brake_scenario(world, bp_veh, speed):
 
     delta = data.get_scalar_delta(1)
     end_vel = 3.6*norm(data.get_telemetry(2).velocity)
-    print("  {:.0f} -> 0 km/h: ({:.1f} s, {:.1f} m)".format(speed, delta[0], delta[1]), end="")
+    print(f"  {speed:.0f} -> 0 km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
 def accel_scenario(world, bp_veh, max_vel):
 
@@ -277,7 +277,7 @@ def accel_scenario(world, bp_veh, max_vel):
 
     delta = data.get_scalar_delta(1)
     end_vel = 3.6*norm(data.get_telemetry(2).velocity)
-    print("  0 -> {:.0f} km/h: ({:.1f} s, {:.1f} m)".format(max_vel, delta[0], delta[1]), end="")
+    print(f"  0 -> {max_vel:.0f} km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
 def uturn_scenario(world, bp_veh):
 

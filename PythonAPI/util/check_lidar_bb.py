@@ -131,8 +131,8 @@ class ActorTrace:
             zmax = self._bb_maxlimits[2]
             out = np.any((lidar_pc[:, 2] > zmax) | (lidar_pc[:, 2] < zmin))
             if out:
-                print( "Zmin: {:f}, Zmax: {:f}".format(zmin, zmax) )
-                print("Lidar points: {}".format(lidar_pc[:, 2]))
+                print( f"Zmin: {zmin:f}, Zmax: {zmax:f}" )
+                print(f"Lidar points: {lidar_pc[:, 2]}")
                 print("Problem with z axis")
                 return True
 

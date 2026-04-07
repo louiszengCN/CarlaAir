@@ -859,7 +859,7 @@ def main():
             os.system("mkdir "+logfolder)
         logfile = logfolder+"carla_record.log"
         client.start_recorder(logfile)
-        print("Recording on file: {}".format(logfile))
+        print(f"Recording on file: {logfile}")
 
     seed = args.seed if args.seed is not None else int(time.time())
     random.seed(seed)

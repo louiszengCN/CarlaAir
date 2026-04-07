@@ -56,7 +56,7 @@ def list_options(client):
 def list_blueprints(world, bp_filter):
     blueprint_library = world.get_blueprint_library()
     blueprints = [bp.id for bp in blueprint_library.filter(bp_filter)]
-    print('available blueprints (filter {!r}):\n'.format(bp_filter))
+    print(f'available blueprints (filter {bp_filter!r}):\n')
     for bp in sorted(blueprints):
         print('    ' + bp)
     print('')
@@ -199,7 +199,7 @@ def main():
         args.no_sync = True
 
     if args.map is not None:
-        print('load map {!r}.'.format(args.map))
+        print(f'load map {args.map!r}.')
         world = client.load_world(args.map)
     elif args.reload_map:
         print('reload map.')
@@ -212,7 +212,7 @@ def main():
                 except OSError:
                     print('file could not be readed.')
                     sys.exit()
-            print('load opendrive map {!r}.'.format(os.path.basename(args.xodr_path)))
+            print(f'load opendrive map {os.path.basename(args.xodr_path)!r}.')
             vertex_distance = 2.0  # in meters
             max_road_length = 500.0 # in meters
             wall_height = 1.0      # in meters
@@ -292,9 +292,9 @@ def main():
 
     if args.weather is not None:
         if not hasattr(carla.WeatherParameters, args.weather):
-            print('ERROR: weather preset {!r} not found.'.format(args.weather))
+            print(f'ERROR: weather preset {args.weather!r} not found.')
         else:
-            print('set weather preset {!r}.'.format(args.weather))
+            print(f'set weather preset {args.weather!r}.')
             world.set_weather(getattr(carla.WeatherParameters, args.weather))
 
     if args.inspect:

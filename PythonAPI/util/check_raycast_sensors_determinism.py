@@ -384,7 +384,7 @@ class SensorScenarioTester():
         return determinism_set
 
     def test_scenario(self, repetitions = 1, sim_tics = 100):
-        output_str = "Testing Determinism in {} -> ".format(self.scenario_name)
+        output_str = f"Testing Determinism in {self.scenario_name} -> "
 
         prefix = self.output_path + self.scenario_name
 
