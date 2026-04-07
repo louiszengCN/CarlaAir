@@ -337,7 +337,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             # import groups of tiles to prevent unreal from using too much memory
             map_template = {}
             for key, value in iter(umap.items()):
-                if key is not 'tiles':
+                if key != 'tiles':
                     map_template[key] = value
             map_template['tiles'] = []
             tiles = umap['tiles']
