@@ -1450,7 +1450,7 @@ def main():
         help='Activate synchronous mode execution')
     args = argparser.parse_args()
 
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = (int(x) for x in args.res.split('x'))
 
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)

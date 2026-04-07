@@ -220,7 +220,7 @@ class CodeFormat:
 
     def scanForInputFiles(self):
         for formatterInstance in self.codeFormatterInstances:
-            filePattern = re.compile("^[^.].*\.(" + "|".join(formatterInstance.fileEndings) + ")$")
+            filePattern = re.compile(r"^[^.].*\.(" + "|".join(formatterInstance.fileEndings) + ")$")
             formatterInstance.inputFiles = []
             for fileOrDirectory in self.args.input:
                 if os.path.exists(fileOrDirectory):

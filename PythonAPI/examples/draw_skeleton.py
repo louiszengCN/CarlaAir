@@ -288,7 +288,7 @@ def main():
       help='window resolution (default: 800x600)')
     args = argparser.parse_args()
 
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = (int(x) for x in args.res.split('x'))
 
     actor_list = []
     pygame.init()
