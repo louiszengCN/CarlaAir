@@ -411,7 +411,7 @@ class SimulationData:
         agent_recurrent_states: list[RecurrentState]
     ):
         for agent_id in range(len(self.all_agent_data)):
-            if not self.all_agent_data[agent_id].type == AgentType.CARLA:
+            if self.all_agent_data[agent_id].type != AgentType.CARLA:
                 self.all_agent_data[agent_id].state = agent_states[agent_id]
                 self.all_agent_data[agent_id].properties = agent_properties[agent_id]
                 self.all_agent_data[agent_id].recurrent_state = agent_recurrent_states[agent_id]
@@ -423,7 +423,7 @@ class SimulationData:
         Assume carla_actors is a list of carla actors controlled by IAI
         """
         for agent in self.all_agent_data:
-            if not agent.type == AgentType.CARLA:
+            if agent.type != AgentType.CARLA:
                 agent_transform = transform_iai_to_carla(agent.state)
                 try:
                     agent.carla_actor.set_transform(agent_transform)
@@ -620,7 +620,7 @@ def assign_carla_blueprints_to_agents(
     agents_to_pop = []
 
     for agent_id, data in enumerate(agent_data):
-        if not data.type == AgentType.CARLA:
+        if data.type != AgentType.CARLA:
             blueprint = random.choice(vehicle_blueprints)
             if blueprint.has_attribute('color'):
                 color = random.choice(blueprint.get_attribute('color').recommended_values)
