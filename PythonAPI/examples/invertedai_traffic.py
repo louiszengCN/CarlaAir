@@ -264,7 +264,7 @@ class CarlaSensorObject:
 class SensorManager:
     def __init__(
         self,
-        camera_specs: List[CameraSpecification],
+        camera_specs: list[CameraSpecification],
         world: carla.World,
         spectator_id: Optional[int] = None
     ):
@@ -381,33 +381,33 @@ class AgentData:
 class SimulationData:
     def __init__(
         self,
-        agent_data: List[AgentData]
+        agent_data: list[AgentData]
     ):
         self.all_agent_data = agent_data
 
-    def get_all_states(self) -> List[AgentState]:
+    def get_all_states(self) -> list[AgentState]:
         return [agent.state for agent in self.all_agent_data]
 
-    def get_all_properties(self) -> List[AgentProperties]:
+    def get_all_properties(self) -> list[AgentProperties]:
         return [agent.properties for agent in self.all_agent_data]
 
-    def get_all_recurrent_states(self) -> List[Optional[RecurrentState]]:
+    def get_all_recurrent_states(self) -> list[Optional[RecurrentState]]:
         return [agent.recurrent_state for agent in self.all_agent_data]
 
-    def get_all_carla_states(self ) -> List[Optional[carla.Actor]]:
+    def get_all_carla_states(self ) -> list[Optional[carla.Actor]]:
         return [agent.carla_actor for agent in self.all_agent_data]
 
     def get_all_other_data_per_type(
         self,
         agent_type: AgentType
-    ) -> List[Optional[Any]]:
+    ) -> list[Optional[Any]]:
         return [agent.other for agent in self.all_agent_data if agent.type == agent_type]
 
     def update_non_carla_iai_states(
         self,
-        agent_states: List[AgentState],
-        agent_properties: List[AgentProperties],
-        agent_recurrent_states: List[RecurrentState]
+        agent_states: list[AgentState],
+        agent_properties: list[AgentProperties],
+        agent_recurrent_states: list[RecurrentState]
     ):
         for agent_id in range(len(self.all_agent_data)):
             if not self.all_agent_data[agent_id].type == AgentType.CARLA:
@@ -439,10 +439,10 @@ class SimulationData:
     def get_type_indexes(
         self,
         agent_type: AgentType
-    ) -> List[int]:
+    ) -> list[int]:
         return [ind for ind in range(len(self.all_agent_data)) if self.all_agent_data[ind].type == agent_type]
 
-    def get_all_types(self) -> List[AgentType]:
+    def get_all_types(self) -> list[AgentType]:
         return [agent.type for agent in self.all_agent_data]
 
 #---------
@@ -725,22 +725,22 @@ def initialize_simulation(
 # Every "pass" is where your own code should be added
 #---------
 def convert_ego_states_to_iai_format(
-    ego_states: List
-) -> List[AgentState]:
+    ego_states: list
+) -> list[AgentState]:
     agent_states = []
 
 
     return agent_states
 
 def convert_ego_properties_to_iai_format(
-    ego_properties: List
-) -> List[AgentProperties]:
+    ego_properties: list
+) -> list[AgentProperties]:
     agent_properties = []
 
 
     return agent_properties
 
-def initialize_ego_vehicle() -> Tuple[List[AgentState],List[AgentProperties]]:
+def initialize_ego_vehicle() -> tuple[list[AgentState],list[AgentProperties]]:
     ego_states = []
     ego_properties = []
 
@@ -750,7 +750,7 @@ def initialize_ego_vehicle() -> Tuple[List[AgentState],List[AgentProperties]]:
 
     return ego_agent_states, ego_agent_properties
 
-def tick_ego_vehicle() -> Tuple[List[AgentState],List[AgentProperties]]:
+def tick_ego_vehicle() -> tuple[list[AgentState],list[AgentProperties]]:
     ego_states = []
     ego_properties = []
 
