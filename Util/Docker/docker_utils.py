@@ -1,4 +1,3 @@
-import sys
 #!/usr/bin/env python
 
 # Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma
