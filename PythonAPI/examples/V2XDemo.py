@@ -410,9 +410,7 @@ class KeyboardControl:
                     world.next_weather()
                 elif event.key == K_g:
                     world.toggle_radar()
-                elif event.key == K_BACKQUOTE:
-                    world.camera_manager.next_sensor()
-                elif event.key == K_n:
+                elif event.key == K_BACKQUOTE or event.key == K_n:
                     world.camera_manager.next_sensor()
                 elif event.key == K_w and (pygame.key.get_mods() & KMOD_CTRL):
                     if world.constant_velocity_enabled:
