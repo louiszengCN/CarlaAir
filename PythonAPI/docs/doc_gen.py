@@ -298,7 +298,7 @@ def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
     method_name = bold(method_name) if is_indx else bold(color(COLOR_METHOD, method_name))
 
     if with_self:
-        if not 'params' in method or method['params'] is None:
+        if 'params' not in method or method['params'] is None:
             method['params'] = []
         method['params'].insert(0, {'param_name': 'self'})
 
@@ -339,7 +339,7 @@ def gen_doc_dunder_def(dunder, is_indx=False, with_self=True):
     dunder_name = bold(dunder_name) if is_indx else bold(color(COLOR_METHOD, dunder_name))
 
     if with_self:
-        if not 'params' in dunder or dunder['params'] is None:
+        if 'params' not in dunder or dunder['params'] is None:
             dunder['params'] = []
         dunder['params'].insert(0, {'param_name': 'self'})
 

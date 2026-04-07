@@ -143,7 +143,7 @@ class TelemetryPoint:
         self.velocity = velocity
 
     def __str__(self):
-        return f"{self.time:.2f} {str(self.location)} {str(self.rotation)} {str(self.velocity)}"
+        return f"{self.time:.2f} {self.location!s} {self.rotation!s} {self.velocity!s}"
 
     def __sub__(self, other):
         t = self.time - other.time
@@ -198,9 +198,11 @@ class TelemetryData:
 
 
 def run_scenario(world, bp_veh, init_loc, init_speed = 0.0, init_frames=10,
-        controls=[(150, carla.VehicleControl(), VehicleControlStop())],
+        controls=None,
         apply_phys_control = None):
 
+    if controls is None:
+        controls = [(150, carla.VehicleControl(), VehicleControlStop())]
     veh_transf = init_loc
 
     vehicle = world.spawn_actor(bp_veh, veh_transf)

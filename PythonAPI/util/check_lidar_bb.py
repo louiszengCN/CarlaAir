@@ -107,7 +107,9 @@ class ActorTrace:
             np.savetxt("veh_data_%d_%s_%d.out" % (self._frame, self._actor_type, self._actor_id), self._lidar_pc_local)
             np.savetxt("bb_data_%d_%s_%d.out"  % (self._frame, self._actor_type, self._actor_id), self._bb_vertices)
 
-    def lidar_is_outside_bb(self, check_axis = [True, True, True]):
+    def lidar_is_outside_bb(self, check_axis = None):
+        if check_axis is None:
+            check_axis = [True, True, True]
         lidar_pc = self._lidar_pc_local
 
         if check_axis[0]:
