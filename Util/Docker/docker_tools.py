@@ -14,10 +14,10 @@ Helper script to generate consumables for Carla in Docker
 import argparse
 import os
 import subprocess
+import sys
 
 import docker
 import docker_utils
-import sys
 
 
 def print_formated_dict(dic):

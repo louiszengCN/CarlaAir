@@ -7,8 +7,8 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 import os
-import tarfile
 import sys
+import tarfile
 
 BLUE = '\033[94m'
 GREEN = '\033[92m'
