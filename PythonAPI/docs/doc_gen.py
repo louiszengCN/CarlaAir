@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -168,56 +169,56 @@ class YamlFile:
         if self.data is None:
             print('\n[ERROR] File: ' + self._path)
             print("This file has no data:")
-            exit(0)
+            sys.exit(0)
         for module in self.data:
             if 'module_name' in module and module['module_name'] is None:
                 print('\n[ERROR] File: ' + self._path)
                 print("'module_name' is empty in:")
-                exit(0)
+                sys.exit(0)
             if 'classes' in module:
                 if not module['classes']:
                     print('\n[ERROR] File: ' + self._path)
                     print("'classes' is empty in:")
-                    exit(0)
+                    sys.exit(0)
                 for cl in module['classes']:
                     if 'class_name' in cl and cl['class_name'] is None:
                         print('\n[ERROR] File: ' + self._path)
                         print("'class_name' is empty in:")
-                        exit(0)
+                        sys.exit(0)
                     if cl.get('instance_variables'):
                         for iv in cl['instance_variables']:
                             if 'var_name' not in iv:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'var_name' not found inside 'instance_variables' of class: " + cl['class_name'])
-                                exit(0)
+                                sys.exit(0)
                             if 'var_name' in iv and iv['var_name'] is None:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'var_name' is empty in:")
-                                exit(0)
+                                sys.exit(0)
                     if cl.get('methods'):
                         for met in cl['methods']:
                             if 'def_name' not in met:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'def_name' not found inside 'methods' of class: " + cl['class_name'])
-                                exit(0)
+                                sys.exit(0)
                             if 'def_name' in met and met['def_name'] is None:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'def_name' is empty in:")
-                                exit(0)
+                                sys.exit(0)
                             if met.get('params'):
                                 for param in met['params']:
                                     if 'param_name' not in param:
                                         print('\n[ERROR] File: ' + self._path)
                                         print("'param_name' not found inside 'params' of class: " + cl['class_name'])
-                                        exit(0)
+                                        sys.exit(0)
                                     if 'param_name' in param and param['param_name'] is None:
                                         print('\n[ERROR] File: ' + self._path)
                                         print("'param_name' is empty in:")
-                                        exit(0)
+                                        sys.exit(0)
                                     if 'type' in param and param['type'] is None:
                                         print('\n[ERROR] File: ' + self._path)
                                         print("'type' is empty in:")
-                                        exit(0)
+                                        sys.exit(0)
 
     def get_modules(self):
         return list(self.data)
@@ -264,9 +265,8 @@ def append_snipet_button_script(md):
 def append_code_snipets(md):
     current_folder = os.path.dirname(os.path.abspath(__file__))
     snipets_path = os.path.join(current_folder, '../../Docs/python_api_snipets.md')
-    snipets = open(snipets_path)
-    md.text(snipets.read())
-    snipets.close()
+    with open(snipets_path) as snipets:
+        md.text(snipets.read())
     os.remove(snipets_path)
 
 
@@ -323,9 +323,9 @@ def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
     # Add snipet
     current_folder = os.path.dirname(os.path.abspath(__file__))
     snipets_path = os.path.join(current_folder, '../../Docs/python_api_snipets.md')
-    snipets = open(snipets_path)
-    if class_key+'.'+full_method_name+'-snipet' in snipets.read():
-        snipet_link = snipet(full_method_name, class_key)
+    with open(snipets_path) as snipets:
+        if class_key+'.'+full_method_name+'-snipet' in snipets.read():
+            snipet_link = snipet(full_method_name, class_key)
 
     return join([method_name, parentheses(param),snipet_link])
 
