@@ -817,9 +817,9 @@ class MapImage:
                     if r and r.lane_type == carla.LaneType.Driving:
                         pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(r), 2)
                 if wp.lane_change & carla.LaneChange.Left:
-                    l = wp.get_left_lane()
-                    if l and l.lane_type == carla.LaneType.Driving:
-                        pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(l), 2)
+                    lane = wp.get_left_lane()
+                    if lane and lane.lane_type == carla.LaneType.Driving:
+                        pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(lane), 2)
 
         actors = carla_world.get_actors()
 

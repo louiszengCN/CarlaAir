@@ -473,7 +473,9 @@ class RssBoundingBoxVisualizer:
         return [bb for bb in bounding_boxes if all(bb[:, 2] > 0)]
 
     @staticmethod
-    def draw_bounding_boxes(surface, bounding_boxes, color=pygame.Color('red')):
+    def draw_bounding_boxes(surface, bounding_boxes, color=None):
+        if color is None:
+            color = pygame.Color('red')
         """
         Draws bounding boxes on pygame display.
         """

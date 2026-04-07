@@ -97,8 +97,8 @@ class Documentation:
         "</script>\n")
         # Create content for every snipet
         for snipet_path in self._snipets:
-            current_snipet = open(snipet_path)
-            snipet_name = os.path.basename(current_snipet.name) # Remove path
+            with open(snipet_path) as current_snipet:
+                snipet_name = os.path.basename(current_snipet.name) # Remove path
             snipet_name = os.path.splitext(snipet_name)[0] # Remove extension
             # Header for a snipet
             md.textn('<div id ="'+snipet_name+'-snipet" style="display: none;">\n'+

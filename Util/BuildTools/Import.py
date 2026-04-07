@@ -24,9 +24,9 @@ IMPORT_SETTING_FILENAME = "importsetting.json"
 SCRIPT_NAME = os.path.basename(__file__)
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Go two directories above the current script
-CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + '/../..')
-
 import carla
+
+CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + '/../..')
 
 
 def get_packages_json_list(folder):
