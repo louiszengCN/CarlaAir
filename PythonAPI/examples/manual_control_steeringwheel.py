@@ -401,7 +401,7 @@ class HUD:
         heading += 'W' if -0.5 > t.rotation.yaw > -179.5 else ''
         colhist = world.collision_sensor.get_collision_history()
         collision = [colhist[x + self.frame - 200] for x in range(200)]
-        max_col = max(1.0, max(collision))
+        max_col = max(1.0, *collision)
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
         self._info_text = [

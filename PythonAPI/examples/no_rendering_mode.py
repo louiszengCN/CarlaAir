@@ -534,7 +534,7 @@ class MapImage:
              as a combination of Broken and Solid lines"""
             margin = 0.25
             marking_1 = [world_to_pixel(lateral_shift(w.transform, sign * w.lane_width * 0.5)) for w in waypoints]
-            if lane_marking_type == carla.LaneMarkingType.Broken or (lane_marking_type == carla.LaneMarkingType.Solid):
+            if lane_marking_type in (carla.LaneMarkingType.Broken, carla.LaneMarkingType.Solid):
                 return [(lane_marking_type, lane_marking_color, marking_1)]
             marking_2 = [world_to_pixel(lateral_shift(w.transform,
                                                       sign * (w.lane_width * 0.5 + margin * 2))) for w in waypoints]

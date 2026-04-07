@@ -410,7 +410,7 @@ class KeyboardControl:
                     world.next_weather()
                 elif event.key == K_g:
                     world.toggle_radar()
-                elif event.key == K_BACKQUOTE or event.key == K_n:
+                elif event.key in (K_BACKQUOTE, K_n):
                     world.camera_manager.next_sensor()
                 elif event.key == K_w and (pygame.key.get_mods() & KMOD_CTRL):
                     if world.constant_velocity_enabled:
@@ -683,7 +683,7 @@ class HUD:
         heading += 'W' if 180.5 < compass < 359.5 else ''
         colhist = world.collision_sensor.get_collision_history()
         collision = [colhist[x + self.frame - 200] for x in range(200)]
-        max_col = max(1.0, max(collision))
+        max_col = max(1.0, *collision)
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
         self._info_text = [

@@ -385,7 +385,7 @@ def one_run(args, client):
                         if event.type == pygame.QUIT:
                             call_exit = True
                         elif event.type == pygame.KEYDOWN:
-                            if event.key == K_ESCAPE or event.key == K_q:
+                            if event.key in (K_ESCAPE, K_q):
                                 call_exit = True
                                 break
             else:

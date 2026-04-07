@@ -82,16 +82,14 @@ class RssStateVisualizer:
             if state.actor_calculation_mode == ad.rss.map.RssMode.Structured:
                 # Unsafe longitudinalState
                 if not state.rss_state.longitudinalState.isSafe:
-                    if (state.rss_state.longitudinalState.rssStateInformation.evaluator == RssStateEvaluator.LongitudinalDistanceSameDirectionOtherInFront
-                        or state.rss_state.longitudinalState.rssStateInformation.evaluator == RssStateEvaluator.LongitudinalDistanceSameDirectionEgoFront
+                    if (state.rss_state.longitudinalState.rssStateInformation.evaluator in (RssStateEvaluator.LongitudinalDistanceSameDirectionOtherInFront, RssStateEvaluator.LongitudinalDistanceSameDirectionEgoFront)
                     ):
                         pygame.draw.polygon(
                             state_surface, (
                                 255, 255, 255), ((xpos + 1, v_offset + 1 + 4), (xpos + 6, v_offset + 1 + 0), (xpos + 11, v_offset + 1 + 4),
                                                 (xpos + 7, v_offset + 1 + 4), (xpos + 7, v_offset + 1 + 12), (xpos + 5, v_offset + 1 + 12), (xpos + 5, v_offset + 1 + 4)))
                         xpos += 14
-                    elif (state.rss_state.longitudinalState.rssStateInformation.evaluator == RssStateEvaluator.LongitudinalDistanceOppositeDirectionEgoCorrectLane
-                            or state.rss_state.longitudinalState.rssStateInformation.evaluator == RssStateEvaluator.LongitudinalDistanceOppositeDirection
+                    elif (state.rss_state.longitudinalState.rssStateInformation.evaluator in (RssStateEvaluator.LongitudinalDistanceOppositeDirectionEgoCorrectLane, RssStateEvaluator.LongitudinalDistanceOppositeDirection)
                     ):
                         pygame.draw.polygon(
                             state_surface, (

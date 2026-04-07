@@ -307,7 +307,7 @@ def run_simulation(args, client):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     call_exit = True
-                elif event.type == pygame.KEYDOWN and (event.key == K_ESCAPE or event.key == K_q):
+                elif event.type == pygame.KEYDOWN and (event.key in (K_ESCAPE, K_q)):
                     call_exit = True
                     break
 
