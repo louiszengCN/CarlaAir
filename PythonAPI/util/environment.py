@@ -286,7 +286,7 @@ def main():
     # (except for the first 2, host and port)
     # we can check if all the arguments have been provided
     arg_values = [v for _, v in args.__dict__.items()][2:]
-    if all(i is (None and False) for i in arg_values):
+    if all(i is (None) for i in arg_values):
         argparser.error('No arguments provided.')
 
     client = carla.Client(args.host, args.port)

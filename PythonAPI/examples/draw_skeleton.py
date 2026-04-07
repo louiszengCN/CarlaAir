@@ -361,7 +361,7 @@ def main():
                 camera.set_transform(trans)
 
                 # Advance the simulation and wait for the data.
-                snapshot, image_rgb = sync_mode.tick(timeout=5.0)
+                _snapshot, image_rgb = sync_mode.tick(timeout=5.0)
 
                 # Draw the display.
                 buffer = get_image_as_array(image_rgb)
