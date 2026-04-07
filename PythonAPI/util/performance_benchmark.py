@@ -69,7 +69,7 @@ def define_weather():
       try:
         new_list = [list_weather[int(i)] for i in args.weather]
         list_weather = new_list
-      except IndexError as error:
+      except IndexError:
         print("Warning!! The list of types of weather introduced is not valid. Using all available.")
 
   return list_weather
@@ -130,7 +130,7 @@ def define_sensors():
       try:
         new_list = [list_sensor_specs[int(i)] for i in args.sensors]
         list_sensor_specs = new_list
-      except IndexError as error:
+      except IndexError:
         print("Warning!! The list of sensors introduced is not valid. Using all available.")
 
   return list_sensor_specs

@@ -125,7 +125,7 @@ def main():
             if args.force_rebuild:
                 build_cmd.append("--force-rebuild")
             subprocess.check_call(build_cmd)
-        except docker.errors.APIError as e:
+        except docker.errors.APIError:
             print("Unkown error while checking if the image exist!")
             raise
 
