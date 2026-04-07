@@ -795,7 +795,7 @@ def game_loop(args):
             pygame.HWSURFACE | pygame.DOUBLEBUF)
 
         sim_world = client.get_world()
-        original_settings = sim_world.get_settings()
+        sim_world.get_settings()
         settings = sim_world.get_settings()
         if args.sync != settings.synchronous_mode:
             args.sync = True

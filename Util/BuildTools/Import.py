@@ -345,7 +345,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             tiles = umap['tiles']
             tiles.sort()
             total_tiles = len(tiles)
-            num_batches = int(total_tiles / batch_size)
+            int(total_tiles / batch_size)
             current_tile = 0
             current_batch = 0
             current_batch_size = 0
@@ -616,7 +616,7 @@ def main():
         json_list = generate_json_package(import_folder, args.package, args.no_carla_materials)
 
     if len(decals_json) == 0:
-        decals_json_file = generate_decals_file(import_folder)
+        generate_decals_file(import_folder)
 
     if args.json_only == False:
         copy_roadpainter_config_files(args.package)

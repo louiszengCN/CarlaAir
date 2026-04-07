@@ -296,7 +296,7 @@ def main():
     display = pygame.display.set_mode(
         (args.width, args.height),
         pygame.HWSURFACE | pygame.DOUBLEBUF)
-    font = get_font()
+    get_font()
     clock = pygame.time.Clock()
 
     client = carla.Client('localhost', 2000)

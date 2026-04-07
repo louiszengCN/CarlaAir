@@ -293,7 +293,7 @@ def run_simulation(args, client):
 
         #Simulation loop
         call_exit = False
-        time_init_sim = timer.time()
+        timer.time()
         while True:
             # Carla Tick
             if args.sync:

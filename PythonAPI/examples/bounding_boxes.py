@@ -398,7 +398,6 @@ def main():
                 # Filter out the ego vehicle
                 if npc.id !=ego_vehicle.id:
 
-                    npc_bbox = npc.bounding_box
                     dist = npc.get_transform().location.distance(ego_vehicle.get_transform().location)
 
                     # Filter for the vehicles within 50m

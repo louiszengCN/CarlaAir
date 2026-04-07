@@ -586,7 +586,7 @@ Examples:
         pygame.mouse.set_visible(False)
         clock = pygame.time.Clock()
         font = pygame.font.SysFont("monospace", 14)
-        font_big = pygame.font.SysFont("monospace", 20, bold=True)
+        pygame.font.SysFont("monospace", 20, bold=True)
 
         # State
         cam_loc = carla.Location(x=spec_tf.location.x, y=spec_tf.location.y, z=spec_tf.location.z)
@@ -600,7 +600,6 @@ Examples:
         playback_speed = 1.0
         show_hud = True
         show_sensors = False
-        show_help = False
         recording = False
         video_writer = None
         video_path = None

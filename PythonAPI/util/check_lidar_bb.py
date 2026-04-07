@@ -187,7 +187,7 @@ def wait(world, frames=100, queue = None, slist = None):
         if queue is not None and slist is not None:
             try:
                 for _i in range (len(slist)):
-                    s_frame = queue.get(True, 1.0)
+                    queue.get(True, 1.0)
             except Empty:
                 print("    Some of the sensor information is missed")
 

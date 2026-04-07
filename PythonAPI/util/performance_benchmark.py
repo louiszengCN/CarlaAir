@@ -268,7 +268,6 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
   # Spawn Walkers
   # -------------
   # some settings
-  percentagePedestriansRunning = 0.0      # how many pedestrians will run
   percentagePedestriansCrossing = 0.0     # how many pedestrians will walk through the road
   if n_walkers > 0:
     # 1. take all the random locations to spawn

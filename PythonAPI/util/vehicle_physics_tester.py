@@ -256,7 +256,7 @@ def brake_scenario(world, bp_veh, speed):
     data = run_scenario(world, bp_veh, init_loc, init_speed=speed/3.6, controls=controls)
 
     delta = data.get_scalar_delta(1)
-    end_vel = 3.6*norm(data.get_telemetry(2).velocity)
+    3.6*norm(data.get_telemetry(2).velocity)
     print(f"  {speed:.0f} -> 0 km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
 def accel_scenario(world, bp_veh, max_vel):
@@ -276,7 +276,7 @@ def accel_scenario(world, bp_veh, max_vel):
     data = run_scenario(world, bp_veh, init_loc=init_loc, controls=controls)
 
     delta = data.get_scalar_delta(1)
-    end_vel = 3.6*norm(data.get_telemetry(2).velocity)
+    3.6*norm(data.get_telemetry(2).velocity)
     print(f"  0 -> {max_vel:.0f} km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
 def uturn_scenario(world, bp_veh):
@@ -296,7 +296,7 @@ def uturn_scenario(world, bp_veh):
         ]
 
     data = run_scenario(world, bp_veh, init_loc=init_pos, controls=controls)
-    end_vel = 3.6*norm(data.get_telemetry(3).velocity)
+    3.6*norm(data.get_telemetry(3).velocity)
 
 def highspeed_turn_scenario(world, bp_veh, steer):
     spectator_transform = carla.Transform(carla.Location(70, -200, 15), carla.Rotation(yaw=0, pitch=-12))
@@ -314,7 +314,7 @@ def highspeed_turn_scenario(world, bp_veh, steer):
         (200, carla.VehicleControl(throttle=1.0, steer = steer), VehicleControlStop(yaw_max=45, speed_min=3)),
         (200, carla.VehicleControl(brake=1), VehicleControlStop())]
 
-    data = run_scenario(world, bp_veh, init_loc=init_pos, init_speed=init_speed, init_frames = init_frames, controls=controls)
+    run_scenario(world, bp_veh, init_loc=init_pos, init_speed=init_speed, init_frames = init_frames, controls=controls)
 
     time.sleep(1)
 
