@@ -916,7 +916,7 @@ class World:
             return (world, town_map)
 
         except RuntimeError as ex:
-            logging.error(ex)
+            logging.exception(ex)
             exit_game()
 
     def start(self, hud, input_control):
