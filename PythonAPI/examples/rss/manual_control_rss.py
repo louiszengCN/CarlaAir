@@ -427,9 +427,8 @@ class VehicleControl:
                         else:
                             self._world.rss_sensor.sensor.road_boundaries_mode = carla.RssRoadBoundariesMode.Off
                             print("carla.RssRoadBoundariesMode.Off")
-                elif event.key == K_g:
-                    if self._world and self._world.rss_sensor:
-                        self._world.rss_sensor.drop_route()
+                elif event.key == K_g and self._world and self._world.rss_sensor:
+                    self._world.rss_sensor.drop_route()
                 if isinstance(self._control, carla.VehicleControl):
                     if event.key == K_q:
                         self._control.gear = 1 if self._control.reverse else -1
@@ -515,6 +514,7 @@ class VehicleControl:
                 world.player.set_light_state(carla.VehicleLightState(self._lights))
 
             world.player.apply_control(vehicle_control)
+        return None
 
     def _parse_vehicle_keys(self, keys, milliseconds):
         if keys[K_UP] or keys[K_w]:
@@ -685,16 +685,15 @@ class HUD:
 
                         # draw value / restricted value
                         input_value_rect_fill = 0
-                        if len(item) >= 5:
-                            if item[1] != item[4]:
-                                input_value_rect_fill = 1
-                                f = (item[4] - item[2]) / (item[3] - item[2])
-                                if item[2] < 0.0:
-                                    rect = pygame.Rect(
-                                        (bar_h_offset + 1 + f * (bar_width - 6), v_offset + 3), (12, 12))
-                                else:
-                                    rect = pygame.Rect((bar_h_offset + 1, v_offset + 3), (f * bar_width, 12))
-                                pygame.draw.rect(display, (255, 0, 0), rect)
+                        if len(item) >= 5 and item[1] != item[4]:
+                            input_value_rect_fill = 1
+                            f = (item[4] - item[2]) / (item[3] - item[2])
+                            if item[2] < 0.0:
+                                rect = pygame.Rect(
+                                    (bar_h_offset + 1 + f * (bar_width - 6), v_offset + 3), (12, 12))
+                            else:
+                                rect = pygame.Rect((bar_h_offset + 1, v_offset + 3), (f * bar_width, 12))
+                            pygame.draw.rect(display, (255, 0, 0), rect)
 
                         f = (item[1] - item[2]) / (item[3] - item[2])
                         rect = None

@@ -220,6 +220,7 @@ def get_default_cam_attachment(
             actor_to_attach = None,
             transform = transform
         )
+    return None
 
 @dataclass
 class CameraSpecification:

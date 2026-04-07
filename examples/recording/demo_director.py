@@ -151,8 +151,10 @@ class WalkerReplayer:
         return self.actor.get_location()
 
     def destroy(self):
-        try: self.actor.destroy()
-        except Exception: pass
+        try:
+            self.actor.destroy()
+        except Exception:
+            pass
 
 
 class VehicleReplayer:
@@ -194,8 +196,10 @@ class VehicleReplayer:
         return self.actor.get_location()
 
     def destroy(self):
-        try: self.actor.destroy()
-        except Exception: pass
+        try:
+            self.actor.destroy()
+        except Exception:
+            pass
 
 
 class DroneReplayer:
@@ -274,7 +278,8 @@ class DroneReplayer:
         try:
             self.client.armDisarm(False)
             self.client.enableApiControl(False)
-        except Exception: pass
+        except Exception:
+            pass
 
 
 # ─── Sensor Panel Manager ─────────────────────────────────────────
@@ -353,10 +358,14 @@ class SensorPanelManager:
 
     def detach_all(self):
         for _name, sensor in self.sensors:
-            try: sensor.stop()
-            except Exception: pass
-            try: sensor.destroy()
-            except Exception: pass
+            try:
+                sensor.stop()
+            except Exception:
+            pass
+            try:
+                sensor.destroy()
+            except Exception:
+            pass
         self.sensors.clear()
         self.images.clear()
         self._locks.clear()

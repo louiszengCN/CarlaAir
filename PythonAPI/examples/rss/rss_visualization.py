@@ -76,10 +76,7 @@ class RssStateVisualizer:
             state_surface.blit(surface, (5, v_offset))
             color = Color.gray
             if state.actor_calculation_mode != ad.rss.map.RssMode.NotRelevant:
-                if state.is_dangerous:
-                    color = Color.red
-                else:
-                    color = Color.green
+                color = Color.red if state.is_dangerous else Color.green
             pygame.draw.circle(state_surface, color, (12, v_offset + 7), 5)
             xpos = 184
             if state.actor_calculation_mode == ad.rss.map.RssMode.Structured:

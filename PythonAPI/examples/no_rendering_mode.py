@@ -913,10 +913,7 @@ class World:
             self.client = carla.Client(self.args.host, self.args.port)
             self.client.set_timeout(self.timeout)
 
-            if self.args.map is None:
-                world = self.client.get_world()
-            else:
-                world = self.client.load_world(self.args.map)
+            world = self.client.get_world() if self.args.map is None else self.client.load_world(self.args.map)
 
             town_map = world.get_map()
             return (world, town_map)

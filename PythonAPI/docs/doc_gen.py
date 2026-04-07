@@ -295,10 +295,7 @@ def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
     # to correctly render methods like __init__ in md
     if method_name[0] == '_':
         method_name = '\\' + method_name
-    if is_indx:
-        method_name = bold(method_name)
-    else:
-        method_name = bold(color(COLOR_METHOD, method_name))
+    method_name = bold(method_name) if is_indx else bold(color(COLOR_METHOD, method_name))
 
     if with_self:
         if not 'params' in method or method['params'] is None:
@@ -339,10 +336,7 @@ def gen_doc_dunder_def(dunder, is_indx=False, with_self=True):
     # to correctly render methods like __init__ in md
     if dunder_name[0] == '_':
         dunder_name = '\\' + dunder_name
-    if is_indx:
-        dunder_name = bold(dunder_name)
-    else:
-        dunder_name = bold(color(COLOR_METHOD, dunder_name))
+    dunder_name = bold(dunder_name) if is_indx else bold(color(COLOR_METHOD, dunder_name))
 
     if with_self:
         if not 'params' in dunder or dunder['params'] is None:

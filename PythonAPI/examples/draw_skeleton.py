@@ -166,15 +166,9 @@ def draw_line_on_buffer(buffer, image_w, image_h, points_2d, color, size=4):
   x1 = int(points_2d[1][0])
   y1 = int(points_2d[1][1])
   dx = abs(x1 - x0)
-  if x0 < x1:
-    sx = 1
-  else:
-    sx = -1
+  sx = 1 if x0 < x1 else -1
   dy = -abs(y1 - y0)
-  if y0 < y1:
-    sy = 1
-  else:
-    sy = -1
+  sy = 1 if y0 < y1 else -1
   err = dx + dy
   while True:
     draw_points_on_buffer(buffer, image_w, image_h, ((x0,y0),), color, size)
@@ -262,9 +256,8 @@ def should_quit():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return True
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_ESCAPE:
-                return True
+        if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            return True
     return False
 
 def write_image(frame, id, buffer):

@@ -577,6 +577,7 @@ class KeyboardControl:
             elif isinstance(self._control, carla.WalkerControl):
                 self._parse_walker_keys(pygame.key.get_pressed(), clock.get_time(), world)
                 world.player.apply_control(self._control)
+        return None
 
     def _parse_vehicle_keys(self, keys, milliseconds):
         if keys[K_UP] or keys[K_w]:
