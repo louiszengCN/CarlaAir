@@ -10,7 +10,7 @@
 Script that render multiple sensors in the same pygame window
 
 By default, it renders four cameras, one LiDAR and one Semantic LiDAR.
-It can easily be configure for any different number of sensors. 
+It can easily be configure for any different number of sensors.
 To do that, check lines 290-308.
 """
 

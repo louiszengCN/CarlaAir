@@ -18,7 +18,7 @@ BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 
 
-class ReadableStream():
+class ReadableStream:
 
     def __init__(self, generator):
         self._generator = generator

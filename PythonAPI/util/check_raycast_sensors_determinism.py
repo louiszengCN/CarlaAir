@@ -23,7 +23,7 @@ import numpy as np
 import carla
 
 
-class Scenario():
+class Scenario:
     def __init__(self, client, world, save_snapshots_mode=False):
         self.world = world
         self.client = client
@@ -327,7 +327,7 @@ class SpawnAllRaycastSensors(Scenario):
 
         self.wait(1)
 
-class SensorScenarioTester():
+class SensorScenarioTester:
     def __init__(self, scene, output_path):
         self.scene = scene
         self.world = self.scene.world

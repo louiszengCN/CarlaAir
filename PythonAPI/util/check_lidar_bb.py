@@ -10,13 +10,13 @@
 
 Lidar/BB check for CARLA
 This script obtains the LiDAR's point cloud corresponding to all the vehicles
-of the scene and make sure that they are inside the bounding box of the 
+of the scene and make sure that they are inside the bounding box of the
 corresponding actor.
-This is done in a predefined route in Town03 with a high speed and several agressive 
+This is done in a predefined route in Town03 with a high speed and several agressive
 turns.
 
-In a nutshell, the script have a queue that is filled in each frame with a lidar point 
-cloud and an structure for storing the Bounding Boxes. This last one is emulated as a 
+In a nutshell, the script have a queue that is filled in each frame with a lidar point
+cloud and an structure for storing the Bounding Boxes. This last one is emulated as a
 sensor filling the queue in the on_tick callback of the carla.world. In this way, we make
 sure that we are correctly syncronizing the lidar point cloud and BB/actor transformations.
 Then, we select the points corresponding to each actor (car) in the scene and check they
