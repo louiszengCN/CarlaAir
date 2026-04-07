@@ -4,33 +4,53 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
+"""Test world snapshot synchronization."""
+
 import random
 import time
 
+import carla
+
 from . import SyncSmokeTest
+
+# Constants
+_RELOAD_DELAY: float = 5.0
+_SYNC_DELTA: float = 0.05
+_SPAWN_POINTS_LIMIT: int = 20
+_LOCATION_PLACES: int = 2
+_ROTATION_PLACES: int = 2
+
+# Filters
+_VEHICLE_FILTER: str = "vehicle.*"
 
 
 class TestSnapshot(SyncSmokeTest):
-    def test_spawn_points(self):
+    """Test world snapshot frame synchronization."""
+
+    def test_spawn_points(self) -> None:
+        """Verify spawn point transforms match snapshot data."""
         print("TestSnapshot.test_spawn_points")
         self.world = self.client.reload_world()
-        # workaround: give time to UE4 to clean memory after loading (old assets)
-        time.sleep(5)
+        # Workaround: give time to UE4 to clean memory after loading
+        time.sleep(_RELOAD_DELAY)
 
-        # Check why the world settings aren't applied after a reload
-        self.settings = self.world.get_settings()
+        # Apply sync settings
         settings = carla.WorldSettings(
             no_rendering_mode=False,
             synchronous_mode=True,
-            fixed_delta_seconds=0.05)
+            fixed_delta_seconds=_SYNC_DELTA,
+        )
         self.world.apply_settings(settings)
 
-        spawn_points = self.world.get_map().get_spawn_points()[:20]
-        vehicles = self.world.get_blueprint_library().filter('vehicle.*')
+        spawn_points = self.world.get_map().get_spawn_points()[
+            :_SPAWN_POINTS_LIMIT
+        ]
+        vehicles = self.world.get_blueprint_library().filter(
+            _VEHICLE_FILTER
+        )
         batch = [(random.choice(vehicles), t) for t in spawn_points]
         batch = [carla.command.SpawnActor(*args) for args in batch]
-        response = self.client.apply_batch_sync(batch, False)
+        response = self.client.apply_batch_sync(batch, do_tick=False)
 
         self.assertFalse(any(x.error for x in response))
         ids = [x.actor_id for x in response]
@@ -41,15 +61,33 @@ class TestSnapshot(SyncSmokeTest):
         self.assertEqual(frame, snapshot.timestamp.frame)
 
         actors = self.world.get_actors()
-        self.assertTrue(all(snapshot.has_actor(x.id) for x in actors))
+        self.assertTrue(
+            all(snapshot.has_actor(x.id) for x in actors)
+        )
 
         for actor_id, t0 in zip(ids, spawn_points):
             actor_snapshot = snapshot.find(actor_id)
             self.assertIsNotNone(actor_snapshot)
             t1 = actor_snapshot.get_transform()
-            # Ignore Z cause vehicle is falling.
-            self.assertAlmostEqual(t0.location.x, t1.location.x, places=2)
-            self.assertAlmostEqual(t0.location.y, t1.location.y, places=2)
-            self.assertAlmostEqual(t0.rotation.pitch, t1.rotation.pitch, places=2)
-            self.assertAlmostEqual(t0.rotation.yaw, t1.rotation.yaw, places=2)
-            self.assertAlmostEqual(t0.rotation.roll, t1.rotation.roll, places=2)
+            # Ignore Z because vehicle is falling.
+            self.assertAlmostEqual(
+                t0.location.x, t1.location.x, places=_LOCATION_PLACES
+            )
+            self.assertAlmostEqual(
+                t0.location.y, t1.location.y, places=_LOCATION_PLACES
+            )
+            self.assertAlmostEqual(
+                t0.rotation.pitch,
+                t1.rotation.pitch,
+                places=_ROTATION_PLACES,
+            )
+            self.assertAlmostEqual(
+                t0.rotation.yaw,
+                t1.rotation.yaw,
+                places=_ROTATION_PLACES,
+            )
+            self.assertAlmostEqual(
+                t0.rotation.roll,
+                t1.rotation.roll,
+                places=_ROTATION_PLACES,
+            )

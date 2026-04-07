@@ -1,3 +1,155 @@
 [build-system]
 requires = ["setuptools", "wheel", "distro"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "carla-agents"
+version = "0.1.0"
+description = "CARLA autonomous driving agents with proper typing"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.20.0",
+    "networkx>=2.5",
+    "shapely>=1.7",
+    "pydantic>=2.0",
+    "typing-extensions>=4.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4.0",
+    "ty>=0.0.1a14",
+    "mypy>=1.0",
+]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "TCH",   # flake8-type-checking
+    "RUF",   # ruff-specific rules
+    "ANN",   # flake8-annotations
+    "TID",   # flake8-tidy-imports
+    "C4",    # flake8-comprehensions
+    "RET",   # flake8-return
+    "PL",    # pylint rules
+    "FBT",   # flake8-boolean-trap
+    "PERF",  # perflint
+    "TRY",   # tryceratops
+    "BLE",   # flake8-blind-except
+    "A",     # flake8-builtins
+    "COM",   # flake8-commas
+    "DTZ",   # flake8-datetimez
+    "ERA",   # eradicate
+    "ICN",   # flake8-import-conventions
+    "INP",   # flake8-no-pep420
+    "PIE",   # flake8-pie
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RSE",   # flake8-raise
+    "SLOT",  # flake8-slots
+]
+ignore = [
+    "ANN101",  # Missing type annotation for `self` (deprecated in newer ruff)
+    "ANN102",  # Missing type annotation for `cls`
+    "ANN401",  # Dynamically typed expressions (typing.Any) are discouraged
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments to function call
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison (we use constants instead)
+    "TRY003",  # Avoid specifying long messages outside the exception class
+    "TRY300",  # Consider moving statement to else block
+    "TRY301",  # Abstract raise to an inner function
+    "COM812",  # Trailing comma missing (conflicts with ruff formatter)
+    "FBT001",  # Boolean-typed positional argument (common in CARLA APIs)
+    "FBT002",  # Boolean default positional argument
+    "FBT003",  # Boolean positional value in function call (Pydantic models)
+    "RET504",  # Unnecessary assignment before return (often clearer code)
+    "ERA001",  # Found commented-out code (copyright headers often look like this)
+    "N803",    # Argument name should be lowercase (K_P, K_I, K_D are standard PID names)
+    "N815",    # Variable in class scope should not be mixedCase (backward-compatible aliases)
+    "PLC0415", # Import should be at top-level (test scripts use lazy imports)
+    "RUF001",  # String contains ambiguous characters (Chinese text is intentional)
+    "B904",    # Raise from err (legacy exception handling pattern)
+    "PERF203", # try-except within a loop (acceptable for error recovery)
+    "PERF401", # Use list comprehension (explicit loops sometimes clearer)
+    "SIM105",  # Use contextlib.suppress (explicit try-except sometimes clearer)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"source/**" = ["ANN"]  # Auto-generated carla bindings
+"auto_traffic.py" = ["INP001", "PLW0603", "PLW0602"]  # Not part of a package, globals needed for cleanup
+"examples/auto_traffic.py" = ["INP001"]  # Copy of root, globals needed
+"examples/drive_vehicle.py" = ["INP001"]  # Example script
+"examples/walk_pedestrian.py" = ["INP001"]  # Example script
+"examples/sensor_gallery.py" = ["INP001"]  # Example script
+"examples/air_ground_sync.py" = ["INP001"]  # Example script
+"examples/switch_maps.py" = ["INP001"]  # Example script
+"examples/quick_start_showcase.py" = ["INP001"]  # Example script
+"examples/recording/**" = ["INP001"]  # Recording scripts
+"test_script/**" = ["INP001", "ANN", "PT028", "PT018"]  # Test scripts may not have full typing
+"PythonAPI/examples/**" = ["INP001", "ANN"]  # Upstream examples
+"PythonAPI/examples/generate_traffic.py" = ["E402"]  # Has pydantic import after standard lib
+"PythonAPI/examples/automatic_control.py" = ["N813"]  # ColorConverter as cc is standard CARLA convention
+"PythonAPI/examples/synchronous_mode.py" = ["N813"]  # Queue import compat
+"PythonAPI/util/**" = ["INP001"]  # Utilities not part of a package
+"Util/**" = ["INP001"]  # Build tools not part of a package
+"PythonAPI/test/**" = ["PT009", "UP031", "UP008", "UP036", "SIM", "ANN", "E501", "F401", "PLC0414", "F821", "F841", "N806"]  # Unittest style, legacy patterns
+
+[tool.ruff.lint.isort]
+known-first-party = ["carla", "agents"]
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+suppress-dummy-args = true
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-returns = 8
+max-branches = 15
+max-statements = 60
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+strict_optional = true
+
+[[tool.mypy.overrides]]
+module = ["carla", "shapely.*", "networkx.*"]
+ignore_missing_imports = true
+
+[tool.ty.environment]
+python-version = "3.9"
+
+[tool.typos]
+# Ty type-checking configuration
+strict = true

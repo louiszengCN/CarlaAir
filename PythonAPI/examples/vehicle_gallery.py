@@ -6,46 +6,118 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
+"""Spawn each vehicle blueprint and orbit the spectator camera around it."""
+
+from __future__ import annotations
 
 import math
 import random
 
+import carla
 
-def get_transform(vehicle_location, angle, d=6.4):
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Connection
+_CARLA_HOST: str = "localhost"
+_CARLA_PORT: int = 2000
+_CARLA_TIMEOUT: float = 2.0
+_WAIT_FOR_TICK_TIMEOUT: float = 30.0
+
+# Camera orbit
+_ORBIT_DISTANCE: float = 6.4
+_ORBIT_Z: float = 2.0
+_ORBIT_PITCH: float = -15.0
+_ORBIT_YAW_INVERT: float = 180.0
+_ORBIT_ANGLE_MAX: float = 356.0
+_ORBIT_YAW_OFFSET: float = -90.0
+_ORBIT_INITIAL_YAW: float = -45.0
+_ORBITAL_SPEED: float = 60.0
+
+# Vehicle filter
+_VEHICLE_FILTER: str = "vehicle"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Helper Functions
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def get_transform(
+    vehicle_location: carla.Location,
+    angle: float,
+    distance: float = _ORBIT_DISTANCE,
+) -> carla.Transform:
+    """Calculate spectator camera transform orbiting a vehicle.
+
+    Args:
+        vehicle_location: vehicle world location
+        angle: orbit angle in degrees
+        distance: orbit radius
+
+    Returns:
+        camera transform
+    """
     a = math.radians(angle)
-    location = carla.Location(d * math.cos(a), d * math.sin(a), 2.0) + vehicle_location
-    return carla.Transform(location, carla.Rotation(yaw=180 + angle, pitch=-15))
+    location = carla.Location(
+        distance * math.cos(a),
+        distance * math.sin(a),
+        _ORBIT_Z,
+    ) + vehicle_location
+    return carla.Transform(
+        location,
+        carla.Rotation(
+            yaw=_ORBIT_YAW_INVERT + angle,
+            pitch=_ORBIT_PITCH,
+        ),
+    )
 
 
-def main():
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(2.0)
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def main() -> None:
+    """Spawn each vehicle blueprint and orbit the spectator around it."""
+    client = carla.Client(_CARLA_HOST, _CARLA_PORT)
+    client.set_timeout(_CARLA_TIMEOUT)
     world = client.get_world()
     spectator = world.get_spectator()
-    vehicle_blueprints = world.get_blueprint_library().filter('vehicle')
+    vehicle_blueprints = world.get_blueprint_library().filter(
+        _VEHICLE_FILTER
+    )
 
-    location = random.choice(world.get_map().get_spawn_points()).location
+    location = random.choice(
+        world.get_map().get_spawn_points()
+    ).location
 
     for blueprint in vehicle_blueprints:
-        transform = carla.Transform(location, carla.Rotation(yaw=-45.0))
+        transform = carla.Transform(
+            location, carla.Rotation(yaw=_ORBIT_INITIAL_YAW)
+        )
         vehicle = world.spawn_actor(blueprint, transform)
 
         try:
-
             print(vehicle.type_id)
 
-            angle = 0
-            while angle < 356:
-                timestamp = world.wait_for_tick().timestamp
-                angle += timestamp.delta_seconds * 60.0
-                spectator.set_transform(get_transform(vehicle.get_location(), angle - 90))
+            angle = 0.0
+            while angle < _ORBIT_ANGLE_MAX:
+                timestamp = world.wait_for_tick(
+                    seconds=_WAIT_FOR_TICK_TIMEOUT
+                ).timestamp
+                angle += timestamp.delta_seconds * _ORBITAL_SPEED
+                spectator.set_transform(
+                    get_transform(
+                        vehicle.get_location(),
+                        angle + _ORBIT_YAW_OFFSET,
+                    )
+                )
 
         finally:
-
             vehicle.destroy()
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     main()

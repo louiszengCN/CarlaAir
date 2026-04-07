@@ -6,68 +6,119 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import glob
-import os
-import sys
+"""Enable or disable a plugin in a .uproject file."""
+
+from __future__ import annotations
+
 import argparse
 import json
 
-def main():
-    """Edits the uproject file to enable and disable the SimReady plugin
-    """
-    argparser = argparse.ArgumentParser()
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Plugin
+_DEFAULT_PLUGIN_NAME: str = "SimReady"
+_JSON_INDENT: int = 4
+_PLUGINS_KEY: str = "Plugins"
+_NAME_KEY: str = "Name"
+_ENABLED_KEY: str = "Enabled"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    argparser = argparse.ArgumentParser(
+        description="Edit uproject file to enable/disable a plugin"
+    )
     argparser.add_argument(
-        '-f', '--file',
-        metavar='F',
+        "-f",
+        "--file",
+        metavar="F",
         default="",
         type=str,
-        help='Path to the uproject file')
+        help="Path to the uproject file",
+    )
     argparser.add_argument(
-        '-p', '--plugin',
-        metavar='P',
-        default="SimReady",
+        "-p",
+        "--plugin",
+        metavar="P",
+        default=_DEFAULT_PLUGIN_NAME,
         type=str,
-        help='Plugin name')
+        help="Plugin name",
+    )
     argparser.add_argument(
-        '-e', '--enable',
-        action='store_true',
-        help='enable plugin')
-    args = argparser.parse_args()
+        "-e",
+        "--enable",
+        action="store_true",
+        help="enable plugin",
+    )
+    return argparser.parse_args()
 
-    # Read uproject (json) file
-    uproject_file = open(args.file, 'r')
-    uproject_json = json.load(uproject_file)
-    uproject_file.close()
 
-    # Get the plugin list
-    plugin_list = uproject_json["Plugins"]
+def _edit_plugin(
+    uproject_json: dict,
+    plugin_name: str,
+    enable: bool,
+) -> bool:
+    """Edit a plugin in the uproject JSON.
 
-    # Edit plugin
+    Args:
+        uproject_json: parsed uproject JSON
+        plugin_name: name of the plugin to edit
+        enable: whether to enable or disable the plugin
+
+    Returns:
+        True if changes were made
+    """
+    plugin_list: list[dict] = uproject_json.get(_PLUGINS_KEY, [])
     should_do_changes = False
     found = False
+
     for plugin in plugin_list:
-        if plugin['Name'] == args.plugin:
+        if plugin.get(_NAME_KEY) == plugin_name:
             found = True
-            if args.enable:
-                if not plugin['Enabled']:
-                    should_do_changes = True
-                    plugin['Enabled'] = True
-            else:
-                if plugin['Enabled']:
-                    should_do_changes = True
-                    plugin['Enabled'] = False
+            current_enabled = plugin.get(_ENABLED_KEY, False)
+            if enable and not current_enabled:
+                should_do_changes = True
+                plugin[_ENABLED_KEY] = True
+            elif not enable and current_enabled:
+                should_do_changes = True
+                plugin[_ENABLED_KEY] = False
+
     if not found:
         should_do_changes = True
-        plugin_list.append({
-            "Name": args.plugin,
-            "Enabled": True if args.enable else False
-        })
+        plugin_list.append(
+            {
+                _NAME_KEY: plugin_name,
+                _ENABLED_KEY: enable,
+            }
+        )
 
-    # Save file if there are changes to do
+    return should_do_changes
+
+
+def main() -> None:
+    """Run the plugin editor."""
+    args = _parse_args()
+
+    with open(args.file, encoding="utf-8") as uproject_file:
+        uproject_json = json.load(uproject_file)
+
+    should_do_changes = _edit_plugin(
+        uproject_json, args.plugin, args.enable
+    )
+
     if should_do_changes:
-        uproject_file = open(args.file, 'w')
-        uproject_file.write(json.dumps(uproject_json, indent = 4))
-        uproject_file.close()
+        with open(args.file, "w", encoding="utf-8") as uproject_file:
+            uproject_file.write(
+                json.dumps(uproject_json, indent=_JSON_INDENT)
+            )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -4,51 +4,114 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-from . import SyncSmokeTest
+"""Test collision sensor functionality."""
+
 
 import carla
 
+from . import SyncSmokeTest
+
+# Constants
+_WAIT_FRAMES: int = 100
+_TEST_VELOCITY: float = 10.0
+
+# Vehicle test location
+_VEHICLE_X: float = 30.0
+_VEHICLE_Y: float = -6.0
+_VEHICLE_Z: float = 1.0
+_VEHICLE_YAW: float = -90.0
+
+# Filters
+_VEHICLE_FILTER: str = "vehicle.*"
+_COLLISION_SENSOR: str = "sensor.other.collision"
+
+
 class TestCollisionSensor(SyncSmokeTest):
-    def wait(self, frames=100):
-        for _i in range(0, frames):
+    """Test collision sensor events."""
+
+    def _wait(self, frames: int = _WAIT_FRAMES) -> None:
+        """Wait for a number of simulation frames.
+
+        Args:
+            frames: number of frames to wait
+        """
+        for _ in range(frames):
             self.world.tick()
 
-    def collision_callback(self, event, event_list):
+    @staticmethod
+    def _collision_callback(
+        event: carla.CollisionEvent,
+        event_list: list[carla.CollisionEvent],
+    ) -> None:
+        """Append collision event to list.
+
+        Args:
+            event: collision event data
+            event_list: list to append to
+        """
         event_list.append(event)
 
-    def run_collision_single_car_against_wall(self, bp_vehicle):
-        veh_transf = carla.Transform(carla.Location(30, -6, 1), carla.Rotation(yaw=-90))
+    def _run_collision_single_car_against_wall(
+        self,
+        bp_vehicle: carla.ActorBlueprint,
+    ) -> list[carla.CollisionEvent]:
+        """Run a collision test with a single vehicle against a wall.
+
+        Args:
+            bp_vehicle: vehicle blueprint to test
+
+        Returns:
+            list of collision events
+        """
+        veh_transf = carla.Transform(
+            carla.Location(
+                x=_VEHICLE_X, y=_VEHICLE_Y, z=_VEHICLE_Z
+            ),
+            carla.Rotation(yaw=_VEHICLE_YAW),
+        )
         vehicle = self.world.spawn_actor(bp_vehicle, veh_transf)
 
-        bp_col_sensor = self.world.get_blueprint_library().find('sensor.other.collision')
-        col_sensor = self.world.spawn_actor(bp_col_sensor, carla.Transform(), attach_to=vehicle)
+        bp_col_sensor = self.world.get_blueprint_library().find(
+            _COLLISION_SENSOR
+        )
+        col_sensor = self.world.spawn_actor(
+            bp_col_sensor, carla.Transform(), attach_to=vehicle
+        )
 
-        event_list = []
-        col_sensor.listen(lambda data: self.collision_callback(data, event_list))
+        event_list: list[carla.CollisionEvent] = []
+        col_sensor.listen(
+            lambda data: self._collision_callback(data, event_list)
+        )
 
-        self.wait(100)
-        vehicle.set_target_velocity(10.0*veh_transf.rotation.get_forward_vector())
-
-        self.wait(100)
+        self._wait(_WAIT_FRAMES)
+        vehicle.set_target_velocity(
+            _TEST_VELOCITY * veh_transf.rotation.get_forward_vector()
+        )
+        self._wait(_WAIT_FRAMES)
 
         col_sensor.destroy()
         vehicle.destroy()
 
         return event_list
 
-    def test_single_car(self):
+    def test_single_car(self) -> None:
+        """Verify collision sensor works for all vehicle types."""
         print("TestCollisionSensor.test_single_car")
 
-        bp_vehicles = self.world.get_blueprint_library().filter("vehicle.*")
+        bp_vehicles = self.world.get_blueprint_library().filter(
+            _VEHICLE_FILTER
+        )
         bp_vehicles = self.filter_vehicles_for_old_towns(bp_vehicles)
         cars_failing = ""
         for bp_veh in bp_vehicles:
-            # Run collision agains wall
-            event_list = self.run_collision_single_car_against_wall(bp_veh)
+            event_list = self._run_collision_single_car_against_wall(
+                bp_veh
+            )
+            if not event_list:
+                cars_failing += f" {bp_veh.id}"
 
-            if len(event_list) == 0:
-                cars_failing += " %s" % bp_veh.id
-
-        # Check result events
-        if cars_failing != "":
-            self.fail("The collision sensor have failed for the cars: %s" % cars_failing)
+        if cars_failing:
+            self.fail(
+                "The collision sensor has failed for the cars:"
+                f" {cars_failing}"
+            )

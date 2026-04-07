@@ -8,51 +8,85 @@
 
 """Blocks until the simulator is ready or the time-out is met."""
 
-
-import carla
+from __future__ import annotations
 
 import argparse
 import sys
 import time
 
+import carla
 
-def main():
-    argparser = argparse.ArgumentParser(
-        description=__doc__)
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Connection
+_DEFAULT_HOST: str = "127.0.0.1"
+_DEFAULT_PORT: int = 2000
+_DEFAULT_TIMEOUT: float = 10.0
+_CHECK_INTERVAL: float = 0.1
+
+# Exit codes
+_EXIT_SUCCESS: int = 0
+_EXIT_FAILURE: int = 1
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    argparser = argparse.ArgumentParser(description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default=_DEFAULT_HOST,
+        help=f"IP of the host server (default: {_DEFAULT_HOST})",
+    )
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
-        default=2000,
+        "-p",
+        "--port",
+        metavar="P",
+        default=_DEFAULT_PORT,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help=f"TCP port to listen to (default: {_DEFAULT_PORT})",
+    )
     argparser.add_argument(
-        '--timeout',
-        metavar='T',
-        default=10.0,
+        "--timeout",
+        metavar="T",
+        default=_DEFAULT_TIMEOUT,
         type=float,
-        help='time-out in seconds (default: 10)')
-    args = argparser.parse_args()
+        help=f"time-out in seconds (default: {_DEFAULT_TIMEOUT:.0f})",
+    )
+    return argparser.parse_args()
 
+
+def main() -> int:
+    """Wait for CARLA simulator connection.
+
+    Returns:
+        0 on success, 1 on timeout
+    """
+    args = _parse_args()
     t0 = time.time()
 
     while args.timeout > (time.time() - t0):
         try:
             client = carla.Client(args.host, args.port)
-            client.set_timeout(0.1)
-            print('CARLA %s connected at %s:%d.' % (client.get_server_version(), args.host, args.port))
-            return 0
+            client.set_timeout(_CHECK_INTERVAL)
+            print(
+                f"CARLA {client.get_server_version()} "
+                f"connected at {args.host}:{args.port}."
+            )
+            return _EXIT_SUCCESS
         except RuntimeError:
             pass
 
-    print('Failed to connect to %s:%d.' % (args.host, args.port))
-    return 1
+    print(f"Failed to connect to {args.host}:{args.port}.")
+    return _EXIT_FAILURE
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     sys.exit(main())

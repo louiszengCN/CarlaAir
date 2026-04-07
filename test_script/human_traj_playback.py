@@ -1,273 +1,683 @@
-      
-import carla
-import json
+#!/usr/bin/env python3
+"""
+human_traj_playback.py — Human Trajectory Playback for CARLA
+
+Plays back recorded human trajectories with visual debugging.
+Supports walker or drone visualization styles and optional video recording.
+
+Usage:
+    python human_traj_playback.py <trajectory_file.json> [--record output.mp4] [--style walker|drone]
+"""
+
+from __future__ import annotations
+
+import os
 import sys
 import time
-import os
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any
+
 import numpy as np
-import cv2
 import pygame
+from pydantic import BaseModel, ConfigDict, Field
+
+import carla
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Connection
+_CARLA_HOST: str = "localhost"
+_CARLA_PORT: int = 2000
+_CARLA_TIMEOUT: float = 10.0
+
+# Display
+_DISPLAY_WIDTH: int = 1280
+_DISPLAY_HEIGHT: int = 720
+_DISPLAY_FPS: int = 60
+_DISPLAY_FLAGS: int = pygame.HWSURFACE | pygame.DOUBLEBUF
+
+# Camera
+_CAMERA_RESOLUTION_X: str = "1280"
+_CAMERA_RESOLUTION_Y: str = "720"
+_CAMERA_FOV: str = "90"
+_CHASE_CAMERA_X: float = -5.0
+_CHASE_CAMERA_Z: float = 3.0
+_CHASE_CAMERA_PITCH: float = -20.0
+_SPAWN_Z_OFFSET: float = 0.5
+
+# Playback
+_NORMAL_ARRIVAL_THRESHOLD: float = 0.3
+_JUMP_ARRIVAL_THRESHOLD: float = 0.4
+_STUCK_DISTANCE_INCREMENT: float = 0.2
+_STUCK_FRAME_THRESHOLD: int = 30
+_STUCK_DISTANCE_MAX: float = 2.0
+_JUMP_TRIGGER_DISTANCE: float = 1.0
+_JUMP_HOLD_FRAMES: int = 8
+_JUMP_BOOST_Z: float = 0.45
+_DEFAULT_SPEED: float = 1.5
+_VELOCITY_THRESHOLD: float = 0.1
+_BLEND_TO_TARGET: float = 0.7
+_BLEND_RECORDED: float = 0.3
+
+# Debug Visualization
+_DEBUG_POINT_SIZE: float = 0.2
+_DEBUG_Z_OFFSET: float = 0.1
+_DEBUG_ARROW_Z_START: float = 2.5
+_DEBUG_ARROW_Z_END: float = 1.2
+_DEBUG_ARROW_THICKNESS: float = 0.1
+_DEBUG_ARROW_SIZE: float = 0.2
+_DEBUG_LINE_THICKNESS: float = 0.05
+_DEBUG_DASH_LENGTH: float = 0.5
+_DEBUG_BUILDING_BUFFER: float = 50.0
+
+# Recording
+_DEFAULT_RECORD_NAME: str = "output.mp4"
+_VIDEO_FPS: float = 30.0
+_VIDEO_CODECS: list[str] = ["mp4v", "avc1"]
+
+# Exit
+_EXIT_DELAY: float = 3.0
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enums
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class VisualStyle(Enum):
+    """Visualization style for trajectory playback."""
+
+    WALKER = "walker"
+    DRONE = "drone"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Pydantic Models
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class PlaybackConfig(BaseModel):
+    """Configuration for trajectory playback."""
+
+    model_config = ConfigDict(frozen=True)
+
+    normal_arrival_threshold: float = Field(
+        default=_NORMAL_ARRIVAL_THRESHOLD, gt=0
+    )
+    jump_arrival_threshold: float = Field(default=_JUMP_ARRIVAL_THRESHOLD, gt=0)
+    stuck_distance_increment: float = Field(
+        default=_STUCK_DISTANCE_INCREMENT, gt=0
+    )
+    stuck_frame_threshold: int = Field(default=_STUCK_FRAME_THRESHOLD, gt=0)
+    stuck_distance_max: float = Field(default=_STUCK_DISTANCE_MAX, gt=0)
+    jump_trigger_distance: float = Field(default=_JUMP_TRIGGER_DISTANCE, gt=0)
+    jump_hold_frames: int = Field(default=_JUMP_HOLD_FRAMES, gt=0)
+    jump_boost_z: float = Field(default=_JUMP_BOOST_Z, gt=0)
+    default_speed: float = Field(default=_DEFAULT_SPEED, gt=0)
+    velocity_threshold: float = Field(default=_VELOCITY_THRESHOLD, gt=0)
+    blend_to_target: float = Field(
+        default=_BLEND_TO_TARGET, ge=0, le=1
+    )
+    blend_recorded: float = Field(default=_BLEND_RECORDED, ge=0, le=1)
+
+
+class VideoConfig(BaseModel):
+    """Configuration for video recording."""
+
+    model_config = ConfigDict(frozen=True)
+
+    width: int = Field(default=_DISPLAY_WIDTH, gt=0)
+    height: int = Field(default=_DISPLAY_HEIGHT, gt=0)
+    fps: float = Field(default=_VIDEO_FPS, gt=0)
+    default_codec: str = Field(default=_DEFAULT_RECORD_NAME, min_length=1)
+    codecs_to_try: list[str] = Field(
+        default_factory=lambda: list(_VIDEO_CODECS)
+    )
+
+
+class CameraConfig(BaseModel):
+    """Configuration for playback camera."""
+
+    model_config = ConfigDict(frozen=True)
+
+    resolution_x: str = Field(
+        default=_CAMERA_RESOLUTION_X, min_length=1
+    )
+    resolution_y: str = Field(
+        default=_CAMERA_RESOLUTION_Y, min_length=1
+    )
+    fov: str = Field(default=_CAMERA_FOV, min_length=1)
+    chase_offset_x: float = Field(default=_CHASE_CAMERA_X)
+    chase_offset_z: float = Field(default=_CHASE_CAMERA_Z)
+    chase_pitch: float = Field(default=_CHASE_CAMERA_PITCH)
+    spawn_z_offset: float = Field(default=_SPAWN_Z_OFFSET)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Dataclasses
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class VisualPalette:
+    """Color palette for debug visualization."""
+
+    point: carla.Color
+    arrow: carla.Color
+    line: carla.Color
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main Class
+# ──────────────────────────────────────────────────────────────────────────────
+
 
 class TrajectoryPlayback:
-    def __init__(self, trajectory_file, record=False, record_name="output.mp4", visual_style="walker"):
-        self.client = carla.Client('localhost', 2000)
-        self.client.set_timeout(10.0)
-        self.world = self.client.get_world()
-        self.blueprint_library = self.world.get_blueprint_library()
-        
-        self.trajectory = self.load_trajectory(trajectory_file)
-        self.walker = None
-        self.camera = None
-        self.actor_list = []
-        # 防止跳跃指令在同一目标点连续触发导致“飞天”
-        self._last_jump_idx = -1
-        self._prev_distance = None
-        self._stuck_frames = 0
-        # 跳跃增强：在触发后持续若干帧保持 jump=true，增强跳跃力度
-        self._jump_hold_frames = 0
-        self.jump_boost_z = 0.45  # 与采集一致的跳跃上抬高度
-        self.record_enabled = record
-        self.record_path = record_name
-        self.record_writer = None
-        # 可配置的可视化样式：默认 walker 保持原亮度，drone 使用更暗的颜色避免发光
-        self.visual_style = visual_style
-        self._colors = self._get_visual_colors(visual_style)
+    """Plays back recorded human trajectories with visual debugging."""
 
-    def _init_video_writer(self, width=1280, height=720, fps=30.0):
-        # 先尝试 mp4v，不行再尝试 avc1，若都失败则关闭录制
-        for codec in ['mp4v', 'avc1']:
-            fourcc = cv2.VideoWriter_fourcc(*codec)
-            writer = cv2.VideoWriter(self.record_path, fourcc, fps, (width, height))
-            if writer.isOpened():
-                print(f"视频录制启用，编码 {codec}, 输出 {self.record_path}")
-                return writer
-        print(f"视频写入器打开失败，关闭录制: {self.record_path}")
-        return None
-        
-    def load_trajectory(self, filename):
-        with open(filename, 'r') as f:
+    _client: carla.Client
+    _world: carla.World
+    _blueprint_library: carla.BlueprintLibrary
+    _walker: carla.Walker | None
+    _camera: carla.Sensor | None
+
+    _trajectory: list[dict[str, Any]]
+    _actor_list: list[carla.Actor]
+    _playback_cfg: PlaybackConfig
+    _video_cfg: VideoConfig
+    _camera_cfg: CameraConfig
+    _palette: VisualPalette
+
+    _last_jump_idx: int
+    _prev_distance: float | None
+    _stuck_frames: int
+    _jump_hold_frames: int
+    _pillar_height: float
+    _record_enabled: bool
+    _record_path: str
+    _record_writer: Any | None  # cv2.VideoWriter
+
+    def __init__(
+        self,
+        trajectory_file: str,
+        record: bool = False,
+        record_name: str = _DEFAULT_RECORD_NAME,
+        visual_style: str = VisualStyle.WALKER.value,
+    ) -> None:
+        """Initialize trajectory playback.
+
+        Args:
+            trajectory_file: path to JSON trajectory file
+            record: whether to record video
+            record_name: output video file path
+            visual_style: visualization style ("walker" or "drone")
+        """
+        # Initialize configs
+        self._playback_cfg = PlaybackConfig()
+        self._video_cfg = VideoConfig()
+        self._camera_cfg = CameraConfig()
+
+        # Connect to CARLA
+        self._client = carla.Client(_CARLA_HOST, _CARLA_PORT)
+        self._client.set_timeout(_CARLA_TIMEOUT)
+        self._world = self._client.get_world()
+        self._blueprint_library = self._world.get_blueprint_library()
+
+        # Load trajectory
+        self._trajectory = self._load_trajectory(trajectory_file)
+
+        # Actor references
+        self._walker = None
+        self._camera = None
+        self._actor_list: list[carla.Actor] = []
+
+        # Playback state
+        self._last_jump_idx = -1
+        self._prev_distance: float | None = None
+        self._stuck_frames = 0
+        self._jump_hold_frames = 0
+
+        # Visualization
+        style = (
+            VisualStyle(visual_style)
+            if visual_style in [v.value for v in VisualStyle]
+            else VisualStyle.WALKER
+        )
+        self._palette = self._get_visual_colors(style)
+
+        # Recording
+        self._record_enabled = record
+        self._record_path = record_name
+        self._record_writer: Any | None = None
+
+        # Calculate max building height for debug pillar
+        self._pillar_height = self._get_max_building_height()
+
+    def _get_max_building_height(self) -> float:
+        """Get the maximum building height in the map.
+
+        Returns:
+            maximum building height plus buffer
+        """
+        all_buildings = self._world.get_environment_objects(
+            carla.CityObjectLabel.Buildings
+        )
+        if not all_buildings:
+            return _DEBUG_BUILDING_BUFFER
+        max_h = max(
+            b.bounding_box.location.z + b.bounding_box.extent.z
+            for b in all_buildings
+        )
+        return max_h + _DEBUG_BUILDING_BUFFER
+
+    def _load_trajectory(self, filename: str) -> list[dict[str, Any]]:
+        """Load trajectory from JSON file.
+
+        Args:
+            filename: path to JSON file
+
+        Returns:
+            list of trajectory point dictionaries
+        """
+        with open(filename) as f:
             return json.load(f)
 
-    def spawn_playback_player(self):
-        start_point = self.trajectory[0]
-        spawn_loc = carla.Location(x=start_point['x'], y=start_point['y'], z=start_point['z'] + 0.5)
-        spawn_transform = carla.Transform(spawn_loc)
-        
-        walker_bp = self.blueprint_library.filter('walker.pedestrian.*')[0]
-        self.walker = self.world.spawn_actor(walker_bp, spawn_transform)
-        self.actor_list.append(self.walker)
-        
-        # 相机跟随
-        camera_bp = self.blueprint_library.find('sensor.camera.rgb')
-        camera_bp.set_attribute('image_size_x', '1280')
-        camera_bp.set_attribute('image_size_y', '720')
-        camera_bp.set_attribute('fov', '90')
-        
-        camera_transform = carla.Transform(carla.Location(x=-5, z=3), carla.Rotation(pitch=-20))
-        self.camera = self.world.spawn_actor(camera_bp, camera_transform, attach_to=self.walker)
-        self.actor_list.append(self.camera)
+    def _init_video_writer(self) -> Any | None:
+        """Initialize video writer for recording.
 
-    def run(self):
-        if not self.trajectory:
+        Returns:
+            cv2.VideoWriter instance or None if failed
+        """
+        import cv2
+
+        for codec in self._video_cfg.codecs_to_try:
+            fourcc = cv2.VideoWriter_fourcc(*codec)
+            writer = cv2.VideoWriter(
+                self._record_path,
+                fourcc,
+                self._video_cfg.fps,
+                (self._video_cfg.width, self._video_cfg.height),
+            )
+            if writer.isOpened():
+                print(
+                    f"视频录制启用，编码 {codec}, 输出 {self._record_path}"
+                )
+                return writer
+        print(f"视频写入器打开失败，关闭录制: {self._record_path}")
+        return None
+
+    def spawn_playback_player(self) -> None:
+        """Spawn walker and camera at trajectory start point."""
+        start_point = self._trajectory[0]
+        spawn_loc = carla.Location(
+            x=start_point["x"],
+            y=start_point["y"],
+            z=start_point["z"] + self._camera_cfg.spawn_z_offset,
+        )
+        spawn_transform = carla.Transform(spawn_loc)
+
+        walker_bp = self._blueprint_library.filter("walker.pedestrian.*")[0]
+        self._walker = self._world.spawn_actor(walker_bp, spawn_transform)
+        self._actor_list.append(self._walker)
+
+        # Chase camera
+        camera_bp = self._blueprint_library.find("sensor.camera.rgb")
+        camera_bp.set_attribute(
+            "image_size_x", self._camera_cfg.resolution_x
+        )
+        camera_bp.set_attribute(
+            "image_size_y", self._camera_cfg.resolution_y
+        )
+        camera_bp.set_attribute("fov", self._camera_cfg.fov)
+
+        camera_transform = carla.Transform(
+            carla.Location(
+                x=self._camera_cfg.chase_offset_x,
+                z=self._camera_cfg.chase_offset_z,
+            ),
+            carla.Rotation(pitch=self._camera_cfg.chase_pitch),
+        )
+        self._camera = self._world.spawn_actor(
+            camera_bp, camera_transform, attach_to=self._walker
+        )
+        self._actor_list.append(self._camera)
+
+    def run(self) -> None:
+        """Main playback loop."""
+        if not self._trajectory:
             print("轨迹为空，退出。")
             return
 
         pygame.init()
-        display = pygame.display.set_mode((1280, 720), pygame.HWSURFACE | pygame.DOUBLEBUF)
-        
+        display = pygame.display.set_mode(
+            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS
+        )
+
         self.spawn_playback_player()
-        
-        # 获取地图最高建筑高度用于绘制光柱
-        all_buildings = self.world.get_environment_objects(carla.CityObjectLabel.Buildings)
-        max_h = 0
-        for b in all_buildings:
-            h = b.bounding_box.location.z + b.bounding_box.extent.z
-            if h > max_h:
-                max_h = h
-        self.pillar_height = max_h + 50.0
 
-        if self.record_enabled:
-            self.record_writer = self._init_video_writer(width=1280, height=720, fps=30.0)
+        if self._record_enabled:
+            self._record_writer = self._init_video_writer()
 
-        def process_img(image):
+        # Camera callback
+        def _process_img(image: carla.Image) -> None:
             array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
             array = np.reshape(array, (image.height, image.width, 4))
             bgr = np.array(array[:, :, :3])
             rgb = bgr[:, :, ::-1]
-            if self.record_writer is not None:
-                self.record_writer.write(bgr)
+            if self._record_writer is not None:
+                self._record_writer.write(bgr)
             surface = pygame.surfarray.make_surface(rgb.swapaxes(0, 1))
             display.blit(surface, (0, 0))
 
-        self.camera.listen(lambda image: process_img(image))
-        
-        # 预先绘制所有点和线
-        self.visualize_full_trajectory()
-        
+        if self._camera is not None:
+            self._camera.listen(_process_img)
+
+        # Pre-draw full trajectory
+        self._visualize_full_trajectory()
+
         current_target_idx = 1
         clock = pygame.time.Clock()
         running = True
-        
-        print(f"开始回放，总计 {len(self.trajectory)} 个点...")
-        
+
+        print(f"开始回放，总计 {len(self._trajectory)} 个点...")
+
         try:
-            while running and current_target_idx < len(self.trajectory):
-                clock.tick(60)
+            while running and current_target_idx < len(self._trajectory):
+                clock.tick(_DISPLAY_FPS)
                 pygame.display.flip()
-                
-                target = self.trajectory[current_target_idx]
-                target_loc = carla.Location(x=target['x'], y=target['y'], z=target['z'])
-                
-                current_loc = self.walker.get_location()
+
+                target = self._trajectory[current_target_idx]
+                target_loc = carla.Location(
+                    x=target["x"], y=target["y"], z=target["z"]
+                )
+
+                if self._walker is None:
+                    break
+
+                current_loc = self._walker.get_location()
                 direction = target_loc - current_loc
-                
-                # 只考虑水平方向的移动 (X, Y)，忽略 Z
-                # 这可以防止小人在回放时因为 Z 轴偏差而“走上天”
-                direction_2d = carla.Vector3D(x=direction.x, y=direction.y, z=0)
+
+                # Only consider horizontal movement (X, Y), ignore Z
+                direction_2d = carla.Vector3D(
+                    x=direction.x, y=direction.y, z=0
+                )
                 distance_2d = direction_2d.length()
-                # 距离阈值：普通点 0.3m，跳跃点略放宽到 0.4m，避免过早停在草丛外，又不至于过早判定到达
-                arrival_threshold = 0.4 if target.get('jump', False) else 0.3
-                
+
+                is_jump = target.get("jump", False)
+                arrival_threshold = (
+                    self._playback_cfg.jump_arrival_threshold
+                    if is_jump
+                    else self._playback_cfg.normal_arrival_threshold
+                )
+
                 control = carla.WalkerControl()
-                # 若连续远离目标（距离增长），判定可能被碰撞/障碍阻挡，触发“强制到达”到下一个点
-                if self._prev_distance is not None and distance_2d > self._prev_distance + 0.2:
+
+                # Stuck detection
+                if (
+                    self._prev_distance is not None
+                    and distance_2d
+                    > self._prev_distance
+                    + self._playback_cfg.stuck_distance_increment
+                ):
                     self._stuck_frames += 1
                 else:
                     self._stuck_frames = 0
                 self._prev_distance = distance_2d
 
                 if distance_2d > arrival_threshold:
-                    # 方向：默认对准目标点；若为跳跃点且有记录的速度方向，则在目标方向基础上叠加少量记录方向以保持动量，但仍以到达目标为主
-                    dir_to_target = direction_2d / distance_2d if distance_2d > 0 else carla.Vector3D(0, 0, 0)
-                    recorded_dir = carla.Vector3D(x=target.get('vx', 0.0), y=target.get('vy', 0.0), z=0.0)
-                    recorded_len = recorded_dir.length()
-                    if target.get('jump', False) and recorded_len > 0.1:
-                        blended = dir_to_target * 0.7 + (recorded_dir / recorded_len) * 0.3
-                        blended_len = blended.length()
-                        control.direction = blended / blended_len if blended_len > 0 else dir_to_target
-                    else:
-                        control.direction = dir_to_target
+                    self._update_walker_control(
+                        control,
+                        target,
+                        direction_2d,
+                        distance_2d,
+                        current_loc,
+                    )
 
-                    control.speed = target.get('speed', 1.5)
-                    
-                    # 在接近目标点（<=1.0m）时仅触发一次跳跃，并保持若干帧以增强跳跃力度
-                    if target.get('jump', False) and self._last_jump_idx != current_target_idx and distance_2d <= 1.0:
-                        control.jump = True
-                        self._jump_hold_frames = 8  # 持续 8 帧约 0.13s
-                        self._last_jump_idx = current_target_idx
-                        # 额外向上轻推，增强跳跃高度（一次性），防止被低矮障碍卡住
-                        try:
-                            boost_loc = carla.Location(x=current_loc.x, y=current_loc.y, z=current_loc.z + self.jump_boost_z)
-                            self.walker.set_location(boost_loc)
-                        except Exception as _:
-                            pass
-                    elif self._jump_hold_frames > 0:
-                        control.jump = True
-                        self._jump_hold_frames -= 1
-                    # 被卡住超过一定帧数且接近目标（<2.0m）则视为到达，跳过该点
-                    if self._stuck_frames > 30 and distance_2d < 2.0:
-                        distance_2d = arrival_threshold  # 强制满足到达条件
+                    # Force reach if stuck near target
+                    if (
+                        self._stuck_frames
+                        > self._playback_cfg.stuck_frame_threshold
+                        and distance_2d < self._playback_cfg.stuck_distance_max
+                    ):
+                        distance_2d = arrival_threshold
 
                 if distance_2d <= arrival_threshold:
-                    # 到达一个点，前往下一个
-                    print(f"到达点 {current_target_idx}/{len(self.trajectory)-1}")
+                    print(
+                        f"到达点 {current_target_idx}/{len(self._trajectory)-1}"
+                    )
                     current_target_idx += 1
                     self._prev_distance = None
                     self._stuck_frames = 0
                     self._jump_hold_frames = 0
-                    if current_target_idx >= len(self.trajectory):
+                    if current_target_idx >= len(self._trajectory):
                         print("已到达轨迹终点。")
                         break
-                
-                self.walker.apply_control(control)
-                
+
+                if self._walker is not None:
+                    self._walker.apply_control(control)
+
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    if event.type == pygame.QUIT or (
+                        event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_ESCAPE
+                    ):
                         running = False
         finally:
-            print("回放结束，等待 3 秒后退出...")
-            time.sleep(3)
-            self.cleanup()
+            print(f"回放结束，等待 {_EXIT_DELAY:.0f} 秒后退出...")
+            time.sleep(_EXIT_DELAY)
+            self._cleanup()
 
-    def visualize_full_trajectory(self):
-        # 绘制所有记录的点和虚线
-        for i, p in enumerate(self.trajectory):
-            loc = carla.Location(x=p['x'], y=p['y'], z=p['z'])
-            # 记录点：小红球，life_time=0 表示永不消失（除非重启地图）
-            self.world.debug.draw_point(loc + carla.Location(z=0.1), size=0.2, color=self._colors["point"], life_time=0)
-            
-            # 可视化：短促的向下箭头
-            arrow_start = loc + carla.Location(z=2.5)
-            arrow_end = loc + carla.Location(z=1.2)
-            self.world.debug.draw_arrow(arrow_start, arrow_end, thickness=0.1, arrow_size=0.2, color=self._colors["arrow"], life_time=0)
-            
+    def _update_walker_control(
+        self,
+        control: carla.WalkerControl,
+        target: dict[str, Any],
+        direction_2d: carla.Vector3D,
+        distance_2d: float,
+        current_loc: carla.Location,
+    ) -> None:
+        """Update walker control based on target and current state.
+
+        Args:
+            control: walker control to update
+            target: target trajectory point
+            direction_2d: 2D direction to target
+            distance_2d: 2D distance to target
+            current_loc: current walker location
+        """
+        dir_to_target = (
+            direction_2d / distance_2d if distance_2d > 0 else carla.Vector3D(0, 0, 0)
+        )
+        recorded_dir = carla.Vector3D(
+            x=target.get("vx", 0.0), y=target.get("vy", 0.0), z=0.0
+        )
+        recorded_len = recorded_dir.length()
+
+        # Blend direction for jump points
+        is_jump = target.get("jump", False)
+        if (
+            is_jump
+            and recorded_len > self._playback_cfg.velocity_threshold
+        ):
+            blended = (
+                dir_to_target * self._playback_cfg.blend_to_target
+                + (recorded_dir / recorded_len)
+                * self._playback_cfg.blend_recorded
+            )
+            blended_len = blended.length()
+            control.direction = (
+                blended / blended_len if blended_len > 0 else dir_to_target
+            )
+        else:
+            control.direction = dir_to_target
+
+        control.speed = target.get("speed", self._playback_cfg.default_speed)
+
+        # Jump handling
+        if (
+            is_jump
+            and self._last_jump_idx != -1
+            and distance_2d <= self._playback_cfg.jump_trigger_distance
+        ):
+            control.jump = True
+            self._jump_hold_frames = self._playback_cfg.jump_hold_frames
+            self._last_jump_idx = -1  # Reset to allow next jump
+            # Boost upward
+            if self._walker is not None:
+                try:
+                    boost_loc = carla.Location(
+                        x=current_loc.x,
+                        y=current_loc.y,
+                        z=current_loc.z + self._playback_cfg.jump_boost_z,
+                    )
+                    self._walker.set_location(boost_loc)
+                except Exception:  # noqa: BLE001
+                    pass
+        elif self._jump_hold_frames > 0:
+            control.jump = True
+            self._jump_hold_frames -= 1
+
+    def _visualize_full_trajectory(self) -> None:
+        """Pre-draw all trajectory points and connections."""
+        for i, p in enumerate(self._trajectory):
+            loc = carla.Location(x=p["x"], y=p["y"], z=p["z"])
+            # Record point
+            self._world.debug.draw_point(
+                loc + carla.Location(z=_DEBUG_Z_OFFSET),
+                size=_DEBUG_POINT_SIZE,
+                color=self._palette.point,
+                life_time=0,
+            )
+
+            # Arrow visualization
+            arrow_start = loc + carla.Location(z=_DEBUG_ARROW_Z_START)
+            arrow_end = loc + carla.Location(z=_DEBUG_ARROW_Z_END)
+            self._world.debug.draw_arrow(
+                arrow_start,
+                arrow_end,
+                thickness=_DEBUG_ARROW_THICKNESS,
+                arrow_size=_DEBUG_ARROW_SIZE,
+                color=self._palette.arrow,
+                life_time=0,
+            )
+
+            # Connection line to previous point
             if i > 0:
-                prev_p = self.trajectory[i-1]
-                prev_loc = carla.Location(x=prev_p['x'], y=prev_p['y'], z=prev_p['z'] + 0.1)
-                self._draw_dashed_line(prev_loc, loc + carla.Location(z=0.1))
+                prev_p = self._trajectory[i - 1]
+                prev_loc = carla.Location(
+                    x=prev_p["x"],
+                    y=prev_p["y"],
+                    z=prev_p["z"] + _DEBUG_Z_OFFSET,
+                )
+                self._draw_dashed_line(
+                    prev_loc, loc + carla.Location(z=_DEBUG_Z_OFFSET)
+                )
 
-    def _draw_dashed_line(self, start, end, dash_length=0.5):
+    def _draw_dashed_line(
+        self,
+        start: carla.Location,
+        end: carla.Location,
+        dash_length: float = _DEBUG_DASH_LENGTH,
+    ) -> None:
+        """Draw a dashed line between two points.
+
+        Args:
+            start: start location
+            end: end location
+            dash_length: length of each dash segment
+        """
         dist = start.distance(end)
-        if dist == 0: return
+        if dist == 0:
+            return
         n_segments = int(dist / (dash_length * 2))
         direction = (end - start) / dist
         for i in range(n_segments):
             p1 = start + direction * (i * 2 * dash_length)
             p2 = p1 + direction * dash_length
-            # life_time=0 确保连接线在回放过程中一直存在
-            self.world.debug.draw_line(p1, p2, thickness=0.05, color=self._colors["line"], life_time=0)
+            self._world.debug.draw_line(
+                p1,
+                p2,
+                thickness=_DEBUG_LINE_THICKNESS,
+                color=self._palette.line,
+                life_time=0,
+            )
 
-    def _get_visual_colors(self, style):
-        """Different palettes for walker (original) and drone (muted)."""
-        if style == "drone":
-            # 更暗、更不显眼的颜色，避免“发光”效果
-            return {
-                "point": carla.Color(80, 90, 120),
-                "arrow": carla.Color(45, 60, 75),
-                "line": carla.Color(70, 70, 80),
-            }
-        # 默认保持行人轨迹的原配色
-        return {
-            "point": carla.Color(255, 0, 0),
-            "arrow": carla.Color(0, 50, 50),
-            "line": carla.Color(50, 50, 0),
-        }
+    def _get_visual_colors(self, style: VisualStyle) -> VisualPalette:
+        """Get color palette based on visual style.
 
-    def cleanup(self):
-        if self.camera: self.camera.stop()
-        for actor in self.actor_list:
+        Args:
+            style: visualization style (walker or drone)
+
+        Returns:
+            visual palette with point, arrow, and line colors
+        """
+        if style == VisualStyle.DRONE:
+            return VisualPalette(
+                point=carla.Color(80, 90, 120),
+                arrow=carla.Color(45, 60, 75),
+                line=carla.Color(70, 70, 80),
+            )
+        return VisualPalette(
+            point=carla.Color(255, 0, 0),
+            arrow=carla.Color(0, 50, 50),
+            line=carla.Color(50, 50, 0),
+        )
+
+    def _cleanup(self) -> None:
+        """Clean up all actors and resources."""
+        if self._camera:
+            self._camera.stop()
+        for actor in self._actor_list:
             if actor is not None:
                 actor.destroy()
-        if self.record_writer is not None:
-            self.record_writer.release()
+        if self._record_writer is not None:
+            self._record_writer.release()
         pygame.quit()
+
+
+import json  # noqa: E402
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("请提供轨迹文件路径: python trajectory_playback.py <trajectory_file.json> [--record output.mp4] [--style walker|drone]")
+        print(
+            "请提供轨迹文件路径: python trajectory_playback.py "
+            "<trajectory_file.json> [--record output.mp4] [--style walker|drone]"
+        )
     else:
         try:
             trajectory_file = sys.argv[1]
             record = False
-            record_name = None
-            visual_style = "walker"
+            record_name: str | None = None
+            visual_style = VisualStyle.WALKER.value
+
             if "--record" in sys.argv:
                 record = True
                 idx = sys.argv.index("--record")
-                if idx + 1 < len(sys.argv) and not sys.argv[idx + 1].startswith("-"):
+                if (
+                    idx + 1 < len(sys.argv)
+                    and not sys.argv[idx + 1].startswith("-")
+                ):
                     record_name = sys.argv[idx + 1]
                 else:
-                    # 未指定文件名，则使用轨迹同名 mp4，放在相同目录
                     base, _ = os.path.splitext(trajectory_file)
                     record_name = f"{base}.mp4"
+
             if "--style" in sys.argv:
                 style_idx = sys.argv.index("--style")
-                if style_idx + 1 < len(sys.argv) and not sys.argv[style_idx + 1].startswith("-"):
+                if (
+                    style_idx + 1 < len(sys.argv)
+                    and not sys.argv[style_idx + 1].startswith("-")
+                ):
                     visual_style = sys.argv[style_idx + 1]
-            playback = TrajectoryPlayback(trajectory_file, record=record, record_name=record_name or "output.mp4", visual_style=visual_style)
+
+            playback = TrajectoryPlayback(
+                trajectory_file,
+                record=record,
+                record_name=record_name or _DEFAULT_RECORD_NAME,
+                visual_style=visual_style,
+            )
             playback.run()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"回放出错: {e}")
-
-
-    

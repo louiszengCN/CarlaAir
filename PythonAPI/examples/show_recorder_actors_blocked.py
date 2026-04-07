@@ -6,61 +6,101 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
+"""Show recorder actors that are blocked."""
+
+from __future__ import annotations
 
 import argparse
 
+import carla
 
-def main():
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
 
-    argparser = argparse.ArgumentParser(
-        description=__doc__)
+# Connection
+_DEFAULT_HOST: str = "127.0.0.1"
+_DEFAULT_PORT: int = 2000
+_RECORDER_TIMEOUT: float = 60.0
+
+# Recorder
+_DEFAULT_RECORDER_FILENAME: str = "test1.rec"
+_DEFAULT_MIN_TIME: float = 30.0
+_DEFAULT_MIN_DISTANCE: float = 100.0  # cm
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    argparser = argparse.ArgumentParser(description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default=_DEFAULT_HOST,
+        help=f"IP of the host server (default: {_DEFAULT_HOST})",
+    )
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
-        default=2000,
+        "-p",
+        "--port",
+        metavar="P",
+        default=_DEFAULT_PORT,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help=f"TCP port to listen to (default: {_DEFAULT_PORT})",
+    )
     argparser.add_argument(
-        '-f', '--recorder_filename',
-        metavar='F',
-        default="test1.rec",
-        help='recorder filename (test1.rec)')
+        "-f",
+        "--recorder-filename",
+        metavar="F",
+        default=_DEFAULT_RECORDER_FILENAME,
+        help=f"recorder filename (default: {_DEFAULT_RECORDER_FILENAME})",
+    )
     argparser.add_argument(
-        '-t', '--time',
-        metavar='T',
-        default="30",
+        "-t",
+        "--time",
+        metavar="T",
+        default=_DEFAULT_MIN_TIME,
         type=float,
-        help='minimum time to consider it is blocked')
+        help="minimum time to consider it is blocked",
+    )
     argparser.add_argument(
-        '-d', '--distance',
-        metavar='D',
-        default="100",
+        "-d",
+        "--distance",
+        metavar="D",
+        default=_DEFAULT_MIN_DISTANCE,
         type=float,
-        help='minimum distance to consider it is not moving (in cm)')
-    args = argparser.parse_args()
+        help="minimum distance to consider it is not moving (in cm)",
+    )
+    return argparser.parse_args()
+
+
+def main() -> None:
+    """Show recorder actors that are blocked."""
+    args = _parse_args()
 
     try:
-
         client = carla.Client(args.host, args.port)
-        client.set_timeout(60.0)
+        client.set_timeout(_RECORDER_TIMEOUT)
 
-        print(client.show_recorder_actors_blocked(args.recorder_filename, args.time, args.distance))
+        print(
+            client.show_recorder_actors_blocked(
+                args.recorder_filename,
+                args.time,
+                args.distance,
+            )
+        )
 
     finally:
         pass
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
         pass
     finally:
-        print('\ndone.')
+        print("\ndone.")

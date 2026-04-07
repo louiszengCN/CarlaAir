@@ -52,11 +52,19 @@ Usage:
   python demo_director.py --no-trajectories   # Just director camera, no replay
 """
 
-import carla
-import pygame
-import numpy as np
+import argparse
+import glob
+import json
+import math
+import os
+import threading
+import time
+
 import cv2
-import json, time, os, sys, math, argparse, glob, threading
+import numpy as np
+import pygame
+
+import carla
 
 # ─── Constants ─────────────────────────────────────────────────────
 DELTA_TIME = 0.05  # 20 Hz default
@@ -98,7 +106,7 @@ SENSOR_CONFIGS = [
 
 # ─── Trajectory Loading ───────────────────────────────────────────
 def load_trajectory(filepath):
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         data = json.load(f)
     print(f"  [{data['type']:>7}] {os.path.basename(filepath)}: "
           f"{data['total_frames']} frames, {data['total_frames']*data['delta_time']:.1f}s")
@@ -111,7 +119,7 @@ class WalkerReplayer:
         self.world = world
         self.traj = traj
         self.frames = traj["frames"]
-        self.label = f"Walker"
+        self.label = "Walker"
         first = self.frames[0]["transform"]
         walker_bp = bp_lib.filter("walker.pedestrian.*")[0]
         if walker_bp.has_attribute("is_invincible"):
@@ -498,7 +506,7 @@ Examples:
         print(f"Spawning {args.walkers} background walkers...")
         walker_bps = bp_lib.filter("walker.pedestrian.*")
         for i in range(args.walkers):
-            bp = __import__('random').choice(walker_bps)
+            bp = __import__("random").choice(walker_bps)
             loc = world.get_random_location_from_navigation()
             if loc:
                 try:
@@ -512,7 +520,7 @@ Examples:
                     dest = world.get_random_location_from_navigation()
                     if dest:
                         ctrl.go_to_location(dest)
-                    ctrl.set_max_speed(1.0 + __import__('random').random() * 1.5)
+                    ctrl.set_max_speed(1.0 + __import__("random").random() * 1.5)
                 except:
                     pass
         walker_count = sum(1 for a in bg_actors if "walker" in getattr(a, "type_id", ""))
@@ -632,7 +640,7 @@ Examples:
 """)
 
         print_help()
-        print(f"Ready! Press H to toggle HUD, F to record.\n")
+        print("Ready! Press H to toggle HUD, F to record.\n")
 
         running = True
         while running:
@@ -687,7 +695,7 @@ Examples:
                             # Find first vehicle or walker to attach sensors
                             target = None
                             for r in replayers:
-                                if hasattr(r, 'actor') and r.actor is not None:
+                                if hasattr(r, "actor") and r.actor is not None:
                                     target = r.actor
                                     break
                             if target:

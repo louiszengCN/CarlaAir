@@ -4,14 +4,12 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-from . import SyncSmokeTest
-from . import SmokeTest
+import time
 
 import carla
-import time
-import math
-import numpy as np
-from enum import Enum
+
+from . import SyncSmokeTest
+
 
 def list_equal_tol(objs, tol = 1e-5):
     if (len(objs) < 2):
@@ -38,7 +36,7 @@ def equal_physics_control(pc_a, pc_b):
     error_msg = ""
 
     for key in dir(pc_a):
-        if key.startswith('__') or key == "wheels":
+        if key.startswith("__") or key == "wheels":
             continue
 
         if not equal_tol(getattr(pc_a, key), getattr(pc_b, key), 1e-3):
@@ -51,9 +49,9 @@ def equal_physics_control(pc_a, pc_b):
             % (len(pc_a.wheels) != len(pc_b.wheels))
         return False, error_msg
 
-    for w in range(0, len(pc_a.wheels)):
+    for w in range(len(pc_a.wheels)):
         for key in dir(pc_a.wheels[w]):
-            if key.startswith('__') or key == "position":
+            if key.startswith("__") or key == "position":
                 continue
 
             if not equal_tol(getattr(pc_a.wheels[w], key), getattr(pc_b.wheels[w], key), 1e-3):
@@ -105,7 +103,7 @@ ApplyVehiclePhysicsControl = carla.command.ApplyVehiclePhysicsControl
 
 class TestApplyVehiclePhysics(SyncSmokeTest):
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def check_single_physics_control(self, bp_vehicle):
@@ -142,7 +140,7 @@ class TestApplyVehiclePhysics(SyncSmokeTest):
         vehicles = []
         pc_a = []
         pc_b = []
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             veh_tranf = self.world.get_map().get_spawn_points()[i]
             bp_vehicle = bp_vehicles[index_bp] if index_bp is not None else bp_vehicles[i]
             vehicles.append(self.world.spawn_actor(bp_vehicle, veh_tranf))
@@ -152,17 +150,17 @@ class TestApplyVehiclePhysics(SyncSmokeTest):
 
         self.wait(2)
 
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             pc_b.append(vehicles[i].get_physics_control())
 
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             equal, msg = equal_physics_control(pc_a[i], pc_b[i])
             if not equal:
                 self.fail("%s: %s" % (bp_vehicle.id, msg))
 
         pc_a = []
         pc_b = []
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             friction = 1.0 + 0.1*i
             lstiff = 500 + 100*i
             pc_a.append(change_physics_control(vehicles[i], tire_friction=friction, long_stiff=lstiff))
@@ -170,15 +168,15 @@ class TestApplyVehiclePhysics(SyncSmokeTest):
 
         self.wait(2)
 
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             pc_b.append(vehicles[i].get_physics_control())
 
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             equal, msg = equal_physics_control(pc_a[i], pc_b[i])
             if not equal:
                 self.fail("%s: %s" % (bp_vehicle.id, msg))
 
-        for i in range(0, num_veh):
+        for i in range(num_veh):
             vehicles[i].destroy()
 
     def test_single_physics_control(self):
@@ -194,7 +192,7 @@ class TestApplyVehiclePhysics(SyncSmokeTest):
 
         bp_vehicles = self.world.get_blueprint_library().filter("vehicle.*")
         bp_vehicles = self.filter_vehicles_for_old_towns(bp_vehicles)
-        for idx in range(0, len(bp_vehicles)):
+        for idx in range(len(bp_vehicles)):
             self.check_multiple_physics_control(bp_vehicles, idx)
 
         bp_vehicles = self.world.get_blueprint_library().filter("vehicle.*")
@@ -203,12 +201,12 @@ class TestApplyVehiclePhysics(SyncSmokeTest):
 
 class TestVehicleFriction(SyncSmokeTest):
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def test_vehicle_zero_friction(self):
         print("TestVehicleFriction.test_vehicle_zero_friction")
-        
+
         self.client.load_world("Town05_Opt", False)
         # workaround: give time to UE4 to clean memory after loading (old assets)
         time.sleep(5)
@@ -258,7 +256,7 @@ class TestVehicleFriction(SyncSmokeTest):
 
             if not list_equal_tol([vel_ref, vel_veh_00, vel_veh_01], 1e-3):
                 self.client.apply_batch_sync([carla.command.DestroyActor(x) for x in veh_ids])
-                
+
                 self.fail("%s: Velocities are not equal after initialization. Ref: %.3f -> [%.3f, %.3f]"
                   % (bp_veh.id, vel_ref, vel_veh_00, vel_veh_01))
 
@@ -285,12 +283,12 @@ class TestVehicleFriction(SyncSmokeTest):
         bp_vehicles = self.world.get_blueprint_library().filter("*charger_2020")
 
         value_vol_friction = 5.0
-        friction_bp = self.world.get_blueprint_library().find('static.trigger.friction')
-        friction_bp.set_attribute('friction', str(value_vol_friction))
+        friction_bp = self.world.get_blueprint_library().find("static.trigger.friction")
+        friction_bp.set_attribute("friction", str(value_vol_friction))
         extent = carla.Location(300.0, 4500.0, 700.0)
-        friction_bp.set_attribute('extent_x', str(extent.x))
-        friction_bp.set_attribute('extent_y', str(extent.y))
-        friction_bp.set_attribute('extent_z', str(extent.z))
+        friction_bp.set_attribute("extent_x", str(extent.x))
+        friction_bp.set_attribute("extent_y", str(extent.y))
+        friction_bp.set_attribute("extent_z", str(extent.z))
 
         vol_transf = carla.Transform(carla.Location(27, -100, 1))
 
@@ -321,7 +319,7 @@ class TestVehicleFriction(SyncSmokeTest):
 
             vel_ref = 50.0 / 3.6
             friction_ref = 0.0
- 
+
             self.client.apply_batch_sync([
                 ApplyVehiclePhysicsControl(veh_refs[0], change_physics_control(veh_refs[0], tire_friction=friction_ref, drag=0.0)),
                 ApplyVehiclePhysicsControl(veh_refs[1], change_physics_control(veh_refs[1], tire_friction=friction_ref, drag=0.0))])
@@ -439,7 +437,7 @@ class TestVehicleFriction(SyncSmokeTest):
             loc_veh_00 = veh_refs[0].get_location().y
             loc_veh_01 = veh_refs[1].get_location().y
 
-            for _i in range(0, 50):
+            for _i in range(50):
                 self.world.tick()
                 self.client.apply_batch_sync([
                     ApplyVehicleControl(veh_refs[0], carla.VehicleControl(brake=1.0)),
@@ -460,7 +458,7 @@ class TestVehicleFriction(SyncSmokeTest):
 
 class TestVehicleTireConfig(SyncSmokeTest):
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def test_vehicle_wheel_collision(self):
@@ -471,7 +469,7 @@ class TestVehicleTireConfig(SyncSmokeTest):
         time.sleep(5)
 
         bp_vehicles = self.world.get_blueprint_library().filter("vehicle.*")
-        bp_vehicles = [x for x in bp_vehicles if int(x.get_attribute('number_of_wheels')) == 4]
+        bp_vehicles = [x for x in bp_vehicles if int(x.get_attribute("number_of_wheels")) == 4]
 
         for bp_veh in bp_vehicles:
             veh_transf_00 = carla.Transform(carla.Location(36, -200, 0.2), carla.Rotation(yaw=91))
@@ -531,7 +529,7 @@ class TestVehicleTireConfig(SyncSmokeTest):
         time.sleep(5)
 
         bp_vehicles = self.world.get_blueprint_library().filter("vehicle.*")
-        bp_vehicles = [x for x in bp_vehicles if int(x.get_attribute('number_of_wheels')) == 4]
+        bp_vehicles = [x for x in bp_vehicles if int(x.get_attribute("number_of_wheels")) == 4]
 
         for bp_veh in bp_vehicles:
             ref_pos = -200
@@ -582,7 +580,7 @@ class TestVehicleTireConfig(SyncSmokeTest):
 
 class TestStickyControl(SyncSmokeTest):
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def run_scenario(self, bp_veh, veh_control, continous = False, reset_after_first = False, sticky = None):
@@ -604,13 +602,13 @@ class TestStickyControl(SyncSmokeTest):
         vehicle_id = responses[0].actor_id
         vehicle_00 = self.world.get_actor(vehicle_id)
 
-        for _i in range(0, 10):
+        for _i in range(10):
             self.world.tick()
 
         self.client.apply_batch_sync([ApplyVehicleControl(vehicle_00, veh_control)])
         self.world.tick()
 
-        for _i in range(0, 150):
+        for _i in range(150):
             if continous:
                 self.client.apply_batch_sync([ApplyVehicleControl(vehicle_00, veh_control)])
             if reset_after_first:

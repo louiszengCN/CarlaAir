@@ -1,84 +1,171 @@
-""" CARLA map spawn points extractor """
+"""CARLA map spawn points extractor."""
 
-from __future__ import print_function
+from __future__ import annotations
+
 import argparse
 import logging
 import os
 import sys
+from dataclasses import dataclass
 
 import carla
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
 
-def extract(args):
+# Connection
+_DEFAULT_HOST: str = "127.0.0.1"
+_DEFAULT_PORT: int = 2000
+_CARLA_TIMEOUT: float = 2.0
+_WORKER_THREADS: int = 1
+
+# Output
+_OUTPUT_FILENAME: str = "spawn_points.csv"
+_CSV_HEADER: str = "index,x,y,z\n"
+
+# Logging
+_LOG_FORMAT: str = "%(levelname)s: %(message)s"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Dataclasses
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class SpawnPointRecord:
+    """Single spawn point record for CSV output."""
+
+    index: int
+    x: float
+    y: float
+    z: float
+
+    def to_csv_row(self) -> str:
+        """Convert to CSV row string.
+
+        Returns:
+            CSV row without newline
+        """
+        return f"{self.index},{self.x:.4f},{self.y:.4f},{self.z:.4f}"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def extract_spawn_points(
+    client: carla.Client,
+    output_dir: str,
+) -> list[SpawnPointRecord]:
+    """Extract spawn points from current CARLA world.
+
+    Args:
+        client: CARLA client
+        output_dir: directory for output CSV
+
+    Returns:
+        list of spawn point records
+
+    Raises:
+        RuntimeError: if no spawn points available
+    """
+    world = client.get_world()
     try:
-        client = carla.Client(args.host, args.port, worker_threads=1)
-        client.set_timeout(2.0)
+        map_inst = world.get_map()
+    except RuntimeError as error:
+        logging.info("RuntimeError: %s", error)
+        raise
 
-        world = client.get_world()
-        try:
-            _map = world.get_map()
-        except RuntimeError as error:
-            logging.info('RuntimeError: %s', error)
-            sys.exit(1)
+    spawn_points = map_inst.get_spawn_points()
+    if not spawn_points:
+        logging.info(
+            "There are no spawn points available in your map/town."
+        )
+        logging.info(
+            "Please add some Vehicle Spawn Point to your UE4 scene."
+        )
+        raise RuntimeError("No spawn points available")
 
-        if not _map.get_spawn_points():
-            logging.info('There are no spawn points available in your map/town.')
-            logging.info('Please add some Vehicle Spawn Point to your UE4 scene.')
-            sys.exit(1)
-        spawn_points = _map.get_spawn_points()
-        with open(args.output_dir + "/spawn_points.csv", "w", encoding='utf8') as file:
-            index = 0
-            for index, spawn_point in enumerate(spawn_points):
-                file.write(f'{index},{spawn_point.location.x},{spawn_point.location.y},{spawn_point.location.z}\n')
+    records = [
+        SpawnPointRecord(
+            index=i,
+            x=sp.location.x,
+            y=sp.location.y,
+            z=sp.location.z,
+        )
+        for i, sp in enumerate(spawn_points)
+    ]
 
-    finally:
-        world = None
+    output_path = os.path.join(output_dir, _OUTPUT_FILENAME)
+    with open(output_path, "w", encoding="utf8") as file:
+        file.write(_CSV_HEADER)
+        for record in records:
+            file.write(record.to_csv_row() + "\n")
 
-# ==============================================================================
-# -- main() --------------------------------------------------------------------
-# ==============================================================================
+    logging.info(
+        "Extracted %d spawn points to %s", len(records), output_path
+    )
+    return records
 
 
-def main():
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description='CARLA map spawn points extractor')
+        description="CARLA map spawn points extractor"
+    )
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default=_DEFAULT_HOST,
+        help=f"IP of the host server (default: {_DEFAULT_HOST})",
+    )
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
-        default=2000,
+        "-p",
+        "--port",
+        metavar="P",
+        default=_DEFAULT_PORT,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help=f"TCP port to listen to (default: {_DEFAULT_PORT})",
+    )
     argparser.add_argument(
-        '-o', '--output-dir',
+        "-o",
+        "--output-dir",
         required=True,
-        help='Output directory path for extraction result')
-    args = argparser.parse_args()
+        help="Output directory path for extraction result",
+    )
+    return argparser.parse_args()
+
+
+def main() -> None:
+    """Run the spawn point extraction."""
+    args = _parse_args()
 
     if args.output_dir is None or not os.path.exists(args.output_dir):
-        print('output directory not found.')
+        print("output directory not found.")
+        sys.exit(1)
 
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-    logging.info('listening to server %s:%s', args.host, args.port)
+    logging.basicConfig(format=_LOG_FORMAT, level=logging.INFO)
+    logging.info("listening to server %s:%s", args.host, args.port)
 
     print(__doc__)
 
     try:
-        extract(args)
-    except:
-        print('\nAn error has occurred in extraction.')
+        client = carla.Client(
+            args.host, args.port, worker_threads=_WORKER_THREADS
+        )
+        client.set_timeout(_CARLA_TIMEOUT)
+        extract_spawn_points(client, args.output_dir)
+    except RuntimeError:
+        print("\nAn error has occurred in extraction.")
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
+        print("\nCancelled by user. Bye!")
     except RuntimeError as e:
         print(e)

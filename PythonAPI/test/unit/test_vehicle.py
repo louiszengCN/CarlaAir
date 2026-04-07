@@ -4,110 +4,233 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
+"""Test CARLA vehicle control and physics."""
 
 import unittest
+from typing import TYPE_CHECKING
+
+import carla
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Default values
+_DEFAULT_THROTTLE: float = 0.0
+_DEFAULT_STEER: float = 0.0
+_DEFAULT_BRAKE: float = 0.0
+_DEFAULT_HANDBRAKE: bool = False
+_DEFAULT_REVERSE: bool = False
+
+# Test values
+_TEST_THROTTLE: float = 1.0
+_TEST_STEER: float = 2.0
+_TEST_BRAKE: float = 3.0
+_TEST_HANDBRAKE: bool = True
+_TEST_REVERSE: bool = True
+
+# Physics control test values
+_TORQUE_CURVE: list[list[float]] = [
+    [0, 400],
+    [24, 56],
+    [24, 56],
+    [1315.47, 654.445],
+    [5729, 400],
+]
+_STEERING_CURVE: list[carla.Vector2D] = [
+    carla.Vector2D(x=0, y=1),
+    carla.Vector2D(x=20.0, y=0.9),
+    carla.Vector2D(x=63.0868, y=0.703473),
+    carla.Vector2D(x=119.12, y=0.573047),
+]
+_WHEEL_FRICTIONS: list[int] = [2, 3, 4, 5]
+_WHEEL_DAMPING: list[int] = [0, 1, 2, 3]
+_WHEEL_MAX_STEER: list[int] = [30, 40, 50, 60]
+_WHEEL_RADIUS: list[int] = [10, 20, 30, 40]
+
+# Physics parameters
+_MAX_RPM: float = 5729.0
+_MOI: float = 1.0
+_DAMPING_FULL_THROTTLE: float = 0.15
+_DAMPING_ZERO_CLUTCH_ENGAGED: float = 2.0
+_DAMPING_ZERO_CLUTCH_DISENGAGED: float = 0.35
+_USE_GEAR_AUTOBOX: int = 1
+_GEAR_SWITCH_TIME: float = 0.5
+_CLUTCH_STRENGTH: float = 10.0
+_MASS: float = 5500.0
+_DRAG_COEFFICIENT: float = 0.3
+_CENTER_OF_MASS: carla.Vector3D = carla.Vector3D(x=0.5, y=1.0, z=1.0)
+
+# Tolerance
+_PHYSICS_ERROR: float = 0.001
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Test Classes
+# ──────────────────────────────────────────────────────────────────────────────
 
 
 class TestVehicleControl(unittest.TestCase):
-    def test_default_values(self):
-        c = carla.VehicleControl()
-        self.assertEqual(c.throttle, 0.0)
-        self.assertEqual(c.steer, 0.0)
-        self.assertEqual(c.brake, 0.0)
-        self.assertEqual(c.hand_brake, False)
-        self.assertEqual(c.reverse, False)
-        c = carla.VehicleControl(1.0, 2.0, 3.0, True, True)
-        self.assertEqual(c.throttle, 1.0)
-        self.assertEqual(c.steer, 2.0)
-        self.assertEqual(c.brake, 3.0)
-        self.assertEqual(c.hand_brake, True)
-        self.assertEqual(c.reverse, True)
+    """Test CARLA VehicleControl defaults and named args."""
 
-    def test_named_args(self):
+    def test_default_values(self) -> None:
+        """Verify VehicleControl defaults to zero/false."""
+        c = carla.VehicleControl()
+        self.assertEqual(c.throttle, _DEFAULT_THROTTLE)
+        self.assertEqual(c.steer, _DEFAULT_STEER)
+        self.assertEqual(c.brake, _DEFAULT_BRAKE)
+        self.assertEqual(c.hand_brake, _DEFAULT_HANDBRAKE)
+        self.assertEqual(c.reverse, _DEFAULT_REVERSE)
+
         c = carla.VehicleControl(
-            throttle=1.0,
-            steer=2.0,
-            brake=3.0,
-            hand_brake=True,
-            reverse=True)
-        self.assertEqual(c.throttle, 1.0)
-        self.assertEqual(c.steer, 2.0)
-        self.assertEqual(c.brake, 3.0)
-        self.assertEqual(c.hand_brake, True)
-        self.assertEqual(c.reverse, True)
+            _TEST_THROTTLE,
+            _TEST_STEER,
+            _TEST_BRAKE,
+            _TEST_HANDBRAKE,
+            _TEST_REVERSE,
+        )
+        self.assertEqual(c.throttle, _TEST_THROTTLE)
+        self.assertEqual(c.steer, _TEST_STEER)
+        self.assertEqual(c.brake, _TEST_BRAKE)
+        self.assertEqual(c.hand_brake, _TEST_HANDBRAKE)
+        self.assertEqual(c.reverse, _TEST_REVERSE)
+
+    def test_named_args(self) -> None:
+        """Verify VehicleControl named arguments work correctly."""
+        c = carla.VehicleControl(
+            throttle=_TEST_THROTTLE,
+            steer=_TEST_STEER,
+            brake=_TEST_BRAKE,
+            hand_brake=_TEST_HANDBRAKE,
+            reverse=_TEST_REVERSE,
+        )
+        self.assertEqual(c.throttle, _TEST_THROTTLE)
+        self.assertEqual(c.steer, _TEST_STEER)
+        self.assertEqual(c.brake, _TEST_BRAKE)
+        self.assertEqual(c.hand_brake, _TEST_HANDBRAKE)
+        self.assertEqual(c.reverse, _TEST_REVERSE)
 
 
 class TestVehiclePhysicsControl(unittest.TestCase):
-    def test_named_args(self):
+    """Test CARLA VehiclePhysicsControl named arguments."""
 
-        torque_curve = [[0, 400],
-                        [24, 56],
-                        [24, 56],
-                        [1315.47, 654.445],
-                        [5729, 400]]
-
-        steering_curve = [carla.Vector2D(x=0, y=1),
-                          carla.Vector2D(x=20.0, y=0.9),
-                          carla.Vector2D(x=63.0868, y=0.703473),
-                          carla.Vector2D(x=119.12, y=0.573047)]
-
-        wheels = [carla.WheelPhysicsControl(tire_friction=2, damping_rate=0, max_steer_angle=30, radius=10),
-                  carla.WheelPhysicsControl(tire_friction=3, damping_rate=1, max_steer_angle=40, radius=20),
-                  carla.WheelPhysicsControl(tire_friction=4, damping_rate=2, max_steer_angle=50, radius=30),
-                  carla.WheelPhysicsControl(tire_friction=5, damping_rate=3, max_steer_angle=60, radius=40)]
+    def test_named_args(self) -> None:
+        """Verify PhysicsControl with complex nested parameters."""
+        wheels = [
+            carla.WheelPhysicsControl(
+                tire_friction=fric,
+                damping_rate=damp,
+                max_steer_angle=steer,
+                radius=rad,
+            )
+            for fric, damp, steer, rad in zip(
+                _WHEEL_FRICTIONS,
+                _WHEEL_DAMPING,
+                _WHEEL_MAX_STEER,
+                _WHEEL_RADIUS,
+            )
+        ]
 
         pc = carla.VehiclePhysicsControl(
-            torque_curve=torque_curve,
-            max_rpm=5729,
-            moi=1,
-            damping_rate_full_throttle=0.15,
-            damping_rate_zero_throttle_clutch_engaged=2,
-            damping_rate_zero_throttle_clutch_disengaged=0.35,
+            torque_curve=_TORQUE_CURVE,
+            max_rpm=_MAX_RPM,
+            moi=_MOI,
+            damping_rate_full_throttle=_DAMPING_FULL_THROTTLE,
+            damping_rate_zero_throttle_clutch_engaged=_DAMPING_ZERO_CLUTCH_ENGAGED,
+            damping_rate_zero_throttle_clutch_disengaged=_DAMPING_ZERO_CLUTCH_DISENGAGED,
+            use_gear_autobox=_USE_GEAR_AUTOBOX,
+            gear_switch_time=_GEAR_SWITCH_TIME,
+            clutch_strength=_CLUTCH_STRENGTH,
+            mass=_MASS,
+            drag_coefficient=_DRAG_COEFFICIENT,
+            center_of_mass=_CENTER_OF_MASS,
+            steering_curve=_STEERING_CURVE,
+            wheels=wheels,
+        )
 
-            use_gear_autobox=1,
-            gear_switch_time=0.5,
-            clutch_strength=10,
+        # Verify torque curve
+        for i, (x, y) in enumerate(_TORQUE_CURVE):
+            self.assertTrue(abs(pc.torque_curve[i].x - x) <= _PHYSICS_ERROR)
+            self.assertTrue(abs(pc.torque_curve[i].y - y) <= _PHYSICS_ERROR)
 
-            mass=5500,
-            drag_coefficient=0.3,
+        # Verify scalar parameters
+        self.assertTrue(abs(pc.max_rpm - _MAX_RPM) <= _PHYSICS_ERROR)
+        self.assertTrue(abs(pc.moi - _MOI) <= _PHYSICS_ERROR)
+        self.assertTrue(
+            abs(pc.damping_rate_full_throttle - _DAMPING_FULL_THROTTLE)
+            <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(
+                pc.damping_rate_zero_throttle_clutch_engaged
+                - _DAMPING_ZERO_CLUTCH_ENGAGED
+            )
+            <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(
+                pc.damping_rate_zero_throttle_clutch_disengaged
+                - _DAMPING_ZERO_CLUTCH_DISENGAGED
+            )
+            <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(pc.use_gear_autobox - _USE_GEAR_AUTOBOX) <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(pc.gear_switch_time - _GEAR_SWITCH_TIME) <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(pc.clutch_strength - _CLUTCH_STRENGTH) <= _PHYSICS_ERROR
+        )
+        self.assertTrue(abs(pc.mass - _MASS) <= _PHYSICS_ERROR)
+        self.assertTrue(
+            abs(pc.drag_coefficient - _DRAG_COEFFICIENT) <= _PHYSICS_ERROR
+        )
 
-            center_of_mass=carla.Vector3D(x=0.5, y=1, z=1),
-            steering_curve=steering_curve,
-            wheels=wheels)
+        # Verify center of mass
+        self.assertTrue(
+            abs(pc.center_of_mass.x - _CENTER_OF_MASS.x) <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(pc.center_of_mass.y - _CENTER_OF_MASS.y) <= _PHYSICS_ERROR
+        )
+        self.assertTrue(
+            abs(pc.center_of_mass.z - _CENTER_OF_MASS.z) <= _PHYSICS_ERROR
+        )
 
-        error = .001
-        for i in range(0, len(torque_curve)):
-            self.assertTrue(abs(pc.torque_curve[i].x - torque_curve[i][0]) <= error)
-            self.assertTrue(abs(pc.torque_curve[i].y - torque_curve[i][1]) <= error)
+        # Verify steering curve
+        for i, sc in enumerate(_STEERING_CURVE):
+            self.assertTrue(
+                abs(pc.steering_curve[i].x - sc.x) <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.steering_curve[i].y - sc.y) <= _PHYSICS_ERROR
+            )
 
-        self.assertTrue(abs(pc.max_rpm - 5729) <= error)
-        self.assertTrue(abs(pc.moi - 1) <= error)
-        self.assertTrue(abs(pc.damping_rate_full_throttle - 0.15) <= error)
-        self.assertTrue(abs(pc.damping_rate_zero_throttle_clutch_engaged - 2) <= error)
-        self.assertTrue(abs(pc.damping_rate_zero_throttle_clutch_disengaged - 0.35) <= error)
-
-        self.assertTrue(abs(pc.use_gear_autobox - 1) <= error)
-        self.assertTrue(abs(pc.gear_switch_time - 0.5) <= error)
-        self.assertTrue(abs(pc.clutch_strength - 10) <= error)
-
-        self.assertTrue(abs(pc.mass - 5500) <= error)
-        self.assertTrue(abs(pc.drag_coefficient - 0.3) <= error)
-
-        self.assertTrue(abs(pc.center_of_mass.x - 0.5) <= error)
-        self.assertTrue(abs(pc.center_of_mass.y - 1) <= error)
-        self.assertTrue(abs(pc.center_of_mass.z - 1) <= error)
-
-        for i in range(0, len(steering_curve)):
-            self.assertTrue(abs(pc.steering_curve[i].x - steering_curve[i].x) <= error)
-            self.assertTrue(abs(pc.steering_curve[i].y - steering_curve[i].y) <= error)
-
-        for i in range(0, len(wheels)):
-            self.assertTrue(abs(pc.wheels[i].tire_friction - wheels[i].tire_friction) <= error)
-            self.assertTrue(abs(pc.wheels[i].damping_rate - wheels[i].damping_rate) <= error)
-            self.assertTrue(abs(pc.wheels[i].max_steer_angle - wheels[i].max_steer_angle) <= error)
-            self.assertTrue(abs(pc.wheels[i].radius - wheels[i].radius) <= error)
-
-            self.assertTrue(abs(pc.wheels[i].position.x - wheels[i].position.x) <= error)
-            self.assertTrue(abs(pc.wheels[i].position.y - wheels[i].position.y) <= error)
-            self.assertTrue(abs(pc.wheels[i].position.z - wheels[i].position.z) <= error)
+        # Verify wheels
+        for i, w in enumerate(wheels):
+            self.assertTrue(
+                abs(pc.wheels[i].tire_friction - w.tire_friction)
+                <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].damping_rate - w.damping_rate)
+                <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].max_steer_angle - w.max_steer_angle)
+                <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].radius - w.radius) <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].position.x - w.position.x) <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].position.y - w.position.y) <= _PHYSICS_ERROR
+            )
+            self.assertTrue(
+                abs(pc.wheels[i].position.z - w.position.z) <= _PHYSICS_ERROR
+            )

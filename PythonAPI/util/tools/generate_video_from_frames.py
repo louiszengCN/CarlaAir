@@ -1,43 +1,76 @@
-#--------------------------------------------
-# Script to generate a video from a folder of frames
-#--------------------------------------------
+"""Generate a video from a folder of frames."""
+
+from __future__ import annotations
+
+import argparse
+import glob
 
 from moviepy.video.io import ImageSequenceClip
-import glob
 from natsort import natsorted
-import argparse
 
-def argument_parser():
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
 
-    argparser = argparse.ArgumentParser()
+# Output
+_DEFAULT_VIDEO_NAME: str = "video"
+_DEFAULT_FPS: int = 20
+_VIDEO_EXTENSION: str = ".mp4"
+
+# Frame filtering
+_FRAME_EXCLUDE_COUNT: int = 1  # exclude last frame
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    argparser = argparse.ArgumentParser(
+        description="Generate a video from a folder of frames"
+    )
     argparser.add_argument(
-        '--frames',
+        "--frames",
         required=True,
-        help='Folder where frames are stored')
+        help="Folder where frames are stored",
+    )
     argparser.add_argument(
-        '--video',
-        default="video",
+        "--video",
+        default=_DEFAULT_VIDEO_NAME,
         type=str,
-        help='Name of the output video')
+        help="Name of the output video",
+    )
     argparser.add_argument(
-        '--fps',
-        default=20,
+        "--fps",
+        default=_DEFAULT_FPS,
         type=int,
-        help='Frames per second (FPS)')
-    
+        help=f"Frames per second (default: {_DEFAULT_FPS})",
+    )
     return argparser.parse_args()
 
-args = argument_parser()
 
-frames_folder = args.frames
-video_name = args.video+'.mp4'
-fps = args.fps
+def main() -> None:
+    """Generate video from image frames."""
+    args = _parse_args()
 
-# Get all frames in folder
-image_files = natsorted(glob.glob(frames_folder+"/*"))
-# Exclude last frame, which sometimes has not been rendered correctly
-image_files = image_files[:-1]
+    frames_folder = args.frames
+    video_name = args.video + _VIDEO_EXTENSION
+    fps = args.fps
 
-# Create video and save
-clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
-clip.write_videofile(video_name)
+    # Get all frames in folder
+    image_files: list[str] = natsorted(
+        glob.glob(f"{frames_folder}/*")
+    )
+    # Exclude last frame, which sometimes has not been rendered correctly
+    if _FRAME_EXCLUDE_COUNT > 0:
+        image_files = image_files[:-_FRAME_EXCLUDE_COUNT]
+
+    # Create video and save
+    clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
+    clip.write_videofile(video_name)
+
+
+if __name__ == "__main__":
+    main()

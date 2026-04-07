@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 record_vehicle.py — Record vehicle trajectory in CARLA
-======================================================
+
 Drive a vehicle with keyboard, record trajectory to JSON for later replay.
 
 Controls:
@@ -11,7 +11,7 @@ Controls:
   Space       Handbrake
   R           Toggle reverse
   Scroll      Adjust steering sensitivity
-  F9          Start recording (no samples before F9 — drive to start position first)
+  F9          Start recording (no samples before F9 — drive to start first)
   F1          Save & Quit
   ESC         Quit (discard)
 
@@ -27,76 +27,443 @@ Usage:
   python record_vehicle.py --spawn 5                # Use spawn point #5
 """
 
-import carla
-import pygame
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import time
+from dataclasses import dataclass
+from enum import Enum
+from typing import TYPE_CHECKING, Any
+
 import numpy as np
-import json, time, os, sys, math, argparse
+import pygame
+from pydantic import BaseModel, ConfigDict, Field
+from trajectory_helpers import (
+    TransformDict,
+    VelocityDict,
+    cleanup_world,
+    drone_apply_frame,
+    load_trajectory_json,
+    wait_for_airsim,
+)
 
-from trajectory_helpers import cleanup_world, load_trajectory_json, drone_apply_frame, wait_for_airsim
+import carla
 
-DELTA_TIME = 0.05  # 20 Hz
-WINDOW_W, WINDOW_H = 1280, 720
+if TYPE_CHECKING:
+    from trajectory_helpers import (
+        TrajectoryType,
+    )
 
-WEATHER_PRESETS = {
-    "clear": carla.WeatherParameters.ClearNoon,
-    "cloudy": carla.WeatherParameters.CloudyNoon,
-    "rain": carla.WeatherParameters.SoftRainNoon,
-    "storm": carla.WeatherParameters.HardRainNoon,
-    "night": carla.WeatherParameters(
-        cloudiness=10, precipitation=0, precipitation_deposits=0,
-        wind_intensity=5, sun_azimuth_angle=0, sun_altitude_angle=-90,
-        fog_density=2, fog_distance=0, fog_falloff=0, wetness=0),
-    "sunset": carla.WeatherParameters(
-        cloudiness=30, precipitation=0, precipitation_deposits=0,
-        wind_intensity=30, sun_azimuth_angle=180, sun_altitude_angle=5,
-        fog_density=10, fog_distance=50, fog_falloff=2, wetness=0),
-    "fog": carla.WeatherParameters(
-        cloudiness=90, precipitation=0, precipitation_deposits=0,
-        wind_intensity=10, sun_azimuth_angle=0, sun_altitude_angle=45,
-        fog_density=80, fog_distance=10, fog_falloff=1, wetness=0),
-}
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Connection
+_CARLA_HOST: str = "localhost"
+_CARLA_PORT: int = 2000
+_CARLA_TIMEOUT: float = 30.0
+_AIRSIM_DEFAULT_PORT: int = 41451
+_MAP_LOAD_DELAY: float = 3.0
+
+# Display
+_WINDOW_W: int = 1280
+_WINDOW_H: int = 720
+_DISPLAY_FPS: int = 60
+_DISPLAY_FLAGS: int = pygame.HWSURFACE | pygame.DOUBLEBUF
+_DISPLAY_BG: tuple[int, int, int] = (30, 30, 40)
+
+# Simulation
+_DELTA_TIME: float = 0.05
+
+# Camera
+_CAMERA_FOV: str = "100"
+_CHASE_X: float = -6.0
+_CHASE_Z: float = 3.0
+_CHASE_PITCH: float = -15.0
+
+# Vehicle Control
+_DEFAULT_THROTTLE: float = 0.7
+_DEFAULT_BRAKE: float = 1.0
+_DEFAULT_STEER_MAX: float = 0.7
+_STEER_SCROLL_STEP: float = 0.1
+_STEER_MAX_MIN: float = 0.2
+_STEER_MAX_MAX: float = 1.0
+_STEER_SMOOTH_FACTOR: float = 8.0
+
+# Default vehicle
+_DEFAULT_VEHICLE: str = "vehicle.tesla.model3"
+_VEHICLE_FILTER: str = "vehicle.*"
+
+# Output
+_OUTPUT_SUBDIR: str = "trajectories"
+_VEHICLE_TRAJ_TYPE: TrajectoryType = "vehicle"
+_DRONE_TRAJ_TYPE: TrajectoryType = "drone"
+
+# HUD
+_DIVIDER: str = "=" * 50
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Record vehicle trajectory")
-    parser.add_argument("--host", default="localhost")
-    parser.add_argument("--port", type=int, default=2000)
-    parser.add_argument("--vehicle", default="vehicle.tesla.model3", help="Vehicle blueprint ID")
+# ──────────────────────────────────────────────────────────────────────────────
+# Enums
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class WeatherPreset(Enum):
+    """Available weather presets."""
+
+    CLEAR = ("clear", carla.WeatherParameters.ClearNoon)
+    CLOUDY = ("cloudy", carla.WeatherParameters.CloudyNoon)
+    RAIN = ("rain", carla.WeatherParameters.SoftRainNoon)
+    STORM = ("storm", carla.WeatherParameters.HardRainNoon)
+    NIGHT = (
+        "night",
+        carla.WeatherParameters(
+            cloudiness=10,
+            precipitation=0,
+            precipitation_deposits=0,
+            wind_intensity=5,
+            sun_azimuth_angle=0,
+            sun_altitude_angle=-90,
+            fog_density=2,
+            fog_distance=0,
+            fog_falloff=0,
+            wetness=0,
+        ),
+    )
+    SUNSET = (
+        "sunset",
+        carla.WeatherParameters(
+            cloudiness=30,
+            precipitation=0,
+            precipitation_deposits=0,
+            wind_intensity=30,
+            sun_azimuth_angle=180,
+            sun_altitude_angle=5,
+            fog_density=10,
+            fog_distance=50,
+            fog_falloff=2,
+            wetness=0,
+        ),
+    )
+    FOG = (
+        "fog",
+        carla.WeatherParameters(
+            cloudiness=90,
+            precipitation=0,
+            precipitation_deposits=0,
+            wind_intensity=10,
+            sun_azimuth_angle=0,
+            sun_altitude_angle=45,
+            fog_density=80,
+            fog_distance=10,
+            fog_falloff=1,
+            wetness=0,
+        ),
+    )
+
+
+class KeyCommand(Enum):
+    """Special key commands."""
+
+    QUIT_DISCARD = "escape"
+    SAVE_QUIT = "f1"
+    START_RECORD = "f9"
+    TOGGLE_REVERSE = "r"
+    SCROLL_UP = 4
+    SCROLL_DOWN = 5
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Pydantic Models
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class VehicleControlDict(BaseModel):
+    """Vehicle control data for a frame."""
+
+    model_config = ConfigDict(frozen=True)
+
+    throttle: float = Field(ge=0, le=1, description="Throttle value")
+    brake: float = Field(ge=0, le=1, description="Brake value")
+    steer: float = Field(ge=-1, le=1, description="Steering value")
+    handbrake: bool = Field(description="Handbrake engaged")
+    reverse: bool = Field(description="Reverse gear")
+
+
+class VehicleFrameDict(BaseModel):
+    """Single frame record for vehicle trajectory."""
+
+    model_config = ConfigDict(frozen=True)
+
+    frame: int = Field(ge=0, description="Frame index")
+    transform: TransformDict
+    velocity: VelocityDict
+    control: VehicleControlDict
+
+
+class VehicleTrajectoryDict(BaseModel):
+    """Full vehicle trajectory JSON structure."""
+
+    model_config = ConfigDict(frozen=True)
+
+    type: TrajectoryType
+    map: str = Field(min_length=1, description="Map name")
+    delta_time: float = Field(gt=0, description="Simulation delta time")
+    total_frames: int = Field(ge=0, description="Total frame count")
+    vehicle_id: str = Field(min_length=1, description="Vehicle blueprint ID")
+    frames: list[VehicleFrameDict]
+
+
+class RecorderConfig(BaseModel):
+    """Top-level recorder configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    host: str = Field(default=_CARLA_HOST, min_length=1)
+    port: int = Field(default=_CARLA_PORT, gt=0, le=65535)
+    vehicle: str = Field(default=_DEFAULT_VEHICLE, min_length=1)
+    map_name: str | None = None
+    weather: str | None = None
+    spawn: int | None = None
+    output_dir: str | None = None
+    airsim_port: int = Field(default=_AIRSIM_DEFAULT_PORT, gt=0, le=65535)
+    loop_drone: str | None = None
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Dataclasses
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass
+class VehicleInputState:
+    """Current vehicle input state."""
+
+    throttle: float = 0.0
+    brake: float = 0.0
+    steer_smooth: float = 0.0
+    handbrake: bool = False
+    reverse: bool = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Helper Functions
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _parse_weather(
+    name: str | None,
+) -> carla.WeatherParameters | None:
+    """Parse weather preset name.
+
+    Args:
+        name: weather preset key
+
+    Returns:
+        weather parameters or None
+    """
+    if name is None:
+        return None
+    for preset in WeatherPreset:
+        if preset.value[0] == name:
+            return preset.value[1]
+    return None
+
+
+def _build_vehicle_frame(
+    idx: int,
+    tf: carla.Transform,
+    vel: carla.Vector3D,
+    state: VehicleInputState,
+) -> VehicleFrameDict:
+    """Build a vehicle trajectory frame dictionary.
+
+    Args:
+        idx: frame index
+        tf: vehicle transform
+        vel: vehicle velocity
+        state: current input state
+
+    Returns:
+        frame dictionary
+    """
+    return VehicleFrameDict(
+        frame=idx,
+        transform=TransformDict(
+            x=round(tf.location.x, 4),
+            y=round(tf.location.y, 4),
+            z=round(tf.location.z, 4),
+            pitch=round(tf.rotation.pitch, 4),
+            yaw=round(tf.rotation.yaw, 4),
+            roll=round(tf.rotation.roll, 4),
+        ),
+        velocity=VelocityDict(
+            x=round(vel.x, 4),
+            y=round(vel.y, 4),
+            z=round(vel.z, 4),
+        ),
+        control=VehicleControlDict(
+            throttle=round(state.throttle, 2),
+            brake=round(state.brake, 2),
+            steer=round(state.steer_smooth, 4),
+            handbrake=state.handbrake,
+            reverse=state.reverse,
+        ),
+    )
+
+
+def _save_trajectory(
+    frames: list[VehicleFrameDict],
+    map_name: str,
+    vehicle_id: str,
+    output_dir: str,
+) -> str | None:
+    """Save trajectory to JSON file.
+
+    Args:
+        frames: recorded frames
+        map_name: map name
+        vehicle_id: vehicle blueprint ID
+        output_dir: output directory
+
+    Returns:
+        filename if saved, None if no frames
+    """
+    if not frames:
+        return None
+
+    ts = time.strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(output_dir, f"vehicle_{ts}.json")
+    data = VehicleTrajectoryDict(
+        type=_VEHICLE_TRAJ_TYPE,
+        map=map_name,
+        delta_time=_DELTA_TIME,
+        total_frames=len(frames),
+        vehicle_id=vehicle_id,
+        frames=frames,
+    )
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data.model_dump(), f, indent=2)
+
+    dur = len(frames) * _DELTA_TIME
+    print(f"\n  Saved: {filename}")
+    print(f"  {len(frames)} frames, {dur:.1f}s")
+    return filename
+
+
+def _update_drone_loop(
+    ac: Any | None,
+    drone_frames: list[dict],
+    drone_dt: float,
+    drone_time_acc: float,
+    drone_idx: int,
+) -> tuple[float, int]:
+    """Update drone position for loop playback.
+
+    Args:
+        ac: AirSim client
+        drone_frames: drone trajectory frames
+        drone_dt: drone simulation delta
+        drone_time_acc: accumulated time
+        drone_idx: current frame index
+
+    Returns:
+        updated (time_acc, idx)
+    """
+    if ac is None or not drone_frames:
+        return drone_time_acc, drone_idx
+
+    drone_time_acc += _DELTA_TIME
+    while drone_time_acc >= drone_dt:
+        drone_time_acc -= drone_dt
+        drone_idx = (drone_idx + 1) % len(drone_frames)
+        drone_apply_frame(ac, drone_frames[drone_idx])
+    return drone_time_acc, drone_idx
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def main() -> None:
+    """Main entry point for vehicle trajectory recording."""
+    parser = argparse.ArgumentParser(
+        description="Record vehicle trajectory"
+    )
+    parser.add_argument("--host", default=_CARLA_HOST)
+    parser.add_argument("--port", type=int, default=_CARLA_PORT)
+    parser.add_argument(
+        "--vehicle",
+        default=_DEFAULT_VEHICLE,
+        help="Vehicle blueprint ID",
+    )
     parser.add_argument("--map", default=None, help="Switch to this map first")
-    parser.add_argument("--weather", default=None, choices=list(WEATHER_PRESETS.keys()),
-                        help="Weather preset")
-    parser.add_argument("--spawn", type=int, default=None, help="Spawn point index (omit=first available)")
+    parser.add_argument(
+        "--weather",
+        default=None,
+        choices=[p.value[0] for p in WeatherPreset],
+        help="Weather preset",
+    )
+    parser.add_argument(
+        "--spawn",
+        type=int,
+        default=None,
+        help="Spawn point index (omit=first available)",
+    )
     parser.add_argument("--output-dir", default=None)
     parser.add_argument(
-        "--airsim-port", type=int, default=41451,
+        "--airsim-port",
+        type=int,
+        default=_AIRSIM_DEFAULT_PORT,
         help="AirSim port when using --loop-drone",
     )
     parser.add_argument(
         "--loop-drone",
         default=None,
         metavar="PATH",
-        help="Loop this drone trajectory JSON (simSetVehiclePose each sim step)",
+        help="Loop drone trajectory JSON",
     )
     args = parser.parse_args()
 
+    cfg = RecorderConfig(
+        host=args.host,
+        port=args.port,
+        vehicle=args.vehicle,
+        map_name=args.map,
+        weather=args.weather,
+        spawn=args.spawn,
+        output_dir=args.output_dir,
+        airsim_port=args.airsim_port,
+        loop_drone=args.loop_drone,
+    )
+
     # Output directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    out_dir = args.output_dir or os.path.join(os.path.dirname(script_dir), "trajectories")
+    out_dir = cfg.output_dir or os.path.join(
+        os.path.dirname(script_dir), _OUTPUT_SUBDIR
+    )
     os.makedirs(out_dir, exist_ok=True)
 
     # Connect
     print("Connecting to CARLA...")
-    client = carla.Client(args.host, args.port)
-    client.set_timeout(30.0)
+    client = carla.Client(cfg.host, cfg.port)
+    client.set_timeout(_CARLA_TIMEOUT)
 
     # Map switch
-    if args.map:
-        available = [m.split("/")[-1] for m in client.get_available_maps()]
-        matched = [m for m in available if args.map.lower() in m.lower()]
+    if cfg.map_name:
+        available = [
+            m.split("/")[-1] for m in client.get_available_maps()
+        ]
+        matched = [
+            m for m in available if cfg.map_name.lower() in m.lower()
+        ]
         if matched:
             print(f"Loading map: {matched[0]}...")
             client.load_world(matched[0])
-            time.sleep(3.0)
+            time.sleep(_MAP_LOAD_DELAY)
 
     world = client.get_world()
     cleanup_world(world, restore_async=True)
@@ -104,34 +471,38 @@ def main():
     map_name = world.get_map().name.split("/")[-1]
 
     # Weather
-    if args.weather and args.weather in WEATHER_PRESETS:
-        world.set_weather(WEATHER_PRESETS[args.weather])
-        print(f"Weather: {args.weather}")
+    weather = _parse_weather(cfg.weather)
+    if weather is not None:
+        world.set_weather(weather)
+        print(f"Weather: {cfg.weather}")
 
     # Sync mode
     original_settings = world.get_settings()
     settings = world.get_settings()
     settings.synchronous_mode = True
-    settings.fixed_delta_seconds = DELTA_TIME
+    settings.fixed_delta_seconds = _DELTA_TIME
     world.apply_settings(settings)
 
-    actors = []
-    vehicle = None
-    camera = None
-    latest_image = [None]
-    ac = None
-    drone_frames = []
-    drone_dt = 0.05
+    actors: list[carla.Actor] = []
+    vehicle: carla.Vehicle | None = None
+    camera: carla.Sensor | None = None
+    latest_image: list[np.ndarray | None] = [None]
+    ac: Any | None = None  # airsim.MultirotorClient
+    drone_frames: list[dict] = []
+    drone_dt = _DELTA_TIME
     drone_time_acc = 0.0
     drone_idx = 0
 
     try:
         # Find vehicle blueprint
-        vehicle_bp = bp_lib.find(args.vehicle)
+        vehicle_bp = bp_lib.find(cfg.vehicle)
         if vehicle_bp is None:
-            candidates = bp_lib.filter("vehicle.*")
+            candidates = bp_lib.filter(_VEHICLE_FILTER)
             vehicle_bp = candidates[0]
-            print(f"Warning: '{args.vehicle}' not found, using {vehicle_bp.id}")
+            print(
+                f"Warning: '{cfg.vehicle}' not found, "
+                f"using {vehicle_bp.id}"
+            )
 
         # Spawn points
         spawn_points = world.get_map().get_spawn_points()
@@ -139,12 +510,14 @@ def main():
             print("Error: No spawn points")
             return
 
-        # Show available spawn points
-        if args.spawn is not None:
-            if args.spawn < len(spawn_points):
-                sp = spawn_points[args.spawn]
+        if cfg.spawn is not None:
+            if cfg.spawn < len(spawn_points):
+                sp = spawn_points[cfg.spawn]
             else:
-                print(f"Spawn point {args.spawn} out of range (max {len(spawn_points)-1}), using 0")
+                print(
+                    f"Spawn point {cfg.spawn} out of range "
+                    f"(max {len(spawn_points)-1}), using 0"
+                )
                 sp = spawn_points[0]
         else:
             sp = spawn_points[0]
@@ -152,66 +525,89 @@ def main():
         vehicle = world.spawn_actor(vehicle_bp, sp)
         actors.append(vehicle)
         world.tick()
-        print(f"Vehicle spawned: {vehicle_bp.id} at spawn point ({sp.location.x:.0f}, {sp.location.y:.0f})")
+        print(
+            f"Vehicle spawned: {vehicle_bp.id} at "
+            f"({sp.location.x:.0f}, {sp.location.y:.0f})"
+        )
 
         # Camera (3rd person)
         cam_bp = bp_lib.find("sensor.camera.rgb")
-        cam_bp.set_attribute("image_size_x", str(WINDOW_W))
-        cam_bp.set_attribute("image_size_y", str(WINDOW_H))
-        cam_bp.set_attribute("fov", "100")
-        cam_tf = carla.Transform(carla.Location(x=-6.0, z=3.0), carla.Rotation(pitch=-15))
+        cam_bp.set_attribute("image_size_x", str(_WINDOW_W))
+        cam_bp.set_attribute("image_size_y", str(_WINDOW_H))
+        cam_bp.set_attribute("fov", _CAMERA_FOV)
+        cam_tf = carla.Transform(
+            carla.Location(x=_CHASE_X, z=_CHASE_Z),
+            carla.Rotation(pitch=_CHASE_PITCH),
+        )
         camera = world.spawn_actor(cam_bp, cam_tf, attach_to=vehicle)
         actors.append(camera)
 
-        def on_image(image):
+        def _on_image(image: carla.Image) -> None:
             arr = np.frombuffer(image.raw_data, dtype=np.uint8)
-            arr = arr.reshape((image.height, image.width, 4))[:, :, :3][:, :, ::-1]
+            arr = arr.reshape((image.height, image.width, 4))[
+                :, :, :3
+            ][:, :, ::-1]
             latest_image[0] = arr
 
-        camera.listen(on_image)
+        camera.listen(_on_image)
         world.tick()
 
-        if args.loop_drone:
+        # Drone loop setup
+        if cfg.loop_drone:
             import airsim
-            dtraj = load_trajectory_json(args.loop_drone)
-            if dtraj.get("type") != "drone":
-                raise SystemExit("--loop-drone JSON must have type 'drone'")
+
+            dtraj = load_trajectory_json(cfg.loop_drone)
+            if dtraj.get("type") != _DRONE_TRAJ_TYPE:
+                raise SystemExit(
+                    f"--loop-drone JSON must have type '{_DRONE_TRAJ_TYPE}'"
+                )
             drone_frames = dtraj["frames"]
-            drone_dt = float(dtraj.get("delta_time", 0.05))
-            if not wait_for_airsim(args.airsim_port):
-                raise SystemExit(f"AirSim not reachable on port {args.airsim_port}")
-            ac = airsim.MultirotorClient(port=args.airsim_port)
+            drone_dt = float(dtraj.get("delta_time", _DELTA_TIME))
+            if not wait_for_airsim(cfg.airsim_port):
+                raise SystemExit(
+                    f"AirSim not reachable on port {cfg.airsim_port}"
+                )
+            ac = airsim.MultirotorClient(port=cfg.airsim_port)
             ac.confirmConnection()
             ac.enableApiControl(True)
             ac.armDisarm(True)
             drone_apply_frame(ac, drone_frames[0])
-            print(f"Looping drone: {len(drone_frames)} frames, dt={drone_dt}s from {args.loop_drone}")
+            print(
+                f"Looping drone: {len(drone_frames)} frames, "
+                f"dt={drone_dt}s from {cfg.loop_drone}"
+            )
 
         # Pygame
         pygame.init()
-        display = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+        display = pygame.display.set_mode(
+            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS
+        )
         pygame.display.set_caption("")
         pygame.event.set_grab(True)
         pygame.mouse.set_visible(False)
         clock = pygame.time.Clock()
 
-        frames = []
+        input_state = VehicleInputState()
+        frames: list[VehicleFrameDict] = []
         recording_started = False
         running = True
         save_on_exit = False
-        reverse = False
-        steer_smooth = 0.0
-        steer_max = 0.7  # max steer angle (0-1)
+        steer_max = _DEFAULT_STEER_MAX
 
-        print(f"\n{'='*50}")
-        print(f"  Vehicle Recorder")
+        print(f"\n{_DIVIDER}")
+        print("  Vehicle Recorder")
         print(f"  Map: {map_name} | Vehicle: {vehicle_bp.id}")
-        print(f"  W=Gas  S=Brake  A/D=Steer  Space=Handbrake")
-        print(f"  R=Reverse  F9=StartRecording  F1=Save&Quit  ESC=Quit(discard)")
-        print(f"{'='*50}\n")
+        print(
+            "  W=Gas  S=Brake  A/D=Steer  Space=Handbrake"
+        )
+        print(
+            "  R=Reverse  F9=StartRecording  "
+            "F1=Save&Quit  ESC=Quit(discard)"
+        )
+        print(f"{_DIVIDER}\n")
 
         while running:
-            clock.tick(60)
+            clock.tick(_DISPLAY_FPS)
 
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT:
@@ -227,112 +623,117 @@ def main():
                         save_on_exit = True
                         running = False
                     elif ev.key == pygame.K_r:
-                        reverse = not reverse
-                        print(f"  Reverse: {'ON' if reverse else 'OFF'}")
+                        input_state.reverse = not input_state.reverse
+                        rev_str = "ON" if input_state.reverse else "OFF"
+                        print(f"  Reverse: {rev_str}")
                 elif ev.type == pygame.MOUSEBUTTONDOWN:
-                    if ev.button == 4:
-                        steer_max = min(steer_max + 0.1, 1.0)
-                    elif ev.button == 5:
-                        steer_max = max(steer_max - 0.1, 0.2)
+                    if ev.button == KeyCommand.SCROLL_UP.value:
+                        steer_max = min(
+                            steer_max + _STEER_SCROLL_STEP, _STEER_MAX_MAX
+                        )
+                    elif ev.button == KeyCommand.SCROLL_DOWN.value:
+                        steer_max = max(
+                            steer_max - _STEER_SCROLL_STEP, _STEER_MAX_MIN
+                        )
 
+            # Input state
             keys = pygame.key.get_pressed()
-            throttle = 0.7 if keys[pygame.K_w] else 0.0
-            brake = 1.0 if keys[pygame.K_s] else 0.0
+            input_state.throttle = (
+                _DEFAULT_THROTTLE if keys[pygame.K_w] else 0.0
+            )
+            input_state.brake = (
+                _DEFAULT_BRAKE if keys[pygame.K_s] else 0.0
+            )
             steer_target = 0.0
             if keys[pygame.K_a]:
                 steer_target = -steer_max
             elif keys[pygame.K_d]:
                 steer_target = steer_max
-            handbrake = bool(keys[pygame.K_SPACE])
+            input_state.handbrake = bool(keys[pygame.K_SPACE])
 
-            steer_smooth += (steer_target - steer_smooth) * min(1.0, DELTA_TIME * 8.0)
+            # Smooth steering
+            input_state.steer_smooth += (
+                steer_target - input_state.steer_smooth
+            ) * min(
+                1.0, _DELTA_TIME * _STEER_SMOOTH_FACTOR
+            )
 
-            if ac is not None and drone_frames:
-                drone_time_acc += DELTA_TIME
-                while drone_time_acc >= drone_dt:
-                    drone_time_acc -= drone_dt
-                    drone_idx = (drone_idx + 1) % len(drone_frames)
-                    drone_apply_frame(ac, drone_frames[drone_idx])
+            # Drone loop update
+            drone_time_acc, drone_idx = _update_drone_loop(
+                ac, drone_frames, drone_dt, drone_time_acc, drone_idx
+            )
 
+            # Apply vehicle control
             control = carla.VehicleControl()
-            control.throttle = throttle
-            control.brake = brake
-            control.steer = steer_smooth
-            control.hand_brake = handbrake
-            control.reverse = reverse
+            control.throttle = input_state.throttle
+            control.brake = input_state.brake
+            control.steer = input_state.steer_smooth
+            control.hand_brake = input_state.handbrake
+            control.reverse = input_state.reverse
             vehicle.apply_control(control)
             world.tick()
 
+            # Record frame
             tf = vehicle.get_transform()
             vel = vehicle.get_velocity()
             if recording_started:
-                frames.append({
-                    "frame": len(frames),
-                    "transform": {
-                        "x": round(tf.location.x, 4), "y": round(tf.location.y, 4),
-                        "z": round(tf.location.z, 4),
-                        "pitch": round(tf.rotation.pitch, 4), "yaw": round(tf.rotation.yaw, 4),
-                        "roll": round(tf.rotation.roll, 4)
-                    },
-                    "velocity": {
-                        "x": round(vel.x, 4), "y": round(vel.y, 4), "z": round(vel.z, 4)
-                    },
-                    "control": {
-                        "throttle": round(throttle, 2), "brake": round(brake, 2),
-                        "steer": round(steer_smooth, 4),
-                        "handbrake": handbrake, "reverse": reverse
-                    }
-                })
+                frames.append(
+                    _build_vehicle_frame(
+                        len(frames), tf, vel, input_state
+                    )
+                )
 
             # Display
             if latest_image[0] is not None:
-                surf = pygame.surfarray.make_surface(latest_image[0].swapaxes(0, 1))
+                surf = pygame.surfarray.make_surface(
+                    latest_image[0].swapaxes(0, 1)
+                )
                 display.blit(surf, (0, 0))
             else:
-                display.fill((30, 30, 40))
+                display.fill(_DISPLAY_BG)
 
             pygame.display.flip()
 
         # Save
         if save_on_exit and frames:
-            ts = time.strftime("%Y%m%d_%H%M%S")
-            filename = os.path.join(out_dir, f"vehicle_{ts}.json")
-            data = {
-                "type": "vehicle",
-                "map": map_name,
-                "delta_time": DELTA_TIME,
-                "total_frames": len(frames),
-                "vehicle_id": vehicle_bp.id,
-                "frames": frames
-            }
-            with open(filename, "w") as f:
-                json.dump(data, f, indent=2)
-            dur = len(frames) * DELTA_TIME
-            print(f"\n  Saved: {filename}")
-            print(f"  {len(frames)} frames, {dur:.1f}s")
+            _save_trajectory(
+                frames, map_name, vehicle_bp.id, out_dir
+            )
         elif frames:
             print(f"\n  Discarded {len(frames)} frames.")
         else:
-            print("\n  No frames recorded (press F9 to start recording before F1).")
+            print(
+                "\n  No frames recorded "
+                "(press F9 to start recording before F1)."
+            )
 
     finally:
-        try: camera.stop()
-        except: pass
+        try:
+            if camera is not None:
+                camera.stop()
+        except Exception:  # noqa: BLE001
+            pass
         for a in actors:
-            try: a.destroy()
-            except: pass
+            try:
+                a.destroy()
+            except Exception:  # noqa: BLE001
+                pass
         if ac is not None:
             try:
                 ac.armDisarm(False)
                 ac.enableApiControl(False)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 pass
-        world.apply_settings(original_settings)
+        try:
+            world.apply_settings(original_settings)
+        except Exception:  # noqa: BLE001
+            pass
         try:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except: pass
+        except Exception:  # noqa: BLE001
+            pass
         print("  Done.")
 
 

@@ -4,52 +4,76 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+"""Smoke test base classes."""
+
+from __future__ import annotations
+
+import os
+import time
 import unittest
+from typing import TYPE_CHECKING
 
 import carla
-import time
 
-TESTING_ADDRESS = ('localhost', 3654)
-VEHICLE_VEHICLES_EXCLUDE_FROM_OLD_TOWNS = ['vehicle.mitsubishi.fusorosa', 'vehicle.carlamotors.european_hgv', 'vehicle.carlamotors.firetruck']
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Connection
+_DEFAULT_HOST: str = os.environ.get("CARLA_HOST", "localhost")
+_DEFAULT_PORT: int = int(os.environ.get("CARLA_PORT", "2000"))
+_CONNECTION_TIMEOUT: float = 120.0
+_SYNC_DELTA: float = 0.05
+_WAIT_FOR_TICK_TIMEOUT: float = 30.0
+
 
 class SmokeTest(unittest.TestCase):
-    def setUp(self):
-        self.testing_address = TESTING_ADDRESS
-        self.client = carla.Client(*TESTING_ADDRESS)
-        self.vehicle_vehicles_exclude_from_old_towns = VEHICLE_VEHICLES_EXCLUDE_FROM_OLD_TOWNS
-        self.client.set_timeout(120.0)
-        self.world = self.client.get_world()
+    """Base class for CARLA smoke tests."""
 
-    def tearDown(self):
-        self.client.load_world("Town03")
-        # workaround: give time to UE4 to clean memory after loading (old assets)
-        time.sleep(5)
-        self.world = None
-        self.client = None
-    
-    def filter_vehicles_for_old_towns(self, blueprint_list):
-        new_list = []
-        for blueprint in blueprint_list:
-            if blueprint.id not in self.vehicle_vehicles_exclude_from_old_towns:
-                new_list.append(blueprint)
-        return new_list
+    client: carla.Client
+    world: carla.World
+    settings: carla.WorldSettings
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up CARLA client connection."""
+        host = _DEFAULT_HOST
+        port = _DEFAULT_PORT
+        print(f"Connecting to {host}:{port}...", flush=True)
+        cls.client = carla.Client(host, port)
+        cls.client.set_timeout(_CONNECTION_TIMEOUT)
+        cls.world = cls.client.get_world()
+        cls.settings = cls.world.get_settings()
+
+    def tearDown(self) -> None:
+        """Restore original world settings after each test."""
+        self.world.apply_settings(self.settings)
 
 
 class SyncSmokeTest(SmokeTest):
-    def setUp(self):
-        super(SyncSmokeTest, self).setUp()
-        self.settings = self.world.get_settings()
-        settings = carla.WorldSettings(
-            no_rendering_mode=False,
-            synchronous_mode=True,
-            fixed_delta_seconds=0.05)
-        self.world.apply_settings(settings)
-        self.world.tick()
+    """Smoke test with synchronous mode enabled."""
 
-    def tearDown(self):
-        self.world.apply_settings(self.settings)
-        if self.settings.synchronous_mode:
-            # tick if synchronous mode is active
-            self.world.tick()
-        self.settings = None
-        super(SyncSmokeTest, self).tearDown()
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up CARLA client with synchronous mode."""
+        super().setUpClass()
+        settings = cls.world.get_settings()
+        settings.synchronous_mode = True
+        settings.fixed_delta_seconds = _SYNC_DELTA
+        cls.world.apply_settings(settings)
+
+    def tick(self) -> int:
+        """Advance simulation by one tick.
+
+        Returns:
+            frame number
+        """
+        return self.world.tick()
+
+    def wait_for_tick(self) -> carla.WorldSnapshot:
+        """Wait for next tick and return snapshot.
+
+        Returns:
+            world snapshot
+        """
+        return self.world.wait_for_tick(seconds=_WAIT_FOR_TICK_TIMEOUT)

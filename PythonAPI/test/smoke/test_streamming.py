@@ -4,60 +4,86 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+"""Test multi-client streaming functionality."""
+
+import threading
+import time
+
+import carla
 
 from . import SmokeTest
 
-import time
-import threading
-import carla
+# Constants
+_CLIENT_TIMEOUT: float = 60.0
+_GNSS_SENSOR_TICK: float = 1.0
+_THREAD_SLEEP: float = 5.0
+_THREAD_COUNT: int = 5
+_LAT_LON_PLACES: int = 4
+
+# Filters
+_GNSS_SENSOR: str = "sensor.other.gnss"
+
 
 class TestStreamming(SmokeTest):
+    """Test multi-client GNSS streaming."""
 
-    lat = 0.0
-    lon = 0.0
+    lat: float = 0.0
+    lon: float = 0.0
 
-    def on_gnss_set(self, event):
+    def on_gnss_set(self, event: carla.GnssMeasurement) -> None:
+        """Store GNSS coordinates.
+
+        Args:
+            event: GNSS measurement data
+        """
         self.lat = event.latitude
         self.lon = event.longitude
 
-    def on_gnss_check(self, event):
-        self.assertAlmostEqual(event.latitude, self.lat, places=4)
-        self.assertAlmostEqual(event.longitude, self.lon, places=4)
+    def on_gnss_check(self, event: carla.GnssMeasurement) -> None:
+        """Verify GNSS coordinates match stored values.
 
-    def create_client(self):
+        Args:
+            event: GNSS measurement data
+        """
+        self.assertAlmostEqual(event.latitude, self.lat, places=_LAT_LON_PLACES)
+        self.assertAlmostEqual(event.longitude, self.lon, places=_LAT_LON_PLACES)
+
+    def _create_client(self) -> None:
+        """Create a secondary client and verify GNSS streaming."""
         client = carla.Client(*self.testing_address)
-        client.set_timeout(60.0)
+        client.set_timeout(_CLIENT_TIMEOUT)
         world = client.get_world()
         actors = world.get_actors()
         for actor in actors:
-            if (actor.type_id == "sensor.other.gnss"):
+            if actor.type_id == _GNSS_SENSOR:
                 actor.listen(self.on_gnss_check)
-        time.sleep(5)
-        # stop
+        time.sleep(_THREAD_SLEEP)
+        # Stop
         for actor in actors:
-            if (actor.type_id == "sensor.other.gnss"):
+            if actor.type_id == _GNSS_SENSOR:
                 actor.stop()
 
-
-    def test_multistream(self):
+    def test_multistream(self) -> None:
+        """Test multiple clients streaming GNSS data concurrently."""
         print("TestStreamming.test_multistream")
-        # create the sensor
+        # Create the sensor
         world = self.client.get_world()
-        bp = world.get_blueprint_library().find('sensor.other.gnss')
-        bp.set_attribute("sensor_tick", str(1.0))
+        bp = world.get_blueprint_library().find(_GNSS_SENSOR)
+        bp.set_attribute("sensor_tick", str(_GNSS_SENSOR_TICK))
         gnss_sensor = world.spawn_actor(bp, carla.Transform())
         gnss_sensor.listen(self.on_gnss_set)
         world.wait_for_tick()
 
-        # create 5 clients
-        t = [0] * 5
-        for i in range(5):
-            t[i] = threading.Thread(target=self.create_client)
-            t[i].setDaemon(True)
-            t[i].start()
+        # Create multiple clients
+        threads: list[threading.Thread] = []
+        for _ in range(_THREAD_COUNT):
+            thread = threading.Thread(target=self._create_client)
+            thread.setDaemon(True)
+            thread.start()
+            threads.append(thread)
 
-        # wait for ending clients
-        for i in range(5):
-            t[i].join()
+        # Wait for all clients to finish
+        for thread in threads:
+            thread.join()
 
         gnss_sensor.destroy()

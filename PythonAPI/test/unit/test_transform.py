@@ -4,10 +4,10 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
-
-import unittest
 import math
+import unittest
+
+import carla
 
 WGS84 = carla.GeoEllipsoid(a=6378137.0, f_inv=298.257223563)
 
@@ -115,7 +115,7 @@ class TestTransform(unittest.TestCase):
         t = carla.Transform(
             carla.Location(x=1.0, y=2.0, z=3.0),
             carla.Rotation(pitch=4.0, yaw=5.0, roll=6.0))
-        s = 'Transform(Location(x=1.000000, y=2.000000, z=3.000000), Rotation(pitch=4.000000, yaw=5.000000, roll=6.000000))'
+        s = "Transform(Location(x=1.000000, y=2.000000, z=3.000000), Rotation(pitch=4.000000, yaw=5.000000, roll=6.000000))"
         self.assertEqual(str(t), s)
 
     def test_translation(self):
@@ -165,7 +165,7 @@ class TestTransform(unittest.TestCase):
                       ]
         t.transform(point_list)
 
-        solution_list = [carla.Location(-2.0, 0.0, -1.0),   
+        solution_list = [carla.Location(-2.0, 0.0, -1.0),
                          carla.Location(-1.0, 10.0, -1.0),
                          carla.Location(-2.0, 18.0, -1.0)
                          ]
@@ -204,7 +204,7 @@ class TestTransform(unittest.TestCase):
         self.assertTrue(abs(t.offset_x - 1.0) <= error)
         self.assertTrue(abs(t.offset_y - 2.0) <= error)
         self.assertTrue(abs(t.offset_z - 3.0) <= error)
-        
+
     def test_geo_offset_transform_translation(self):
         error = 0.001
         t = carla.GeoOffsetTransform(10.0, 20.0, 5.0, 0.0)
@@ -263,7 +263,7 @@ class TestTransform(unittest.TestCase):
         p.north=True
         p.ellps=carla.GeoEllipsoid()
         p.offset=None
-        
+
         self.assertEqual(p.zone, 32)
         self.assertIsNone(p.offset)
 
@@ -275,7 +275,7 @@ class TestTransform(unittest.TestCase):
         p.north = True
         p.ellps = carla.GeoEllipsoid()
         p.offset = t
-            
+
         self.assertIsNotNone(p.offset)
         self.assertEqual(p.offset, t)
 
@@ -289,7 +289,7 @@ class TestTransform(unittest.TestCase):
 
         p.offset = None
         self.assertIsNone(p.offset)
-        
+
     def test_geo_projection_utm_equality(self):
         t = carla.GeoOffsetTransform(1.0, 2.0, 3.0, 0.0)
 
@@ -305,8 +305,8 @@ class TestTransform(unittest.TestCase):
         p2.ellps = carla.GeoEllipsoid()
         p2.offset = None
 
-        self.assertFalse(p1 == p2) 
-    
+        self.assertFalse(p1 == p2)
+
     def test_geo_projection_utm_constructor_3_args(self):
         p =  carla.GeoProjectionUTM(zone=31, north=True, ellps=WGS84)
 

@@ -4,21 +4,38 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+"""Test world fixed delta seconds settings."""
 
 from . import SmokeTest
 
+# Expected delta values to test
+_DELTA_VALUES: list[float] = [
+    0.1,
+    0.066667,
+    0.05,
+    0.033333,
+    0.016667,
+    0.011112,
+]
+_TICK_ITERATIONS: int = 20
+
 
 class TestWorld(SmokeTest):
-    def test_fixed_delta_seconds(self):
+    """Test CARLA world settings."""
+
+    def test_fixed_delta_seconds(self) -> None:
+        """Verify fixed delta seconds is applied correctly."""
         print("TestWorld.test_fixed_delta_seconds")
         world = self.client.get_world()
         settings = world.get_settings()
         self.assertFalse(settings.synchronous_mode)
-        for expected_delta_seconds in [0.1, 0.066667, 0.05, 0.033333, 0.016667, 0.011112]:
-            settings.fixed_delta_seconds = expected_delta_seconds
+
+        for expected_delta in _DELTA_VALUES:
+            settings.fixed_delta_seconds = expected_delta
             world.apply_settings(settings)
-            for _ in range(0, 20):
+            for _ in range(_TICK_ITERATIONS):
                 delta_seconds = world.wait_for_tick().timestamp.delta_seconds
-                self.assertAlmostEqual(expected_delta_seconds, delta_seconds)
+                self.assertAlmostEqual(expected_delta, delta_seconds)
+
         settings.fixed_delta_seconds = None
         world.apply_settings(settings)

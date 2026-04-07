@@ -4,23 +4,24 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-from . import SmokeTest
+import filecmp
+import os
+import shutil
+import time
+
+import numpy as np
 
 import carla
-import time
-import numpy as np
-import filecmp
-import shutil
-import os
+
+from . import SmokeTest
 
 try:
     # python 3
-    from queue import Queue as Queue
     from queue import Empty
+    from queue import Queue as Queue
 except ImportError:
     # python 2
     from Queue import Queue as Queue
-    from Queue import Empty
 
 class DeterminismError(Exception):
     pass
@@ -29,7 +30,7 @@ SpawnActor = carla.command.SpawnActor
 FutureActor = carla.command.FutureActor
 ApplyTargetVelocity = carla.command.ApplyTargetVelocity
 
-class Scenario(object):
+class Scenario:
     def __init__(self, client, world, save_snapshots_mode=False):
         self.world = world
         self.client = client
@@ -50,7 +51,7 @@ class Scenario(object):
 
         # Init timestamp
         snapshot = self.world.get_snapshot()
-        self.init_timestamp = {'frame0' : snapshot.frame, 'time0' : snapshot.timestamp.elapsed_seconds}
+        self.init_timestamp = {"frame0" : snapshot.frame, "time0" : snapshot.timestamp.elapsed_seconds}
 
     def add_actor(self, actor, actor_name="Actor"):
         actor_idx = len(self.actor_list)
@@ -63,7 +64,7 @@ class Scenario(object):
             self.snapshots.append(np.empty((0,11), float))
 
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def clear_scene(self):
@@ -91,8 +92,8 @@ class Scenario(object):
         snapshot = self.world.get_snapshot()
 
         actor_snapshot = np.array([
-                float(snapshot.frame - self.init_timestamp['frame0']), \
-                snapshot.timestamp.elapsed_seconds - self.init_timestamp['time0'], \
+                float(snapshot.frame - self.init_timestamp["frame0"]), \
+                snapshot.timestamp.elapsed_seconds - self.init_timestamp["time0"], \
                 actor.get_velocity().x, actor.get_velocity().y, actor.get_velocity().z, \
                 actor.get_location().x, actor.get_location().y, actor.get_location().z, \
                 actor.get_angular_velocity().x, actor.get_angular_velocity().y, actor.get_angular_velocity().z])
@@ -102,7 +103,7 @@ class Scenario(object):
         if not self.save_snapshots_mode:
             return
 
-        for i in range (0, len(self.actor_list)):
+        for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
     def save_snapshots_to_disk(self):
@@ -125,7 +126,7 @@ class Scenario(object):
 
         self.init_scene(prefix, run_settings, spectator_tr)
 
-        for _i in range(0, tics):
+        for _i in range(tics):
             self.world.tick()
             self.save_snapshots()
 
@@ -243,8 +244,8 @@ class CarWalkerCollision(Scenario):
 
         car_bp = blueprint_library.filter("mkz_2017")[0]
         walker_bp = blueprint_library.filter("walker.pedestrian.0007")[0]
-        if walker_bp.has_attribute('is_invincible'):
-            walker_bp.set_attribute('is_invincible', 'false')
+        if walker_bp.has_attribute("is_invincible"):
+            walker_bp.set_attribute("is_invincible", "false")
 
         car_tr = carla.Transform(carla.Location(50, -255, 0.04), carla.Rotation(yaw=0))
         walker_tr = carla.Transform(carla.Location(85, -255, 1.00), carla.Rotation(yaw=-90))
@@ -271,7 +272,7 @@ class CarWalkerCollision(Scenario):
         self.wait(1)
 
 
-class CollisionScenarioTester():
+class CollisionScenarioTester:
     def __init__(self, scene, output_path):
         self.scene = scene
         self.world = self.scene.world
@@ -296,9 +297,9 @@ class CollisionScenarioTester():
         repetitions = len(rep_prefixes)
         mat_check = np.zeros((repetitions, repetitions), int)
 
-        for i in range(0, repetitions):
+        for i in range(repetitions):
             mat_check[i][i] = 1
-            for j in range(0, i):
+            for j in range(i):
                 sim_check = True
                 for actor in self.scene.actor_list:
                     actor_id = actor[0]
@@ -356,7 +357,7 @@ class CollisionScenarioTester():
         spectator_tr = carla.Transform(carla.Location(120, -256, 10), carla.Rotation(yaw=180))
 
         sim_prefixes = []
-        for i in range(0, repetitions):
+        for i in range(repetitions):
             prefix_rep = prefix + "_rep" + str(i)
             self.scene.run_simulation(prefix_rep, config_settings, spectator_tr, tics=sim_tics)
             sim_prefixes.append(prefix_rep)
