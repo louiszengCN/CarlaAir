@@ -28,11 +28,13 @@ line-length = 120
 exclude = [
     ".git",
     "__pycache__",
+    ".ruff_cache",
     "build",
     "dist",
     "*.egg-info",
     "PythonAPI/carla/source",  # Auto-generated C++ bindings
     "CarlaAir_Release",         # Binary distribution copy
+    "LibCarla",                 # C++ library source
 ]
 
 [tool.ruff.lint]

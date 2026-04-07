@@ -82,18 +82,18 @@ class Documentation:
         "var range = document.body.createTextRange();\n"+
         "range.moveToElementText(document.getElementById(containerid));\n"+
         "range.select().createTextRange();\n"+
-        "document.execCommand(\"copy\");\n"+
+        'document.execCommand("copy");\n'+
         "} \n"+
         "else if (window.getSelection) {\n"+
         "var range = document.createRange();\n"+
         "range.selectNode(document.getElementById(containerid));\n"+
         "window.getSelection().addRange(range);\n"+
-        "document.execCommand(\"copy\");\n"+
+        'document.execCommand("copy");\n'+
         "}\n"+
         "}\n</script>\n"+
         "<script>\n"+
         "function CloseSnipet() {\n"+
-        "document.getElementById(\"snipets-container\").innerHTML = null;\n"+
+        'document.getElementById("snipets-container").innerHTML = null;\n'+
         "}\n"+
         "</script>\n")
         # Create content for every snipet
@@ -102,11 +102,11 @@ class Documentation:
             snipet_name = os.path.basename(current_snipet.name) # Remove path
             snipet_name = os.path.splitext(snipet_name)[0] # Remove extension
             # Header for a snipet
-            md.textn("<div id =\""+snipet_name+"-snipet\" style=\"display: none;\">\n"+
-            "<p class=\"SnipetFont\">\n"+
+            md.textn('<div id ="'+snipet_name+'-snipet" style="display: none;">\n'+
+            '<p class="SnipetFont">\n'+
             "Snippet for "+snipet_name+"\n"+
             "</p>\n"+
-            "<div id=\""+snipet_name+"-code\" class=\"SnipetContent\">\n\n```py\n")
+            '<div id="'+snipet_name+'-code" class="SnipetContent">\n\n```py\n')
             # The snipet code
             md.textn(current_snipet.read())
             # Closing for a snipet
@@ -115,7 +115,7 @@ class Documentation:
             for snipet_path_to_image in self._snipets_images:
                 snipet_image_name = os.path.splitext(os.path.basename(snipet_path_to_image))[0]
                 if snipet_name == snipet_image_name:
-                    md.textn("\n<img src=\"/img/snipets_images/"+os.path.basename(snipet_path_to_image)+"\">\n")
+                    md.textn('\n<img src="/img/snipets_images/'+os.path.basename(snipet_path_to_image)+'">\n')
             md.textn("</div>\n")
         # Closing div
         md.textn("\n</div>\n")

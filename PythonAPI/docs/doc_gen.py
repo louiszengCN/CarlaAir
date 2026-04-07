@@ -116,7 +116,7 @@ def bold(buf):
 
 def snipet(name,class_key):
 
-    return join(["<button class=\"SnipetButton\" id=\"",class_key,".",name,"-snipet_button\">", "snippet &rarr;", '</button>'])
+    return join(['<button class="SnipetButton" id="',class_key,".",name,'-snipet_button">', "snippet &rarr;", '</button>'])
 
 def code(buf):
     return join(['`', buf, '`'])
@@ -227,10 +227,10 @@ def append_snipet_button_script(md):
                 "function ButtonAction(container_name){\n"+
                     "if(window_big){\n"+
                         "snipet_name = container_name.replace('-snipet_button','-snipet');\n"+
-                        "document.getElementById(\"snipets-container\").innerHTML = document.getElementById(snipet_name).innerHTML;\n"+
+                        'document.getElementById("snipets-container").innerHTML = document.getElementById(snipet_name).innerHTML;\n'+
                     "}\n"+
                     "else{\n"+
-                        "document.getElementById(\"snipets-container\").innerHTML = null;"+
+                        'document.getElementById("snipets-container").innerHTML = null;'+
                         "code_name = container_name.replace('-snipet_button','-code');\n"+
                         "var range = document.createRange();\n"+
                         "range.selectNode(document.getElementById(code_name));\n"+
@@ -256,7 +256,7 @@ def append_snipet_button_script(md):
 
                 "buttons = document.getElementsByClassName('SnipetButton')\n"+
                 "for (let i = 0; i < buttons.length; i++) {\n"+
-                    "buttons[i].addEventListener(\"click\",function(){ButtonAction(buttons[i].id);},true);\n"+
+                    'buttons[i].addEventListener("click",function(){ButtonAction(buttons[i].id);},true);\n'+
                 "}\n"+
                 "window.onresize = WindowResize;\n"+
             "</script>\n")

@@ -361,7 +361,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
                 # import when the size of the group of tiles surpasses the specified size in MB
                 if current_batch_size >= batch_size:
                     import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                    commandlet_arguments = ["-importSettings=\"%s\"" % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
+                    commandlet_arguments = ['-importSettings="%s"' % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
                     invoke_commandlet(commandlet_name, commandlet_arguments)
                     os.remove(import_setting_file)
                     current_batch_map = copy.deepcopy(map_template)
@@ -370,13 +370,13 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             # import remaining tiles
             if current_batch > 0:
                 import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                commandlet_arguments = ["-importSettings=\"%s\"" % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
+                commandlet_arguments = ['-importSettings="%s"' % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
                 invoke_commandlet(commandlet_name, commandlet_arguments)
                 os.remove(import_setting_file)
     else:
         # Import Props
         import_setting_file = generate_import_setting_file(package_name, json_dirname, props, maps, do_tiles, tile_size)
-        commandlet_arguments = ["-importSettings=\"%s\"" % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
+        commandlet_arguments = ['-importSettings="%s"' % import_setting_file, "-nosourcecontrol", "-replaceexisting"]
         invoke_commandlet(commandlet_name, commandlet_arguments)
         os.remove(import_setting_file)
 
