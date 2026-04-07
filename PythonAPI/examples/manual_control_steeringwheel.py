@@ -36,13 +36,7 @@ import weakref
 import carla
 from carla import ColorConverter as cc
 
-if sys.version_info >= (3, 0):
-
-    from configparser import ConfigParser
-
-else:
-
-    from ConfigParser import RawConfigParser as ConfigParser
+from configparser import ConfigParser
 
 try:
     import pygame

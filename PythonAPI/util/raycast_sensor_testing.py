@@ -384,10 +384,9 @@ def one_run(args, client):
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             call_exit = True
-                        elif event.type == pygame.KEYDOWN:
-                            if event.key in (K_ESCAPE, K_q):
-                                call_exit = True
-                                break
+                        elif event.type == pygame.KEYDOWN and event.key in (K_ESCAPE, K_q):
+                            call_exit = True
+                            break
             else:
                 if (timer.time() - time_init_sim) < 5.0:
                     frame = 0

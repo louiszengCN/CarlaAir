@@ -132,7 +132,7 @@ def argument_parser():
         type=int,
         nargs='+',
         help="Center of the area to initialize",
-        default=tuple([-50,20]))
+        default=(-50,20))
     argparser.add_argument(
         '--iai-async',
         type=bool,

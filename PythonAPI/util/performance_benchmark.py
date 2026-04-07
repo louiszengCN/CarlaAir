@@ -24,9 +24,6 @@ Please, make sure you install the following dependencies:
 
 import sys
 
-if sys.version_info[0] < 3:
-    print('This script is only available for Python 3')
-    sys.exit(1)
 
 import argparse
 import logging
