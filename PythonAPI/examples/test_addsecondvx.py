@@ -57,7 +57,7 @@ class V2XSensor:
             power = data.power
             print(msg)
             # print('Cam message received from %s ' % stationId)
-            print('Cam message received with power %f ' % power)
+            print('Cam message received with power {:f} '.format(power))
 
 client = carla.Client("localhost",2000)
 client.set_timeout(2000.0)

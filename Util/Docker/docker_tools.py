@@ -10,7 +10,6 @@
 Helper script to generate consumables for Carla in Docker
 """
 
-from __future__ import print_function
 
 import argparse
 import os

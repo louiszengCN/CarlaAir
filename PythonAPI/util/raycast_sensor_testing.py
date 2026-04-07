@@ -373,7 +373,7 @@ def one_run(args, client):
                     for sensor in display_manager.sensor_list:
                         time_procc += sensor.time_processing
 
-                    print("FPS: %.3f %.3f %.3f" % (time_frames, 1.0/time_frames * 30, time_procc/time_frames))
+                    print("FPS: {:.3f} {:.3f} {:.3f}".format(time_frames, 1.0/time_frames * 30, time_procc/time_frames))
                     frame = 0
                     for sensor in display_manager.sensor_list:
                         sensor.time_processing = 0
@@ -525,7 +525,7 @@ def main():
 
         if args.profiling:
             print("-------------------------------------------------------")
-            print("# Running profiling with %s lidars, %s semantic lidars and %s radars." % (args.lidar_number, args.semanticlidar_number, args.radar_number))
+            print("# Running profiling with {} lidars, {} semantic lidars and {} radars.".format(args.lidar_number, args.semanticlidar_number, args.radar_number))
             args.render_cam = False
             args.render_window = False
             runs_output = []

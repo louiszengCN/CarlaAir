@@ -51,7 +51,6 @@ Use ARROWS or WASD keys for control.
     ESC          : quit
 """
 
-from __future__ import print_function
 
 import argparse
 import collections
@@ -244,22 +243,22 @@ class World:
         self._weather_index += -1 if reverse else 1
         self._weather_index %= len(self._weather_presets)
         preset = self._weather_presets[self._weather_index]
-        self.hud.notification('Weather: %s' % preset[1])
+        self.hud.notification('Weather: {}'.format(preset[1]))
         self.player.get_world().set_weather(preset[0])
 
     def next_map_layer(self, reverse=False):
         self.current_map_layer += -1 if reverse else 1
         self.current_map_layer %= len(self.map_layer_names)
         selected = self.map_layer_names[self.current_map_layer]
-        self.hud.notification('LayerMap selected: %s' % selected)
+        self.hud.notification('LayerMap selected: {}'.format(selected))
 
     def load_map_layer(self, unload=False):
         selected = self.map_layer_names[self.current_map_layer]
         if unload:
-            self.hud.notification('Unloading map layer: %s' % selected)
+            self.hud.notification('Unloading map layer: {}'.format(selected))
             self.world.unload_map_layer(selected)
         else:
-            self.hud.notification('Loading map layer: %s' % selected)
+            self.hud.notification('Loading map layer: {}'.format(selected))
             self.world.load_map_layer(selected)
 
     def toggle_radar(self):
@@ -602,8 +601,8 @@ class HUD:
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
         self._info_text = [
-            'Server:  % 16.0f FPS' % self.server_fps,
-            'Client:  % 16.0f FPS' % clock.get_fps(),
+            'Server:  {: 16.0f} FPS'.format(self.server_fps),
+            'Client:  {: 16.0f} FPS'.format(clock.get_fps()),
             '',
             'Vehicle: % 20s' % get_actor_display_name(world.player, truncate=20),
             'Map:     % 20s' % world.map.name.split('/')[-1],
@@ -611,11 +610,11 @@ class HUD:
             '',
             'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
             'Compass:% 17.0f\N{DEGREE SIGN} % 2s' % (compass, heading),
-            'Accelero: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.accelerometer),
-            'Gyroscop: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.gyroscope),
-            'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
-            'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
-            'Height:  % 18.0f m' % t.location.z,
+            'Accelero: ({:5.1f},{:5.1f},{:5.1f})'.format(*world.imu_sensor.accelerometer),
+            'Gyroscop: ({:5.1f},{:5.1f},{:5.1f})'.format(*world.imu_sensor.gyroscope),
+            'Location:% 20s' % ('({: 5.1f}, {: 5.1f})'.format(t.location.x, t.location.y)),
+            'GNSS:% 24s' % ('({: 2.6f}, {: 3.6f})'.format(world.gnss_sensor.lat, world.gnss_sensor.lon)),
+            'Height:  {: 18.0f} m'.format(t.location.z),
             '']
         if isinstance(c, carla.VehicleControl):
             self._info_text += [
@@ -625,7 +624,7 @@ class HUD:
                 ('Reverse:', c.reverse),
                 ('Hand brake:', c.hand_brake),
                 ('Manual:', c.manual_gear_shift),
-                'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)]
+                'Gear:        {}'.format({-1: 'R', 0: 'N'}.get(c.gear, c.gear))]
         elif isinstance(c, carla.WalkerControl):
             self._info_text += [
                 ('Speed:', c.speed, 0.0, 5.556),
@@ -654,7 +653,7 @@ class HUD:
         self._notifications.set_text(text, seconds=seconds)
 
     def error(self, text):
-        self._notifications.set_text('Error: %s' % text, (255, 0, 0))
+        self._notifications.set_text('Error: {}'.format(text), (255, 0, 0))
 
     def render(self, display):
         if self._show_info:
@@ -785,7 +784,7 @@ class CollisionSensor:
         if not self:
             return
         actor_type = get_actor_display_name(event.other_actor)
-        self.hud.notification('Collision with %r' % actor_type)
+        self.hud.notification('Collision with {!r}'.format(actor_type))
         impulse = event.normal_impulse
         intensity = math.sqrt(impulse.x**2 + impulse.y**2 + impulse.z**2)
         self.history.append((event.frame, intensity))
@@ -817,8 +816,8 @@ class LaneInvasionSensor:
         if not self:
             return
         lane_types = {x.type for x in event.crossed_lane_markings}
-        text = ['%r' % str(x).split()[-1] for x in lane_types]
-        self.hud.notification('Crossed line %s' % ' and '.join(text))
+        text = ['{!r}'.format(str(x).split()[-1]) for x in lane_types]
+        self.hud.notification('Crossed line {}'.format(' and '.join(text)))
 
 
 # ==============================================================================

@@ -237,9 +237,8 @@ class CodeFormat:
                     fullFilename = os.path.join(root, filename)
                     if self.isFileNotExcluded(fullFilename):
                         fileList.append(fullFilename)
-        else:
-            if self.isFileNotExcluded(fileOrDirectory) and (filePattern.match(os.path.basename(fileOrDirectory)) is not None):
-                fileList.append(fileOrDirectory)
+        elif self.isFileNotExcluded(fileOrDirectory) and (filePattern.match(os.path.basename(fileOrDirectory)) is not None):
+            fileList.append(fileOrDirectory)
         return fileList
 
     def filterDirectories(self, root, directories):

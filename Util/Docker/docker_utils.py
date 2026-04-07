@@ -78,10 +78,10 @@ def extract_files(container, file_list, out_path):
     for file in file_list:
         print('Copying "' + file + '" to ' + out_path)
         strm, _ = container.get_archive(file)
-        f = open("%s/result.tar.gz" % out_path, "wb")
+        f = open("{}/result.tar.gz".format(out_path), "wb")
         for d in strm:
             f.write(d)
         f.close()
-        pw_tar = tarfile.TarFile("%s/result.tar.gz" % out_path)
+        pw_tar = tarfile.TarFile("{}/result.tar.gz".format(out_path))
         pw_tar.extractall(out_path)
-        os.remove("%s/result.tar.gz" % out_path)
+        os.remove("{}/result.tar.gz".format(out_path))

@@ -164,7 +164,7 @@ def get_libcarla_extensions():
             language='c++14',
             depends=depends)
 
-    print('compiling:\n  - %s' % '\n  - '.join(sources))
+    print('compiling:\n  - {}'.format('\n  - '.join(sources)))
 
     return [make_extension('carla.libcarla', sources)]
 

@@ -480,13 +480,13 @@ def get_system_specs():
 def show_benchmark_scenarios(maps):
   print("Available maps")
   for map in sorted(maps):
-    print("  - %s" % map)
+    print("  - {}".format(map))
   print("Available sensors")
   for i,sensors in enumerate(define_sensors()):
     sensor_str = ""
     for sensor in sensors:
       sensor_str += (sensor['label'] + " ")
-    print('  - %s' % (sensor_str))
+    print('  - {}'.format(sensor_str))
   print("Available types of weather")
   for i,weather in enumerate(define_weather()):
     print('  - %i: %s' % (i, weather['name']))

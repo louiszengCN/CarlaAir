@@ -42,7 +42,6 @@ Use ARROWS or WASD keys for control.
     ESC          : quit
 """
 
-from __future__ import print_function
 
 import argparse
 import logging
@@ -618,13 +617,13 @@ class HUD:
         c = player.get_control()
 
         self._info_text = [
-            'Server:  % 16.0f FPS' % self.server_fps,
-            'Client:  % 16.0f FPS' % clock.get_fps(),
+            'Server:  {: 16.0f} FPS'.format(self.server_fps),
+            'Client:  {: 16.0f} FPS'.format(clock.get_fps()),
             'Map:     % 20s' % self.map_name,
             '',
             'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
-            'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
-            'Heading: % 20.2f' % math.radians(t.rotation.yaw),
+            'Location:% 20s' % ('({: 5.1f}, {: 5.1f})'.format(t.location.x, t.location.y)),
+            'Heading: {: 20.2f}'.format(math.radians(t.rotation.yaw)),
             '']
         if self.original_vehicle_control:
             orig_control = self.original_vehicle_control
@@ -645,7 +644,7 @@ class HUD:
         self._notifications.set_text(text, seconds=seconds)
 
     def error(self, text):
-        self._notifications.set_text('Error: %s' % text, (255, 0, 0))
+        self._notifications.set_text('Error: {}'.format(text), (255, 0, 0))
 
     def render(self, display):
         if self._show_info:
@@ -701,9 +700,8 @@ class HUD:
                         rect = None
                         if item[2] < 0.0:
                             rect = pygame.Rect((bar_h_offset + 2 + f * (bar_width - 14), v_offset + 4), (10, 10))
-                        else:
-                            if item[1] != 0:
-                                rect = pygame.Rect((bar_h_offset + 2, v_offset + 4), (f * (bar_width - 4), 10))
+                        elif item[1] != 0:
+                            rect = pygame.Rect((bar_h_offset + 2, v_offset + 4), (f * (bar_width - 4), 10))
                         if rect:
                             pygame.draw.rect(display, (255, 255, 255), rect, input_value_rect_fill)
                     item = item[0]
