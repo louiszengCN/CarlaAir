@@ -293,7 +293,7 @@ def generate_package_file(package_name, props, maps):
     output_json["maps"] = []
     for umap in maps:
         path = "/" + "/".join(["Game", package_name, "Maps", umap["name"]])
-        use_carla_materials = umap["use_carla_materials"] if "use_carla_materials" in umap else False
+        use_carla_materials = umap.get("use_carla_materials", False)
         output_json["maps"].append({
             "name": umap["name"],
             "path": path,
