@@ -168,7 +168,7 @@ def define_maps(client):
       print("Warning!! The list of maps introduced is not valid. Using all available.")
 
   return maps
-class CallBack(object):
+class CallBack:
     def __init__(self):
         self._lock = threading.Lock()
         self._pygame_clock = pygame.time.Clock()
@@ -377,7 +377,7 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
     sensor_list = sensors_ret
 
   # Allow some time for the server to finish the initialization
-  for _i in range(0, 50):
+  for _i in range(50):
     tick()
 
   ticks = 0

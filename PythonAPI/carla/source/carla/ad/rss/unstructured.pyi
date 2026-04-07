@@ -25,7 +25,6 @@ class DebugDrawing:
             C++ signature :
                 void drawLine(ad::rss::unstructured::DebugDrawing {lvalue},boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double, boost::geometry::cs::cartesian>, std::vector, std::allocator> [,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >='white' [,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >='']])
         """
-        ...
 
     def drawPolygon(self, arg1: DebugDrawing, polygon: object, color: str, ns: str) -> None:
         """
@@ -35,7 +34,6 @@ class DebugDrawing:
             C++ signature :
                 void drawPolygon(ad::rss::unstructured::DebugDrawing {lvalue},boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double, boost::geometry::cs::cartesian>, false, true, std::vector, std::vector, std::allocator, std::allocator> [,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >='white' [,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >='']])
         """
-        ...
 
     def enable(self, arg1: DebugDrawing, value: bool) -> None:
         """
@@ -45,7 +43,6 @@ class DebugDrawing:
             C++ signature :
                 void enable(ad::rss::unstructured::DebugDrawing {lvalue},bool)
         """
-        ...
 
     def getInstance(self) -> DebugDrawing:
         """
@@ -55,7 +52,6 @@ class DebugDrawing:
             C++ signature :
                 std::shared_ptr<ad::rss::unstructured::DebugDrawing> getInstance()
         """
-        ...
 
     def isEnabled(self, arg1: DebugDrawing) -> bool:
         """
@@ -65,7 +61,6 @@ class DebugDrawing:
             C++ signature :
                 bool isEnabled(ad::rss::unstructured::DebugDrawing {lvalue})
         """
-        ...
 
     @property
     def mEnabled(self) -> bool: ...
@@ -84,7 +79,6 @@ class DebugDrawing:
             C++ signature :
                 void reset(ad::rss::unstructured::DebugDrawing {lvalue})
         """
-        ...
 
 class vector_less_ad_scope_rss_scope_unstructured_scope_DebugDrawing_scope_DebugLine_greater_(_Vector[DebugDrawing.DebugLine]):
     ...

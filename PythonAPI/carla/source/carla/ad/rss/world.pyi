@@ -20,7 +20,6 @@ class LaneSegment:
             C++ signature :
                 ad::rss::world::LaneSegment {lvalue} assign(ad::rss::world::LaneSegment {lvalue},ad::rss::world::LaneSegment)
         """
-        ...
 
     @property
     def drivingDirection(self) -> LaneDrivingDirection: ...
@@ -54,7 +53,6 @@ class LateralRssAccelerationValues:
             C++ signature :
                 ad::rss::world::LateralRssAccelerationValues {lvalue} assign(ad::rss::world::LateralRssAccelerationValues {lvalue},ad::rss::world::LateralRssAccelerationValues)
         """
-        ...
 
     @property
     def brakeMin(self) -> ad.physics.Acceleration: ...
@@ -71,7 +69,6 @@ class LongitudinalRssAccelerationValues:
             C++ signature :
                 ad::rss::world::LongitudinalRssAccelerationValues {lvalue} assign(ad::rss::world::LongitudinalRssAccelerationValues {lvalue},ad::rss::world::LongitudinalRssAccelerationValues)
         """
-        ...
 
     @property
     def brakeMax(self) -> ad.physics.Acceleration: ...
@@ -91,7 +88,6 @@ class Object:
             C++ signature :
                 ad::rss::world::Object {lvalue} assign(ad::rss::world::Object {lvalue},ad::rss::world::Object)
         """
-        ...
 
     @property
     def objectId(self) -> int: ...
@@ -117,7 +113,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 void append(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue},unsigned long)
         """
-        ...
 
     def count(self, arg1: ObjectIdVector, arg2: object) -> int:
         """
@@ -127,7 +122,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 unsigned long count(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue},unsigned long)
         """
-        ...
 
     def extend(self, arg1: ObjectIdVector, arg2: object) -> None:
         """
@@ -137,7 +131,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 void extend(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ObjectIdVector, arg2: object) -> int:
         """
@@ -147,7 +140,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 unsigned long index(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue},unsigned long)
         """
-        ...
 
     def insert(self, arg1: ObjectIdVector, arg2: int, arg3: object) -> None:
         """
@@ -157,7 +149,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 void insert(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue},long,unsigned long)
         """
-        ...
 
     def reverse(self, arg1: ObjectIdVector) -> None:
         """
@@ -167,7 +158,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 void reverse(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: ObjectIdVector) -> None:
         """
@@ -177,7 +167,6 @@ class ObjectIdVector(ad._Vector[object]):
             C++ signature :
                 void sort(std::vector<unsigned long, std::allocator<unsigned long> > {lvalue})
         """
-        ...
 
 class ObjectState:
     def assign(self, arg1: ObjectState, other: ObjectState) -> ObjectState:
@@ -188,7 +177,6 @@ class ObjectState:
             C++ signature :
                 ad::rss::world::ObjectState {lvalue} assign(ad::rss::world::ObjectState {lvalue},ad::rss::world::ObjectState)
         """
-        ...
 
     @property
     def centerPoint(self) -> ad.physics.Distance2D: ...
@@ -230,7 +218,6 @@ class OccupiedRegion:
             C++ signature :
                 ad::rss::world::OccupiedRegion {lvalue} assign(ad::rss::world::OccupiedRegion {lvalue},ad::rss::world::OccupiedRegion)
         """
-        ...
 
     @property
     def latRange(self) -> ad.physics.ParametricRange: ...

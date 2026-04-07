@@ -148,7 +148,7 @@ def get_actor_display_name(actor, truncate=250):
     return (name[:truncate - 1] + u'\u2026') if len(name) > truncate else name
 
 
-class Util(object):
+class Util:
 
     @staticmethod
     def blits(destination_surface, source_surfaces, rect=None, blend_mode=0):
@@ -180,7 +180,7 @@ class Util(object):
 # ==============================================================================
 
 
-class FadingText(object):
+class FadingText:
     """Renders texts that fades out after some seconds that the user specifies"""
 
     def __init__(self, font, dim, pos):
@@ -215,7 +215,7 @@ class FadingText(object):
 # ==============================================================================
 
 
-class HelpText(object):
+class HelpText:
     def __init__(self, font, width, height):
         """Renders the help text that shows the controls for using no rendering mode"""
         lines = __doc__.split('\n')
@@ -246,7 +246,7 @@ class HelpText(object):
 # ==============================================================================
 
 
-class HUD (object):
+class HUD :
     """Class encharged of rendering the HUD that displays information about the world and the hero vehicle"""
 
     def __init__(self, name, width, height):
@@ -371,7 +371,7 @@ class HUD (object):
 # ==============================================================================
 
 
-class TrafficLightSurfaces(object):
+class TrafficLightSurfaces:
     """Holds the surfaces (scaled and rotated) for painting traffic lights"""
 
     def __init__(self):
@@ -415,7 +415,7 @@ class TrafficLightSurfaces(object):
 # ==============================================================================
 
 
-class MapImage(object):
+class MapImage:
     """Class encharged of rendering a 2D image from top view of a carla world. Please note that a cache system is used, so if the OpenDrive content
     of a Carla town has not changed, it will read and use the stored image if it was rendered in a previous execution"""
 
@@ -536,21 +536,20 @@ class MapImage(object):
             marking_1 = [world_to_pixel(lateral_shift(w.transform, sign * w.lane_width * 0.5)) for w in waypoints]
             if lane_marking_type == carla.LaneMarkingType.Broken or (lane_marking_type == carla.LaneMarkingType.Solid):
                 return [(lane_marking_type, lane_marking_color, marking_1)]
-            else:
-                marking_2 = [world_to_pixel(lateral_shift(w.transform,
-                                                          sign * (w.lane_width * 0.5 + margin * 2))) for w in waypoints]
-                if lane_marking_type == carla.LaneMarkingType.SolidBroken:
-                    return [(carla.LaneMarkingType.Broken, lane_marking_color, marking_1),
-                            (carla.LaneMarkingType.Solid, lane_marking_color, marking_2)]
-                elif lane_marking_type == carla.LaneMarkingType.BrokenSolid:
-                    return [(carla.LaneMarkingType.Solid, lane_marking_color, marking_1),
-                            (carla.LaneMarkingType.Broken, lane_marking_color, marking_2)]
-                elif lane_marking_type == carla.LaneMarkingType.BrokenBroken:
-                    return [(carla.LaneMarkingType.Broken, lane_marking_color, marking_1),
-                            (carla.LaneMarkingType.Broken, lane_marking_color, marking_2)]
-                elif lane_marking_type == carla.LaneMarkingType.SolidSolid:
-                    return [(carla.LaneMarkingType.Solid, lane_marking_color, marking_1),
-                            (carla.LaneMarkingType.Solid, lane_marking_color, marking_2)]
+            marking_2 = [world_to_pixel(lateral_shift(w.transform,
+                                                      sign * (w.lane_width * 0.5 + margin * 2))) for w in waypoints]
+            if lane_marking_type == carla.LaneMarkingType.SolidBroken:
+                return [(carla.LaneMarkingType.Broken, lane_marking_color, marking_1),
+                        (carla.LaneMarkingType.Solid, lane_marking_color, marking_2)]
+            if lane_marking_type == carla.LaneMarkingType.BrokenSolid:
+                return [(carla.LaneMarkingType.Solid, lane_marking_color, marking_1),
+                        (carla.LaneMarkingType.Broken, lane_marking_color, marking_2)]
+            if lane_marking_type == carla.LaneMarkingType.BrokenBroken:
+                return [(carla.LaneMarkingType.Broken, lane_marking_color, marking_1),
+                        (carla.LaneMarkingType.Broken, lane_marking_color, marking_2)]
+            if lane_marking_type == carla.LaneMarkingType.SolidSolid:
+                return [(carla.LaneMarkingType.Solid, lane_marking_color, marking_1),
+                        (carla.LaneMarkingType.Solid, lane_marking_color, marking_2)]
 
             return [(carla.LaneMarkingType.NONE, carla.LaneMarkingColor.Other, [])]
 
@@ -864,7 +863,7 @@ class MapImage(object):
             self.surface = pygame.transform.smoothscale(self.big_map_surface, (width, width))
 
 
-class World(object):
+class World:
     """Class that contains all the information of a carla world that is running on the server side"""
 
     def __init__(self, name, args, timeout):
@@ -1355,7 +1354,7 @@ class World(object):
 # ==============================================================================
 
 
-class InputControl(object):
+class InputControl:
     """Class that handles input received such as keyboard and mouse."""
 
     def __init__(self, name):

@@ -585,9 +585,8 @@ def get_actor_blueprints(
         if int_generation in [1, 2, 3, 4]:
             bps = [x for x in bps if int(x.get_attribute('generation')) == int_generation]
             return bps
-        else:
-            print("   Warning! Actor Generation is not valid. No actor will be spawned.")
-            return []
+        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
+        return []
     except:
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
@@ -730,7 +729,6 @@ def convert_ego_states_to_iai_format(
 ) -> List[AgentState]:
     agent_states = []
 
-    pass
 
     return agent_states
 
@@ -739,7 +737,6 @@ def convert_ego_properties_to_iai_format(
 ) -> List[AgentProperties]:
     agent_properties = []
 
-    pass
 
     return agent_properties
 
@@ -747,7 +744,6 @@ def initialize_ego_vehicle() -> Tuple[List[AgentState],List[AgentProperties]]:
     ego_states = []
     ego_properties = []
 
-    pass
 
     ego_agent_states = convert_ego_states_to_iai_format(ego_states)
     ego_agent_properties = convert_ego_properties_to_iai_format(ego_properties)
@@ -758,7 +754,6 @@ def tick_ego_vehicle() -> Tuple[List[AgentState],List[AgentProperties]]:
     ego_states = []
     ego_properties = []
 
-    pass
 
     updated_ego_agent_states = convert_ego_states_to_iai_format(ego_states)
     updated_ego_agent_properties= convert_ego_properties_to_iai_format(ego_properties)
@@ -788,14 +783,14 @@ def get_traffic_light_state_from_carla(carla_tl_state):
     if carla_tl_state == carla.TrafficLightState.Red:
         return TrafficLightState.red
 
-    elif carla_tl_state == carla.TrafficLightState.Yellow:
+    if carla_tl_state == carla.TrafficLightState.Yellow:
         return TrafficLightState.yellow
 
-    elif carla_tl_state == carla.TrafficLightState.Green:
+    if carla_tl_state == carla.TrafficLightState.Green:
         return TrafficLightState.green
 
-    else:  # Unknown state, turn off traffic light
-        return TrafficLightState.Off
+    # Unknown state, turn off traffic light
+    return TrafficLightState.Off
 
 # Assign IAI traffic lights based on the CARLA ones
 def assign_iai_traffic_lights_from_carla(

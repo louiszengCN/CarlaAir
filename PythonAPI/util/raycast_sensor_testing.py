@@ -128,7 +128,7 @@ class SensorManager:
 
             return camera
 
-        elif sensor_type == 'LiDAR':
+        if sensor_type == 'LiDAR':
             lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
             lidar_bp.set_attribute('range', '100')
             lidar_bp.set_attribute('dropoff_general_rate', lidar_bp.get_attribute('dropoff_general_rate').recommended_values[0])
@@ -144,7 +144,7 @@ class SensorManager:
             lidar.listen(self.save_lidar_image)
 
             return lidar
-        elif sensor_type == 'SemanticLiDAR':
+        if sensor_type == 'SemanticLiDAR':
             lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
             lidar_bp.set_attribute('range', '100')
 
@@ -156,7 +156,7 @@ class SensorManager:
             lidar.listen(self.save_semanticlidar_image)
 
             return lidar
-        elif sensor_type == "Radar":
+        if sensor_type == "Radar":
             radar_bp = self.world.get_blueprint_library().find('sensor.other.radar')
             for key in sensor_options:
                 radar_bp.set_attribute(key, sensor_options[key])
@@ -165,8 +165,7 @@ class SensorManager:
             radar.listen(self.save_radar_image)
 
             return radar
-        else:
-            return None
+        return None
 
     def get_sensor(self):
         return self.sensor
@@ -469,7 +468,7 @@ def main():
         metavar='LN',
         default=3,
         type=int,
-        choices=range(0, 4),
+        choices=range(4),
         help='Number of lidars to render (from zero to three)')
     argparser.add_argument(
         '-slp', '--semanticlidar_points',
@@ -481,7 +480,7 @@ def main():
         metavar='SLN',
         default=0,
         type=int,
-        choices=range(0, 4),
+        choices=range(4),
         help='Number of semantic lidars to render (from zero to three)')
     argparser.add_argument(
         '-rp', '--radar_points',
@@ -493,7 +492,7 @@ def main():
         metavar='LN',
         default=0,
         type=int,
-        choices=range(0, 4),
+        choices=range(4),
         help='Number of radars to render (from zero to three)')
     argparser.add_argument(
         '--camera',

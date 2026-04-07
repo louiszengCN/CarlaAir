@@ -31,7 +31,7 @@ except ImportError:
     import Queue as queue
 
 
-class CarlaSyncMode(object):
+class CarlaSyncMode:
     """
     Context manager to synchronize output from different sensors. Synchronous
     mode is enabled as long as we are inside this context
@@ -262,7 +262,7 @@ def should_quit():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return True
-        elif event.type == pygame.KEYUP:
+        if event.type == pygame.KEYUP:
             if event.key == pygame.K_ESCAPE:
                 return True
     return False

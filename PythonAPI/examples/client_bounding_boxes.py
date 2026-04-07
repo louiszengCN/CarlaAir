@@ -49,7 +49,7 @@ BB_COLOR = (248, 64, 24)
 # ==============================================================================
 
 
-class ClientSideBoundingBoxes(object):
+class ClientSideBoundingBoxes:
     """
     This is a module responsible for creating 3D bounding boxes and drawing them
     client-side on pygame surface.
@@ -195,7 +195,7 @@ class ClientSideBoundingBoxes(object):
 # ==============================================================================
 
 
-class BasicSynchronousClient(object):
+class BasicSynchronousClient:
     """
     Basic implementation of a synchronous client.
     """

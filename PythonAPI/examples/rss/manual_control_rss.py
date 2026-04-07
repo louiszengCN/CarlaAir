@@ -118,7 +118,7 @@ except ImportError:
 # ==============================================================================
 
 
-class World(object):
+class World:
 
     def __init__(self, carla_world, args):
         self.world = carla_world
@@ -270,7 +270,7 @@ class World(object):
 # -- Camera --------------------------------------------------------------------
 # ==============================================================================
 
-class Camera(object):
+class Camera:
 
     def __init__(self, parent_actor, display_dimensions):
         self.surface = None
@@ -315,7 +315,7 @@ class Camera(object):
 # ==============================================================================
 
 
-class VehicleControl(object):
+class VehicleControl:
 
     MOUSE_STEERING_RANGE = 200
     signal_received = False
@@ -383,10 +383,10 @@ class VehicleControl(object):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
-            elif event.type == pygame.KEYUP:
+            if event.type == pygame.KEYUP:
                 if self._is_quit_shortcut(event.key):
                     return True
-                elif event.key == K_BACKSPACE:
+                if event.key == K_BACKSPACE:
                     if self._autopilot_enabled:
                         world.player.set_autopilot(False)
                         world.restart()
@@ -577,7 +577,7 @@ class VehicleControl(object):
 # ==============================================================================
 
 
-class HUD(object):
+class HUD:
 
     def __init__(self, width, height, world):
         self.dim = (width, height)
@@ -722,7 +722,7 @@ class HUD(object):
 # ==============================================================================
 
 
-class FadingText(object):
+class FadingText:
 
     def __init__(self, font, dim, pos):
         self.font = font
@@ -752,7 +752,7 @@ class FadingText(object):
 # ==============================================================================
 
 
-class HelpText(object):
+class HelpText:
 
     """Helper class to handle text output using pygame"""
 

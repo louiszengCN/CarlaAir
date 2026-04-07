@@ -60,7 +60,7 @@ def get_scene_layout(carla_map):
             # List of waypoints
             lane = map_dict[road_key][lane_key]
 
-            for i in range(0, len(lane["waypoints"])):
+            for i in range(len(lane["waypoints"])):
                 next_ids = [w.id for w in lane["waypoints"][i + 1:len(lane["waypoints"])]]
 
                 # Get left and right lane keys

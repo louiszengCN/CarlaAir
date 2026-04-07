@@ -25,7 +25,6 @@ class MapConfigFileHandler:
             C++ signature :
                 bool isInitializedWithFilename(ad::map::config::MapConfigFileHandler {lvalue},std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
         """
-        ...
 
     @property
     def pointsOfInterest(self) -> PointOfInterest: ...
@@ -38,7 +37,6 @@ class MapConfigFileHandler:
             C++ signature :
                 bool readConfig(ad::map::config::MapConfigFileHandler {lvalue},std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
         """
-        ...
 
     def reset(self, arg1: MapConfigFileHandler) -> None:
         """
@@ -48,7 +46,6 @@ class MapConfigFileHandler:
             C++ signature :
                 void reset(ad::map::config::MapConfigFileHandler {lvalue})
         """
-        ...
 
 class MapEntry:
     def assign(self, arg1: MapEntry, other: MapEntry) -> MapEntry:
@@ -59,7 +56,6 @@ class MapEntry:
             C++ signature :
                 ad::map::config::MapEntry {lvalue} assign(ad::map::config::MapEntry {lvalue},ad::map::config::MapEntry)
         """
-        ...
 
     @property
     def filename(self) -> str: ...
@@ -82,7 +78,6 @@ class PointOfInterest:
             C++ signature :
                 ad::map::config::PointOfInterest {lvalue} assign(ad::map::config::PointOfInterest {lvalue},ad::map::config::PointOfInterest)
         """
-        ...
 
     @property
     def geoPoint(self) -> ad.map.point.GeoPoint: ...

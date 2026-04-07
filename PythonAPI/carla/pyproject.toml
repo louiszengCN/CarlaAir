@@ -31,6 +31,8 @@ exclude = [
     "build",
     "dist",
     "*.egg-info",
+    "PythonAPI/carla/source",  # Auto-generated C++ bindings
+    "CarlaAir_Release",         # Binary distribution copy
 ]
 
 [tool.ruff.lint]
@@ -87,6 +89,8 @@ ignore = [
     "N815",    # Variable in class scope should not be mixedCase (backward-compatible aliases)
     "PLC0415", # Import should be at top-level (test scripts use lazy imports)
     "RUF001",  # String contains ambiguous characters (Chinese text is intentional)
+    "RUF002",  # Docstring contains ambiguous characters (Chinese docs)
+    "RUF003",  # Comment contains ambiguous characters (Chinese comments)
     "B904",    # Raise from err (legacy exception handling pattern)
     "PERF203", # try-except within a loop (acceptable for error recovery)
     "PERF401", # Use list comprehension (explicit loops sometimes clearer)

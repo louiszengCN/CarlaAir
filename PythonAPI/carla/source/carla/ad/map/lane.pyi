@@ -13,7 +13,6 @@ def getLane(laneId: LaneId) -> Lane:
         C++ signature :
             ad::map::lane::Lane getLane(ad::map::lane::LaneId)
     """
-    ...
 
 class ContactLane:
     def assign(self, arg1: ContactLane, other: ContactLane) -> ContactLane:
@@ -24,7 +23,6 @@ class ContactLane:
             C++ signature :
                 ad::map::lane::ContactLane {lvalue} assign(ad::map::lane::ContactLane {lvalue},ad::map::lane::ContactLane)
         """
-        ...
 
     @property
     def location(self) -> ContactLocation: ...
@@ -50,7 +48,6 @@ class ContactLaneList:
             C++ signature :
                 void append(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue},ad::map::lane::ContactLane)
         """
-        ...
 
     def count(self, arg1: ContactLaneList, arg2: ContactLane) -> int:
         """
@@ -60,7 +57,6 @@ class ContactLaneList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue},ad::map::lane::ContactLane)
         """
-        ...
 
     def extend(self, arg1: ContactLaneList, arg2: object) -> None:
         """
@@ -70,7 +66,6 @@ class ContactLaneList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ContactLaneList, arg2: ContactLane) -> int:
         """
@@ -80,7 +75,6 @@ class ContactLaneList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue},ad::map::lane::ContactLane)
         """
-        ...
 
     def insert(self, arg1: ContactLaneList, arg2: int, arg3: ContactLane) -> None:
         """
@@ -90,7 +84,6 @@ class ContactLaneList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue},long,ad::map::lane::ContactLane)
         """
-        ...
 
     def reverse(self, arg1: ContactLaneList) -> None:
         """
@@ -100,7 +93,6 @@ class ContactLaneList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::ContactLane, std::allocator<ad::map::lane::ContactLane> > {lvalue})
         """
-        ...
 
 class ContactLocation(int):
     INVALID = 0
@@ -126,7 +118,6 @@ class ContactLocationList:
             C++ signature :
                 void append(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue},ad::map::lane::ContactLocation)
         """
-        ...
 
     def count(self, arg1: ContactLocationList, arg2: ContactLocation) -> int:
         """
@@ -136,7 +127,6 @@ class ContactLocationList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue},ad::map::lane::ContactLocation)
         """
-        ...
 
     def extend(self, arg1: ContactLocationList, arg2: object) -> None:
         """
@@ -146,7 +136,6 @@ class ContactLocationList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ContactLocationList, arg2: ContactLocation) -> int:
         """
@@ -156,7 +145,6 @@ class ContactLocationList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue},ad::map::lane::ContactLocation)
         """
-        ...
 
     def insert(self, arg1: ContactLocationList, arg2: int, arg3: ContactLocation) -> None:
         """
@@ -166,7 +154,6 @@ class ContactLocationList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue},long,ad::map::lane::ContactLocation)
         """
-        ...
 
     def reverse(self, arg1: ContactLocationList) -> None:
         """
@@ -176,7 +163,6 @@ class ContactLocationList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: ContactLocationList) -> None:
         """
@@ -186,7 +172,6 @@ class ContactLocationList:
             C++ signature :
                 void sort(std::vector<ad::map::lane::ContactLocation, std::allocator<ad::map::lane::ContactLocation> > {lvalue})
         """
-        ...
 
 class ContactType(int):
     CROSSWALK = 18
@@ -242,7 +227,6 @@ class ContactTypeList:
             C++ signature :
                 void append(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue},ad::map::lane::ContactType)
         """
-        ...
 
     def count(self, arg1: ContactTypeList, arg2: ContactType) -> int:
         """
@@ -252,7 +236,6 @@ class ContactTypeList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue},ad::map::lane::ContactType)
         """
-        ...
 
     def extend(self, arg1: ContactTypeList, arg2: object) -> None:
         """
@@ -262,7 +245,6 @@ class ContactTypeList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ContactTypeList, arg2: ContactType) -> int:
         """
@@ -272,7 +254,6 @@ class ContactTypeList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue},ad::map::lane::ContactType)
         """
-        ...
 
     def insert(self, arg1: ContactTypeList, arg2: int, arg3: ContactType) -> None:
         """
@@ -282,7 +263,6 @@ class ContactTypeList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue},long,ad::map::lane::ContactType)
         """
-        ...
 
     def reverse(self, arg1: ContactTypeList) -> None:
         """
@@ -292,7 +272,6 @@ class ContactTypeList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: ContactTypeList) -> None:
         """
@@ -302,7 +281,6 @@ class ContactTypeList:
             C++ signature :
                 void sort(std::vector<ad::map::lane::ContactType, std::allocator<ad::map::lane::ContactType> > {lvalue})
         """
-        ...
 
 class ECEFBorder:
     def assign(self, arg1: ECEFBorder, other: ECEFBorder) -> ECEFBorder:
@@ -313,7 +291,6 @@ class ECEFBorder:
             C++ signature :
                 ad::map::lane::ECEFBorder {lvalue} assign(ad::map::lane::ECEFBorder {lvalue},ad::map::lane::ECEFBorder)
         """
-        ...
 
     @property
     def left(self) -> point.ECEFEdge: ...
@@ -330,7 +307,6 @@ class ECEFBorderList:
             C++ signature :
                 void append(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue},ad::map::lane::ECEFBorder)
         """
-        ...
 
     def count(self, arg1: ECEFBorderList, arg2: ECEFBorder) -> int:
         """
@@ -340,7 +316,6 @@ class ECEFBorderList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue},ad::map::lane::ECEFBorder)
         """
-        ...
 
     def extend(self, arg1: ECEFBorderList, arg2: object) -> None:
         """
@@ -350,7 +325,6 @@ class ECEFBorderList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ECEFBorderList, arg2: ECEFBorder) -> int:
         """
@@ -360,7 +334,6 @@ class ECEFBorderList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue},ad::map::lane::ECEFBorder)
         """
-        ...
 
     def insert(self, arg1: ECEFBorderList, arg2: int, arg3: ECEFBorder) -> None:
         """
@@ -370,7 +343,6 @@ class ECEFBorderList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue},long,ad::map::lane::ECEFBorder)
         """
-        ...
 
     def reverse(self, arg1: ECEFBorderList) -> None:
         """
@@ -380,7 +352,6 @@ class ECEFBorderList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::ECEFBorder, std::allocator<ad::map::lane::ECEFBorder> > {lvalue})
         """
-        ...
 
 class ENUBorder:
     def assign(self, arg1: ENUBorder, other: ENUBorder) -> ENUBorder:
@@ -391,7 +362,6 @@ class ENUBorder:
             C++ signature :
                 ad::map::lane::ENUBorder {lvalue} assign(ad::map::lane::ENUBorder {lvalue},ad::map::lane::ENUBorder)
         """
-        ...
 
     @property
     def left(self) -> point.ENUEdge: ...
@@ -408,7 +378,6 @@ class ENUBorderList:
             C++ signature :
                 void append(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue},ad::map::lane::ENUBorder)
         """
-        ...
 
     def count(self, arg1: ENUBorderList, arg2: ENUBorder) -> int:
         """
@@ -418,7 +387,6 @@ class ENUBorderList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue},ad::map::lane::ENUBorder)
         """
-        ...
 
     def extend(self, arg1: ENUBorderList, arg2: object) -> None:
         """
@@ -428,7 +396,6 @@ class ENUBorderList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ENUBorderList, arg2: ENUBorder) -> int:
         """
@@ -438,7 +405,6 @@ class ENUBorderList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue},ad::map::lane::ENUBorder)
         """
-        ...
 
     def insert(self, arg1: ENUBorderList, arg2: int, arg3: ENUBorder) -> None:
         """
@@ -448,7 +414,6 @@ class ENUBorderList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue},long,ad::map::lane::ENUBorder)
         """
-        ...
 
     def reverse(self, arg1: ENUBorderList) -> None:
         """
@@ -458,7 +423,6 @@ class ENUBorderList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::ENUBorder, std::allocator<ad::map::lane::ENUBorder> > {lvalue})
         """
-        ...
 
 class GeoBorder:
     def assign(self, arg1: GeoBorder, other: GeoBorder) -> GeoBorder:
@@ -469,7 +433,6 @@ class GeoBorder:
             C++ signature :
                 ad::map::lane::GeoBorder {lvalue} assign(ad::map::lane::GeoBorder {lvalue},ad::map::lane::GeoBorder)
         """
-        ...
 
     @property
     def left(self) -> point.GeoEdge: ...
@@ -486,7 +449,6 @@ class GeoBorderList:
             C++ signature :
                 void append(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue},ad::map::lane::GeoBorder)
         """
-        ...
 
     def count(self, arg1: GeoBorderList, arg2: GeoBorder) -> int:
         """
@@ -496,7 +458,6 @@ class GeoBorderList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue},ad::map::lane::GeoBorder)
         """
-        ...
 
     def extend(self, arg1: GeoBorderList, arg2: object) -> None:
         """
@@ -506,7 +467,6 @@ class GeoBorderList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: GeoBorderList, arg2: GeoBorder) -> int:
         """
@@ -516,7 +476,6 @@ class GeoBorderList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue},ad::map::lane::GeoBorder)
         """
-        ...
 
     def insert(self, arg1: GeoBorderList, arg2: int, arg3: GeoBorder) -> None:
         """
@@ -526,7 +485,6 @@ class GeoBorderList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue},long,ad::map::lane::GeoBorder)
         """
-        ...
 
     def reverse(self, arg1: GeoBorderList) -> None:
         """
@@ -536,7 +494,6 @@ class GeoBorderList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::GeoBorder, std::allocator<ad::map::lane::GeoBorder> > {lvalue})
         """
-        ...
 
 class Lane:
     def assign(self, arg1: Lane, other: Lane) -> Lane:
@@ -547,7 +504,6 @@ class Lane:
             C++ signature :
                 ad::map::lane::Lane {lvalue} assign(ad::map::lane::Lane {lvalue},ad::map::lane::Lane)
         """
-        ...
 
     @property
     def boundingSphere(self) -> point.BoundingSphere: ...
@@ -628,7 +584,6 @@ class LaneId:
             C++ signature :
                 ad::map::lane::LaneId {lvalue} assign(ad::map::lane::LaneId {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     cMaxValue: float = 18446744073709551615
 
@@ -642,7 +597,6 @@ class LaneId:
             C++ signature :
                 void ensureValid(ad::map::lane::LaneId {lvalue})
         """
-        ...
 
     def ensureValidNonZero(self, arg1: LaneId) -> None:
         """
@@ -652,7 +606,6 @@ class LaneId:
             C++ signature :
                 void ensureValidNonZero(ad::map::lane::LaneId {lvalue})
         """
-        ...
 
     def getMax(self) -> LaneId:
         """
@@ -662,7 +615,6 @@ class LaneId:
             C++ signature :
                 ad::map::lane::LaneId getMax()
         """
-        ...
 
     def getMin(self) -> LaneId:
         """
@@ -672,7 +624,6 @@ class LaneId:
             C++ signature :
                 ad::map::lane::LaneId getMin()
         """
-        ...
 
 class LaneIdList:
     def append(self, arg1: LaneIdList, arg2: LaneId) -> None:
@@ -683,7 +634,6 @@ class LaneIdList:
             C++ signature :
                 void append(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def count(self, arg1: LaneIdList, arg2: LaneId) -> int:
         """
@@ -693,7 +643,6 @@ class LaneIdList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def extend(self, arg1: LaneIdList, arg2: object) -> None:
         """
@@ -703,7 +652,6 @@ class LaneIdList:
             C++ signature :
                 void extend(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: LaneIdList, arg2: LaneId) -> int:
         """
@@ -713,7 +661,6 @@ class LaneIdList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def insert(self, arg1: LaneIdList, arg2: int, arg3: LaneId) -> None:
         """
@@ -723,7 +670,6 @@ class LaneIdList:
             C++ signature :
                 void insert(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue},long,ad::map::lane::LaneId)
         """
-        ...
 
     def reverse(self, arg1: LaneIdList) -> None:
         """
@@ -733,7 +679,6 @@ class LaneIdList:
             C++ signature :
                 void reverse(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: LaneIdList) -> None:
         """
@@ -743,7 +688,6 @@ class LaneIdList:
             C++ signature :
                 void sort(std::vector<ad::map::lane::LaneId, std::allocator<ad::map::lane::LaneId> > {lvalue})
         """
-        ...
 
 class LaneIdSet:
     def add(self, arg1: LaneIdSet, arg2: LaneId) -> None:
@@ -754,7 +698,6 @@ class LaneIdSet:
             C++ signature :
                 void add(std::set<ad::map::lane::LaneId, std::less<ad::map::lane::LaneId>, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def count(self, arg1: LaneIdSet, arg2: LaneId) -> int:
         """
@@ -764,7 +707,6 @@ class LaneIdSet:
             C++ signature :
                 unsigned long count(std::set<ad::map::lane::LaneId, std::less<ad::map::lane::LaneId>, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def has_key(self, arg1: LaneIdSet, arg2: LaneId) -> bool:
         """
@@ -774,7 +716,6 @@ class LaneIdSet:
             C++ signature :
                 bool has_key(std::set<ad::map::lane::LaneId, std::less<ad::map::lane::LaneId>, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
     def insert(self, arg1: LaneIdSet, arg2: LaneId) -> None:
         """
@@ -784,7 +725,6 @@ class LaneIdSet:
             C++ signature :
                 void insert(std::set<ad::map::lane::LaneId, std::less<ad::map::lane::LaneId>, std::allocator<ad::map::lane::LaneId> > {lvalue},ad::map::lane::LaneId)
         """
-        ...
 
 class LaneType(int):
     BIKE = 10
@@ -818,7 +758,6 @@ class numeric_limits_less__ad_scope_map_scope_lane_scope_LaneId__greater_:
             C++ signature :
                 ad::map::lane::LaneId epsilon()
         """
-        ...
 
     def lowest(self) -> LaneId:
         """
@@ -828,7 +767,6 @@ class numeric_limits_less__ad_scope_map_scope_lane_scope_LaneId__greater_:
             C++ signature :
                 ad::map::lane::LaneId lowest()
         """
-        ...
 
     def max(self) -> LaneId:
         """
@@ -838,7 +776,6 @@ class numeric_limits_less__ad_scope_map_scope_lane_scope_LaneId__greater_:
             C++ signature :
                 ad::map::lane::LaneId max()
         """
-        ...
 
 def calcLaneAltitudeRange(lane: Lane) -> LaneAltitudeRange:
     """

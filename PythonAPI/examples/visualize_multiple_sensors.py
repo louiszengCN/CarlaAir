@@ -110,7 +110,7 @@ class SensorManager:
 
             return camera
 
-        elif sensor_type == 'LiDAR':
+        if sensor_type == 'LiDAR':
             lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
             lidar_bp.set_attribute('range', '100')
             lidar_bp.set_attribute('dropoff_general_rate', lidar_bp.get_attribute('dropoff_general_rate').recommended_values[0])
@@ -126,7 +126,7 @@ class SensorManager:
 
             return lidar
 
-        elif sensor_type == 'SemanticLiDAR':
+        if sensor_type == 'SemanticLiDAR':
             lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
             lidar_bp.set_attribute('range', '100')
 
@@ -139,7 +139,7 @@ class SensorManager:
 
             return lidar
 
-        elif sensor_type == "Radar":
+        if sensor_type == "Radar":
             radar_bp = self.world.get_blueprint_library().find('sensor.other.radar')
             for key in sensor_options:
                 radar_bp.set_attribute(key, sensor_options[key])
@@ -149,8 +149,7 @@ class SensorManager:
 
             return radar
 
-        else:
-            return None
+        return None
 
     def get_sensor(self):
         return self.sensor

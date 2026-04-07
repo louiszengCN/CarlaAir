@@ -145,7 +145,7 @@ def get_actor_display_name(actor, truncate=250):
 # ==============================================================================
 
 
-class World(object):
+class World:
     def __init__(self, carla_world, hud, args):
         self.world = carla_world
         self.actor_role_name = args.rolename
@@ -301,7 +301,7 @@ class World(object):
 # ==============================================================================
 
 
-class KeyboardControl(object):
+class KeyboardControl:
     """Class that handles keyboard input."""
     def __init__(self, world, start_in_autopilot):
         self._carsim_enabled = False
@@ -327,10 +327,10 @@ class KeyboardControl(object):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
-            elif event.type == pygame.KEYUP:
+            if event.type == pygame.KEYUP:
                 if self._is_quit_shortcut(event.key):
                     return True
-                elif event.key == K_BACKSPACE:
+                if event.key == K_BACKSPACE:
                     if self._autopilot_enabled:
                         world.player.set_autopilot(False)
                         world.restart()
@@ -539,7 +539,7 @@ class KeyboardControl(object):
 # ==============================================================================
 
 
-class HUD(object):
+class HUD:
     def __init__(self, width, height):
         self.dim = (width, height)
         font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -577,7 +577,7 @@ class HUD(object):
         heading += 'E' if 0.5 < compass < 179.5 else ''
         heading += 'W' if 180.5 < compass < 359.5 else ''
         colhist = world.collision_sensor.get_collision_history()
-        collision = [colhist[x + self.frame - 200] for x in range(0, 200)]
+        collision = [colhist[x + self.frame - 200] for x in range(200)]
         max_col = max(1.0, max(collision))
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
@@ -680,7 +680,7 @@ class HUD(object):
 # ==============================================================================
 
 
-class FadingText(object):
+class FadingText:
     def __init__(self, font, dim, pos):
         self.font = font
         self.dim = dim
@@ -709,7 +709,7 @@ class FadingText(object):
 # ==============================================================================
 
 
-class HelpText(object):
+class HelpText:
     """Helper class to handle text output using pygame"""
     def __init__(self, font, width, height):
         lines = __doc__.split('\n')
@@ -739,7 +739,7 @@ class HelpText(object):
 # ==============================================================================
 
 
-class CollisionSensor(object):
+class CollisionSensor:
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self.history = []
@@ -778,7 +778,7 @@ class CollisionSensor(object):
 # ==============================================================================
 
 
-class LaneInvasionSensor(object):
+class LaneInvasionSensor:
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self._parent = parent_actor
@@ -806,7 +806,7 @@ class LaneInvasionSensor(object):
 # ==============================================================================
 
 
-class GnssSensor(object):
+class GnssSensor:
     def __init__(self, parent_actor):
         self.sensor = None
         self._parent = parent_actor
@@ -834,7 +834,7 @@ class GnssSensor(object):
 # ==============================================================================
 
 
-class IMUSensor(object):
+class IMUSensor:
     def __init__(self, parent_actor):
         self.sensor = None
         self._parent = parent_actor
@@ -873,7 +873,7 @@ class IMUSensor(object):
 # ==============================================================================
 
 
-class RadarSensor(object):
+class RadarSensor:
     def __init__(self, parent_actor):
         self.sensor = None
         self._parent = parent_actor
@@ -936,7 +936,7 @@ class RadarSensor(object):
 # ==============================================================================
 
 
-class CameraManager(object):
+class CameraManager:
     def __init__(self, parent_actor, hud, gamma_correction):
         self.sensor = None
         self.surface = None

@@ -21,14 +21,13 @@ def get_actor_blueprints(world, filter, generation):
         if int_generation in [1, 2]:
             bps = [x for x in bps if int(x.get_attribute('generation')) == int_generation]
             return bps
-        else:
-            print("   Warning! Actor Generation is not valid. No actor will be spawned.")
-            return []
+        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
+        return []
     except:
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 
-class V2XSensor(object):
+class V2XSensor:
     def __init__(self, parent_actor):
         self.sensor = None
         self._parent = parent_actor

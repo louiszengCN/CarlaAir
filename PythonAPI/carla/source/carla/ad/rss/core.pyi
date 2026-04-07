@@ -22,7 +22,6 @@ class RssCheck:
             C++ signature :
                 bool calculateProperResponse(ad::rss::core::RssCheck {lvalue},ad::rss::world::WorldModel,ad::rss::situation::SituationSnapshot {lvalue},ad::rss::state::RssStateSnapshot {lvalue},ad::rss::state::ProperResponse {lvalue})
         """
-        ...
 
 class RssResponseResolving:
     def provideProperResponse(self, arg1: RssResponseResolving, currentStateSnapshot: state.RssStateSnapshot, response: state.ProperResponse) -> bool:
@@ -33,7 +32,6 @@ class RssResponseResolving:
             C++ signature :
                 bool provideProperResponse(ad::rss::core::RssResponseResolving {lvalue},ad::rss::state::RssStateSnapshot,ad::rss::state::ProperResponse {lvalue})
         """
-        ...
 
 class RssSituationChecking:
     def checkSituations(self, arg1: RssSituationChecking, situationSnapshot: situation.SituationSnapshot, rssStateSnapshot: state.RssStateSnapshot) -> bool:
@@ -44,7 +42,6 @@ class RssSituationChecking:
             C++ signature :
                 bool checkSituations(ad::rss::core::RssSituationChecking {lvalue},ad::rss::situation::SituationSnapshot,ad::rss::state::RssStateSnapshot {lvalue})
         """
-        ...
 
 class RssSituationExtraction:
     def extractSituations(self, arg1: RssSituationExtraction, worldModel: world.WorldModel, situationSnapshot: situation.SituationSnapshot) -> bool:
@@ -55,4 +52,3 @@ class RssSituationExtraction:
             C++ signature :
                 bool extractSituations(ad::rss::core::RssSituationExtraction {lvalue},ad::rss::world::WorldModel,ad::rss::situation::SituationSnapshot {lvalue})
         """
-        ...

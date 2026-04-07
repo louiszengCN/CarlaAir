@@ -71,7 +71,6 @@ class ConnectingRoute:
             C++ signature :
                 ad::map::route::ConnectingRoute {lvalue} assign(ad::map::route::ConnectingRoute {lvalue},ad::map::route::ConnectingRoute)
         """
-        ...
 
     @property
     def routeA(self) -> FullRoute: ...
@@ -115,7 +114,6 @@ class FindLaneChangeResult:
             C++ signature :
                 ad::map::route::FullRoute get_queryRoute(ad::map::route::FindLaneChangeResult {lvalue})
         """
-        ...
 
     @property
     def laneChangeDirection(self) -> LaneChangeDirection: ...
@@ -159,7 +157,6 @@ class FindWaypointResult:
             C++ signature :
                 ad::map::route::FindWaypointResult {lvalue} assign(ad::map::route::FindWaypointResult {lvalue},ad::map::route::FindWaypointResult)
         """
-        ...
 
     def get_queryRoute(self) -> FullRoute:
         """
@@ -169,7 +166,6 @@ class FindWaypointResult:
             C++ signature :
                 ad::map::route::FullRoute get_queryRoute(ad::map::route::FindWaypointResult {lvalue})
         """
-        ...
 
     @property
     def laneSegmentIterator(self) -> FindWaypointResult: ...
@@ -189,7 +185,6 @@ class FullRoute:
             C++ signature :
                 ad::map::route::FullRoute {lvalue} assign(ad::map::route::FullRoute {lvalue},ad::map::route::FullRoute)
         """
-        ...
 
     @property
     def destinationLaneOffset(self) -> int: ...
@@ -221,7 +216,6 @@ class FullRouteList:
             C++ signature :
                 void append(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue},ad::map::route::FullRoute)
         """
-        ...
 
     def count(self, arg2: FullRoute) -> int:
         """
@@ -231,7 +225,6 @@ class FullRouteList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue},ad::map::route::FullRoute)
         """
-        ...
 
     def extend(self, arg2: Iterable[FullRoute]) -> None:
         """
@@ -241,7 +234,6 @@ class FullRouteList:
             C++ signature :
                 void extend(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg2: FullRoute) -> int:
         """
@@ -251,7 +243,6 @@ class FullRouteList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue},ad::map::route::FullRoute)
         """
-        ...
 
     def insert(self, arg2: int, arg3: FullRoute) -> None:
         """
@@ -261,7 +252,6 @@ class FullRouteList:
             C++ signature :
                 void insert(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue},long,ad::map::route::FullRoute)
         """
-        ...
 
     def reverse(self) -> None:
         """
@@ -271,7 +261,6 @@ class FullRouteList:
             C++ signature :
                 void reverse(std::vector<ad::map::route::FullRoute, std::allocator<ad::map::route::FullRoute> > {lvalue})
         """
-        ...
 
 class LaneChangeDirection(int, _CarlaEnum):
     Invalid = 2
@@ -289,7 +278,6 @@ class LaneInterval:
             C++ signature :
                 ad::map::route::LaneInterval {lvalue} assign(ad::map::route::LaneInterval {lvalue},ad::map::route::LaneInterval)
         """
-        ...
 
     @property
     def end(self) -> ad.physics.ParametricValue: ...
@@ -312,7 +300,6 @@ class LaneSegment:
             C++ signature :
                 ad::map::route::LaneSegment {lvalue} assign(ad::map::route::LaneSegment {lvalue},ad::map::route::LaneSegment)
         """
-        ...
 
     @property
     def laneInterval(self) -> LaneInterval: ...
@@ -343,7 +330,6 @@ class RoadSegment:
             C++ signature :
                 ad::map::route::RoadSegment {lvalue} assign(ad::map::route::RoadSegment {lvalue},ad::map::route::RoadSegment)
         """
-        ...
 
     @property
     def boundingSphere(self) -> point.BoundingSphere: ...
@@ -408,7 +394,6 @@ class Route:
             C++ signature :
                 void calculate(Route_wrapper {lvalue})
         """
-        ...
 
     def getBasicRoute(self, routeIndex: int = 0) -> object:
         """
@@ -418,7 +403,6 @@ class Route:
             C++ signature :
                 std::vector<std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> >, std::allocator<std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > > > getBasicRoute(ad::map::route::planning::Route {lvalue} [,unsigned long=0])
         """
-        ...
 
     def getRawRoute(self, routeIndex: int = 0) -> Route.RawRoute:
         """
@@ -428,7 +412,6 @@ class Route:
             C++ signature :
                 ad::map::route::planning::Route::RawRoute getRawRoute(ad::map::route::planning::Route {lvalue} [,unsigned long=0])
         """
-        ...
 
     def getType(self) -> Route.Type:
         """
@@ -438,7 +421,6 @@ class Route:
             C++ signature :
                 ad::map::route::planning::Route::Type getType(ad::map::route::planning::Route {lvalue})
         """
-        ...
 
     @property
     def laneDirectionIsIgnored(self) -> Unknown: ...
@@ -464,7 +446,6 @@ class RouteIterator:
             C++ signature :
                 ad::map::route::FullRoute get_route(ad::map::route::RouteIterator {lvalue})
         """
-        ...
 
     @property
     def roadSegmentIterator(self) -> FullRoute: ...
@@ -478,7 +459,6 @@ class RouteParaPoint:
             C++ signature :
                 ad::map::route::RouteParaPoint {lvalue} assign(ad::map::route::RouteParaPoint {lvalue},ad::map::route::RouteParaPoint)
         """
-        ...
 
     @property
     def parametricOffset(self) -> ad.physics.ParametricValue: ...
@@ -535,7 +515,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 void append(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue},ad::map::route::planning::RoutingParaPoint)
         """
-        ...
 
     def count(self, arg2: RoutingParaPoint) -> int:
         """
@@ -545,7 +524,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 unsigned long count(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue},ad::map::route::planning::RoutingParaPoint)
         """
-        ...
 
     def extend(self, arg2: object) -> None:
         """
@@ -555,7 +533,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 void extend(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg2: RoutingParaPoint) -> int:
         """
@@ -565,7 +542,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 unsigned long index(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue},ad::map::route::planning::RoutingParaPoint)
         """
-        ...
 
     def insert(self, arg2: int, arg3: RoutingParaPoint) -> None:
         """
@@ -575,7 +551,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 void insert(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue},long,ad::map::route::planning::RoutingParaPoint)
         """
-        ...
 
     def reverse(self) -> None:
         """
@@ -585,7 +560,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 void reverse(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue})
         """
-        ...
 
     def sort(self) -> None:
         """
@@ -595,7 +569,6 @@ class vector_less_ad_scope_map_scope_route_scope_planning_scope_RoutingParaPoint
             C++ signature :
                 void sort(std::vector<ad::map::route::planning::RoutingParaPoint, std::allocator<ad::map::route::planning::RoutingParaPoint> > {lvalue})
         """
-        ...
 
 
 def calcLength(obj, /) -> ad.physics.Distance: ...

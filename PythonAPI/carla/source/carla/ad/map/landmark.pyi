@@ -8,7 +8,6 @@ class ENULandmark:
             C++ signature :
                 ad::map::landmark::ENULandmark {lvalue} assign(ad::map::landmark::ENULandmark {lvalue},ad::map::landmark::ENULandmark)
         """
-        ...
 
     @property
     def heading(self) -> point.ENUHeading: ...
@@ -34,7 +33,6 @@ class ENULandmarkList:
             C++ signature :
                 void append(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue},ad::map::landmark::ENULandmark)
         """
-        ...
 
     def count(self, arg1: ENULandmarkList, arg2: ENULandmark) -> int:
         """
@@ -44,7 +42,6 @@ class ENULandmarkList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue},ad::map::landmark::ENULandmark)
         """
-        ...
 
     def extend(self, arg1: ENULandmarkList, arg2: object) -> None:
         """
@@ -54,7 +51,6 @@ class ENULandmarkList:
             C++ signature :
                 void extend(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ENULandmarkList, arg2: ENULandmark) -> int:
         """
@@ -64,7 +60,6 @@ class ENULandmarkList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue},ad::map::landmark::ENULandmark)
         """
-        ...
 
     def insert(self, arg1: ENULandmarkList, arg2: int, arg3: ENULandmark) -> None:
         """
@@ -74,7 +69,6 @@ class ENULandmarkList:
             C++ signature :
                 void insert(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue},long,ad::map::landmark::ENULandmark)
         """
-        ...
 
     def reverse(self, arg1: ENULandmarkList) -> None:
         """
@@ -84,7 +78,6 @@ class ENULandmarkList:
             C++ signature :
                 void reverse(std::vector<ad::map::landmark::ENULandmark, std::allocator<ad::map::landmark::ENULandmark> > {lvalue})
         """
-        ...
 
 class Landmark:
     def assign(self, arg1: Landmark, other: Landmark) -> Landmark:
@@ -95,7 +88,6 @@ class Landmark:
             C++ signature :
                 ad::map::landmark::Landmark {lvalue} assign(ad::map::landmark::Landmark {lvalue},ad::map::landmark::Landmark)
         """
-        ...
 
     @property
     def boundingBox(self) -> point.Geometry: ...
@@ -133,7 +125,6 @@ class LandmarkId:
             C++ signature :
                 ad::map::landmark::LandmarkId {lvalue} assign(ad::map::landmark::LandmarkId {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     cMaxValue: float = 18446744073709551615
 
@@ -147,7 +138,6 @@ class LandmarkId:
             C++ signature :
                 void ensureValid(ad::map::landmark::LandmarkId {lvalue})
         """
-        ...
 
     def ensureValidNonZero(self, arg1: LandmarkId) -> None:
         """
@@ -157,7 +147,6 @@ class LandmarkId:
             C++ signature :
                 void ensureValidNonZero(ad::map::landmark::LandmarkId {lvalue})
         """
-        ...
 
     def getMax(self) -> LandmarkId:
         """
@@ -167,7 +156,6 @@ class LandmarkId:
             C++ signature :
                 ad::map::landmark::LandmarkId getMax()
         """
-        ...
 
     def getMin(self) -> LandmarkId:
         """
@@ -177,7 +165,6 @@ class LandmarkId:
             C++ signature :
                 ad::map::landmark::LandmarkId getMin()
         """
-        ...
 
 class LandmarkIdList:
     def append(self, arg1: LandmarkIdList, arg2: LandmarkId) -> None:
@@ -188,7 +175,6 @@ class LandmarkIdList:
             C++ signature :
                 void append(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def count(self, arg1: LandmarkIdList, arg2: LandmarkId) -> int:
         """
@@ -198,7 +184,6 @@ class LandmarkIdList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def extend(self, arg1: LandmarkIdList, arg2: object) -> None:
         """
@@ -208,7 +193,6 @@ class LandmarkIdList:
             C++ signature :
                 void extend(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: LandmarkIdList, arg2: LandmarkId) -> int:
         """
@@ -218,7 +202,6 @@ class LandmarkIdList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def insert(self, arg1: LandmarkIdList, arg2: int, arg3: LandmarkId) -> None:
         """
@@ -228,7 +211,6 @@ class LandmarkIdList:
             C++ signature :
                 void insert(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},long,ad::map::landmark::LandmarkId)
         """
-        ...
 
     def reverse(self, arg1: LandmarkIdList) -> None:
         """
@@ -238,7 +220,6 @@ class LandmarkIdList:
             C++ signature :
                 void reverse(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: LandmarkIdList) -> None:
         """
@@ -248,7 +229,6 @@ class LandmarkIdList:
             C++ signature :
                 void sort(std::vector<ad::map::landmark::LandmarkId, std::allocator<ad::map::landmark::LandmarkId> > {lvalue})
         """
-        ...
 
 class LandmarkIdSet:
     def add(self, arg1: LandmarkIdSet, arg2: LandmarkId) -> None:
@@ -259,7 +239,6 @@ class LandmarkIdSet:
             C++ signature :
                 void add(std::set<ad::map::landmark::LandmarkId, std::less<ad::map::landmark::LandmarkId>, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def count(self, arg1: LandmarkIdSet, arg2: LandmarkId) -> int:
         """
@@ -269,7 +248,6 @@ class LandmarkIdSet:
             C++ signature :
                 unsigned long count(std::set<ad::map::landmark::LandmarkId, std::less<ad::map::landmark::LandmarkId>, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def has_key(self, arg1: LandmarkIdSet, arg2: LandmarkId) -> bool:
         """
@@ -279,7 +257,6 @@ class LandmarkIdSet:
             C++ signature :
                 bool has_key(std::set<ad::map::landmark::LandmarkId, std::less<ad::map::landmark::LandmarkId>, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
     def insert(self, arg1: LandmarkIdSet, arg2: LandmarkId) -> None:
         """
@@ -289,7 +266,6 @@ class LandmarkIdSet:
             C++ signature :
                 void insert(std::set<ad::map::landmark::LandmarkId, std::less<ad::map::landmark::LandmarkId>, std::allocator<ad::map::landmark::LandmarkId> > {lvalue},ad::map::landmark::LandmarkId)
         """
-        ...
 
 class LandmarkType(int):
     BOLLARD = 12
@@ -507,7 +483,6 @@ class numeric_limits_less__ad_scope_map_scope_landmark_scope_LandmarkId__greater
             C++ signature :
                 ad::map::landmark::LandmarkId epsilon()
         """
-        ...
 
     def lowest(self) -> LandmarkId:
         """
@@ -517,7 +492,6 @@ class numeric_limits_less__ad_scope_map_scope_landmark_scope_LandmarkId__greater
             C++ signature :
                 ad::map::landmark::LandmarkId lowest()
         """
-        ...
 
     def max(self) -> LandmarkId:
         """
@@ -527,4 +501,3 @@ class numeric_limits_less__ad_scope_map_scope_landmark_scope_LandmarkId__greater
             C++ signature :
                 ad::map::landmark::LandmarkId max()
         """
-        ...

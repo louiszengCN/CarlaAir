@@ -16,7 +16,7 @@ EVALUATOR_NONE_STATE = ad.rss.state.RssStateEvaluator.names["None"]
 # ==============================================================================
 
 
-class RssStateInfo(object):
+class RssStateInfo:
 
     def __init__(self, rss_state, ego_dynamics_on_route, world_model):
         # type: (ad.rss.state.RssState, carla.RssEgoDynamicsOnRoute, ad.rss.world.WorldModel) -> None
@@ -63,7 +63,7 @@ class RssStateInfo(object):
         return "RssStateInfo: object=" + str(self.rss_state.objectId) + " dangerous=" + str(self.is_dangerous)
 
 
-class RssSensor(object):
+class RssSensor:
 
     def __init__(self, parent_actor, world, unstructured_scene_visualizer, bounding_box_visualizer, state_visualizer, routing_targets=None):
         #  type: (carla.Actor, carla.World, RssUnstructuredSceneVisualizer, RssBoundingBoxVisualizer, RssStateVisualizer, list[carla.Transform]) -> None

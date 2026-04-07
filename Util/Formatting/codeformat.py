@@ -37,9 +37,8 @@ class CodeFormatter:
                 if versionOutput.startswith(self.expectedVersion):
                     print("[OK] Found formatter '" + versionOutput + "'")
                     return
-                else:
-                    cprint("[NOT OK] Found '" + versionOutput + "'", "red")
-                    cprint("[NOT OK] Version string does not start with '" + self.expectedVersion + "'", "red")
+                cprint("[NOT OK] Found '" + versionOutput + "'", "red")
+                cprint("[NOT OK] Version string does not start with '" + self.expectedVersion + "'", "red")
             else:
                 return
         except:
@@ -168,15 +167,13 @@ class CodeFormatterClang(CodeFormatter):
                     print("[OK] Found " + CodeFormatterClang.CLANG_FORMAT_FILE +
                           " file (used by the formatter) " + clangFormatFile)
             return True
-        else:
-            dirNameOneLevelUp = os.path.dirname(dirName)
-            if dirNameOneLevelUp == dirName:
-                # dirName was already root folder -> clang-format file not found
-                cprint("[ERROR] Not found " + CodeFormatterClang.CLANG_FORMAT_FILE + " for " +
-                       fileName + " in same directory or in any parent directory", "red")
-                return False
-            else:
-                return self.findClangFormatFileStartingFrom(dirNameOneLevelUp, fileName, foundClangFormatFiles)
+        dirNameOneLevelUp = os.path.dirname(dirName)
+        if dirNameOneLevelUp == dirName:
+            # dirName was already root folder -> clang-format file not found
+            cprint("[ERROR] Not found " + CodeFormatterClang.CLANG_FORMAT_FILE + " for " +
+                   fileName + " in same directory or in any parent directory", "red")
+            return False
+        return self.findClangFormatFileStartingFrom(dirNameOneLevelUp, fileName, foundClangFormatFiles)
 
 
 class CodeFormatterAutopep(CodeFormatter):

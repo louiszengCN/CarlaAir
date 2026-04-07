@@ -11,7 +11,6 @@ class Restriction:
             C++ signature :
                 ad::map::restriction::Restriction {lvalue} assign(ad::map::restriction::Restriction {lvalue},ad::map::restriction::Restriction)
         """
-        ...
 
     @property
     def negated(self) -> bool: ...
@@ -34,7 +33,6 @@ class Restrictions:
             C++ signature :
                 ad::map::restriction::Restrictions {lvalue} assign(ad::map::restriction::Restrictions {lvalue},ad::map::restriction::Restrictions)
         """
-        ...
 
     @property
     def conjunctions(self) -> RestrictionList: ...
@@ -79,7 +77,6 @@ class SpeedLimit:
             C++ signature :
                 ad::map::restriction::SpeedLimit {lvalue} assign(ad::map::restriction::SpeedLimit {lvalue},ad::map::restriction::SpeedLimit)
         """
-        ...
 
     @property
     def lanePiece(self) -> ad.physics.ParametricRange: ...
@@ -99,7 +96,6 @@ class VehicleDescriptor:
             C++ signature :
                 ad::map::restriction::VehicleDescriptor {lvalue} assign(ad::map::restriction::VehicleDescriptor {lvalue},ad::map::restriction::VehicleDescriptor)
         """
-        ...
 
     @property
     def height(self) -> ad.physics.Distance: ...

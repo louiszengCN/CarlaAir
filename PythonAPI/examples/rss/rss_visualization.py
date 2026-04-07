@@ -29,7 +29,7 @@ class Color:
 RssStateEvaluator = ad.rss.state.RssStateEvaluator
 EVALUATOR_NONE_STATE = RssStateEvaluator.names["None"]
 
-class RssStateVisualizer(object):
+class RssStateVisualizer:
 
     def __init__(self, display_dimensions, font, world):
         # type: (tuple[int, int] | list[int], pygame.font.Font, carla.World) -> None
@@ -146,7 +146,7 @@ class RssUnstructuredSceneVisualizerMode(Enum):
     fullscreen = 3
 
 
-class RssUnstructuredSceneVisualizer(object):
+class RssUnstructuredSceneVisualizer:
     """Provides a top-view over the setting?"""
 
     def __init__(self, parent_actor, world, display_dimensions):
@@ -412,7 +412,7 @@ class RssUnstructuredSceneVisualizer(object):
 # ==============================================================================
 
 
-class RssBoundingBoxVisualizer(object):
+class RssBoundingBoxVisualizer:
 
     def __init__(self, display_dimensions, world, camera):
         self._last_camera_frame = 0
@@ -580,7 +580,7 @@ class RssDebugVisualizationMode(Enum):
     All = 5
 
 
-class RssDebugVisualizer(object):
+class RssDebugVisualizer:
 
     def __init__(self, player, world, visualization_mode=RssDebugVisualizationMode.Off):
         self._world = world

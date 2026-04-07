@@ -132,7 +132,7 @@ def print_step_info(world, vehicle):
             vehicle.get_location().x, vehicle.get_location().y, vehicle.get_location().z))
 
 def wait(world, frames=100):
-    for _i in range(0, frames):
+    for _i in range(frames):
         world.tick()
 
 def norm(vec):
@@ -226,7 +226,7 @@ def run_scenario(world, bp_veh, init_loc, init_speed = 0.0, init_frames=10,
 
         # Apply control
         vehicle.apply_control(control)
-        for _i in range(0, control_frames):
+        for _i in range(control_frames):
             world.tick()
             check = stopper.stop_control(vehicle)
             if check:

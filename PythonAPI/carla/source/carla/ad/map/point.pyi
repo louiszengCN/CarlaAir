@@ -18,7 +18,6 @@ class BoundingSphere:
             C++ signature :
                 ad::map::point::BoundingSphere {lvalue} assign(ad::map::point::BoundingSphere {lvalue},ad::map::point::BoundingSphere)
         """
-        ...
 
     @property
     def center(self) -> ECEFPoint: ...
@@ -35,7 +34,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::ENUPoint ECEF2ENU(ad::map::point::CoordinateTransform {lvalue},ad::map::point::ECEFPoint)
         """
-        ...
 
     def ECEF2Geo(self, arg1: CoordinateTransform, pt: ECEFPoint) -> GeoPoint:
         """
@@ -45,7 +43,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::GeoPoint ECEF2Geo(ad::map::point::CoordinateTransform {lvalue},ad::map::point::ECEFPoint)
         """
-        ...
 
     def ENU2ECEF(self, arg1: CoordinateTransform, pt: ENUPoint) -> ECEFPoint:
         """
@@ -55,7 +52,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::ECEFPoint ENU2ECEF(ad::map::point::CoordinateTransform {lvalue},ad::map::point::ENUPoint)
         """
-        ...
 
     def ENU2Geo(self, arg1: CoordinateTransform, pt: ENUPoint) -> GeoPoint:
         """
@@ -65,7 +61,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::GeoPoint ENU2Geo(ad::map::point::CoordinateTransform {lvalue},ad::map::point::ENUPoint)
         """
-        ...
 
     @property
     def ENURef(self) -> int: ...
@@ -84,7 +79,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::ECEFPoint Geo2ECEF(ad::map::point::CoordinateTransform {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     def Geo2ENU(self, arg1: CoordinateTransform, pt: GeoPoint) -> ENUPoint:
         """
@@ -94,7 +88,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::map::point::ENUPoint Geo2ENU(ad::map::point::CoordinateTransform {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     def WGS84_R(self, lat: Latitude) -> ad.physics.Distance:
         """
@@ -104,7 +97,6 @@ class CoordinateTransform:
             C++ signature :
                 ad::physics::Distance WGS84_R(ad::map::point::Latitude)
         """
-        ...
 
     # NOTE: Overloads might not be correct, # TODO
 
@@ -202,7 +194,6 @@ class CoordinateTransform:
             C++ signature :
                 void convert(ad::map::point::CoordinateTransform {lvalue},std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> >,std::vector<ad::map::point::ENUPoint, std::allocator<ad::map::point::ENUPoint> > {lvalue})
         """
-        ...
 
     def geocentricLatitude(self, lat: Latitude) -> float:
         """
@@ -212,7 +203,6 @@ class CoordinateTransform:
             C++ signature :
                 double geocentricLatitude(ad::map::point::Latitude)
         """
-        ...
 
     def setGeoProjection(self, arg1: CoordinateTransform, geo_projection: str) -> bool:
         """
@@ -222,7 +212,6 @@ class CoordinateTransform:
             C++ signature :
                 bool setGeoProjection(ad::map::point::CoordinateTransform {lvalue},std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
         """
-        ...
 
 class ECEFCoordinate(ad._Calculable):
     cMaxValue: float = 1000000000.0
@@ -241,7 +230,6 @@ class ECEFHeading:
             C++ signature :
                 ad::map::point::ECEFHeading {lvalue} assign(ad::map::point::ECEFHeading {lvalue},ad::map::point::ECEFHeading)
         """
-        ...
 
     @property
     def x(self) -> ECEFCoordinate: ...
@@ -261,7 +249,6 @@ class ECEFPoint:
             C++ signature :
                 ad::map::point::ECEFPoint {lvalue} assign(ad::map::point::ECEFPoint {lvalue},ad::map::point::ECEFPoint)
         """
-        ...
 
     @property
     def x(self) -> ECEFCoordinate: ...
@@ -289,7 +276,6 @@ class ENUEdgeCache:
             C++ signature :
                 ad::map::point::ENUEdgeCache {lvalue} assign(ad::map::point::ENUEdgeCache {lvalue},ad::map::point::ENUEdgeCache)
         """
-        ...
 
     @property
     def enuEdge(self) -> ENUEdge: ...
@@ -313,7 +299,6 @@ class ENUPoint(ad._FloatLike):
             C++ signature :
                 ad::map::point::ENUPoint {lvalue} assign(ad::map::point::ENUPoint {lvalue},ad::map::point::ENUPoint)
         """
-        ...
 
     @property
     def x(self) -> ENUCoordinate: ...
@@ -333,7 +318,6 @@ class GeoEdge:
             C++ signature :
                 void append(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     def count(self, arg1: GeoEdge, arg2: GeoPoint) -> int:
         """
@@ -343,7 +327,6 @@ class GeoEdge:
             C++ signature :
                 unsigned long count(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     def extend(self, arg1: GeoEdge, arg2: object) -> None:
         """
@@ -353,7 +336,6 @@ class GeoEdge:
             C++ signature :
                 void extend(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: GeoEdge, arg2: GeoPoint) -> int:
         """
@@ -363,7 +345,6 @@ class GeoEdge:
             C++ signature :
                 unsigned long index(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     def insert(self, arg1: GeoEdge, arg2: int, arg3: GeoPoint) -> None:
         """
@@ -373,7 +354,6 @@ class GeoEdge:
             C++ signature :
                 void insert(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue},long,ad::map::point::GeoPoint)
         """
-        ...
 
     def reverse(self, arg1: GeoEdge) -> None:
         """
@@ -383,7 +363,6 @@ class GeoEdge:
             C++ signature :
                 void reverse(std::vector<ad::map::point::GeoPoint, std::allocator<ad::map::point::GeoPoint> > {lvalue})
         """
-        ...
 
 class GeoPoint:
     @property
@@ -397,7 +376,6 @@ class GeoPoint:
             C++ signature :
                 ad::map::point::GeoPoint {lvalue} assign(ad::map::point::GeoPoint {lvalue},ad::map::point::GeoPoint)
         """
-        ...
 
     @property
     def latitude(self) -> Latitude: ...
@@ -414,7 +392,6 @@ class Geometry:
             C++ signature :
                 ad::map::point::Geometry {lvalue} assign(ad::map::point::Geometry {lvalue},ad::map::point::Geometry)
         """
-        ...
 
     @property
     def ecefEdge(self) -> ECEFEdge: ...
@@ -443,7 +420,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Latitude {lvalue} assign(ad::map::point::Latitude {lvalue},ad::map::point::Latitude)
         """
-        ...
 
     cMaxValue: float = ...
 
@@ -459,7 +435,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 void ensureValid(ad::map::point::Latitude {lvalue})
         """
-        ...
 
     def ensureValidNonZero(self, arg1: Latitude) -> None:
         """
@@ -469,7 +444,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 void ensureValidNonZero(ad::map::point::Latitude {lvalue})
         """
-        ...
 
     def getMax(self) -> Latitude:
         """
@@ -479,7 +453,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Latitude getMax()
         """
-        ...
 
     def getMin(self) -> Latitude:
         """
@@ -489,7 +462,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Latitude getMin()
         """
-        ...
 
     def getPrecision(self) -> Latitude:
         """
@@ -499,7 +471,6 @@ class Latitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Latitude getPrecision()
         """
-        ...
 
 class Longitude(ad._FloatLike):
     @property
@@ -513,7 +484,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Longitude {lvalue} assign(ad::map::point::Longitude {lvalue},ad::map::point::Longitude)
         """
-        ...
 
     cMaxValue: float = ...
 
@@ -529,7 +499,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 void ensureValid(ad::map::point::Longitude {lvalue})
         """
-        ...
 
     def ensureValidNonZero(self, arg1: Longitude) -> None:
         """
@@ -539,7 +508,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 void ensureValidNonZero(ad::map::point::Longitude {lvalue})
         """
-        ...
 
     def getMax(self) -> Longitude:
         """
@@ -549,7 +517,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Longitude getMax()
         """
-        ...
 
     def getMin(self) -> Longitude:
         """
@@ -559,7 +526,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Longitude getMin()
         """
-        ...
 
     def getPrecision(self) -> Longitude:
         """
@@ -569,7 +535,6 @@ class Longitude(ad._FloatLike):
             C++ signature :
                 ad::map::point::Longitude getPrecision()
         """
-        ...
 
 class ParaPoint:
     def assign(self, arg1: ParaPoint, other: ParaPoint) -> ParaPoint:
@@ -580,7 +545,6 @@ class ParaPoint:
             C++ signature :
                 ad::map::point::ParaPoint {lvalue} assign(ad::map::point::ParaPoint {lvalue},ad::map::point::ParaPoint)
         """
-        ...
 
     @property
     def laneId(self) -> lane.LaneId: ...
@@ -597,7 +561,6 @@ class ParaPointList:
             C++ signature :
                 void append(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue},ad::map::point::ParaPoint)
         """
-        ...
 
     def count(self, arg1: ParaPointList, arg2: ParaPoint) -> int:
         """
@@ -607,7 +570,6 @@ class ParaPointList:
             C++ signature :
                 unsigned long count(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue},ad::map::point::ParaPoint)
         """
-        ...
 
     def extend(self, arg1: ParaPointList, arg2: object) -> None:
         """
@@ -617,7 +579,6 @@ class ParaPointList:
             C++ signature :
                 void extend(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ParaPointList, arg2: ParaPoint) -> int:
         """
@@ -627,7 +588,6 @@ class ParaPointList:
             C++ signature :
                 unsigned long index(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue},ad::map::point::ParaPoint)
         """
-        ...
 
     def insert(self, arg1: ParaPointList, arg2: int, arg3: ParaPoint) -> None:
         """
@@ -637,7 +597,6 @@ class ParaPointList:
             C++ signature :
                 void insert(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue},long,ad::map::point::ParaPoint)
         """
-        ...
 
     def reverse(self, arg1: ParaPointList) -> None:
         """
@@ -647,7 +606,6 @@ class ParaPointList:
             C++ signature :
                 void reverse(std::vector<ad::map::point::ParaPoint, std::allocator<ad::map::point::ParaPoint> > {lvalue})
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_Altitude__greater_:
     def epsilon(self) -> Altitude:
@@ -658,7 +616,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Altitude__greater_:
             C++ signature :
                 ad::map::point::Altitude epsilon()
         """
-        ...
 
     def lowest(self) -> Altitude:
         """
@@ -668,7 +625,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Altitude__greater_:
             C++ signature :
                 ad::map::point::Altitude lowest()
         """
-        ...
 
     def max(self) -> Altitude:
         """
@@ -678,7 +634,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Altitude__greater_:
             C++ signature :
                 ad::map::point::Altitude max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_ECEFCoordinate__greater_:
     def epsilon(self) -> ECEFCoordinate:
@@ -689,7 +644,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ECEFCoordinate__greate
             C++ signature :
                 ad::map::point::ECEFCoordinate epsilon()
         """
-        ...
 
     def lowest(self) -> ECEFCoordinate:
         """
@@ -699,7 +653,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ECEFCoordinate__greate
             C++ signature :
                 ad::map::point::ECEFCoordinate lowest()
         """
-        ...
 
     def max(self) -> ECEFCoordinate:
         """
@@ -709,7 +662,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ECEFCoordinate__greate
             C++ signature :
                 ad::map::point::ECEFCoordinate max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_ENUCoordinate__greater_:
     def epsilon(self) -> ENUCoordinate:
@@ -720,7 +672,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUCoordinate__greater
             C++ signature :
                 ad::map::point::ENUCoordinate epsilon()
         """
-        ...
 
     def lowest(self) -> ENUCoordinate:
         """
@@ -730,7 +681,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUCoordinate__greater
             C++ signature :
                 ad::map::point::ENUCoordinate lowest()
         """
-        ...
 
     def max(self) -> ENUCoordinate:
         """
@@ -740,7 +690,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUCoordinate__greater
             C++ signature :
                 ad::map::point::ENUCoordinate max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_ENUHeading__greater_:
     def epsilon(self) -> ENUHeading:
@@ -751,7 +700,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUHeading__greater_:
             C++ signature :
                 ad::map::point::ENUHeading epsilon()
         """
-        ...
 
     def lowest(self) -> ENUHeading:
         """
@@ -761,7 +709,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUHeading__greater_:
             C++ signature :
                 ad::map::point::ENUHeading lowest()
         """
-        ...
 
     def max(self) -> ENUHeading:
         """
@@ -771,7 +718,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_ENUHeading__greater_:
             C++ signature :
                 ad::map::point::ENUHeading max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_Latitude__greater_:
     def epsilon(self) -> Latitude:
@@ -782,7 +728,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Latitude__greater_:
             C++ signature :
                 ad::map::point::Latitude epsilon()
         """
-        ...
 
     def lowest(self) -> Latitude:
         """
@@ -792,7 +737,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Latitude__greater_:
             C++ signature :
                 ad::map::point::Latitude lowest()
         """
-        ...
 
     def max(self) -> Latitude:
         """
@@ -802,7 +746,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Latitude__greater_:
             C++ signature :
                 ad::map::point::Latitude max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_map_scope_point_scope_Longitude__greater_:
     def epsilon(self) -> Longitude:
@@ -813,7 +756,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Longitude__greater_:
             C++ signature :
                 ad::map::point::Longitude epsilon()
         """
-        ...
 
     def lowest(self) -> Longitude:
         """
@@ -823,7 +765,6 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Longitude__greater_:
             C++ signature :
                 ad::map::point::Longitude lowest()
         """
-        ...
 
     def max(self) -> Longitude:
         """
@@ -833,4 +774,3 @@ class numeric_limits_less__ad_scope_map_scope_point_scope_Longitude__greater_:
             C++ signature :
                 ad::map::point::Longitude max()
         """
-        ...

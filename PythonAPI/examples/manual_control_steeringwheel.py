@@ -108,7 +108,7 @@ def get_actor_display_name(actor, truncate=250):
 # ==============================================================================
 
 
-class World(object):
+class World:
     def __init__(self, carla_world, hud, actor_filter):
         self.world = carla_world
         self.hud = hud
@@ -187,7 +187,7 @@ class World(object):
 # ==============================================================================
 
 
-class DualControl(object):
+class DualControl:
     def __init__(self, world, start_in_autopilot):
         self._autopilot_enabled = start_in_autopilot
         if isinstance(world.player, carla.Vehicle):
@@ -227,7 +227,7 @@ class DualControl(object):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
-            elif event.type == pygame.JOYBUTTONDOWN:
+            if event.type == pygame.JOYBUTTONDOWN:
                 if event.button == 0:
                     world.restart()
                 elif event.button == 1:
@@ -244,7 +244,7 @@ class DualControl(object):
             elif event.type == pygame.KEYUP:
                 if self._is_quit_shortcut(event.key):
                     return True
-                elif event.key == K_BACKSPACE:
+                if event.key == K_BACKSPACE:
                     world.restart()
                 elif event.key == K_F1:
                     world.hud.toggle_info()
@@ -363,7 +363,7 @@ class DualControl(object):
 # ==============================================================================
 
 
-class HUD(object):
+class HUD:
     def __init__(self, width, height):
         self.dim = (width, height)
         font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -400,7 +400,7 @@ class HUD(object):
         heading += 'E' if 179.5 > t.rotation.yaw > 0.5 else ''
         heading += 'W' if -0.5 > t.rotation.yaw > -179.5 else ''
         colhist = world.collision_sensor.get_collision_history()
-        collision = [colhist[x + self.frame - 200] for x in range(0, 200)]
+        collision = [colhist[x + self.frame - 200] for x in range(200)]
         max_col = max(1.0, max(collision))
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
@@ -501,7 +501,7 @@ class HUD(object):
 # ==============================================================================
 
 
-class FadingText(object):
+class FadingText:
     def __init__(self, font, dim, pos):
         self.font = font
         self.dim = dim
@@ -530,7 +530,7 @@ class FadingText(object):
 # ==============================================================================
 
 
-class HelpText(object):
+class HelpText:
     def __init__(self, font, width, height):
         lines = __doc__.split('\n')
         self.font = font
@@ -558,7 +558,7 @@ class HelpText(object):
 # ==============================================================================
 
 
-class CollisionSensor(object):
+class CollisionSensor:
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self.history = []
@@ -597,7 +597,7 @@ class CollisionSensor(object):
 # ==============================================================================
 
 
-class LaneInvasionSensor(object):
+class LaneInvasionSensor:
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self._parent = parent_actor
@@ -624,7 +624,7 @@ class LaneInvasionSensor(object):
 # ==============================================================================
 
 
-class GnssSensor(object):
+class GnssSensor:
     def __init__(self, parent_actor):
         self.sensor = None
         self._parent = parent_actor
@@ -652,7 +652,7 @@ class GnssSensor(object):
 # ==============================================================================
 
 
-class CameraManager(object):
+class CameraManager:
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self.surface = None

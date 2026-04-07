@@ -33,7 +33,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 void append(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue},ad::physics::Acceleration)
         """
-        ...
 
     def count(self, arg1: AccelerationList, arg2: Acceleration) -> int:
         """
@@ -43,7 +42,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 unsigned long count(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue},ad::physics::Acceleration)
         """
-        ...
 
     def extend(self, arg1: AccelerationList, arg2: object) -> None:
         """
@@ -53,7 +51,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 void extend(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: AccelerationList, arg2: Acceleration) -> int:
         """
@@ -63,7 +60,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 unsigned long index(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue},ad::physics::Acceleration)
         """
-        ...
 
     def insert(self, arg1: AccelerationList, arg2: int, arg3: Acceleration) -> None:
         """
@@ -73,7 +69,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 void insert(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue},long,ad::physics::Acceleration)
         """
-        ...
 
     def reverse(self, arg1: AccelerationList) -> None:
         """
@@ -83,7 +78,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 void reverse(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: AccelerationList) -> None:
         """
@@ -93,7 +87,6 @@ class AccelerationList(_VectorSequence[Acceleration]):
             C++ signature :
                 void sort(std::vector<ad::physics::Acceleration, std::allocator<ad::physics::Acceleration> > {lvalue})
         """
-        ...
 
 class AccelerationRange:
     def assign(self, arg1: AccelerationRange, other: AccelerationRange) -> AccelerationRange:
@@ -104,7 +97,6 @@ class AccelerationRange:
             C++ signature :
                 ad::physics::AccelerationRange {lvalue} assign(ad::physics::AccelerationRange {lvalue},ad::physics::AccelerationRange)
         """
-        ...
 
     @property
     def maximum(self) -> Acceleration: ...
@@ -121,7 +113,6 @@ class AccelerationRangeList:
             C++ signature :
                 void append(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue},ad::physics::AccelerationRange)
         """
-        ...
 
     def count(self, arg1: AccelerationRangeList, arg2: AccelerationRange) -> int:
         """
@@ -131,7 +122,6 @@ class AccelerationRangeList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue},ad::physics::AccelerationRange)
         """
-        ...
 
     def extend(self, arg1: AccelerationRangeList, arg2: object) -> None:
         """
@@ -141,7 +131,6 @@ class AccelerationRangeList:
             C++ signature :
                 void extend(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: AccelerationRangeList, arg2: AccelerationRange) -> int:
         """
@@ -151,7 +140,6 @@ class AccelerationRangeList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue},ad::physics::AccelerationRange)
         """
-        ...
 
     def insert(self, arg1: AccelerationRangeList, arg2: int, arg3: AccelerationRange) -> None:
         """
@@ -161,7 +149,6 @@ class AccelerationRangeList:
             C++ signature :
                 void insert(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue},long,ad::physics::AccelerationRange)
         """
-        ...
 
     def reverse(self, arg1: AccelerationRangeList) -> None:
         """
@@ -171,7 +158,6 @@ class AccelerationRangeList:
             C++ signature :
                 void reverse(std::vector<ad::physics::AccelerationRange, std::allocator<ad::physics::AccelerationRange> > {lvalue})
         """
-        ...
 
 class Angle(_FloatLike):
     cMaxValue: float = ...  # likely unbound and depends on platform
@@ -192,7 +178,6 @@ class AngleRange:
             C++ signature :
                 ad::physics::AngleRange {lvalue} assign(ad::physics::AngleRange {lvalue},ad::physics::AngleRange)
         """
-        ...
 
     @property
     def maximum(self) -> Angle: ...
@@ -231,7 +216,6 @@ class AngularVelocity3D:
             C++ signature :
                 ad::physics::AngularVelocity3D {lvalue} assign(ad::physics::AngularVelocity3D {lvalue},ad::physics::AngularVelocity3D)
         """
-        ...
 
     @property
     def x(self) -> AngularVelocity: ...
@@ -257,7 +241,6 @@ class Dimension2D:
             C++ signature :
                 ad::physics::Dimension2D {lvalue} assign(ad::physics::Dimension2D {lvalue},ad::physics::Dimension2D)
         """
-        ...
 
     @property
     def length(self) -> Distance: ...
@@ -277,7 +260,6 @@ class Dimension3D:
             C++ signature :
                 ad::physics::Dimension3D {lvalue} assign(ad::physics::Dimension3D {lvalue},ad::physics::Dimension3D)
         """
-        ...
 
     @property
     def height(self) -> Distance: ...
@@ -308,7 +290,6 @@ class Distance2D:
             C++ signature :
                 ad::physics::Distance2D {lvalue} assign(ad::physics::Distance2D {lvalue},ad::physics::Distance2D)
         """
-        ...
 
     @property
     def x(self) -> Distance: ...
@@ -328,7 +309,6 @@ class Distance3D:
             C++ signature :
                 ad::physics::Distance3D {lvalue} assign(ad::physics::Distance3D {lvalue},ad::physics::Distance3D)
         """
-        ...
 
     @property
     def x(self) -> Distance: ...
@@ -363,7 +343,6 @@ class DistanceSquaredList:
             C++ signature :
                 void append(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue},ad::physics::DistanceSquared)
         """
-        ...
 
     def count(self, arg1: DistanceSquaredList, arg2: DistanceSquared) -> int:
         """
@@ -373,7 +352,6 @@ class DistanceSquaredList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue},ad::physics::DistanceSquared)
         """
-        ...
 
     def extend(self, arg1: DistanceSquaredList, arg2: object) -> None:
         """
@@ -383,7 +361,6 @@ class DistanceSquaredList:
             C++ signature :
                 void extend(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: DistanceSquaredList, arg2: DistanceSquared) -> int:
         """
@@ -393,7 +370,6 @@ class DistanceSquaredList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue},ad::physics::DistanceSquared)
         """
-        ...
 
     def insert(self, arg1: DistanceSquaredList, arg2: int, arg3: DistanceSquared) -> None:
         """
@@ -403,7 +379,6 @@ class DistanceSquaredList:
             C++ signature :
                 void insert(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue},long,ad::physics::DistanceSquared)
         """
-        ...
 
     def reverse(self, arg1: DistanceSquaredList) -> None:
         """
@@ -413,7 +388,6 @@ class DistanceSquaredList:
             C++ signature :
                 void reverse(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: DistanceSquaredList) -> None:
         """
@@ -423,7 +397,6 @@ class DistanceSquaredList:
             C++ signature :
                 void sort(std::vector<ad::physics::DistanceSquared, std::allocator<ad::physics::DistanceSquared> > {lvalue})
         """
-        ...
 
 class Duration(_Calculable):
 
@@ -453,7 +426,6 @@ class DurationSquaredList:
             C++ signature :
                 void append(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue},ad::physics::DurationSquared)
         """
-        ...
 
     def count(self, arg1: DurationSquaredList, arg2: DurationSquared) -> int:
         """
@@ -463,7 +435,6 @@ class DurationSquaredList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue},ad::physics::DurationSquared)
         """
-        ...
 
     def extend(self, arg1: DurationSquaredList, arg2: object) -> None:
         """
@@ -473,7 +444,6 @@ class DurationSquaredList:
             C++ signature :
                 void extend(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: DurationSquaredList, arg2: DurationSquared) -> int:
         """
@@ -483,7 +453,6 @@ class DurationSquaredList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue},ad::physics::DurationSquared)
         """
-        ...
 
     def insert(self, arg1: DurationSquaredList, arg2: int, arg3: DurationSquared) -> None:
         """
@@ -493,7 +462,6 @@ class DurationSquaredList:
             C++ signature :
                 void insert(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue},long,ad::physics::DurationSquared)
         """
-        ...
 
     def reverse(self, arg1: DurationSquaredList) -> None:
         """
@@ -503,7 +471,6 @@ class DurationSquaredList:
             C++ signature :
                 void reverse(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: DurationSquaredList) -> None:
         """
@@ -513,7 +480,6 @@ class DurationSquaredList:
             C++ signature :
                 void sort(std::vector<ad::physics::DurationSquared, std::allocator<ad::physics::DurationSquared> > {lvalue})
         """
-        ...
 
 class MetricRange:
     def assign(self, arg1: MetricRange, other: MetricRange) -> MetricRange:
@@ -524,7 +490,6 @@ class MetricRange:
             C++ signature :
                 ad::physics::MetricRange {lvalue} assign(ad::physics::MetricRange {lvalue},ad::physics::MetricRange)
         """
-        ...
 
     @property
     def maximum(self) -> Distance: ...
@@ -541,7 +506,6 @@ class MetricRangeList:
             C++ signature :
                 void append(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue},ad::physics::MetricRange)
         """
-        ...
 
     def count(self, arg1: MetricRangeList, arg2: MetricRange) -> int:
         """
@@ -551,7 +515,6 @@ class MetricRangeList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue},ad::physics::MetricRange)
         """
-        ...
 
     def extend(self, arg1: MetricRangeList, arg2: object) -> None:
         """
@@ -561,7 +524,6 @@ class MetricRangeList:
             C++ signature :
                 void extend(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: MetricRangeList, arg2: MetricRange) -> int:
         """
@@ -571,7 +533,6 @@ class MetricRangeList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue},ad::physics::MetricRange)
         """
-        ...
 
     def insert(self, arg1: MetricRangeList, arg2: int, arg3: MetricRange) -> None:
         """
@@ -581,7 +542,6 @@ class MetricRangeList:
             C++ signature :
                 void insert(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue},long,ad::physics::MetricRange)
         """
-        ...
 
     def reverse(self, arg1: MetricRangeList) -> None:
         """
@@ -591,7 +551,6 @@ class MetricRangeList:
             C++ signature :
                 void reverse(std::vector<ad::physics::MetricRange, std::allocator<ad::physics::MetricRange> > {lvalue})
         """
-        ...
 
 class ParametricRange:
     def assign(self, arg1: ParametricRange, other: ParametricRange) -> ParametricRange:
@@ -602,7 +561,6 @@ class ParametricRange:
             C++ signature :
                 ad::physics::ParametricRange {lvalue} assign(ad::physics::ParametricRange {lvalue},ad::physics::ParametricRange)
         """
-        ...
 
     @property
     def maximum(self) -> ParametricValue: ...
@@ -619,7 +577,6 @@ class ParametricRangeList:
             C++ signature :
                 void append(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue},ad::physics::ParametricRange)
         """
-        ...
 
     def count(self, arg1: ParametricRangeList, arg2: ParametricRange) -> int:
         """
@@ -629,7 +586,6 @@ class ParametricRangeList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue},ad::physics::ParametricRange)
         """
-        ...
 
     def extend(self, arg1: ParametricRangeList, arg2: object) -> None:
         """
@@ -639,7 +595,6 @@ class ParametricRangeList:
             C++ signature :
                 void extend(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ParametricRangeList, arg2: ParametricRange) -> int:
         """
@@ -649,7 +604,6 @@ class ParametricRangeList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue},ad::physics::ParametricRange)
         """
-        ...
 
     def insert(self, arg1: ParametricRangeList, arg2: int, arg3: ParametricRange) -> None:
         """
@@ -659,7 +613,6 @@ class ParametricRangeList:
             C++ signature :
                 void insert(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue},long,ad::physics::ParametricRange)
         """
-        ...
 
     def reverse(self, arg1: ParametricRangeList) -> None:
         """
@@ -669,7 +622,6 @@ class ParametricRangeList:
             C++ signature :
                 void reverse(std::vector<ad::physics::ParametricRange, std::allocator<ad::physics::ParametricRange> > {lvalue})
         """
-        ...
 
 class ParametricValue(_Calculable):
 
@@ -688,7 +640,6 @@ class ParametricValueList:
             C++ signature :
                 void append(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue},ad::physics::ParametricValue)
         """
-        ...
 
     def count(self, arg1: ParametricValueList, arg2: ParametricValue) -> int:
         """
@@ -698,7 +649,6 @@ class ParametricValueList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue},ad::physics::ParametricValue)
         """
-        ...
 
     def extend(self, arg1: ParametricValueList, arg2: object) -> None:
         """
@@ -708,7 +658,6 @@ class ParametricValueList:
             C++ signature :
                 void extend(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ParametricValueList, arg2: ParametricValue) -> int:
         """
@@ -718,7 +667,6 @@ class ParametricValueList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue},ad::physics::ParametricValue)
         """
-        ...
 
     def insert(self, arg1: ParametricValueList, arg2: int, arg3: ParametricValue) -> None:
         """
@@ -728,7 +676,6 @@ class ParametricValueList:
             C++ signature :
                 void insert(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue},long,ad::physics::ParametricValue)
         """
-        ...
 
     def reverse(self, arg1: ParametricValueList) -> None:
         """
@@ -738,7 +685,6 @@ class ParametricValueList:
             C++ signature :
                 void reverse(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: ParametricValueList) -> None:
         """
@@ -748,7 +694,6 @@ class ParametricValueList:
             C++ signature :
                 void sort(std::vector<ad::physics::ParametricValue, std::allocator<ad::physics::ParametricValue> > {lvalue})
         """
-        ...
 
 class Probability(_Calculable):
 
@@ -767,7 +712,6 @@ class ProbabilityList:
             C++ signature :
                 void append(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue},ad::physics::Probability)
         """
-        ...
 
     def count(self, arg1: ProbabilityList, arg2: Probability) -> int:
         """
@@ -777,7 +721,6 @@ class ProbabilityList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue},ad::physics::Probability)
         """
-        ...
 
     def extend(self, arg1: ProbabilityList, arg2: object) -> None:
         """
@@ -787,7 +730,6 @@ class ProbabilityList:
             C++ signature :
                 void extend(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: ProbabilityList, arg2: Probability) -> int:
         """
@@ -797,7 +739,6 @@ class ProbabilityList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue},ad::physics::Probability)
         """
-        ...
 
     def insert(self, arg1: ProbabilityList, arg2: int, arg3: Probability) -> None:
         """
@@ -807,7 +748,6 @@ class ProbabilityList:
             C++ signature :
                 void insert(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue},long,ad::physics::Probability)
         """
-        ...
 
     def reverse(self, arg1: ProbabilityList) -> None:
         """
@@ -817,7 +757,6 @@ class ProbabilityList:
             C++ signature :
                 void reverse(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: ProbabilityList) -> None:
         """
@@ -827,7 +766,6 @@ class ProbabilityList:
             C++ signature :
                 void sort(std::vector<ad::physics::Probability, std::allocator<ad::physics::Probability> > {lvalue})
         """
-        ...
 
 class RatioValue:
     @property
@@ -841,7 +779,6 @@ class RatioValue:
             C++ signature :
                 ad::physics::RatioValue {lvalue} assign(ad::physics::RatioValue {lvalue},ad::physics::RatioValue)
         """
-        ...
 
     cMaxValue: float = ...
 
@@ -857,7 +794,6 @@ class RatioValue:
             C++ signature :
                 void ensureValid(ad::physics::RatioValue {lvalue})
         """
-        ...
 
     def ensureValidNonZero(self, arg1: RatioValue) -> None:
         """
@@ -867,7 +803,6 @@ class RatioValue:
             C++ signature :
                 void ensureValidNonZero(ad::physics::RatioValue {lvalue})
         """
-        ...
 
     def getMax(self) -> RatioValue:
         """
@@ -877,7 +812,6 @@ class RatioValue:
             C++ signature :
                 ad::physics::RatioValue getMax()
         """
-        ...
 
     def getMin(self) -> RatioValue:
         """
@@ -887,7 +821,6 @@ class RatioValue:
             C++ signature :
                 ad::physics::RatioValue getMin()
         """
-        ...
 
     def getPrecision(self) -> RatioValue:
         """
@@ -897,7 +830,6 @@ class RatioValue:
             C++ signature :
                 ad::physics::RatioValue getPrecision()
         """
-        ...
 
 class RatioValueList:
     def append(self, arg1: RatioValueList, arg2: RatioValue) -> None:
@@ -908,7 +840,6 @@ class RatioValueList:
             C++ signature :
                 void append(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue},ad::physics::RatioValue)
         """
-        ...
 
     def count(self, arg1: RatioValueList, arg2: RatioValue) -> int:
         """
@@ -918,7 +849,6 @@ class RatioValueList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue},ad::physics::RatioValue)
         """
-        ...
 
     def extend(self, arg1: RatioValueList, arg2: object) -> None:
         """
@@ -928,7 +858,6 @@ class RatioValueList:
             C++ signature :
                 void extend(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: RatioValueList, arg2: RatioValue) -> int:
         """
@@ -938,7 +867,6 @@ class RatioValueList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue},ad::physics::RatioValue)
         """
-        ...
 
     def insert(self, arg1: RatioValueList, arg2: int, arg3: RatioValue) -> None:
         """
@@ -948,7 +876,6 @@ class RatioValueList:
             C++ signature :
                 void insert(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue},long,ad::physics::RatioValue)
         """
-        ...
 
     def reverse(self, arg1: RatioValueList) -> None:
         """
@@ -958,7 +885,6 @@ class RatioValueList:
             C++ signature :
                 void reverse(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: RatioValueList) -> None:
         """
@@ -968,7 +894,6 @@ class RatioValueList:
             C++ signature :
                 void sort(std::vector<ad::physics::RatioValue, std::allocator<ad::physics::RatioValue> > {lvalue})
         """
-        ...
 
 class Speed(_Calculable):
     cMaxValue: float = 1000.0
@@ -988,7 +913,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 void append(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue},ad::physics::Speed)
         """
-        ...
 
     def count(self, arg1: SpeedList, arg2: Speed) -> int:
         """
@@ -998,7 +922,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 unsigned long count(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue},ad::physics::Speed)
         """
-        ...
 
     def extend(self, arg1: SpeedList, arg2: object) -> None:
         """
@@ -1008,7 +931,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 void extend(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: SpeedList, arg2: Speed) -> int:
         """
@@ -1018,7 +940,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 unsigned long index(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue},ad::physics::Speed)
         """
-        ...
 
     def insert(self, arg1: SpeedList, arg2: int, arg3: Speed) -> None:
         """
@@ -1028,7 +949,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 void insert(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue},long,ad::physics::Speed)
         """
-        ...
 
     def reverse(self, arg1: SpeedList) -> None:
         """
@@ -1038,7 +958,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 void reverse(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: SpeedList) -> None:
         """
@@ -1048,7 +967,6 @@ class SpeedList(MutableSequence[Speed]):
             C++ signature :
                 void sort(std::vector<ad::physics::Speed, std::allocator<ad::physics::Speed> > {lvalue})
         """
-        ...
 
 class SpeedRange:
     def assign(self, arg1: SpeedRange, other: SpeedRange) -> SpeedRange:
@@ -1059,7 +977,6 @@ class SpeedRange:
             C++ signature :
                 ad::physics::SpeedRange {lvalue} assign(ad::physics::SpeedRange {lvalue},ad::physics::SpeedRange)
         """
-        ...
 
     @property
     def maximum(self) -> Speed: ...
@@ -1076,7 +993,6 @@ class SpeedRangeList:
             C++ signature :
                 void append(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue},ad::physics::SpeedRange)
         """
-        ...
 
     def count(self, arg1: SpeedRangeList, arg2: SpeedRange) -> int:
         """
@@ -1086,7 +1002,6 @@ class SpeedRangeList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue},ad::physics::SpeedRange)
         """
-        ...
 
     def extend(self, arg1: SpeedRangeList, arg2: object) -> None:
         """
@@ -1096,7 +1011,6 @@ class SpeedRangeList:
             C++ signature :
                 void extend(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: SpeedRangeList, arg2: SpeedRange) -> int:
         """
@@ -1106,7 +1020,6 @@ class SpeedRangeList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue},ad::physics::SpeedRange)
         """
-        ...
 
     def insert(self, arg1: SpeedRangeList, arg2: int, arg3: SpeedRange) -> None:
         """
@@ -1116,7 +1029,6 @@ class SpeedRangeList:
             C++ signature :
                 void insert(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue},long,ad::physics::SpeedRange)
         """
-        ...
 
     def reverse(self, arg1: SpeedRangeList) -> None:
         """
@@ -1126,7 +1038,6 @@ class SpeedRangeList:
             C++ signature :
                 void reverse(std::vector<ad::physics::SpeedRange, std::allocator<ad::physics::SpeedRange> > {lvalue})
         """
-        ...
 
 class SpeedSquared(_Calculable):
     cMaxValue: float = 1000000.0
@@ -1144,7 +1055,6 @@ class SpeedSquaredList:
             C++ signature :
                 void append(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue},ad::physics::SpeedSquared)
         """
-        ...
 
     def count(self, arg1: SpeedSquaredList, arg2: SpeedSquared) -> int:
         """
@@ -1154,7 +1064,6 @@ class SpeedSquaredList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue},ad::physics::SpeedSquared)
         """
-        ...
 
     def extend(self, arg1: SpeedSquaredList, arg2: object) -> None:
         """
@@ -1164,7 +1073,6 @@ class SpeedSquaredList:
             C++ signature :
                 void extend(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: SpeedSquaredList, arg2: SpeedSquared) -> int:
         """
@@ -1174,7 +1082,6 @@ class SpeedSquaredList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue},ad::physics::SpeedSquared)
         """
-        ...
 
     def insert(self, arg1: SpeedSquaredList, arg2: int, arg3: SpeedSquared) -> None:
         """
@@ -1184,7 +1091,6 @@ class SpeedSquaredList:
             C++ signature :
                 void insert(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue},long,ad::physics::SpeedSquared)
         """
-        ...
 
     def reverse(self, arg1: SpeedSquaredList) -> None:
         """
@@ -1194,7 +1100,6 @@ class SpeedSquaredList:
             C++ signature :
                 void reverse(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: SpeedSquaredList) -> None:
         """
@@ -1204,7 +1109,6 @@ class SpeedSquaredList:
             C++ signature :
                 void sort(std::vector<ad::physics::SpeedSquared, std::allocator<ad::physics::SpeedSquared> > {lvalue})
         """
-        ...
 
 class Velocity:
     def assign(self, arg1: Velocity, other: Velocity) -> Velocity:
@@ -1215,7 +1119,6 @@ class Velocity:
             C++ signature :
                 ad::physics::Velocity {lvalue} assign(ad::physics::Velocity {lvalue},ad::physics::Velocity)
         """
-        ...
 
     @property
     def x(self) -> Speed: ...
@@ -1246,7 +1149,6 @@ class WeightList:
             C++ signature :
                 void append(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue},ad::physics::Weight)
         """
-        ...
 
     def count(self, arg1: WeightList, arg2: Weight) -> int:
         """
@@ -1256,7 +1158,6 @@ class WeightList:
             C++ signature :
                 unsigned long count(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue},ad::physics::Weight)
         """
-        ...
 
     def extend(self, arg1: WeightList, arg2: object) -> None:
         """
@@ -1266,7 +1167,6 @@ class WeightList:
             C++ signature :
                 void extend(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue},boost::python::api::object)
         """
-        ...
 
     def index(self, arg1: WeightList, arg2: Weight) -> int:
         """
@@ -1276,7 +1176,6 @@ class WeightList:
             C++ signature :
                 unsigned long index(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue},ad::physics::Weight)
         """
-        ...
 
     def insert(self, arg1: WeightList, arg2: int, arg3: Weight) -> None:
         """
@@ -1286,7 +1185,6 @@ class WeightList:
             C++ signature :
                 void insert(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue},long,ad::physics::Weight)
         """
-        ...
 
     def reverse(self, arg1: WeightList) -> None:
         """
@@ -1296,7 +1194,6 @@ class WeightList:
             C++ signature :
                 void reverse(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue})
         """
-        ...
 
     def sort(self, arg1: WeightList) -> None:
         """
@@ -1306,7 +1203,6 @@ class WeightList:
             C++ signature :
                 void sort(std::vector<ad::physics::Weight, std::allocator<ad::physics::Weight> > {lvalue})
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Acceleration__greater_:
     def epsilon(self) -> Acceleration:
@@ -1317,7 +1213,6 @@ class numeric_limits_less__ad_scope_physics_scope_Acceleration__greater_:
             C++ signature :
                 ad::physics::Acceleration epsilon()
         """
-        ...
 
     def lowest(self) -> Acceleration:
         """
@@ -1327,7 +1222,6 @@ class numeric_limits_less__ad_scope_physics_scope_Acceleration__greater_:
             C++ signature :
                 ad::physics::Acceleration lowest()
         """
-        ...
 
     def max(self) -> Acceleration:
         """
@@ -1337,7 +1231,6 @@ class numeric_limits_less__ad_scope_physics_scope_Acceleration__greater_:
             C++ signature :
                 ad::physics::Acceleration max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Angle__greater_:
     def epsilon(self) -> Angle:
@@ -1348,7 +1241,6 @@ class numeric_limits_less__ad_scope_physics_scope_Angle__greater_:
             C++ signature :
                 ad::physics::Angle epsilon()
         """
-        ...
 
     def lowest(self) -> Angle:
         """
@@ -1358,7 +1250,6 @@ class numeric_limits_less__ad_scope_physics_scope_Angle__greater_:
             C++ signature :
                 ad::physics::Angle lowest()
         """
-        ...
 
     def max(self) -> Angle:
         """
@@ -1368,7 +1259,6 @@ class numeric_limits_less__ad_scope_physics_scope_Angle__greater_:
             C++ signature :
                 ad::physics::Angle max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_AngularAcceleration__greater_:
     def epsilon(self) -> AngularAcceleration:
@@ -1379,7 +1269,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularAcceleration__greater_:
             C++ signature :
                 ad::physics::AngularAcceleration epsilon()
         """
-        ...
 
     def lowest(self) -> AngularAcceleration:
         """
@@ -1389,7 +1278,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularAcceleration__greater_:
             C++ signature :
                 ad::physics::AngularAcceleration lowest()
         """
-        ...
 
     def max(self) -> AngularAcceleration:
         """
@@ -1399,7 +1287,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularAcceleration__greater_:
             C++ signature :
                 ad::physics::AngularAcceleration max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_AngularVelocity__greater_:
     def epsilon(self) -> AngularVelocity:
@@ -1410,7 +1297,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularVelocity__greater_:
             C++ signature :
                 ad::physics::AngularVelocity epsilon()
         """
-        ...
 
     def lowest(self) -> AngularVelocity:
         """
@@ -1420,7 +1306,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularVelocity__greater_:
             C++ signature :
                 ad::physics::AngularVelocity lowest()
         """
-        ...
 
     def max(self) -> AngularVelocity:
         """
@@ -1430,7 +1315,6 @@ class numeric_limits_less__ad_scope_physics_scope_AngularVelocity__greater_:
             C++ signature :
                 ad::physics::AngularVelocity max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_DistanceSquared__greater_:
     def epsilon(self) -> DistanceSquared:
@@ -1441,7 +1325,6 @@ class numeric_limits_less__ad_scope_physics_scope_DistanceSquared__greater_:
             C++ signature :
                 ad::physics::DistanceSquared epsilon()
         """
-        ...
 
     def lowest(self) -> DistanceSquared:
         """
@@ -1451,7 +1334,6 @@ class numeric_limits_less__ad_scope_physics_scope_DistanceSquared__greater_:
             C++ signature :
                 ad::physics::DistanceSquared lowest()
         """
-        ...
 
     def max(self) -> DistanceSquared:
         """
@@ -1461,7 +1343,6 @@ class numeric_limits_less__ad_scope_physics_scope_DistanceSquared__greater_:
             C++ signature :
                 ad::physics::DistanceSquared max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Distance__greater_:
     def epsilon(self) -> Distance:
@@ -1472,7 +1353,6 @@ class numeric_limits_less__ad_scope_physics_scope_Distance__greater_:
             C++ signature :
                 ad::physics::Distance epsilon()
         """
-        ...
 
     def lowest(self) -> Distance:
         """
@@ -1482,7 +1362,6 @@ class numeric_limits_less__ad_scope_physics_scope_Distance__greater_:
             C++ signature :
                 ad::physics::Distance lowest()
         """
-        ...
 
     def max(self) -> Distance:
         """
@@ -1492,7 +1371,6 @@ class numeric_limits_less__ad_scope_physics_scope_Distance__greater_:
             C++ signature :
                 ad::physics::Distance max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_DurationSquared__greater_:
     def epsilon(self) -> DurationSquared:
@@ -1503,7 +1381,6 @@ class numeric_limits_less__ad_scope_physics_scope_DurationSquared__greater_:
             C++ signature :
                 ad::physics::DurationSquared epsilon()
         """
-        ...
 
     def lowest(self) -> DurationSquared:
         """
@@ -1513,7 +1390,6 @@ class numeric_limits_less__ad_scope_physics_scope_DurationSquared__greater_:
             C++ signature :
                 ad::physics::DurationSquared lowest()
         """
-        ...
 
     def max(self) -> DurationSquared:
         """
@@ -1523,7 +1399,6 @@ class numeric_limits_less__ad_scope_physics_scope_DurationSquared__greater_:
             C++ signature :
                 ad::physics::DurationSquared max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Duration__greater_:
     def epsilon(self) -> Duration:
@@ -1534,7 +1409,6 @@ class numeric_limits_less__ad_scope_physics_scope_Duration__greater_:
             C++ signature :
                 ad::physics::Duration epsilon()
         """
-        ...
 
     def lowest(self) -> Duration:
         """
@@ -1544,7 +1418,6 @@ class numeric_limits_less__ad_scope_physics_scope_Duration__greater_:
             C++ signature :
                 ad::physics::Duration lowest()
         """
-        ...
 
     def max(self) -> Duration:
         """
@@ -1554,7 +1427,6 @@ class numeric_limits_less__ad_scope_physics_scope_Duration__greater_:
             C++ signature :
                 ad::physics::Duration max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_ParametricValue__greater_:
     def epsilon(self) -> ParametricValue:
@@ -1565,7 +1437,6 @@ class numeric_limits_less__ad_scope_physics_scope_ParametricValue__greater_:
             C++ signature :
                 ad::physics::ParametricValue epsilon()
         """
-        ...
 
     def lowest(self) -> ParametricValue:
         """
@@ -1575,7 +1446,6 @@ class numeric_limits_less__ad_scope_physics_scope_ParametricValue__greater_:
             C++ signature :
                 ad::physics::ParametricValue lowest()
         """
-        ...
 
     def max(self) -> ParametricValue:
         """
@@ -1585,7 +1455,6 @@ class numeric_limits_less__ad_scope_physics_scope_ParametricValue__greater_:
             C++ signature :
                 ad::physics::ParametricValue max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Probability__greater_:
     def epsilon(self) -> Probability:
@@ -1596,7 +1465,6 @@ class numeric_limits_less__ad_scope_physics_scope_Probability__greater_:
             C++ signature :
                 ad::physics::Probability epsilon()
         """
-        ...
 
     def lowest(self) -> Probability:
         """
@@ -1606,7 +1474,6 @@ class numeric_limits_less__ad_scope_physics_scope_Probability__greater_:
             C++ signature :
                 ad::physics::Probability lowest()
         """
-        ...
 
     def max(self) -> Probability:
         """
@@ -1616,7 +1483,6 @@ class numeric_limits_less__ad_scope_physics_scope_Probability__greater_:
             C++ signature :
                 ad::physics::Probability max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_RatioValue__greater_:
     def epsilon(self) -> RatioValue:
@@ -1627,7 +1493,6 @@ class numeric_limits_less__ad_scope_physics_scope_RatioValue__greater_:
             C++ signature :
                 ad::physics::RatioValue epsilon()
         """
-        ...
 
     def lowest(self) -> RatioValue:
         """
@@ -1637,7 +1502,6 @@ class numeric_limits_less__ad_scope_physics_scope_RatioValue__greater_:
             C++ signature :
                 ad::physics::RatioValue lowest()
         """
-        ...
 
     def max(self) -> RatioValue:
         """
@@ -1647,7 +1511,6 @@ class numeric_limits_less__ad_scope_physics_scope_RatioValue__greater_:
             C++ signature :
                 ad::physics::RatioValue max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_SpeedSquared__greater_:
     def epsilon(self) -> SpeedSquared:
@@ -1658,7 +1521,6 @@ class numeric_limits_less__ad_scope_physics_scope_SpeedSquared__greater_:
             C++ signature :
                 ad::physics::SpeedSquared epsilon()
         """
-        ...
 
     def lowest(self) -> SpeedSquared:
         """
@@ -1668,7 +1530,6 @@ class numeric_limits_less__ad_scope_physics_scope_SpeedSquared__greater_:
             C++ signature :
                 ad::physics::SpeedSquared lowest()
         """
-        ...
 
     def max(self) -> SpeedSquared:
         """
@@ -1678,7 +1539,6 @@ class numeric_limits_less__ad_scope_physics_scope_SpeedSquared__greater_:
             C++ signature :
                 ad::physics::SpeedSquared max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Speed__greater_:
     def epsilon(self) -> Speed:
@@ -1689,7 +1549,6 @@ class numeric_limits_less__ad_scope_physics_scope_Speed__greater_:
             C++ signature :
                 ad::physics::Speed epsilon()
         """
-        ...
 
     def lowest(self) -> Speed:
         """
@@ -1699,7 +1558,6 @@ class numeric_limits_less__ad_scope_physics_scope_Speed__greater_:
             C++ signature :
                 ad::physics::Speed lowest()
         """
-        ...
 
     def max(self) -> Speed:
         """
@@ -1709,7 +1567,6 @@ class numeric_limits_less__ad_scope_physics_scope_Speed__greater_:
             C++ signature :
                 ad::physics::Speed max()
         """
-        ...
 
 class numeric_limits_less__ad_scope_physics_scope_Weight__greater_:
     def epsilon(self) -> Weight:
@@ -1720,7 +1577,6 @@ class numeric_limits_less__ad_scope_physics_scope_Weight__greater_:
             C++ signature :
                 ad::physics::Weight epsilon()
         """
-        ...
 
     def lowest(self) -> Weight:
         """
@@ -1730,7 +1586,6 @@ class numeric_limits_less__ad_scope_physics_scope_Weight__greater_:
             C++ signature :
                 ad::physics::Weight lowest()
         """
-        ...
 
     def max(self) -> Weight:
         """
@@ -1740,4 +1595,3 @@ class numeric_limits_less__ad_scope_physics_scope_Weight__greater_:
             C++ signature :
                 ad::physics::Weight max()
         """
-        ...

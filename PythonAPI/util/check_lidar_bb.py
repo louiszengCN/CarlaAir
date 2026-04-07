@@ -53,7 +53,7 @@ import numpy as np
 import carla
 
 
-class ActorTrace(object):
+class ActorTrace:
     """Class that store and process information about an actor at certain moment."""
     def __init__(self, actor, lidar, world):
         self._world = world
@@ -144,8 +144,7 @@ class ActorTrace(object):
             self.print()
             self.draw_debug(world=self._world)
             return False
-        else:
-            return True
+        return True
 
     def draw_debug(self, world=None):
         debug = self._world.debug if world is None else world.debug
@@ -182,12 +181,12 @@ class ActorTrace(object):
 
 
 def wait(world, frames=100, queue = None, slist = None):
-    for _i in range(0, frames):
+    for _i in range(frames):
         world.tick()
 
         if queue is not None and slist is not None:
             try:
-                for _i in range (0, len(slist)):
+                for _i in range (len(slist)):
                     s_frame = queue.get(True, 1.0)
             except Empty:
                 print("    Some of the sensor information is missed")
@@ -232,7 +231,7 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
     bb_data = None
 
     try:
-        for _i in range (0, sensor_number):
+        for _i in range (sensor_number):
             s_frame = sensor_queue.get(True, 1.0)
             while s_frame[0] != w_frame:
                 print("Warning! Missmatch for sensor %s in the frame timestamp (w: %d, s: %d)" % (s_frame[1], w_frame, s_frame[0]))
@@ -257,7 +256,7 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
             trace_vehicle.process()
             trace_vehicle.check_lidar_data()
 
-class SpawnCar(object):
+class SpawnCar:
     def __init__(self, location, rotation, filter="vehicle.*", autopilot = False, velocity = None):
         self._filter = filter
         self._transform = carla.Transform(location, rotation)
@@ -375,7 +374,7 @@ def main():
         # Set autopilot for main vehicle
         actor.enable_constant_velocity(carla.Vector3D(20, 0, 0))
 
-        for _i in range(0, 100):
+        for _i in range(100):
             # Tick the server
             world.tick()
             w_frame = world.get_snapshot().frame

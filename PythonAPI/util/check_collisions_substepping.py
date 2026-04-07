@@ -57,7 +57,7 @@ class Scenario():
             self.snapshots.append(np.empty((0,11), float))
 
     def wait(self, frames=100):
-        for _i in range(0, frames):
+        for _i in range(frames):
             self.world.tick()
 
     def clear_scene(self):
@@ -92,7 +92,7 @@ class Scenario():
         if not self.save_snapshots_mode:
             return
 
-        for i in range (0, len(self.actor_list)):
+        for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
     def save_snapshots_to_disk(self):
@@ -116,7 +116,7 @@ class Scenario():
         self.init_scene(prefix, run_settings, spectator_tr)
 
         t_start = time.perf_counter()
-        for _i in range(0, tics):
+        for _i in range(tics):
             self.world.tick()
             self.save_snapshots()
         t_end = time.perf_counter()
@@ -327,9 +327,9 @@ class CollisionScenarioTester():
         repetitions = len(rep_prefixes)
         mat_check = np.zeros((repetitions, repetitions), int)
 
-        for i in range(0, repetitions):
+        for i in range(repetitions):
             mat_check[i][i] = 1
-            for j in range(0, i):
+            for j in range(i):
                 sim_check = True
                 for actor in self.scene.actor_list:
                     actor_id = actor[0]
@@ -399,7 +399,7 @@ class CollisionScenarioTester():
 
         t_comp = 0
         sim_prefixes = []
-        for i in range(0, repetitions):
+        for i in range(repetitions):
             prefix_rep = prefix + "_rep" + str(i)
             t_comp += self.scene.run_simulation(prefix_rep, config_settings, spectator_tr, tics=sim_tics)
             sim_prefixes.append(prefix_rep)
