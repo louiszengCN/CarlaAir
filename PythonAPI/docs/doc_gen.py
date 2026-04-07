@@ -8,9 +8,10 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 import os
-import yaml
 import re
+
 import doc_gen_snipets
+import yaml
 
 COLOR_METHOD = '#7fb800'
 COLOR_PARAM = '#00a6ed'
@@ -219,7 +220,7 @@ class YamlFile:
                                         exit(0)
 
     def get_modules(self):
-        return [module for module in self.data]
+        return list(self.data)
 
 def append_snipet_button_script(md):
     md.textn("\n\n<script>\n"+
@@ -263,7 +264,7 @@ def append_snipet_button_script(md):
 def append_code_snipets(md):
     current_folder = os.path.dirname(os.path.abspath(__file__))
     snipets_path = os.path.join(current_folder, '../../Docs/python_api_snipets.md')
-    snipets = open(snipets_path, 'r')
+    snipets = open(snipets_path)
     md.text(snipets.read())
     snipets.close()
     os.remove(snipets_path)
@@ -322,7 +323,7 @@ def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
     # Add snipet
     current_folder = os.path.dirname(os.path.abspath(__file__))
     snipets_path = os.path.join(current_folder, '../../Docs/python_api_snipets.md')
-    snipets = open(snipets_path, 'r')
+    snipets = open(snipets_path)
     if class_key+'.'+full_method_name+'-snipet' in snipets.read():
         snipet_link = snipet(full_method_name, class_key)
 
@@ -598,11 +599,11 @@ class Documentation:
     def __init__(self, path):
         self._path = path
         self._files = [f for f in os.listdir(path) if f.endswith('.yml')]
-        self._yamls = list()
+        self._yamls = []
         for yaml_file in self._files:
             self._yamls.append(YamlFile(os.path.join(path, yaml_file)))
         # Merge same modules of different files
-        self.master_dict = dict()
+        self.master_dict = {}
         for yaml_file in self._yamls:
             for module in yaml_file.get_modules():
                 module_name = module['module_name']
@@ -680,10 +681,10 @@ class Documentation:
                             add_doc_inst_var(md, inst_var, class_key)
                     # Generate method doc (if any)
                     if valid_dic_val(cl, 'methods'):
-                        method_list = list()
-                        dunder_list = list()
-                        get_list = list()
-                        set_list = list()
+                        method_list = []
+                        dunder_list = []
+                        get_list = []
+                        set_list = []
                         for method in sorted(cl['methods'], key = lambda i: i['def_name']):
                             method_name = method['def_name']
                             if method_name[0] == '_' and method_name != '__init__':

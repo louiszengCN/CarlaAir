@@ -1,5 +1,5 @@
 
-# This recipe changes from red to green the traffic light that affects the vehicle. 
+# This recipe changes from red to green the traffic light that affects the vehicle.
 # This is done by detecting if the vehicle actor is at a traffic light.
 
 # ...

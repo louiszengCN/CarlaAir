@@ -7,6 +7,7 @@
 # pylint: disable=W0401,import-self
 from .libcarla import *
 
+
 def __fix_ad_namespaces():
     """
     When using PythonAPI.rss the ad_rss subpackage is imported, however
@@ -18,8 +19,8 @@ def __fix_ad_namespaces():
     When updating the RSS version, check if this is correct or ad_rss has fixed
     the import behavior.
     """
-    import sys
     import inspect
+    import sys
     ad_submodules = {}  # dict of modules
     def get_submodules(mod, parent):
        for v in vars(mod).values():
@@ -52,7 +53,7 @@ def __fix_ad_namespaces():
         #print("Correcting", mod.__name__, "to", correct_name)
         sys.modules[correct_name] = sys.modules.pop(mod.__name__)
         mod.__name__ = correct_name
-    
+
 # Only when using RSS build
 if "ad" in locals():
     try:
@@ -63,6 +64,7 @@ del __fix_ad_namespaces
 
 # Allow from carla.command import ...
 import sys
+
 sys.modules["carla.command"] = command
 del sys
 

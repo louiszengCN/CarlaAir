@@ -1,5 +1,6 @@
-from ...libcarla import _CarlaEnum
 import ad
+
+from ...libcarla import _CarlaEnum
 
 class Restriction:
     def assign(self, arg1: Restriction, other: Restriction) -> Restriction:

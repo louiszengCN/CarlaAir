@@ -16,10 +16,10 @@ Controls:
   ESC     — Quit
 """
 
-import airsim
-import time
 import sys
-import os
+import time
+
+import airsim
 
 # Try to import keyboard handling
 try:

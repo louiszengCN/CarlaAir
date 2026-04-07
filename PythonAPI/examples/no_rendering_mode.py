@@ -34,44 +34,46 @@ Welcome to CARLA No-Rendering Mode Visualizer
 # -- imports -------------------------------------------------------------------
 # ==============================================================================
 
-import carla
-from carla import TrafficLightState as tls
-
 import argparse
-import logging
 import datetime
 import glob
-import weakref
+import hashlib
+import logging
 import math
 import os
 import random
 import sys
-import hashlib
+import weakref
+
+import carla
+from carla import TrafficLightState as tls
 
 try:
     import pygame
-    from pygame.locals import KMOD_CTRL
-    from pygame.locals import KMOD_SHIFT
-    from pygame.locals import K_COMMA
-    from pygame.locals import K_DOWN
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_F1
-    from pygame.locals import K_LEFT
-    from pygame.locals import K_PERIOD
-    from pygame.locals import K_RIGHT
-    from pygame.locals import K_SLASH
-    from pygame.locals import K_SPACE
-    from pygame.locals import K_TAB
-    from pygame.locals import K_UP
-    from pygame.locals import K_a
-    from pygame.locals import K_d
-    from pygame.locals import K_h
-    from pygame.locals import K_i
-    from pygame.locals import K_m
-    from pygame.locals import K_p
-    from pygame.locals import K_q
-    from pygame.locals import K_s
-    from pygame.locals import K_w
+    from pygame.locals import (
+        K_COMMA,
+        K_DOWN,
+        K_ESCAPE,
+        K_F1,
+        K_LEFT,
+        K_PERIOD,
+        K_RIGHT,
+        K_SLASH,
+        K_SPACE,
+        K_TAB,
+        K_UP,
+        KMOD_CTRL,
+        KMOD_SHIFT,
+        K_a,
+        K_d,
+        K_h,
+        K_i,
+        K_m,
+        K_p,
+        K_q,
+        K_s,
+        K_w,
+    )
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -558,7 +560,7 @@ class MapImage(object):
                 lane_left_side = [lateral_shift(w.transform, -w.lane_width * 0.5) for w in side]
                 lane_right_side = [lateral_shift(w.transform, w.lane_width * 0.5) for w in side]
 
-                polygon = lane_left_side + [x for x in reversed(lane_right_side)]
+                polygon = lane_left_side + list(reversed(lane_right_side))
                 polygon = [world_to_pixel(x) for x in polygon]
 
                 if len(polygon) > 2:
@@ -612,7 +614,7 @@ class MapImage(object):
                     temp_waypoints = temp_waypoints[-1:]
 
                 else:
-                    temp_waypoints.append((sample))
+                    temp_waypoints.append(sample)
                     previous_marking_type = marking_type
                     previous_marking_color = marking_color
 
@@ -783,7 +785,7 @@ class MapImage(object):
                 road_left_side = [lateral_shift(w.transform, -w.lane_width * 0.5) for w in waypoints]
                 road_right_side = [lateral_shift(w.transform, w.lane_width * 0.5) for w in waypoints]
 
-                polygon = road_left_side + [x for x in reversed(road_right_side)]
+                polygon = road_left_side + list(reversed(road_right_side))
                 polygon = [world_to_pixel(x) for x in polygon]
 
                 if len(polygon) > 2:

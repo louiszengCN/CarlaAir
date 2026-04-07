@@ -1,4 +1,4 @@
-      
+
 import argparse
 import json
 import math
@@ -54,7 +54,7 @@ class HumanTrajectoryRunner:
         self.ai_project_to_nav = ai_project_to_nav
         self.ai_arrival_dist = float(ai_arrival_dist)
 
-        with open(trajectory_path, "r", encoding="utf-8") as f:
+        with open(trajectory_path, encoding="utf-8") as f:
             self.traj = json.load(f)
         if not self.traj:
             raise RuntimeError("human trajectory is empty")
@@ -771,7 +771,7 @@ class DroneTrajectoryCollector:
             frame_dir = os.path.join(self.frames_dir, f"frame_{i:05d}")
             meta_path = os.path.join(frame_dir, "meta.json")
             if os.path.exists(meta_path):
-                with open(meta_path, "r", encoding="utf-8") as f:
+                with open(meta_path, encoding="utf-8") as f:
                     m = json.load(f)
                 m["nav_waypoint"] = nav
                 with open(meta_path, "w", encoding="utf-8") as f:
@@ -1072,4 +1072,3 @@ if __name__ == "__main__":
 
 
 
-    

@@ -214,7 +214,7 @@ def main():
             use_drone = False
 
     # Traffic
-    print(f"[3] Spawning traffic ...", end=" ", flush=True)
+    print("[3] Spawning traffic ...", end=" ", flush=True)
     vbps = list(bp_lib.filter("vehicle.*"))
     pts = list(sps)
     random.shuffle(pts)

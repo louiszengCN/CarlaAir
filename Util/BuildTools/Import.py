@@ -10,15 +10,15 @@
 
 from __future__ import print_function
 
+import argparse
+import copy
 import errno
 import fnmatch
 import json
 import os
 import shutil
 import subprocess
-import argparse
 import threading
-import copy
 
 # Global variables
 IMPORT_SETTING_FILENAME = "importsetting.json"
@@ -177,7 +177,7 @@ def generate_decals_file(folder):
                 'decal_max_scale' : '0.7',
                 'decal_random_yaw' : '360.0',
                 'random_offset' : '50.0'
-            });
+            })
 
         # build and write the .json
         f = open("%s/%s.json" % (folder, 'roadpainter_decals'), "w")
@@ -562,11 +562,11 @@ def build_binary_for_navigation(package_name, dirname, maps):
 
 def build_binary_for_tm(package_name, dirname, maps):
 
-    xodrs = set(
-        (map["name"], map["xodr"]) for map in maps if "xodr" in map)
+    xodrs = {
+        (map["name"], map["xodr"]) for map in maps if "xodr" in map}
 
     for target_name, xodr in xodrs:
-        with open(os.path.join(dirname, xodr), "rt") as f:
+        with open(os.path.join(dirname, xodr)) as f:
             data = f.read()
 
         # copy the binary file

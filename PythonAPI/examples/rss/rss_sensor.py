@@ -2,10 +2,12 @@
 #
 
 import inspect
+import math
+
+from rss_visualization import RssDebugVisualizer  # pylint: disable=relative-import
+
 import carla
 from carla import ad
-import math
-from rss_visualization import RssDebugVisualizer # pylint: disable=relative-import
 
 EVALUATOR_NONE_STATE = ad.rss.state.RssStateEvaluator.names["None"]
 
@@ -299,13 +301,13 @@ class RssSensor(object):
         self.debug_visualizer.toggleMode()
 
     def increase_log_level(self):
-        print("increase {}".format(self.log_level))
+        print(f"increase {self.log_level}")
         if self.log_level < carla.RssLogLevel.off:
             self.log_level = carla.RssLogLevel.values[self.log_level + 1]
         self.sensor.set_log_level(self.log_level)
 
     def decrease_log_level(self):
-        print("decrease {}".format(self.log_level))
+        print(f"decrease {self.log_level}")
         if self.log_level > carla.RssLogLevel.trace:
             self.log_level = carla.RssLogLevel.values[self.log_level - 1]
         self.sensor.set_log_level(self.log_level)
@@ -438,4 +440,4 @@ class RssSensor(object):
                                        self.individual_rss_states, self.ego_dynamics_on_route)
 
         else:
-            print("ignore outdated RSS response {}".format(delta_time))
+            print(f"ignore outdated RSS response {delta_time}")

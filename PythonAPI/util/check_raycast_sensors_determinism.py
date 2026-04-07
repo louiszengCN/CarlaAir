@@ -12,10 +12,10 @@ This script spawn all the raycast sensors in a simple scenario and check if thei
 output are deterministic.
 """
 
-import os
 import argparse
-import time
 import filecmp
+import os
+import time
 from queue import Queue
 
 import numpy as np

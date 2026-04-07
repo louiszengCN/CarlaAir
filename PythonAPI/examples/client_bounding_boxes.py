@@ -22,19 +22,14 @@ Controls:
 # -- imports -------------------------------------------------------------------
 # ==============================================================================
 
-import carla
-
-import weakref
 import random
+import weakref
+
+import carla
 
 try:
     import pygame
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_SPACE
-    from pygame.locals import K_a
-    from pygame.locals import K_d
-    from pygame.locals import K_s
-    from pygame.locals import K_w
+    from pygame.locals import K_ESCAPE, K_SPACE, K_a, K_d, K_s, K_w
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 

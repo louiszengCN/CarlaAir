@@ -24,7 +24,7 @@ def _setup_vehicle(world, config):
 
     bp = bp_library.filter(config.get("type"))[0]
     bp.set_attribute("role_name", config.get("id"))
-    bp.set_attribute("ros_name", config.get("id")) 
+    bp.set_attribute("ros_name", config.get("id"))
 
     return  world.spawn_actor(
         bp,
@@ -37,11 +37,11 @@ def _setup_sensors(world, vehicle, sensors_config):
 
     sensors = []
     for sensor in sensors_config:
-        logging.debug("Spawning sensor: {}".format(sensor))
+        logging.debug(f"Spawning sensor: {sensor}")
 
         bp = bp_library.filter(sensor.get("type"))[0]
-        bp.set_attribute("ros_name", sensor.get("id")) 
-        bp.set_attribute("role_name", sensor.get("id")) 
+        bp.set_attribute("ros_name", sensor.get("id"))
+        bp.set_attribute("role_name", sensor.get("id"))
         for key, value in sensor.get("attributes", {}).items():
             bp.set_attribute(str(key), str(value))
 

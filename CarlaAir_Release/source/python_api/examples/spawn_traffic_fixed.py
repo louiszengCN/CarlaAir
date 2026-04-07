@@ -9,11 +9,12 @@ Usage: python spawn_traffic_fixed.py [num_vehicles]
 Press Ctrl+C to stop and destroy all vehicles.
 """
 
-import carla
-import time
 import math
-import sys
 import random
+import sys
+import time
+
+import carla
 
 # City center spawn point indices (inland, x > 50)
 CENTRAL_SPAWN_INDICES = [54, 53, 133, 121, 123, 41, 42, 81, 135, 128, 92, 152, 35]
@@ -96,7 +97,7 @@ def main():
             pass
     print(f"  Autopilot enabled: {enabled}/{len(vehicles)}")
 
-    print(f"\nTraffic running! Fixing Z positions to keep vehicles on roads...")
+    print("\nTraffic running! Fixing Z positions to keep vehicles on roads...")
     print("Press Ctrl+C to stop.\n")
 
     fix_count = 0

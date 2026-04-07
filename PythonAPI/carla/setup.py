@@ -6,14 +6,14 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import shutil
-from setuptools import setup, Extension
-
 import fnmatch
 import os
+import shutil
 import sys
-
 from distutils.command.install_lib import install_lib
+
+from setuptools import Extension, setup
+
 
 def is_rss_variant_enabled():
     if 'BUILD_RSS_VARIANT' in os.environ and os.environ['BUILD_RSS_VARIANT'] == 'true':
@@ -37,7 +37,7 @@ def get_libcarla_extensions():
     if os.name == "posix":
         import distro
         supported_dists = ["ubuntu", "debian", "deepin"]
-        
+
         linux_distro = distro.id().lower()
         if linux_distro in supported_dists:
             pwd = os.path.dirname(os.path.realpath(__file__))
@@ -181,16 +181,16 @@ class CleanADStubFiles(install_lib):
     Removes the ad/ files from the build directory in a normal built
     that else would be copies over.
     """
-    
+
     CARLA_RSS_STUB_FILE = "__carla_rss.pyi"
     _CARLA_RSS_STUB_FILE_PATH = os.path.join("carla", CARLA_RSS_STUB_FILE)
     CARLA_AD_STUB_DIR = os.path.join("carla", "ad")
-    
+
     def run(self):
         if not is_rss_variant_enabled():
             self.prune_rss()
         install_lib.run(self)  # for python2 do not use super here
-        
+
     def prune_rss(self):
         """Removes files from an rss build that we do not want to be copied over to a non-rss build."""
         if not self.build_dir:

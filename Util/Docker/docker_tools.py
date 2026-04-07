@@ -13,10 +13,11 @@ Helper script to generate consumables for Carla in Docker
 from __future__ import print_function
 
 import argparse
-import docker
-import docker_utils
 import os
 import subprocess
+
+import docker
+import docker_utils
 
 
 def print_formated_dict(dic):
@@ -92,7 +93,7 @@ def parse_args():
 def main():
 
     args = parse_args()
-    carla_image_name = "carla-monolith:{}".format(args.branch)
+    carla_image_name = f"carla-monolith:{args.branch}"
     inbox_assets_path = '/workspaces/carla/Import'
     client = docker.from_env()
 
@@ -126,7 +127,7 @@ def main():
                 build_cmd.append("--force-rebuild")
             subprocess.check_call(build_cmd)
         except docker.errors.APIError as e:
-            print(f"Unkown error while checking if the image exist!")
+            print("Unkown error while checking if the image exist!")
             raise
 
         print("Running Docker...")

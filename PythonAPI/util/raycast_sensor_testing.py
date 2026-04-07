@@ -29,17 +29,17 @@ And for profiling one radar:
 
 """
 
-import carla
 import argparse
 import random
 import time
+
 import numpy as np
 
+import carla
 
 try:
     import pygame
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q
+    from pygame.locals import K_ESCAPE, K_q
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 

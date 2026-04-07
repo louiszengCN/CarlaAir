@@ -13,16 +13,15 @@ For further details, visit
 https://carla.readthedocs.io/en/latest/configuring_the_simulation/
 """
 
-import os
-import sys
-
-import carla
-
 import argparse
 import datetime
+import os
 import re
 import socket
+import sys
 import textwrap
+
+import carla
 
 
 def get_ip(host):

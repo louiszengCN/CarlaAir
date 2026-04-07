@@ -5,8 +5,9 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 # Provides map data for users.
 
-import carla
 import random
+
+import carla
 
 
 def get_scene_layout(carla_map):
@@ -24,7 +25,7 @@ def get_scene_layout(carla_map):
     topology = sorted(topology, key=lambda w: w.transform.location.z)
 
     # A road contains a list of lanes, a each lane contains a list of waypoints
-    map_dict = dict()
+    map_dict = {}
     precision = 0.05
     for waypoint in topology:
         waypoints = [waypoint]
@@ -53,7 +54,7 @@ def get_scene_layout(carla_map):
         map_dict[waypoint.road_id][waypoint.lane_id] = lane
 
     # Generate waypoints graph
-    waypoints_graph = dict()
+    waypoints_graph = {}
     for road_key in map_dict:
         for lane_key in map_dict[road_key]:
             # List of waypoints
@@ -159,7 +160,7 @@ def get_dynamic_objects(carla_world, carla_map):
 
     # Public functions
     def get_stop_signals(stops):
-        stop_signals_dict = dict()
+        stop_signals_dict = {}
         for stop in stops:
             st_transform = stop.get_transform()
             location_gnss = carla_map.transform_to_geolocation(st_transform.location)
@@ -172,7 +173,7 @@ def get_dynamic_objects(carla_world, carla_map):
         return stop_signals_dict
 
     def get_traffic_lights(traffic_lights):
-        traffic_lights_dict = dict()
+        traffic_lights_dict = {}
         for traffic_light in traffic_lights:
             tl_transform = traffic_light.get_transform()
             location_gnss = carla_map.transform_to_geolocation(tl_transform.location)
@@ -186,7 +187,7 @@ def get_dynamic_objects(carla_world, carla_map):
         return traffic_lights_dict
 
     def get_vehicles(vehicles):
-        vehicles_dict = dict()
+        vehicles_dict = {}
         for vehicle in vehicles:
             v_transform = vehicle.get_transform()
             location_gnss = carla_map.transform_to_geolocation(v_transform.location)
@@ -216,7 +217,7 @@ def get_dynamic_objects(carla_world, carla_map):
         return hero_vehicle_dict
 
     def get_walkers(walkers):
-        walkers_dict = dict()
+        walkers_dict = {}
         for walker in walkers:
             w_transform = walker.get_transform()
             location_gnss = carla_map.transform_to_geolocation(w_transform.location)
@@ -230,7 +231,7 @@ def get_dynamic_objects(carla_world, carla_map):
         return walkers_dict
 
     def get_speed_limits(speed_limits):
-        speed_limits_dict = dict()
+        speed_limits_dict = {}
         for speed_limit in speed_limits:
             sl_transform = speed_limit.get_transform()
             location_gnss = carla_map.transform_to_geolocation(sl_transform.location)
@@ -243,7 +244,7 @@ def get_dynamic_objects(carla_world, carla_map):
         return speed_limits_dict
 
     def get_static_obstacles(static_obstacles):
-        static_obstacles_dict = dict()
+        static_obstacles_dict = {}
         for static_prop in static_obstacles:
             sl_transform = static_prop.get_transform()
             location_gnss = carla_map.transform_to_geolocation(sl_transform.location)

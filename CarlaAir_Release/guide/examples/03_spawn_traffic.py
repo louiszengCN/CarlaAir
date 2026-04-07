@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 3: 生成交通"""
-import carla
 import random
 import time
+
+import carla
 
 client = carla.Client('localhost', 2000)
 world = client.get_world()

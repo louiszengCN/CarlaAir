@@ -8,7 +8,6 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 import os
-import yaml
 import re
 
 COLOR_METHOD = '#7fb800'
@@ -55,14 +54,14 @@ class Documentation:
     def __init__(self, path, images_path):
         self._snipets_path = os.path.join(os.path.dirname(path), 'snipets')
         self._files = [f for f in os.listdir(self._snipets_path) if f.endswith('.py')]
-        self._snipets = list()
+        self._snipets = []
         for snipet_file in self._files:
             current_snipet_path = os.path.join(self._snipets_path, snipet_file)
             self._snipets.append(current_snipet_path)
         # Gather snipet images
         self._snipets_images_path = images_path
-        self._files_images = [f for f in os.listdir(self._snipets_images_path)]
-        self._snipets_images = list()
+        self._files_images = list(os.listdir(self._snipets_images_path))
+        self._snipets_images = []
         for snipet_image in self._files_images:
             current_image_path = os.path.join(self._snipets_images_path, snipet_image)
             self._snipets_images.append(current_image_path)
@@ -99,7 +98,7 @@ class Documentation:
         "</script>\n")
         # Create content for every snipet
         for snipet_path in self._snipets:
-            current_snipet = open(snipet_path, 'r')
+            current_snipet = open(snipet_path)
             snipet_name = os.path.basename(current_snipet.name) # Remove path
             snipet_name = os.path.splitext(snipet_name)[0] # Remove extension
             # Header for a snipet

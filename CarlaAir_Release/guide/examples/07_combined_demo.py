@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 7: 空地联合仿真"""
-import carla
-import airsim
-import time
 import math
+import time
+
+import airsim
+
+import carla
 
 # 连接双 API
 client_carla = carla.Client('localhost', 2000)

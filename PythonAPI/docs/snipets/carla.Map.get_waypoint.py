@@ -1,5 +1,5 @@
 
-# This recipe shows the current traffic rules affecting the vehicle. 
+# This recipe shows the current traffic rules affecting the vehicle.
 # Shows the current lane type and if a lane change can be done in the actual lane or the surrounding ones.
 
 # ...

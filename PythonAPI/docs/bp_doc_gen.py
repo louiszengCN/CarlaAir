@@ -107,7 +107,7 @@ def generate_pb_docs():
     world = client.get_world()
 
     bp_dict = {}
-    blueprints = [bp for bp in world.get_blueprint_library().filter('*')] # Returns list of all blueprints
+    blueprints = list(world.get_blueprint_library().filter('*')) # Returns list of all blueprints
     blueprint_ids = [bp.id for bp in world.get_blueprint_library().filter('*')] # Returns list of all blueprint ids
 
     # Creates a dict key = walker, static, prop, vehicle, sensor, controller; value = [bp_id, blueprint]

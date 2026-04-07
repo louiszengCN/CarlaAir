@@ -20,10 +20,9 @@
 from typing import Iterable, TypeAlias, overload
 
 import ad
+
 from ...libcarla import _CarlaEnum
-
 from . import *
-
 
 AllNeighborLanes = RouteCreationMode.AllNeighborLanes
 AllRoutableLanes = RouteCreationMode.AllRoutableLanes
@@ -1089,7 +1088,7 @@ def getSignedDistance(*args, **kwargs):
 
 @overload
 def getSpeedLimits(ad) -> restriction.SpeedLimitList: ...
-    
+
 @overload
 def getSpeedLimits(*args) -> restriction.SpeedLimitList: ...
 

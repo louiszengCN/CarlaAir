@@ -95,7 +95,7 @@ def main():
     time.sleep(2)
 
     # Enable autopilot in small batches with delays
-    print(f"[3] Enabling autopilot ...", end=" ", flush=True)
+    print("[3] Enabling autopilot ...", end=" ", flush=True)
     batch_size = 5
     for i in range(0, len(vehicles), batch_size):
         batch = vehicles[i:i + batch_size]

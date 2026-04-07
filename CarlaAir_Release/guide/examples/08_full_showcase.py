@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 8: 完整功能展示"""
-import carla
-import airsim
-import numpy as np
-import cv2
+import math
 import queue
 import time
-import math
+
+import airsim
+import cv2
+import numpy as np
+
+import carla
 
 print("=" * 50)
 print("CarlaAir 完整功能展示")

@@ -14,17 +14,17 @@ It can easily be configure for any different number of sensors.
 To do that, check lines 290-308.
 """
 
-import carla
 import argparse
 import random
 import time
+
 import numpy as np
 
+import carla
 
 try:
     import pygame
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q
+    from pygame.locals import K_ESCAPE, K_q
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -125,7 +125,7 @@ class SensorManager:
             lidar.listen(self.save_lidar_image)
 
             return lidar
-        
+
         elif sensor_type == 'SemanticLiDAR':
             lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
             lidar_bp.set_attribute('range', '100')
@@ -138,7 +138,7 @@ class SensorManager:
             lidar.listen(self.save_semanticlidar_image)
 
             return lidar
-        
+
         elif sensor_type == "Radar":
             radar_bp = self.world.get_blueprint_library().find('sensor.other.radar')
             for key in sensor_options:
@@ -148,7 +148,7 @@ class SensorManager:
             radar.listen(self.save_radar_image)
 
             return radar
-        
+
         else:
             return None
 
@@ -276,19 +276,19 @@ def run_simulation(args, client):
         display_manager = DisplayManager(grid_size=[2, 3], window_size=[args.width, args.height])
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
-        # and assign each of them to a grid position, 
-        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=-90)), 
+        # and assign each of them to a grid position,
+        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=-90)),
                       vehicle, {}, display_pos=[0, 0])
-        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
+        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)),
                       vehicle, {}, display_pos=[0, 1])
-        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+90)), 
+        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+90)),
                       vehicle, {}, display_pos=[0, 2])
-        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=180)), 
+        SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=180)),
                       vehicle, {}, display_pos=[1, 1])
 
-        SensorManager(world, display_manager, 'LiDAR', carla.Transform(carla.Location(x=0, z=2.4)), 
+        SensorManager(world, display_manager, 'LiDAR', carla.Transform(carla.Location(x=0, z=2.4)),
                       vehicle, {'channels' : '64', 'range' : '100',  'points_per_second': '250000', 'rotation_frequency': '20'}, display_pos=[1, 0])
-        SensorManager(world, display_manager, 'SemanticLiDAR', carla.Transform(carla.Location(x=0, z=2.4)), 
+        SensorManager(world, display_manager, 'SemanticLiDAR', carla.Transform(carla.Location(x=0, z=2.4)),
                       vehicle, {'channels' : '64', 'range' : '100', 'points_per_second': '100000', 'rotation_frequency': '20'}, display_pos=[1, 2])
 
 

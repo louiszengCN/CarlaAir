@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 2: 天气控制"""
-import carla
 import time
+
+import carla
 
 client = carla.Client('localhost', 2000)
 world = client.get_world()

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 5: 无人机起飞与飞行"""
+
 import airsim
-import time
-import math
 
 client = airsim.MultirotorClient(port=41451)
 client.confirmConnection()

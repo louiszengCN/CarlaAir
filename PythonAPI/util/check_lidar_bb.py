@@ -46,9 +46,9 @@ Important Data structure description:
 
 """
 
+from queue import Empty, Queue
+
 import numpy as np
-from queue import Queue
-from queue import Empty
 
 import carla
 
@@ -137,7 +137,7 @@ class ActorTrace(object):
                 return True
 
         return False
-    
+
     def check_lidar_data(self):
         if self.lidar_is_outside_bb():
             print("Error!!! Points of lidar point cloud are outside its BB for car %d: %s " % (self._actor_id, self._actor_type))
@@ -180,7 +180,7 @@ class ActorTrace(object):
                         color=carla.Color(255, 255, 0), life_time=5000.0)
 
 
-            
+
 def wait(world, frames=100, queue = None, slist = None):
     for i in range(0, frames):
         world.tick()
@@ -193,7 +193,7 @@ def wait(world, frames=100, queue = None, slist = None):
                 print("    Some of the sensor information is missed")
 
 # Sensor callback.
-# This is where you receive the sensor data and 
+# This is where you receive the sensor data and
 # process it as you liked and the important part is that,
 # at the end, it should include an element into the sensor queue.
 def lidar_callback(sensor_data, sensor_queue, sensor_name):
@@ -265,7 +265,7 @@ class SpawnCar(object):
         self._velocity = velocity
         self._actor = None
         self._world = None
-    
+
     def spawn(self, world):
         self._world = world
         actor_BP = world.get_blueprint_library().filter(self._filter)[0]
@@ -370,8 +370,8 @@ def main():
         lidar.listen(lambda data: lidar_callback(data, sensor_queue, "semlidar"))
         callback_id = world.on_tick(lambda snapshot: world_callback(snapshot, world, sensor_queue, "bb", actor))
         sensor_list.append(lidar)
-        sensor_list.append(actor) # actor acts as a 'sensor' to simplify bb-lidar data comparison 
-        
+        sensor_list.append(actor) # actor acts as a 'sensor' to simplify bb-lidar data comparison
+
         # Set autopilot for main vehicle
         actor.enable_constant_velocity(carla.Vector3D(20, 0, 0))
 

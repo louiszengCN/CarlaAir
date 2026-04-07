@@ -6,9 +6,11 @@ Usage: python3 test_carla_features.py
 Tests: weather, vehicle spawn, walker spawn, autopilot, sensors, OpenDRIVE
 """
 
-import carla
-import time
 import random
+import time
+
+import carla
+
 
 def main():
     # Connect
@@ -116,7 +118,7 @@ def main():
             v_transform.location + carla.Location(x=-10, z=5),
             carla.Rotation(pitch=-15)
         ))
-        print(f"  Spectator moved to follow vehicle[0]")
+        print("  Spectator moved to follow vehicle[0]")
     print()
 
     # Let traffic run for a bit

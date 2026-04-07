@@ -255,9 +255,9 @@ def flight_loop(ac, altitude, radius, n_wp=36):
 
             with g_lock:
                 g_rgb, g_depth, g_seg = rgb, depth, seg
-                g_telem = dict(x=p.x_val, y=p.y_val, z=p.z_val,
-                               alt=-p.z_val, spd=spd, yaw=yaw,
-                               wp=idx, wp_n=n_wp)
+                g_telem = {"x": p.x_val, "y": p.y_val, "z": p.z_val,
+                               "alt": -p.z_val, "spd": spd, "yaw": yaw,
+                               "wp": idx, "wp_n": n_wp}
         except Exception:
             pass
 

@@ -1,7 +1,7 @@
 import ad
 from ad import _Assignable
-from ...libcarla import _CarlaEnum
 
+from ...libcarla import _CarlaEnum
 from . import *
 
 class LateralRelativePosition(int, _CarlaEnum):

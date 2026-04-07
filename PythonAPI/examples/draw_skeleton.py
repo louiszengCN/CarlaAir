@@ -5,14 +5,15 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import math
 import argparse
 import copy
+import math
+import random
 from multiprocessing import Pool
+
 from PIL import Image
 
 import carla
-import random
 
 try:
     import pygame
@@ -106,14 +107,14 @@ def draw_image(surface, array, blend=False):
 
 
 def get_font():
-    fonts = [x for x in pygame.font.get_fonts()]
+    fonts = list(pygame.font.get_fonts())
     default_font = 'ubuntumono'
     font = default_font if default_font in fonts else fonts[0]
     font = pygame.font.match_font(font)
     return pygame.font.Font(font, 14)
 
 def get_screen_points(camera, K, image_w, image_h, points3d):
-    
+
     # get 4x4 matrix to transform points from world to camera coordinates
     world_2_camera = np.array(camera.get_transform().get_inverse_matrix())
 
@@ -122,10 +123,10 @@ def get_screen_points(camera, K, image_w, image_h, points3d):
     for p in points3d:
         points_temp += [p.x, p.y, p.z, 1]
     points = np.array(points_temp).reshape(-1, 4).T
-    
+
     # convert world points to camera space
     points_camera = np.dot(world_2_camera, points)
-    
+
     # New we must change from UE4's coordinate system to an "standard"
     # (x, y ,z) -> (y, -z, x)
     # and we remove the fourth component also
@@ -133,7 +134,7 @@ def get_screen_points(camera, K, image_w, image_h, points3d):
         points_camera[1],
         points_camera[2] * -1,
         points_camera[0]])
-    
+
     # Finally we can use our K matrix to do the actual 3D -> 2D.
     points_2d = np.dot(K, points)
 
@@ -286,7 +287,7 @@ def main():
       default='800x600',
       help='window resolution (default: 800x600)')
     args = argparser.parse_args()
-    
+
     args.width, args.height = [int(x) for x in args.res.split('x')]
 
     actor_list = []
@@ -303,13 +304,13 @@ def main():
 
     world = client.get_world()
 
-    # spawn a camera 
+    # spawn a camera
     camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
     camera_bp.set_attribute("image_size_x", str(args.width))
     camera_bp.set_attribute("image_size_y", str(args.height))
     camera_bp.set_attribute("fov", str(args.fov))
     camera = world.spawn_actor(camera_bp, carla.Transform())
-    
+
     # spawn a pedestrian
     world.set_pedestrians_seed(1235)
     ped_bp = random.choice(world.get_blueprint_library().filter("walker.pedestrian.*"))
@@ -336,7 +337,7 @@ def main():
         pool = Pool(processes=5)
         # Create a synchronous mode context.
         with CarlaSyncMode(world, camera, fps=30) as sync_mode:
-            
+
             # set the projection matrix
             K = build_projection_matrix(image_w, image_h, fov)
 
@@ -374,14 +375,14 @@ def main():
 
                 # get the pedestrian bones
                 bones = ped.get_bones()
-                
+
                 # prepare the bones (get name and world position)
-                boneIndex = {}  
+                boneIndex = {}
                 points = []
                 for i, bone in enumerate(bones.bone_transforms):
                     boneIndex[bone.name] = i
                     points.append(bone.world.location)
-                
+
                 # project the 3d points to 2d screen
                 points2d = get_screen_points(camera, K, image_w, image_h, points)
 

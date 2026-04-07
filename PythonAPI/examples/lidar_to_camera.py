@@ -10,15 +10,14 @@
 Lidar projection on RGB camera example
 """
 
+import argparse
 import os
 import sys
+from queue import Empty, Queue
+
+from matplotlib import cm
 
 import carla
-
-import argparse
-from queue import Queue
-from queue import Empty
-from matplotlib import cm
 
 try:
     import numpy as np

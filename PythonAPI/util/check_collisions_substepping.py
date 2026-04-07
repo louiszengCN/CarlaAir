@@ -12,11 +12,11 @@ This script runs several scenarios involving collisions and check if they
 are deterministic for different simulation parameters.
 """
 
-import os
 import argparse
-import time
 import filecmp
+import os
 import shutil
+import time
 
 import numpy as np
 

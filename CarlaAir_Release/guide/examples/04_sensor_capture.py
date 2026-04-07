@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 4: 传感器采集"""
-import carla
-import numpy as np
-import cv2
 import queue
 import time
+
+import cv2
+import numpy as np
+
+import carla
 
 client = carla.Client('localhost', 2000)
 world = client.get_world()
@@ -44,4 +46,4 @@ for i in range(5):
         print(f"  帧 {i}: 超时")
 
 camera.stop(); camera.destroy(); vehicle.destroy()
-print(f"采集完成! 图像: /tmp/carla_frame_*.png")
+print("采集完成! 图像: /tmp/carla_frame_*.png")

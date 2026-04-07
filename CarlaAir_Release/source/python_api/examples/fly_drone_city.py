@@ -18,13 +18,15 @@ Controls:
   ESC     — Quit
 """
 
-import airsim
-import carla
-import time
-import sys
 import math
 import random
+import sys
 import threading
+import time
+
+import airsim
+
+import carla
 
 # NED = CARLA coordinates (confirmed), z negated
 CITY_CENTER_NED = (80, 30, -25)  # CARLA city center, 25m altitude

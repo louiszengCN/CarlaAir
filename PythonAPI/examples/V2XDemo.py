@@ -56,15 +56,6 @@ Use ARROWS or WASD keys for control.
 
 from __future__ import print_function
 
-# ==============================================================================
-# -- imports -------------------------------------------------------------------
-# ==============================================================================
-
-
-import carla
-
-from carla import ColorConverter as cc
-
 import argparse
 import collections
 import datetime
@@ -76,48 +67,56 @@ import re
 import sys
 import weakref
 
+# ==============================================================================
+# -- imports -------------------------------------------------------------------
+# ==============================================================================
+import carla
+from carla import ColorConverter as cc
+
 try:
     import pygame
-    from pygame.locals import KMOD_CTRL
-    from pygame.locals import KMOD_SHIFT
-    from pygame.locals import K_0
-    from pygame.locals import K_9
-    from pygame.locals import K_BACKQUOTE
-    from pygame.locals import K_BACKSPACE
-    from pygame.locals import K_COMMA
-    from pygame.locals import K_DOWN
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_F1
-    from pygame.locals import K_LEFT
-    from pygame.locals import K_PERIOD
-    from pygame.locals import K_RIGHT
-    from pygame.locals import K_SLASH
-    from pygame.locals import K_SPACE
-    from pygame.locals import K_TAB
-    from pygame.locals import K_UP
-    from pygame.locals import K_a
-    from pygame.locals import K_b
-    from pygame.locals import K_c
-    from pygame.locals import K_d
-    from pygame.locals import K_f
-    from pygame.locals import K_g
-    from pygame.locals import K_h
-    from pygame.locals import K_i
-    from pygame.locals import K_l
-    from pygame.locals import K_m
-    from pygame.locals import K_n
-    from pygame.locals import K_o
-    from pygame.locals import K_p
-    from pygame.locals import K_q
-    from pygame.locals import K_r
-    from pygame.locals import K_s
-    from pygame.locals import K_t
-    from pygame.locals import K_v
-    from pygame.locals import K_w
-    from pygame.locals import K_x
-    from pygame.locals import K_z
-    from pygame.locals import K_MINUS
-    from pygame.locals import K_EQUALS
+    from pygame.locals import (
+        K_0,
+        K_9,
+        K_BACKQUOTE,
+        K_BACKSPACE,
+        K_COMMA,
+        K_DOWN,
+        K_EQUALS,
+        K_ESCAPE,
+        K_F1,
+        K_LEFT,
+        K_MINUS,
+        K_PERIOD,
+        K_RIGHT,
+        K_SLASH,
+        K_SPACE,
+        K_TAB,
+        K_UP,
+        KMOD_CTRL,
+        KMOD_SHIFT,
+        K_a,
+        K_b,
+        K_c,
+        K_d,
+        K_f,
+        K_g,
+        K_h,
+        K_i,
+        K_l,
+        K_m,
+        K_n,
+        K_o,
+        K_p,
+        K_q,
+        K_r,
+        K_s,
+        K_t,
+        K_v,
+        K_w,
+        K_x,
+        K_z,
+    )
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -181,7 +180,7 @@ class World(object):
         try:
             self.map = self.world.get_map()
         except RuntimeError as error:
-            print('RuntimeError: {}'.format(error))
+            print(f'RuntimeError: {error}')
             print('  The server could not send the OpenDRIVE (.xodr) file:')
             print('  Make sure it exists, has the same name of your town, and is correct.')
             sys.exit(1)
@@ -920,7 +919,7 @@ class LaneInvasionSensor(object):
         self = weak_self()
         if not self:
             return
-        lane_types = set(x.type for x in event.crossed_lane_markings)
+        lane_types = {x.type for x in event.crossed_lane_markings}
         text = ['%r' % str(x).split()[-1] for x in lane_types]
         self.hud.notification('Crossed line %s' % ' and '.join(text))
 
@@ -1009,13 +1008,13 @@ class V2XSensor(object):
         bp.set_attribute("path_loss_model", "geometric")
         self.sensor = world.spawn_actor(
             bp, carla.Transform(), attach_to=self._parent)
-        
+
         # create a custom V2X sensors to demonstrate message sending/receiving
         bp_custom = world.get_blueprint_library().find('sensor.other.v2x_custom')
         bp_custom.set_attribute("path_loss_model", "geometric")
         self.sensor_custom = world.spawn_actor(
             bp_custom, carla.Transform(), attach_to=self._parent)
-        
+
         # We need to pass the lambda a weak reference to self to avoid circular
         # reference.
         weak_self = weakref.ref(self)
@@ -1033,10 +1032,10 @@ class V2XSensor(object):
         for data in sensor_data:
             msg = data.get()
             stationId = msg["Message"]["Header"]["Station ID"]
-            power = data.power 
+            power = data.power
             print("V2X message: %s" % msg)
             self.hud.notification('CAM received from %s with power %f ' % (stationId, power))
-        
+
         # trigger custom sensor to send messages
         message = carla.CustomV2XBytes()
         bytes = bytearray("Hello CARLA Byte Array", 'utf-8')
@@ -1054,7 +1053,7 @@ class V2XSensor(object):
             print("V2XCustom %s" % data)
             msg = data.get()
             stationId = msg["Message"]["Header"]["Station ID"]
-            power = data.power 
+            power = data.power
             bytes = msg["Message"]["Message"]["Bytes"]
             print("V2XCustom bytes hex %s" % bytes.hex())
             print("V2XCustom bytes str %s" % bytes.decode('utf-8', errors='ignore'))

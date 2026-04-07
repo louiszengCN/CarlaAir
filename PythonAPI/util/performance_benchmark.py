@@ -28,18 +28,18 @@ if sys.version_info[0] < 3:
     print('This script is only available for Python 3')
     sys.exit(1)
 
-from tr import tr
 import argparse
-import cpuinfo
+import logging
 import math
+import shutil
+import threading
+import time
+
+import cpuinfo
+import GPUtil
 import numpy as np
 import psutil
 import pygame
-import shutil
-import GPUtil
-import threading
-import time
-import logging
 
 import carla
 
@@ -384,7 +384,7 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
   while ticks < int(args.ticks):
     _ = tick()
     if debug:
-      print("== Samples {} / {}".format(ticks + 1, args.ticks))
+      print(f"== Samples {ticks + 1} / {args.ticks}")
 
     min_fps = float('inf')
     for sc in sensors_callback:
@@ -449,7 +449,7 @@ def serialize_records(records, system_specs, filename):
     s += "| **{:03.2f}** | **{:03.2f}** |\n".format(*get_total(records))
     fd.write(s)
 
-    s = "Table: {}.\n".format(system_specs)
+    s = f"Table: {system_specs}.\n"
     fd.write(s)
 
 
@@ -466,13 +466,13 @@ def get_system_specs():
   str_system += "CPU {} {}. ".format(cpu_info.get('brand', 'Unknown'), cpu_info.get('family', 'Unknown'))
 
   memory_info = psutil.virtual_memory()
-  str_system += "{:03.2f} GB RAM memory. ".format(memory_info.total / (1024 * 1024 * 1024))
+  str_system += f"{memory_info.total / (1024 * 1024 * 1024):03.2f} GB RAM memory. "
   nvidia_cmd = shutil.which("nvidia-smi")
   if nvidia_cmd:
     str_system += "GPU "
     gpu_info = GPUtil.getGPUs()
     for gpu in gpu_info:
-      str_system += "{} ".format(gpu.name)
+      str_system += f"{gpu.name} "
 
   return str_system
 

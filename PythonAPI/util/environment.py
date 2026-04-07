@@ -170,12 +170,12 @@ def main():
         '--sun',
         default=None,
         type=str,
-        help='Sun position presets [' + ' | '.join([i for i in SUN_PRESETS]) + ']')
+        help='Sun position presets [' + ' | '.join(list(SUN_PRESETS)) + ']')
     argparser.add_argument(
         '--weather',
         default=None,
         type=str,
-        help='Weather condition presets [' + ' | '.join([i for i in WEATHER_PRESETS]) + ']')
+        help='Weather condition presets [' + ' | '.join(list(WEATHER_PRESETS)) + ']')
     argparser.add_argument(
         '--altitude', '-alt',
         metavar='A',
@@ -266,7 +266,7 @@ def main():
         default=None,
         type=str,
         nargs='+',
-        help='Light Cars [' + ' | '.join([i for i in CAR_LIGHTS]) + ']')
+        help='Light Cars [' + ' | '.join(list(CAR_LIGHTS)) + ']')
     argparser.add_argument(
         '--lights', '-l',
         metavar='Lights',
@@ -279,7 +279,7 @@ def main():
         metavar='LightGroup',
         default=None,
         type=str,
-        help='Light Group [' + ' | '.join([i for i in LIGHT_GROUP]) + ']')
+        help='Light Group [' + ' | '.join(list(LIGHT_GROUP)) + ']')
     args = argparser.parse_args()
 
     # since all the arguments are None by default

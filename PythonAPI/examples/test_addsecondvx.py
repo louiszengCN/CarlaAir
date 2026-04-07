@@ -1,6 +1,8 @@
-import carla
 import random
 import weakref
+
+import carla
+
 
 def get_actor_blueprints(world, filter, generation):
     bps = world.get_blueprint_library().filter(filter)
@@ -40,7 +42,7 @@ class V2XSensor(object):
         weak_self = weakref.ref(self)
         self.sensor.listen(
             lambda sensor_data: V2XSensor._V2X_callback(weak_self, sensor_data))
-    
+
     def destroy(self):
         self.sensor.stop()
         self.sensor.destroy()
@@ -53,11 +55,11 @@ class V2XSensor(object):
         for data in sensor_data:
             msg = data.get()
             # stationId = msg["Header"]["Station ID"]
-            power = data.power 
+            power = data.power
             print(msg)
             # print('Cam message received from %s ' % stationId)
             print('Cam message received with power %f ' % power)
-        
+
 client = carla.Client("localhost",2000)
 client.set_timeout(2000.0)
 

@@ -1,7 +1,7 @@
 
 from collections.abc import MutableSequence
 
-from ad import _FloatLike, _Calculable, _Assignable, _SortableSequence, _VectorSequence
+from ad import _Assignable, _Calculable, _FloatLike, _SortableSequence, _VectorSequence
 
 class Acceleration(_Calculable):
 
@@ -23,7 +23,7 @@ class Acceleration3D(_FloatLike, _Assignable):
     def z(self) -> Acceleration: ...
 
 class Acceleration3DList(_VectorSequence[Acceleration3D]): ...
-   
+
 class AccelerationList(_VectorSequence[Acceleration]):
     def append(self, arg1: AccelerationList, arg2: Acceleration) -> None:
         """
@@ -213,9 +213,9 @@ class AngularAcceleration(_Calculable):
 
 class AngularAccelerationList(_SortableSequence[AngularAcceleration]):
     ...
-    
+
 class AngularVelocity(_Calculable):
-   
+
     cMaxValue: float = 1000.0
 
     cMinValue: float = -1000.0
@@ -318,7 +318,7 @@ class Distance2D:
 
 class Distance2DList(_VectorSequence[Distance2D]):
     ...
-    
+
 class Distance3D:
     def assign(self, arg1: Distance3D, other: Distance3D) -> Distance3D:
         """
@@ -977,7 +977,7 @@ class Speed(_Calculable):
 
     cPrecisionValue: float = 0.001
 
-    
+
 
 class SpeedList(MutableSequence[Speed]):
     def append(self, arg1: SpeedList, arg2: Speed) -> None:

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 1: 连接验证"""
-import carla
 import airsim
+
+import carla
 
 # 连接 CARLA（地面仿真）
 client = carla.Client('localhost', 2000)

@@ -20,15 +20,6 @@ To find out the values of your steering wheel use jstest-gtk in Ubuntu.
 
 from __future__ import print_function
 
-# ==============================================================================
-# -- imports -------------------------------------------------------------------
-# ==============================================================================
-
-
-import carla
-
-from carla import ColorConverter as cc
-
 import argparse
 import collections
 import datetime
@@ -40,6 +31,12 @@ import re
 import sys
 import weakref
 
+# ==============================================================================
+# -- imports -------------------------------------------------------------------
+# ==============================================================================
+import carla
+from carla import ColorConverter as cc
+
 if sys.version_info >= (3, 0):
 
     from configparser import ConfigParser
@@ -50,33 +47,35 @@ else:
 
 try:
     import pygame
-    from pygame.locals import KMOD_CTRL
-    from pygame.locals import KMOD_SHIFT
-    from pygame.locals import K_0
-    from pygame.locals import K_9
-    from pygame.locals import K_BACKQUOTE
-    from pygame.locals import K_BACKSPACE
-    from pygame.locals import K_COMMA
-    from pygame.locals import K_DOWN
-    from pygame.locals import K_ESCAPE
-    from pygame.locals import K_F1
-    from pygame.locals import K_LEFT
-    from pygame.locals import K_PERIOD
-    from pygame.locals import K_RIGHT
-    from pygame.locals import K_SLASH
-    from pygame.locals import K_SPACE
-    from pygame.locals import K_TAB
-    from pygame.locals import K_UP
-    from pygame.locals import K_a
-    from pygame.locals import K_c
-    from pygame.locals import K_d
-    from pygame.locals import K_h
-    from pygame.locals import K_m
-    from pygame.locals import K_p
-    from pygame.locals import K_q
-    from pygame.locals import K_r
-    from pygame.locals import K_s
-    from pygame.locals import K_w
+    from pygame.locals import (
+        K_0,
+        K_9,
+        K_BACKQUOTE,
+        K_BACKSPACE,
+        K_COMMA,
+        K_DOWN,
+        K_ESCAPE,
+        K_F1,
+        K_LEFT,
+        K_PERIOD,
+        K_RIGHT,
+        K_SLASH,
+        K_SPACE,
+        K_TAB,
+        K_UP,
+        KMOD_CTRL,
+        KMOD_SHIFT,
+        K_a,
+        K_c,
+        K_d,
+        K_h,
+        K_m,
+        K_p,
+        K_q,
+        K_r,
+        K_s,
+        K_w,
+    )
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -614,7 +613,7 @@ class LaneInvasionSensor(object):
         self = weak_self()
         if not self:
             return
-        lane_types = set(x.type for x in event.crossed_lane_markings)
+        lane_types = {x.type for x in event.crossed_lane_markings}
         text = ['%r' % str(x).split()[-1] for x in lane_types]
         self.hud.notification('Crossed line %s' % ' and '.join(text))
 

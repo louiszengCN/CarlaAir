@@ -9,9 +9,10 @@ import argparse
 import filecmp
 import os
 import re
-import sets
 import subprocess
 import sys
+
+import sets
 from termcolor import cprint
 
 SCRIPT_VERSION = "1.3"

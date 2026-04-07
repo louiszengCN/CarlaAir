@@ -17,19 +17,17 @@ Welcome to CARLA bounding boxes.
     ESC     : quit
 """
 
-import carla
-import json
-import random
-import queue
-import pygame
 import argparse
-import numpy as np
+import json
+import queue
+import random
 from math import radians
 
-from pygame.locals import K_ESCAPE
-from pygame.locals import K_2
-from pygame.locals import K_3
-from pygame.locals import K_r
+import numpy as np
+import pygame
+from pygame.locals import K_2, K_3, K_ESCAPE, K_r
+
+import carla
 
 # Bounding box edge topology order
 EDGES = [[0,1], [1,3], [3,2], [2,0], [0,4], [4,5], [5,1], [5,7], [7,6], [6,4], [6,2], [7,3]]
@@ -37,16 +35,16 @@ EDGES = [[0,1], [1,3], [3,2], [2,0], [0,4], [4,5], [5,1], [5,7], [7,6], [6,4], [
 # Map for CARLA semantic labels to class names and colors
 SEMANTIC_MAP = {0: ('unlabelled', (0,0,0)), 1: ('road', (128,64,0)),2: ('sidewalk', (244,35,232)),
                 3: ('building', (70,70,70)), 4: ('wall', (102,102,156)), 5: ('fence', (190,153,153)),
-                6: ('pole', (153,153,153)), 7: ('traffic light', (250,170,30)), 
+                6: ('pole', (153,153,153)), 7: ('traffic light', (250,170,30)),
                 8: ('traffic sign', (220,220,0)), 9: ('vegetation', (107,142,35)),
-                10: ('terrain', (152,251,152)), 11: ('sky', (70,130,180)), 
-                12: ('pedestrian', (220,20,60)), 13: ('rider', (255,0,0)), 
-                14: ('car', (0,0,142)), 15: ('truck', (0,0,70)), 16: ('bus', (0,60,100)), 
-                17: ('train', (0,80,100)), 18: ('motorcycle', (0,0,230)), 
-                19: ('bicycle', (119,11,32)), 20: ('static', (110,190,160)), 
-                21: ('dynamic', (170,120,50)), 22: ('other', (55,90,80)), 
-                23: ('water', (45,60,150)), 24: ('road line', (157,234,50)), 
-                25: ('ground', (81,0,81)), 26: ('bridge', (150,100,100)), 
+                10: ('terrain', (152,251,152)), 11: ('sky', (70,130,180)),
+                12: ('pedestrian', (220,20,60)), 13: ('rider', (255,0,0)),
+                14: ('car', (0,0,142)), 15: ('truck', (0,0,70)), 16: ('bus', (0,60,100)),
+                17: ('train', (0,80,100)), 18: ('motorcycle', (0,0,230)),
+                19: ('bicycle', (119,11,32)), 20: ('static', (110,190,160)),
+                21: ('dynamic', (170,120,50)), 22: ('other', (55,90,80)),
+                23: ('water', (45,60,150)), 24: ('road line', (157,234,50)),
+                25: ('ground', (81,0,81)), 26: ('bridge', (150,100,100)),
                 27: ('rail track', (230,150,140)), 28: ('guard rail', (180,165,180))}
 
 # Calculate the camera projection matrix
@@ -65,7 +63,7 @@ def build_projection_matrix(w, h, fov, is_behind_camera=False):
 
 # Calculate 2D projection of 3D coordinate
 def get_image_point(loc, K, w2c):
-    
+
     # Format the input coordinate (loc is a carla.Position object)
     point = np.array([loc.x, loc.y, loc.z, 1])
     # transform to camera coordinates
@@ -132,7 +130,7 @@ def bbox_3d_for_actor(actor, ego, camera_bp, camera):
 
     npc_loc_ego_space = ego_bbox_transform.inverse_transform(npc_bbox_loc)
 
-    verts = [v for v in actor.bounding_box.get_world_vertices(actor.get_transform())]
+    verts = list(actor.bounding_box.get_world_vertices(actor.get_transform()))
 
     projection = []
     for edge in EDGES:
@@ -154,7 +152,7 @@ def bbox_3d_for_actor(actor, ego, camera_bp, camera):
             p1 = get_image_point(verts[edge[0]], K_b, world_2_camera)
         if not (cam_forward_vec.dot(ray1) > 0):
             p2 = get_image_point(verts[edge[1]], K_b, world_2_camera)
-        
+
         projection.append((int(p1[0]), int(p1[1]), int(p2[0]), int(p2[1])))
 
     return {'actor_id': actor.id,
@@ -178,7 +176,7 @@ def bbox_3d_for_actor(actor, ego, camera_bp, camera):
 # Visualize 2D bounding boxes in Pygame
 def visualize_2d_bboxes(surface, img, bboxes):
 
-    rgb_img = img[:, :, :3][:, :, ::-1] 
+    rgb_img = img[:, :, :3][:, :, ::-1]
     frame_surface = pygame.surfarray.make_surface(np.transpose(rgb_img[..., 0:3], (1,0,2)))
     surface.blit(frame_surface, (0, 0))
 
@@ -191,7 +189,7 @@ def visualize_2d_bboxes(surface, img, bboxes):
             label = SEMANTIC_MAP[bbox['semantic_label']][0]
             color = SEMANTIC_MAP[bbox['semantic_label']][1]
             pygame.draw.rect(surface, color, pygame.Rect(xmin, ymin, xmax-xmin, ymax-ymin), 2)
-            text_surface = font.render(label, True, (255,255,255), color) 
+            text_surface = font.render(label, True, (255,255,255), color)
             text_rect = text_surface.get_rect(topleft=(xmin, ymin-20))
             surface.blit(text_surface, text_rect)
 
@@ -200,7 +198,7 @@ def visualize_2d_bboxes(surface, img, bboxes):
 # Visualize 3D bounding boxes in Pygame
 def visualize_3d_bboxes(surface, img, bboxes):
 
-    rgb_img = img[:, :, :3][:, :, ::-1] 
+    rgb_img = img[:, :, :3][:, :, ::-1]
     frame_surface = pygame.surfarray.make_surface(np.transpose(rgb_img[..., 0:3], (1,0,2)))
     surface.blit(frame_surface, (0, 0))
 
@@ -376,7 +374,7 @@ def main():
             json_frame_data = {
                 'frame_id': snapshot.frame,
                 'timestamp': snapshot.timestamp.elapsed_seconds,
-                'objects': [] 
+                'objects': []
             }
 
             image = image_queue.get()
@@ -411,7 +409,7 @@ def main():
                         inter_vehicle_vec = npc.get_transform().location - camera.get_transform().location
 
                         if forward_vec.dot(inter_vehicle_vec) > 0:
-                            
+
                             # Generate 2D and 2D bounding boxes for each actor
                             npc_bbox_2d = bbox_2d_for_actor(npc, actor_ids, semantic_labels)
                             npc_bbox_3d = bbox_3d_for_actor(npc, ego_vehicle, camera_bp, camera)
@@ -441,7 +439,7 @@ def main():
             else:
                 visualize_2d_bboxes(display, img, frame_bboxes)
             pygame.display.flip()
-            clock.tick(30)  # 30 FPS              
+            clock.tick(30)  # 30 FPS
             if record:
                 with open(f"_out/{snapshot.frame}.json", 'w') as f:
                     json.dump(json_frame_data, f)
@@ -449,7 +447,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        
+
         ego_vehicle.destroy()
         camera.stop()
         camera.destroy()

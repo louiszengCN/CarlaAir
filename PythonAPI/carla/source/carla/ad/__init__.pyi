@@ -75,7 +75,7 @@ class _VectorSequence(_IndexableVector[_T], Protocol):
 
     def count(self, item: _T, /) -> int:
         ...
-        
+
 @type_check_only
 class _SortableSequence(_VectorSequence[_T], Protocol):
     """Adds `sort` method. Not all _VectorSequences support sort."""

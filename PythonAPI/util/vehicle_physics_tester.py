@@ -17,9 +17,11 @@ Uses:
 
 import argparse
 import time
+
 import numpy as np
 
 import carla
+
 
 class VehicleControlStop:
     def __init__(self, x_min = -100000, x_max = +100000, y_min = -100000, y_max = +100000,
@@ -63,7 +65,7 @@ class VehicleControlStop:
         return False
 
 
-def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_sweep = None, 
+def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_sweep = None,
     long_stiff = None, lat_stiff = None, lat_load = None,
     clutch_strength = None, max_rpm = None):
 
@@ -250,7 +252,7 @@ def brake_scenario(world, bp_veh, speed):
 
     controls = [
         (1000, carla.VehicleControl(brake=1.0), VehicleControlStop(speed_min=0.1))]
-    
+
     data = run_scenario(world, bp_veh, init_loc, init_speed=speed/3.6, controls=controls)
 
     delta = data.get_scalar_delta(1)

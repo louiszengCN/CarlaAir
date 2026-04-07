@@ -7,11 +7,14 @@ Spawns CARLA traffic + flies AirSim drone overhead to observe the scene.
 Captures aerial images of CARLA vehicles from the drone camera.
 """
 
-import carla
-import airsim
-import time
-import random
 import os
+import random
+import time
+
+import airsim
+
+import carla
+
 
 def main():
     print("=" * 50)

@@ -8,14 +8,15 @@
 
 """Open3D Lidar visualization example for CARLA"""
 
-import sys
 import argparse
+import random
+import sys
 import time
 from datetime import datetime
-import random
+
 import numpy as np
-from matplotlib import cm
 import open3d as o3d
+from matplotlib import cm
 
 import carla
 

@@ -127,7 +127,7 @@ def main():
         car_cam.listen(on_car)
 
     # Traffic
-    print(f"[3] Traffic ...", end=" ", flush=True)
+    print("[3] Traffic ...", end=" ", flush=True)
     vbps = list(bp_lib.filter("vehicle.*"))
     pts = list(sps)
     random.shuffle(pts)
@@ -244,7 +244,7 @@ def main():
     shot = 0
     tour_start = time.time()
 
-    print(f"\n[Ready] City tour started\n")
+    print("\n[Ready] City tour started\n")
 
     try:
         while running[0]:

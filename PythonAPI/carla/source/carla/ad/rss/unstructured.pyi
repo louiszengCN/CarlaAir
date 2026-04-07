@@ -1,4 +1,5 @@
 from typing import overload
+
 from ... import ad
 from .. import _Vector
 from . import *
@@ -144,8 +145,8 @@ def getHeadingOverlap(headingRange: state.HeadingRange, overlapRanges: state.Hea
 
         C++ signature :
             bool getHeadingOverlap(ad::rss::state::HeadingRange,std::vector<ad::rss::state::HeadingRange, std::allocator<ad::rss::state::HeadingRange> > {lvalue})"""
-            
-            
+
+
 def getPointOnCircle(origin: Unknown, radius: ad.physics.Distance, angle: ad.physics.Angle) -> Unknown:
     """
     getPointOnCircle( (object)origin, (Distance)radius, (Angle)angle) -> object :
@@ -170,7 +171,7 @@ def toDistance(*args, **kwargs):
 
         C++ signature :
             ad::physics::Distance2D toDistance(boost::geometry::model::d2::point_xy<double, boost::geometry::cs::cartesian>)"""
-            
+
 
 @overload
 def toPoint(distance: ad.physics.Distance2D) -> Unknown:
@@ -185,7 +186,7 @@ def toPoint(distance: ad.physics.Distance2D) -> Unknown:
         C++ signature :
             boost::geometry::model::d2::point_xy<double, boost::geometry::cs::cartesian> toPoint(ad::physics::Distance,ad::physics::Distance)
     """
-            
+
 @overload
 def toPoint(distanceX: ad.physics.Distance, distanceY: ad.physics.Distance) -> Unknown:
     """

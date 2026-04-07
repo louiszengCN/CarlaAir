@@ -6,8 +6,8 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import tarfile
 import os
+import tarfile
 
 BLUE = '\033[94m'
 GREEN = '\033[92m'

@@ -6,9 +6,10 @@ Usage: python3 test_airsim_drone.py
 Tests: connection, takeoff, movement, rotation, camera, landing
 """
 
-import airsim
-import time
 import os
+
+import airsim
+
 
 def main():
     # Connect
@@ -119,7 +120,7 @@ def main():
 
     print()
     print("=== ALL AIRSIM TESTS PASSED ===")
-    print(f"Images saved to /tmp/airsim_images/")
+    print("Images saved to /tmp/airsim_images/")
 
 if __name__ == '__main__':
     main()

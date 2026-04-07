@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """CarlaAir Quick Start - Step 6: 无人机多模态传感器"""
 import airsim
-import numpy as np
 import cv2
+import numpy as np
 
 client = airsim.MultirotorClient(port=41451)
 client.confirmConnection()
@@ -35,9 +35,9 @@ if responses[1].height > 0:
 if responses[2].height > 0:
     img = np.frombuffer(responses[2].image_data_uint8, dtype=np.uint8)
     cv2.imwrite('/tmp/drone_seg.png', img.reshape(responses[2].height, responses[2].width, 3))
-    print(f"  Segmentation: OK")
+    print("  Segmentation: OK")
 
 client.landAsync().join()
 client.armDisarm(False)
 client.enableApiControl(False)
-print(f"图像保存在 /tmp/drone_*.png")
+print("图像保存在 /tmp/drone_*.png")
