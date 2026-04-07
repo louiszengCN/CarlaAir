@@ -616,7 +616,7 @@ def main():
     if len(decals_json) == 0:
         generate_decals_file(import_folder)
 
-    if args.json_only == False:
+    if not args.json_only:
         copy_roadpainter_config_files(args.package)
         import_assets_from_json_list(json_list, args.batch_size)
 
