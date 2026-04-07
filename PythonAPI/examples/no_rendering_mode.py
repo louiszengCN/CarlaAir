@@ -915,7 +915,7 @@ class World:
             town_map = world.get_map()
             return (world, town_map)
 
-        except RuntimeError as ex:
+        except RuntimeError:
             logging.exception("RuntimeError occurred")
             exit_game()
 
