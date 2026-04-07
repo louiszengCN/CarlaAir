@@ -339,7 +339,7 @@ def main():
 
     # Add some traffic
     npcs = []
-    for i in range(100):
+    for _i in range(100):
         vehicle_bp = random.choice(bp_lib.filter('vehicle'))
         npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
         if npc:

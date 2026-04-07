@@ -193,7 +193,7 @@ class HumanTrajectoryRunner:
 
     def _visualize_full_trajectory(self):
         prev = None
-        for i, p in enumerate(self.traj):
+        for _i, p in enumerate(self.traj):
             loc = carla.Location(x=float(p["x"]), y=float(p["y"]), z=float(p.get("z", 1.0)))
             self.world.debug.draw_point(loc + carla.Location(z=0.1), size=0.18, color=carla.Color(255, 0, 0), life_time=self.viz_life)
             if prev is not None:

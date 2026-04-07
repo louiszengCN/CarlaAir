@@ -352,7 +352,7 @@ class SensorPanelManager:
         return result
 
     def detach_all(self):
-        for name, sensor in self.sensors:
+        for _name, sensor in self.sensors:
             try: sensor.stop()
             except: pass
             try: sensor.destroy()

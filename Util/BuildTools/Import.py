@@ -45,7 +45,7 @@ def get_packages_json_list(folder):
 
 def get_decals_json_file(folder):
 
-    for root, _, filenames in os.walk(folder):
+    for _root, _, filenames in os.walk(folder):
         for filename in fnmatch.filter(filenames, "roadpainter_decals.json"):
             return filename
 

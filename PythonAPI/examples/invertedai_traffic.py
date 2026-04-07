@@ -973,7 +973,7 @@ def main():
 
             # Perform CARLA simulation tick to spawn sensors
             world.tick()
-        for frame in tqdm(range(args.sim_length * FPS)):
+        for _frame in tqdm(range(args.sim_length * FPS)):
             traffic_lights_states = assign_iai_traffic_lights_from_carla(world, response.traffic_lights_states, carla2iai_tl)
             agent_properties = wp_manager.update(
                 response = response,

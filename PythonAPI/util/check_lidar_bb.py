@@ -182,7 +182,7 @@ class ActorTrace(object):
 
 
 def wait(world, frames=100, queue = None, slist = None):
-    for i in range(0, frames):
+    for _i in range(0, frames):
         world.tick()
 
         if queue is not None and slist is not None:
@@ -232,7 +232,7 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
     bb_data = None
 
     try:
-        for i in range (0, sensor_number):
+        for _i in range (0, sensor_number):
             s_frame = sensor_queue.get(True, 1.0)
             while s_frame[0] != w_frame:
                 print("Warning! Missmatch for sensor %s in the frame timestamp (w: %d, s: %d)" % (s_frame[1], w_frame, s_frame[0]))
