@@ -8,6 +8,7 @@
 
 import os
 import tarfile
+import sys
 
 BLUE = '\033[94m'
 GREEN = '\033[92m'
@@ -51,7 +52,7 @@ def exec_command(container, command, user="root",
         if out:
             print(out)
     if not ignore_error and command_result.exit_code:
-        exit(1)
+        sys.exit(1)
     return command_result
 
 

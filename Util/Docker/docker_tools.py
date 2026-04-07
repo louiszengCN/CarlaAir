@@ -17,6 +17,7 @@ import subprocess
 
 import docker
 import docker_utils
+import sys
 
 
 def print_formated_dict(dic):
@@ -75,7 +76,7 @@ def parse_args():
             docker_utils.RED +
             "[Error] The Input Path [-i|--input] must be specified "
             "if you are processing individual packages." + docker_utils.ENDC)
-        exit(1)
+        sys.exit(1)
 
     print()
 
