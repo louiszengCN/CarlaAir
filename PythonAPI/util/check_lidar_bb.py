@@ -259,8 +259,8 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
             trace_vehicle.check_lidar_data()
 
 class SpawnCar:
-    def __init__(self, location, rotation, filter="vehicle.*", autopilot = False, velocity = None):
-        self._filter = filter
+    def __init__(self, location, rotation, filter_pattern="vehicle.*", autopilot = False, velocity = None):
+        self._filter = filter_pattern
         self._transform = carla.Transform(location, rotation)
         self._autopilot = autopilot
         self._velocity = velocity

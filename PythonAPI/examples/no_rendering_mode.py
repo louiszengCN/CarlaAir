@@ -606,8 +606,7 @@ class MapImage:
                     current_lane_marking = marking_type
 
                     # Append each lane marking in the list
-                    for marking in markings:
-                        markings_list.append(marking)
+                    markings_list.extend(markings)
 
                     temp_waypoints = temp_waypoints[-1:]
 
@@ -622,8 +621,7 @@ class MapImage:
                 lane_marking_color_to_tango(previous_marking_color),
                 temp_waypoints,
                 sign)
-            for marking in last_markings:
-                markings_list.append(marking)
+            markings_list.extend(last_markings)
 
             # Once the lane markings have been simplified to Solid or Broken lines, we draw them
             for markings in markings_list:

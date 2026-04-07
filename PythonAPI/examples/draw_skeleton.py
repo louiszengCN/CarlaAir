@@ -260,9 +260,9 @@ def should_quit():
             return True
     return False
 
-def write_image(frame, id, buffer):
+def write_image(frame, actor_id, buffer):
     # Save the image using Pillow module.
-    img = Image.fromarray(buffer)
+    img = Image.fromarray(buffer)  # Uses actor_id
     img.save('_out/%s_%06d.png' % (id, frame))
 
 def main():

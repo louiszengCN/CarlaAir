@@ -519,7 +519,7 @@ def spawn_pedestrians(
 
     # Get spawn points for pedestrians
     spawn_points = []
-    for i in range(num_pedestrians):
+    for _ in range(num_pedestrians):
 
         loc = world.get_random_location_from_navigation()
         if (loc is not None):
@@ -567,10 +567,10 @@ def spawn_pedestrians(
 # Get blueprints according to the given filters
 def get_actor_blueprints(
     world,
-    filter,
+    filter_pattern,
     generation
 ):
-    bps = world.get_blueprint_library().filter(filter)
+    bps = world.get_blueprint_library().filter(filter_pattern)
 
     if generation.lower() == "all":
         return bps

@@ -12,7 +12,7 @@ import argparse
 import random
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import open3d as o3d
@@ -207,7 +207,7 @@ def main(arg):
             add_open3d_axis(vis)
 
         frame = 0
-        dt0 = datetime.now()
+        dt0 = datetime.now(timezone.utc)
         while True:
             if frame == 2:
                 vis.add_geometry(point_list)
@@ -219,10 +219,10 @@ def main(arg):
             time.sleep(0.005)
             world.tick()
 
-            process_time = datetime.now() - dt0
+            process_time = datetime.now(timezone.utc) - dt0
             sys.stdout.write('\r' + 'FPS: ' + str(1.0 / process_time.total_seconds()))
             sys.stdout.flush()
-            dt0 = datetime.now()
+            dt0 = datetime.now(timezone.utc)
             frame += 1
 
     finally:
