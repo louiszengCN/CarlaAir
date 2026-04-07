@@ -55,10 +55,9 @@ def get_scene_layout(carla_map):
 
     # Generate waypoints graph
     waypoints_graph = {}
-    for road_key in map_dict:
-        for lane_key in map_dict[road_key]:
+    for road_key, road_value in map_dict.items():
+        for lane_key, lane in road_value.items():
             # List of waypoints
-            lane = map_dict[road_key][lane_key]
 
             for i in range(len(lane["waypoints"])):
                 next_ids = [w.id for w in lane["waypoints"][i + 1:len(lane["waypoints"])]]

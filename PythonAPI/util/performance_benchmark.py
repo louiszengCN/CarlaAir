@@ -180,7 +180,7 @@ class CallBack:
 
 
 def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, client, tick):
-  global sensors_callback  # PLW0602
+  global sensors_callback  # noqa: PLW0602
   sensors_ret = []
   blueprint_library = world.get_blueprint_library()
 
@@ -268,7 +268,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
   if n_walkers > 0:
     # 1. take all the random locations to spawn
     spawn_points = []
-    for i in range(n_walkers):
+    for _ in range(n_walkers):
       spawn_point = carla.Transform()
       loc = world.get_random_location_from_navigation()
       if (loc is not None):
@@ -356,7 +356,7 @@ def set_world_settings(world, args = None):
     world.apply_settings(settings)
 
 def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
-  global sensors_callback  # PLW0602
+  global sensors_callback  # noqa: PLW0602
 
   spawn_points = world.get_map().get_spawn_points()
   n = min(n_vehicles, len(spawn_points))
@@ -476,7 +476,7 @@ def show_benchmark_scenarios(maps):
   for map_name in sorted(maps):
     print(f"  - {map_name}")
   print("Available sensors")
-  for i,sensors in enumerate(define_sensors()):
+  for _,sensors in enumerate(define_sensors()):
     sensor_str = ""
     for sensor in sensors:
       sensor_str += (sensor['label'] + " ")
