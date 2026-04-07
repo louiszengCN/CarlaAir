@@ -32,9 +32,10 @@ exclude = [
     "build",
     "dist",
     "*.egg-info",
-    "PythonAPI/carla/source",  # Auto-generated C++ bindings
-    "CarlaAir_Release",         # Binary distribution copy
-    "LibCarla",                 # C++ library source
+    "PythonAPI/carla/source",      # Auto-generated C++ bindings
+    "CarlaAir_Release",             # Binary distribution copy
+    "LibCarla",                     # C++ library source
+    "PythonAPI/docs/snipets",       # Documentation code snippets
 ]
 
 [tool.ruff.lint]
