@@ -152,7 +152,7 @@ class WalkerReplayer:
 
     def destroy(self):
         try: self.actor.destroy()
-        except: pass
+        except Exception: pass
 
 
 class VehicleReplayer:
@@ -195,7 +195,7 @@ class VehicleReplayer:
 
     def destroy(self):
         try: self.actor.destroy()
-        except: pass
+        except Exception: pass
 
 
 class DroneReplayer:
@@ -274,7 +274,7 @@ class DroneReplayer:
         try:
             self.client.armDisarm(False)
             self.client.enableApiControl(False)
-        except: pass
+        except Exception: pass
 
 
 # ─── Sensor Panel Manager ─────────────────────────────────────────
@@ -354,9 +354,9 @@ class SensorPanelManager:
     def detach_all(self):
         for _name, sensor in self.sensors:
             try: sensor.stop()
-            except: pass
+            except Exception: pass
             try: sensor.destroy()
-            except: pass
+            except Exception: pass
         self.sensors.clear()
         self.images.clear()
         self._locks.clear()
@@ -498,7 +498,7 @@ Examples:
                 v = world.spawn_actor(bp, spawn_points[i])
                 v.set_autopilot(True)
                 bg_actors.append(v)
-            except:
+            except Exception:
                 pass
         print(f"  Spawned {len(bg_actors)} vehicles")
 
@@ -521,7 +521,7 @@ Examples:
                     if dest:
                         ctrl.go_to_location(dest)
                     ctrl.set_max_speed(1.0 + __import__("random").random() * 1.5)
-                except:
+                except Exception:
                     pass
         walker_count = sum(1 for a in bg_actors if "walker" in getattr(a, "type_id", ""))
         print(f"  Spawned {walker_count} walkers")
@@ -907,7 +907,7 @@ Examples:
                             display.blit(psurf, (px, py))
                             label = font.render(name, True, (200, 255, 200))
                             display.blit(label, (px + 4, py - 16))
-                        except:
+                        except Exception:
                             pass
                     py += 195
 
@@ -964,13 +964,13 @@ Examples:
         # Sensors
         try:
             sensor_mgr.detach_all()
-        except:
+        except Exception:
             pass
 
         # Director camera
         try:
             director_cam.stop()
-        except:
+        except Exception:
             pass
 
         # Replayers
@@ -981,13 +981,13 @@ Examples:
         for a in cleanup_actors:
             try:
                 a.destroy()
-            except:
+            except Exception:
                 pass
 
         # Restore settings
         try:
             world.apply_settings(original_settings)
-        except:
+        except Exception:
             pass
 
         # Pygame
@@ -995,7 +995,7 @@ Examples:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except:
+        except Exception:
             pass
 
         print("Done.")

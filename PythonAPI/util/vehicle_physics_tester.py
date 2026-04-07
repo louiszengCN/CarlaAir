@@ -245,7 +245,7 @@ def brake_scenario(world, bp_veh, speed):
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except:
+    except Exception:
         print("No spectator")
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
@@ -265,7 +265,7 @@ def accel_scenario(world, bp_veh, max_vel):
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except:
+    except Exception:
         print("No spectator")
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
@@ -285,7 +285,7 @@ def uturn_scenario(world, bp_veh):
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except:
+    except Exception:
         pass
 
     init_pos = carla.Transform(carla.Location(15, -190, 0.2), carla.Rotation(yaw=0))
@@ -304,7 +304,7 @@ def highspeed_turn_scenario(world, bp_veh, steer):
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except:
+    except Exception:
         pass
 
     init_pos = carla.Transform(carla.Location(50, -204, 0.2), carla.Rotation(yaw=0))
@@ -349,7 +349,7 @@ def main(arg):
                     print()
                     print(vehicle.get_physics_control())
                     vehicle.destroy()
-                except:
+                except Exception:
                     pass
 
             if args.none:

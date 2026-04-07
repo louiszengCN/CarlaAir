@@ -426,7 +426,7 @@ class SimulationData:
                 agent_transform = transform_iai_to_carla(agent.state)
                 try:
                     agent.carla_actor.set_transform(agent_transform)
-                except:
+                except Exception:
                     pass
 
     def update_iai_states_from_carla(self):
@@ -587,7 +587,7 @@ def get_actor_blueprints(
             return bps
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
-    except:
+    except Exception:
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 
@@ -846,7 +846,7 @@ def main():
         api_key = os.environ.get("IAI_API_KEY", None)
         if api_key is None:
             iai.add_apikey(args.iai_key)
-    except:
+    except Exception:
         print("\n\tYou need to indicate the InvertedAI API key with the argument --iai-key. To obtain one, please go to https://www.inverted.ai \n")
 
     num_pedestrians = args.number_of_walkers

@@ -161,7 +161,7 @@ def get_actor_blueprints(world, pattern, generation):
             return bps
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
-    except:
+    except Exception:
         print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 

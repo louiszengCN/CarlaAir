@@ -41,7 +41,7 @@ class CodeFormatter:
                 cprint("[NOT OK] Version string does not start with '" + self.expectedVersion + "'", "red")
             else:
                 return
-        except:
+        except Exception:
             cprint("[ERROR] Could not run " + self.command, "red")
             cprint("[INFO] Please check if correct version is installed or install with '" +
                    self.installCommand + "'", "blue")

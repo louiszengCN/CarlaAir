@@ -255,7 +255,7 @@ def draw_skeleton(buffer, image_w, image_h, boneIndex, points2d, color, size=4):
         draw_line_on_buffer(buffer, image_w, image_h, (points2d[boneIndex["crl_leg__L"]], points2d[boneIndex["crl_foot__L"]]), color, size)
         draw_line_on_buffer(buffer, image_w, image_h, (points2d[boneIndex["crl_foot__L"]], points2d[boneIndex["crl_toe__L"]]), color, size)
         draw_line_on_buffer(buffer, image_w, image_h, (points2d[boneIndex["crl_toe__L"]], points2d[boneIndex["crl_toeEnd__L"]]), color, size)
-    except:
+    except Exception:
         pass
 
 def should_quit():
