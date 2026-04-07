@@ -16,9 +16,7 @@ from setuptools import Extension, setup
 
 
 def is_rss_variant_enabled():
-    if 'BUILD_RSS_VARIANT' in os.environ and os.environ['BUILD_RSS_VARIANT'] == 'true':
-        return True
-    return False
+    return bool('BUILD_RSS_VARIANT' in os.environ and os.environ['BUILD_RSS_VARIANT'] == 'true')
 
 def get_libcarla_extensions():
     include_dirs = ['dependencies/include']

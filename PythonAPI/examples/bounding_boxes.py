@@ -85,9 +85,7 @@ def get_image_point(loc, K, w2c):
 # Verify that the point is within the image plane
 def point_in_canvas(pos, img_h, img_w):
     """Return true if point is in canvas"""
-    if (pos[0] >= 0) and (pos[0] < img_w) and (pos[1] >= 0) and (pos[1] < img_h):
-        return True
-    return False
+    return bool(pos[0] >= 0 and pos[0] < img_w and pos[1] >= 0 and pos[1] < img_h)
 
 # Decode the instance segmentation map into semantic labels and actor IDs
 def decode_instance_segmentation(img_rgba: np.ndarray):

@@ -253,10 +253,7 @@ class CodeFormat:
             for excluded in self.args.exclude:
                 if excluded in fileName:
                     return False
-        if os.path.islink(fileName):
-            return False
-
-        return True
+        return not os.path.islink(fileName)
 
     def confirmWithUserFileIsOutsideGit(self, fileName):
         cprint("[WARN] File is not in a Git repo: " + fileName, "yellow")

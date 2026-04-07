@@ -388,8 +388,7 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
     min_fps = float('inf')
     for sc in sensors_callback:
       fps = sc.get_fps()
-      if fps < min_fps:
-        min_fps = fps
+      min_fps = min(min_fps, fps)
     if math.isinf(min_fps):
       min_fps = 0
     list_fps.append(min_fps)

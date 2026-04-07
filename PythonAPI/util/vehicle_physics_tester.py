@@ -59,10 +59,7 @@ class VehicleControlStop:
         speed = norm(vehicle.get_velocity())
         if speed > self.speed_max :
             return True
-        if speed < self.speed_min:
-            return True
-
-        return False
+        return speed < self.speed_min
 
 
 def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_sweep = None,

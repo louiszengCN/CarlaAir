@@ -442,8 +442,7 @@ class MapImage:
 
         # Adapt Pixels per meter to make world fit in surface
         surface_pixel_per_meter = int(width_in_pixels / self.width)
-        if surface_pixel_per_meter > PIXELS_PER_METER:
-            surface_pixel_per_meter = PIXELS_PER_METER
+        surface_pixel_per_meter = min(surface_pixel_per_meter, PIXELS_PER_METER)
 
         self._pixels_per_meter = surface_pixel_per_meter
         width_in_pixels = int(self._pixels_per_meter * self.width)
@@ -1434,12 +1433,10 @@ class InputControl:
                 # Handle mouse wheel for zooming in and out
                 if event.button == 4:
                     self.wheel_offset += self.wheel_amount
-                    if self.wheel_offset >= 1.0:
-                        self.wheel_offset = 1.0
+                    self.wheel_offset = min(1.0, self.wheel_offset)
                 elif event.button == 5:
                     self.wheel_offset -= self.wheel_amount
-                    if self.wheel_offset <= 0.1:
-                        self.wheel_offset = 0.1
+                    self.wheel_offset = max(0.1, self.wheel_offset)
 
     def _parse_keys(self, milliseconds):
         """Parses keyboard input when keys are pressed"""
