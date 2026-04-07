@@ -916,7 +916,7 @@ class World:
             return (world, town_map)
 
         except RuntimeError as ex:
-            logging.exception(ex)
+            logging.exception("RuntimeError occurred")
             exit_game()
 
     def start(self, hud, input_control):
@@ -1421,9 +1421,8 @@ class InputControl:
                         self.control.gear = max(-1, self.control.gear - 1)
                     elif self.control.manual_gear_shift and event.key == K_PERIOD:
                         self.control.gear = self.control.gear + 1
-                    elif event.key == K_p:
-                        # Toggle autopilot
-                        if self._world.hero_actor is not None:
+                    elif event.key == K_p and self._world.hero_actor is not None:
+                        # Toggle autopilot:
                             self._autopilot_enabled = not self._autopilot_enabled
                             self._world.hero_actor.set_autopilot(self._autopilot_enabled)
                             self._hud.notification('Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))

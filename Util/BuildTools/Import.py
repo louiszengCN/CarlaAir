@@ -22,10 +22,10 @@ import threading
 # Global variables
 IMPORT_SETTING_FILENAME = "importsetting.json"
 SCRIPT_NAME = os.path.basename(__file__)
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-# Go two directories above the current script
 import carla
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+# Go two directories above the current script
 CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + '/../..')
 
 
@@ -336,9 +336,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
         for umap in maps:
             # import groups of tiles to prevent unreal from using too much memory
             map_template = {}
-            for key, value in iter(umap.items()):
-                if key != 'tiles':
-                    map_template[key] = value
+            map_template = {key: value for key, value in umap.items() if key != 'tiles'}
             map_template['tiles'] = []
             tiles = umap['tiles']
             tiles.sort()
@@ -560,7 +558,7 @@ def build_binary_for_navigation(package_name, dirname, maps):
 def build_binary_for_tm(package_name, dirname, maps):
 
     xodrs = {
-        (map["name"], map["xodr"]) for map in maps if "xodr" in map}
+        (m["name"], m["xodr"]) for m in maps if "xodr" in m}
 
     for target_name, xodr in xodrs:
         with open(os.path.join(dirname, xodr)) as f:

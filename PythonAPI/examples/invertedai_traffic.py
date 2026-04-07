@@ -649,7 +649,7 @@ def assign_carla_blueprints_to_agents(
         agent_data.pop(agent_id)
 
     if len(agent_data) == 0:
-        raise Exception("No vehicles could be placed in Carla environment.")
+        raise RuntimeError("No vehicles could be placed in Carla environment.")
 
     return agent_data
 
