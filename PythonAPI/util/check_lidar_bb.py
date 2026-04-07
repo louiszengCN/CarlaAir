@@ -185,7 +185,7 @@ def wait(world, frames=100, queue = None, slist = None):
     for i in range(0, frames):
         world.tick()
 
-        if queue != None and slist != None:
+        if queue is not None and slist is not None:
             try:
                 for _i in range (0, len(slist)):
                     s_frame = queue.get(True, 1.0)
@@ -248,10 +248,10 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
         print("Error!!! The needeinformation is not here!!!")
         return
 
-    if sl_data == None or bb_data == None:
+    if sl_data is None or bb_data is None:
         print("Error!!! Missmatch for sensor %s in the frame timestamp (w: %d, s: %d)" % (s_frame[1], w_frame, s_frame[0]))
 
-    if( bb_data != None ):
+    if( bb_data is not None ):
         for actor_data in bb_data[2]:
             trace_vehicle = ActorTrace(actor_data, sl_data, world)
             trace_vehicle.process()
@@ -275,7 +275,7 @@ class SpawnCar(object):
         return self._actor
 
     def destroy(self):
-        if self._actor != None:
+        if self._actor is not None:
             self._actor.destroy()
 
 

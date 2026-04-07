@@ -131,7 +131,8 @@ except ImportError:
 
 def find_weather_presets():
     rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
-    name = lambda x: ' '.join(m.group(0) for m in rgx.finditer(x))
+    def name(x):
+        return ' '.join(m.group(0) for m in rgx.finditer(x))
     presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
     return [(getattr(carla.WeatherParameters, x), name(x)) for x in presets]
 
@@ -637,7 +638,8 @@ class HUD(object):
             'Number of vehicles: % 8d' % len(vehicles)]
         if len(vehicles) > 1:
             self._info_text += ['Nearby vehicles:']
-            distance = lambda l: math.sqrt((l.x - t.location.x)**2 + (l.y - t.location.y)**2 + (l.z - t.location.z)**2)
+            def distance(l):
+                return math.sqrt((l.x - t.location.x)**2 + (l.y - t.location.y)**2 + (l.z - t.location.z)**2)
             vehicles = [(distance(x.get_location()), x) for x in vehicles if x.id != world.player.id]
             for d, vehicle in sorted(vehicles, key=lambda vehicles: vehicles[0]):
                 if d > 200.0:

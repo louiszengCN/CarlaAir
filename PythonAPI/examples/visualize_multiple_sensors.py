@@ -78,7 +78,7 @@ class DisplayManager:
             s.destroy()
 
     def render_enabled(self):
-        return self.display != None
+        return self.display is not None
 
 class SensorManager:
     def __init__(self, world, display_man, sensor_type, transform, attached, sensor_options, display_pos):

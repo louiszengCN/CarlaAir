@@ -8,7 +8,7 @@ spawn_points = []
 for i in range(50):
     spawn_point = carla.Transform()
     spawn_point.location = world.get_random_location_from_navigation()
-    if (spawn_point.location != None):
+    if (spawn_point.location is not None):
         spawn_points.append(spawn_point)
 
 # 2. Build the batch of commands to spawn the pedestrians

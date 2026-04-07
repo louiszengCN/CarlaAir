@@ -276,7 +276,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     for i in range(n_walkers):
       spawn_point = carla.Transform()
       loc = world.get_random_location_from_navigation()
-      if (loc != None):
+      if (loc is not None):
         spawn_point.location = loc
         spawn_points.append(spawn_point)
     # 2. we spawn the walker object
@@ -347,7 +347,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
 
 def set_world_settings(world, args = None):
 
-  if args == None:
+  if args is None:
     settings = world.get_settings()
     settings.synchronous_mode = False
     settings.fixed_delta_seconds = 0.0
