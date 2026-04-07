@@ -142,7 +142,7 @@ class CodeFormatterClang(CodeFormatter):
 
     def confirmWithUserClangFormatFileCantBeVerified(self):
         if not self.args.yes:
-            answer = raw_input("Are you sure your .clang-format file is up-to-date and you want to continue? (y/N)")
+            answer = input("Are you sure your .clang-format file is up-to-date and you want to continue? (y/N)")
             if answer != "y":
                 sys.exit(1)
 
@@ -260,19 +260,19 @@ class CodeFormat:
 
     def confirmWithUserFileIsOutsideGit(self, fileName):
         cprint("[WARN] File is not in a Git repo: " + fileName, "yellow")
-        answer = raw_input("Are you sure to code format it anyway? (y/Q)")
+        answer = input("Are you sure to code format it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
     def confirmWithUserFileIsUntracked(self, fileName):
         cprint("[WARN] File is untracked in Git: " + fileName, "yellow")
-        answer = raw_input("Are you sure to code format it anyway? (y/Q)")
+        answer = input("Are you sure to code format it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
     def confirmWithUserGitRepoIsNotClean(self, gitRepo):
         cprint("[WARN] Git repo is not clean: " + gitRepo, "yellow")
-        answer = raw_input("Are you sure to code format files in it anyway? (y/Q)")
+        answer = input("Are you sure to code format files in it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
@@ -397,7 +397,7 @@ class CodeFormat:
         elif (not self.args.verify) and (not self.args.yes) and self.numberOfInputFiles() > 1:
             for formatterInstance in self.codeFormatterInstances:
                 formatterInstance.printInputFiles()
-            answer = raw_input("Are you sure to code format " + str(self.numberOfInputFiles()) + " files? (y/N)")
+            answer = input("Are you sure to code format " + str(self.numberOfInputFiles()) + " files? (y/N)")
             if answer != "y":
                 sys.exit(1)
 

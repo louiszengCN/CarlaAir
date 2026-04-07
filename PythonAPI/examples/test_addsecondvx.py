@@ -4,7 +4,7 @@ import weakref
 import carla
 
 
-def get_actor_blueprints(world, filter, generation):
+def get_actor_blueprints(world, pattern, generation):
     bps = world.get_blueprint_library().filter(filter)
 
     if generation.lower() == "all":

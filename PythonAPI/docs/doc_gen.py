@@ -184,7 +184,7 @@ class YamlFile:
                         print('\n[ERROR] File: ' + self._path)
                         print("'class_name' is empty in:")
                         exit(0)
-                    if 'instance_variables' in cl and cl['instance_variables']:
+                    if cl.get('instance_variables'):
                         for iv in cl['instance_variables']:
                             if 'var_name' not in iv:
                                 print('\n[ERROR] File: ' + self._path)
@@ -194,7 +194,7 @@ class YamlFile:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'var_name' is empty in:")
                                 exit(0)
-                    if 'methods' in cl and cl['methods']:
+                    if cl.get('methods'):
                         for met in cl['methods']:
                             if 'def_name' not in met:
                                 print('\n[ERROR] File: ' + self._path)
@@ -204,7 +204,7 @@ class YamlFile:
                                 print('\n[ERROR] File: ' + self._path)
                                 print("'def_name' is empty in:")
                                 exit(0)
-                            if 'params' in met and met['params']:
+                            if met.get('params'):
                                 for param in met['params']:
                                     if 'param_name' not in param:
                                         print('\n[ERROR] File: ' + self._path)
@@ -628,7 +628,7 @@ class Documentation:
                 parentheses(module_key) + ' ' +
                 sub(italic('Module')))
             # Generate class overview (if any)
-            if 'classes' in module and module['classes']:
+            if module.get('classes'):
                 for cl in sorted(module['classes']):
                     class_name = cl['class_name']
                     class_key = join([module_key, class_name], '.')
@@ -637,12 +637,12 @@ class Documentation:
                         parentheses(class_key), ' ',
                         sub(italic('Class'))]))
                     # Generate class instance variables overview (if any)
-                    if 'instance_variables' in cl and cl['instance_variables']:
+                    if cl.get('instance_variables'):
                         for inst_var in cl['instance_variables']:
                             md.list_push(gen_inst_var_indx(inst_var, class_key))
                             md.list_popn()
                     # Generate class methods overview (if any)
-                    if 'methods' in cl and cl['methods']:
+                    if cl.get('methods'):
                         for method in sorted(cl['methods'], key = lambda i: i['def_name']):
                             md.list_push(gen_method_indx(method, class_key))
                             md.list_popn()
