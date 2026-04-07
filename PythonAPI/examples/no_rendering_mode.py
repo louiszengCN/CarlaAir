@@ -743,19 +743,19 @@ class MapImage:
 
                 for w in waypoints:
                     # Classify lane types until there are no waypoints by going left
-                    l = w.get_left_lane()
-                    while l and l.lane_type != carla.LaneType.Driving:
+                    lane = w.get_left_lane()
+                    while lane and lane.lane_type != carla.LaneType.Driving:
 
-                        if l.lane_type == carla.LaneType.Shoulder:
-                            shoulder[0].append(l)
+                        if lane.lane_type == carla.LaneType.Shoulder:
+                            shoulder[0].append(lane)
 
-                        if l.lane_type == carla.LaneType.Parking:
-                            parking[0].append(l)
+                        if lane.lane_type == carla.LaneType.Parking:
+                            parking[0].append(lane)
 
-                        if l.lane_type == carla.LaneType.Sidewalk:
-                            sidewalk[0].append(l)
+                        if lane.lane_type == carla.LaneType.Sidewalk:
+                            sidewalk[0].append(lane)
 
-                        l = l.get_left_lane()
+                        lane = lane.get_left_lane()
 
                     # Classify lane types until there are no waypoints by going right
                     r = w.get_right_lane()

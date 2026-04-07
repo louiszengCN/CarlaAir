@@ -95,11 +95,10 @@ def generate_json_package(folder, package_name, use_carla_materials):
             # write
             json_maps.append(map_dict)
         # build and write the .json
-        f = open(f"{folder}/{package_name}.json", "w")
-        my_json = {'maps': json_maps, 'props': []}
-        serialized = json.dumps(my_json, sort_keys=False, indent=3)
-        f.write(serialized)
-        f.close()
+        with open(f"{folder}/{package_name}.json", "w") as f:
+            my_json = {'maps': json_maps, 'props': []}
+            serialized = json.dumps(my_json, sort_keys=False, indent=3)
+            f.write(serialized)
         # add
         json_files.append([folder, f"{package_name}.json"])
 
@@ -179,11 +178,10 @@ def generate_decals_file(folder):
             })
 
         # build and write the .json
-        f = open("{}/{}.json".format(folder, 'roadpainter_decals'), "w")
-        my_json = {'decals': json_decals}
-        serialized = json.dumps(my_json, sort_keys=False, indent=3)
-        f.write(serialized)
-        f.close()
+        with open("{}/{}.json".format(folder, 'roadpainter_decals'), "w") as f:
+            my_json = {'decals': json_decals}
+            serialized = json.dumps(my_json, sort_keys=False, indent=3)
+            f.write(serialized)
 
 def invoke_commandlet(name, arguments):
     """Generic function for running a commandlet with its arguments."""

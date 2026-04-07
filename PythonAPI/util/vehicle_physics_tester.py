@@ -147,10 +147,10 @@ class TelemetryPoint:
 
     def __sub__(self, other):
         t = self.time - other.time
-        l = self.location - other.location
+        loc_diff = self.location - other.location
         r = carla.Rotation()
         v = self.velocity - other.velocity
-        return TelemetryPoint(t, l, r, v)
+        return TelemetryPoint(t, loc_diff, r, v)
 
 class TelemetryData:
     def __init__(self, curr_time, vehicle):

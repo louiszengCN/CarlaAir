@@ -477,8 +477,8 @@ def get_system_specs():
 
 def show_benchmark_scenarios(maps):
   print("Available maps")
-  for map in sorted(maps):
-    print(f"  - {map}")
+  for map_name in sorted(maps):
+    print(f"  - {map_name}")
   print("Available sensors")
   for i,sensors in enumerate(define_sensors()):
     sensor_str = ""

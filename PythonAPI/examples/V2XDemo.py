@@ -1035,8 +1035,8 @@ class V2XSensor:
 
         # trigger custom sensor to send messages
         message = carla.CustomV2XBytes()
-        bytes = bytearray("Hello CARLA Byte Array", 'utf-8')
-        message.set_bytes(bytes)
+        byte_array = bytearray("Hello CARLA Byte Array", 'utf-8')
+        message.set_bytes(byte_array)
         self.sensor_custom.send(message)
         message.set_string("Hello CARLA String Message")
         self.sensor_custom.send(message)
@@ -1051,9 +1051,9 @@ class V2XSensor:
             msg = data.get()
             stationId = msg["Message"]["Header"]["Station ID"]
             power = data.power
-            bytes = msg["Message"]["Message"]["Bytes"]
-            print(f"V2XCustom bytes hex {bytes.hex()}")
-            print("V2XCustom bytes str {}".format(bytes.decode('utf-8', errors='ignore')))
+            byte_str = msg["Message"]["Message"]["Bytes"]
+            print(f"V2XCustom bytes hex {byte_str.hex()}")
+            print("V2XCustom bytes str {}".format(byte_str.decode('utf-8', errors='ignore')))
             self.hud.notification(f'Custom CAM received from {stationId} with power {power:f}')
 
 # ==============================================================================
