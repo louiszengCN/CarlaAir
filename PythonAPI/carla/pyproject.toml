@@ -91,6 +91,10 @@ ignore = [
     "PERF203", # try-except within a loop (acceptable for error recovery)
     "PERF401", # Use list comprehension (explicit loops sometimes clearer)
     "SIM105",  # Use contextlib.suppress (explicit try-except sometimes clearer)
+    "Q000",    # Quotes style (mixed single/double quotes in legacy code)
+    "E501",    # Line too long (many upstream files exceed 120 chars)
+    "N802",    # Function name should be lowercase (CARLA naming convention)
+    "N806",    # Variable name should be lowercase (CARLA naming convention)
 ]
 
 [tool.ruff.lint.per-file-ignores]
