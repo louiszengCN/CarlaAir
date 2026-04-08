@@ -640,7 +640,7 @@ class TrajectoryPlayback:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
-            "请提供轨迹文件路径: python trajectory_playback.py "
+            "Please provide trajectory file path: python trajectory_playback.py (请提供轨迹文件路径：python trajectory_playback.py) "
             "<trajectory_file.json> [--record output.mp4] [--style walker|drone]"
         )
     else:

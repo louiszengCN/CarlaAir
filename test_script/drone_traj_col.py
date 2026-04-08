@@ -811,7 +811,7 @@ class DroneTrajectoryCollector:
         def on_img(image: carla.Image):
             self.last_image = image
             array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
-            array = array[:, :, ::-1]   # 新增，解决RGB顺序问题
+            array = array[:, :, ::-1]   # Added to fix RGB order issue (新增，解决 RGB 顺序问题)
             surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
             display.blit(surface, (0, 0))
 
@@ -909,7 +909,7 @@ class DroneTrajectoryCollector:
 
                 planar_len = math.sqrt(planar.x * planar.x + planar.y * planar.y)
                 if planar_len > 1e-6:
-                    # 避免“跳高度”：
+                    # Avoid "height jumping" (避免"跳高度"：)
                     # 如果用户只是开始用方向键做Fixed altitude translation (定高平移)，而没有按 E/Q 主动升降，
                     # Then sync fixed_z to current height first, prevent fixed_z still being old value causing instant jump back to old height (则先把 fixed_z 同步到当前高度，防止 fixed_z 仍是旧值导致瞬间跳回旧高度)。
                     if not (keys[pygame.K_e] or keys[pygame.K_q]):
