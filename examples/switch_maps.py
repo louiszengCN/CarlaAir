@@ -124,19 +124,19 @@ def cleanup_world(world: carla.World) -> int:
             actor.stop()
             actor.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     for actor in world.get_actors().filter(_VEHICLE_FILTER):
         try:
             actor.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     for actor in world.get_actors().filter(_WALKER_FILTER):
         try:
             actor.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     if count:
         print(f"  Cleaned up {count} actors", flush=True)
@@ -181,7 +181,7 @@ def wait_world_ready(
             sps = world.get_map().get_spawn_points()
             if sps:
                 return WorldReadyResult(world=world, spawn_points=sps)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         time.sleep(_READY_CHECK_INTERVAL)
     raise TimeoutError("World not ready after load")
@@ -213,7 +213,7 @@ def switch_map(
             )
         cleanup_world(world)
         ensure_async_mode(world)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  Warning during prep: {e}", flush=True)
 
     # Set extended timeout for slow load_world
@@ -384,7 +384,7 @@ def main() -> None:
         world = client.get_world()
         current = world.get_map().name.split("/")[-1]
         print(f"  Current map: {current}", flush=True)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(
             f"  ERROR: Cannot connect to CarlaAir: {e}",
             flush=True,

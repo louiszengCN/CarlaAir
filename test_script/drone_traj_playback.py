@@ -645,7 +645,7 @@ class DroneTrajectoryPlayback:
                 self._world.apply_settings(settings)
                 tm = self._client.get_trafficmanager(_TM_PORT)
                 tm.set_synchronous_mode(False)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     def _spawn_drone_and_camera(self) -> None:
@@ -656,7 +656,7 @@ class DroneTrajectoryPlayback:
             try:
                 drone_bp = self._bp_lib.find(bp_id)
                 break
-            except Exception:  # noqa: BLE001
+            except Exception:
                 continue
 
         # Camera setup
@@ -705,7 +705,7 @@ class DroneTrajectoryPlayback:
             try:
                 if cam_bp.has_attribute(key):
                     cam_bp.set_attribute(key, value)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
 
         for attr_key, attr_value in _POSTPROCESS_ATTRS.items():
@@ -1069,17 +1069,17 @@ class DroneTrajectoryPlayback:
         try:
             if self._camera:
                 self._camera.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         if self._video_writer is not None:
             try:
                 self._video_writer.release()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         for a in self._actor_list:
             try:
                 a.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         pygame.quit()
         self._restore_settings()

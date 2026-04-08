@@ -17,8 +17,9 @@ import json
 import os
 import shutil
 import subprocess
-import carla
 import threading
+
+import carla
 
 # Global variables
 IMPORT_SETTING_FILENAME = "importsetting.json"

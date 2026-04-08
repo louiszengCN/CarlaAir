@@ -445,7 +445,7 @@ class TrajectoryCollector:
                 life_time=self._viz_cfg.life_time,
                 persistent_lines=False,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     def _destroy_actors(self) -> None:
@@ -453,13 +453,13 @@ class TrajectoryCollector:
         if self._camera:
             try:
                 self._camera.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         for actor in self._actor_list:
             if actor is not None:
                 try:
                     actor.destroy()
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
         self._actor_list.clear()
 
@@ -509,7 +509,7 @@ class TrajectoryCollector:
                 try:
                     self.spawn_player()
                     continue
-                except Exception:  # noqa: BLE001
+                except Exception:
                     running = False
                     continue
 
@@ -620,7 +620,7 @@ class TrajectoryCollector:
                     boost_loc = self._walker.get_location()
                     boost_loc.z += self._movement_cfg.jump_boost_z
                     self._walker.set_location(boost_loc)
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
         elif event.key == K_r:
             self.record_point()
@@ -691,7 +691,7 @@ class TrajectoryCollector:
             current_tf = (
                 self._walker.get_transform() if self._walker else None
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             current_tf = None
 
         # Reload world to clear debug drawings
@@ -707,7 +707,7 @@ class TrajectoryCollector:
 
             try:
                 self._world = self._client.reload_world()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 self._world = self._client.load_world(base_map_name)
 
             self._map = self._world.get_map()
@@ -716,12 +716,12 @@ class TrajectoryCollector:
             if current_tf is not None:
                 try:
                     self._spawn_walker_and_camera(current_tf)
-                except Exception:  # noqa: BLE001
+                except Exception:
                     self.spawn_player()
             else:
                 self.spawn_player()
             print("轨迹已清除并在原位置重生（如无效则随机重生）。")
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"重新加载地图清除轨迹失败: {e}")
             try:
                 self._world = self._client.get_world()
@@ -729,12 +729,12 @@ class TrajectoryCollector:
                 self._blueprint_library = self._world.get_blueprint_library()
                 if self._walker is None or self._camera is None:
                     self.spawn_player()
-            except Exception as e2:  # noqa: BLE001
+            except Exception as e2:
                 print(f"恢复世界失败: {e2}")
 
 
 # Need random for spawn point selection
-import random  # noqa: E402
+import random
 
 if __name__ == "__main__":
     try:
@@ -748,5 +748,5 @@ if __name__ == "__main__":
         args = parser.parse_args()
         collector = TrajectoryCollector(debug_life_time=args.time)
         collector.run()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"运行出错: {e}")

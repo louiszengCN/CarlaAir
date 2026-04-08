@@ -563,22 +563,22 @@ def main() -> None:
     finally:
         try:
             camera.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         for a in actors:
             try:
                 a.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         try:
             world.apply_settings(original_settings)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         print("  Done.")
 

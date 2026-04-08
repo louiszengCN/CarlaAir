@@ -711,28 +711,28 @@ def main() -> None:
         try:
             if camera is not None:
                 camera.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         for a in actors:
             try:
                 a.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         if ac is not None:
             try:
                 ac.armDisarm(False)
                 ac.enableApiControl(False)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         try:
             world.apply_settings(original_settings)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         print("  Done.")
 

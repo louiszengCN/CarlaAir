@@ -158,19 +158,19 @@ def cleanup_world(
     for s in sensors:
         try:
             s.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             s.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     for a in vehicles + walkers:
         try:
             a.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     if count:
@@ -341,7 +341,7 @@ def spawn_ghost_vehicle(
 
     try:
         actor.set_simulate_physics(False)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
     return actor

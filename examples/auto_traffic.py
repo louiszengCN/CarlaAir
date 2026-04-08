@@ -406,7 +406,7 @@ def _spawn_walkers(
             ctrl.go_to_location(world.get_random_location_from_navigation())
             idx = i // _WALKER_ACTOR_STEP
             ctrl.set_max_speed(valid_speeds[idx] if idx < len(valid_speeds) else walker_config.default_speed)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     _LOG.info("Walkers: %d/%d spawned with AI controllers", len(_walkers), count)
@@ -432,10 +432,10 @@ def _health_check_walkers(world: carla.World) -> int:
                 if loc and ctrl.is_alive:
                     ctrl.go_to_location(loc)
                     reassigned += 1
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         return reassigned
-    except Exception:  # noqa: BLE001
+    except Exception:
         return 0
 
 
@@ -458,10 +458,10 @@ def _health_check_vehicles(
                 if speed < stall_speed:
                     a.set_autopilot(True, tm_port)
                     restarted += 1
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         return restarted
-    except Exception:  # noqa: BLE001
+    except Exception:
         return 0
 
 
@@ -483,7 +483,7 @@ def _cleanup() -> None:
             for i in range(0, len(_all_actor_ids), _WALKER_ACTOR_STEP):
                 try:
                     all_actors[i].stop()
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
         if _vehicles:
@@ -497,7 +497,7 @@ def _cleanup() -> None:
                 [carla.command.DestroyActor(aid) for aid in _all_actor_ids],
             )
             _LOG.info("Destroyed %d walkers/controllers", len(_all_actor_ids))
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _LOG.warning("Cleanup warning: %s", exc)
 
 
@@ -560,7 +560,7 @@ def _connect_to_carla(
             client.set_timeout(timeout)
             world = client.get_world()
             return client, world
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             if attempt < max_attempts:
                 _LOG.info("  Waiting for CARLA … (attempt %d/%d, error: %s)", attempt, max_attempts, exc)
                 time.sleep(retry_delay)
@@ -645,9 +645,9 @@ def main() -> None:
             try:
                 _world = _client.get_world()
                 _LOG.info("Reconnected: %s", _world.get_map().name)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             if _running:
                 _LOG.error("Error: %s", exc)
                 time.sleep(_RECONNECT_DELAY)

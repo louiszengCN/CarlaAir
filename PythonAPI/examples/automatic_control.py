@@ -461,7 +461,7 @@ class World:
             physics_control = actor.get_physics_control()
             physics_control.use_sweep_wheel_collision = True
             actor.apply_physics_control(physics_control)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     def tick(self, clock: pygame.time.Clock) -> None:

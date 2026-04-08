@@ -85,7 +85,7 @@ def test_carla_features(carla_port: int = _CARLA_DEFAULT_PORT) -> carla.World:
         print(f"Map: {carla_map.name}")
         spawn_points = carla_map.get_spawn_points()
         print(f"Spawn points: {len(spawn_points)}")
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"Map info: {e}")
 
     actors = world.get_actors()
@@ -102,7 +102,7 @@ def test_carla_features(carla_port: int = _CARLA_DEFAULT_PORT) -> carla.World:
         print(f"Weather: sun_alt={weather.sun_altitude_angle:.1f}")
         world.set_weather(carla.WeatherParameters.ClearNoon)
         print("Weather set to ClearNoon")
-    except Exception:  # noqa: BLE001
+    except Exception:
         print("Weather: N/A")
 
     traffic_lights = actors.filter("traffic.traffic_light*")
@@ -228,7 +228,7 @@ def main() -> int:
             print(f"  {i + 1}: ({state.x:.1f}, {state.y:.1f}, {state.z:.1f})")
 
         return 0
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"\nError: {e}")
         import traceback
 

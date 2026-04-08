@@ -248,11 +248,11 @@ def _cleanup_sensors(world: carla.World) -> None:
     for sensor in world.get_actors().filter(_SENSOR_FILTER):
         try:
             sensor.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             sensor.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 
@@ -265,7 +265,7 @@ def _cleanup_vehicles(world: carla.World) -> None:
     for vehicle in world.get_actors().filter(_VEHICLE_FILTER):
         try:
             vehicle.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 
@@ -294,7 +294,7 @@ def _render_panel(
             ):
                 surf = pygame.transform.scale(surf, (_PANEL_W, _PANEL_H))
             display.blit(surf, (px, 0))
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     lbl = font.render(label, True, _WHITE_COLOR)
@@ -521,7 +521,7 @@ def main() -> None:
                         drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
                         yaw_mode=airsim.YawMode(False, yaw),
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
             # Render
@@ -555,7 +555,7 @@ def main() -> None:
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  Error: {e}")
         import traceback
 
@@ -564,27 +564,27 @@ def main() -> None:
         for s in sensors:
             try:
                 s.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         for a in actors:
             try:
                 a.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         if original_settings is not None:
             try:
                 world.apply_settings(original_settings)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         if air_client is not None:
             try:
                 air_client.armDisarm(False)
                 air_client.enableApiControl(False)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         try:
             pygame.quit()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         print("  Done.\n")
 

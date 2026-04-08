@@ -158,11 +158,11 @@ def _cleanup_actors(
         try:
             if hasattr(actor, "stop"):
                 actor.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             actor.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 
@@ -230,7 +230,7 @@ def _restore_settings(
     """
     try:
         world.apply_settings(original)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
 
@@ -397,11 +397,11 @@ def main() -> None:
             try:
                 if hasattr(actor, "stop"):
                     actor.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             try:
                 actor.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         if original_settings is not None:
             _restore_settings(world, client, original_settings)
@@ -409,7 +409,7 @@ def main() -> None:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         print("  Done.\n")
 

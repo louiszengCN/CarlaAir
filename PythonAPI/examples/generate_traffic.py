@@ -208,7 +208,7 @@ def _cleanup(
         all_actors = world.get_actors(state.all_actor_ids)
         try:
             all_actors[i].stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     print(f"\ndestroying {len(state.walkers)} walkers")

@@ -457,18 +457,18 @@ def cleanup_previous(world: carla.World) -> int:
     for sensor in actors.filter(_SENSOR_FILTER):
         try:
             sensor.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             sensor.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     for vehicle in actors.filter(_VEHICLE_FILTER):
         try:
             vehicle.destroy()
             count += 1
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     if count:
         print(
@@ -508,7 +508,7 @@ def _render_panel(
                     surf, (_PANEL_W, _PANEL_H)
                 )
             display.blit(surf, (px, py))
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     lbl = font.render(label, True, _WHITE_COLOR)
@@ -793,7 +793,7 @@ def main() -> None:
                         drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
                         yaw_mode=airsim.YawMode(False, yaw),
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
             # ── LiDAR BEV render ──
@@ -833,7 +833,7 @@ def main() -> None:
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"\n  Error: {e}")
         import traceback
 
@@ -844,25 +844,25 @@ def main() -> None:
         for s in sensors:
             try:
                 s.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         # Destroy all spawned actors
         for a in actors:
             try:
                 a.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         # Release AirSim
         if air_client is not None:
             try:
                 air_client.armDisarm(False)
                 air_client.enableApiControl(False)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         if pygame_started:
             try:
                 pygame.quit()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         print("  Done. Welcome to CarlaAir!\n")
 

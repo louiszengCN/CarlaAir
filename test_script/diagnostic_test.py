@@ -160,7 +160,7 @@ def test_vehicle_spawn(
             v = world.spawn_actor(bp, spawn_points[i])
             v.set_autopilot(True)
             vehicles.append(v)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  WARN: spawn failed for {bp.id}: {e}")
 
     print(f"  Spawned {len(vehicles)} vehicles with autopilot")
@@ -187,7 +187,7 @@ def test_walker_spawn(
         try:
             w = world.spawn_actor(bp, sp)
             walkers.append(w)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  WARN: spawn failed: {e}")
 
     print(f"  Spawned {len(walkers)} walkers")
@@ -340,7 +340,7 @@ def test_drone_prop_blueprint(bp_lib: carla.BlueprintLibrary) -> str | None:
             found = bp_id
             print(f"  Found: {bp_id}")
             break
-        except Exception:  # noqa: BLE001
+        except Exception:
             print(f"  NOT found: {bp_id}")
 
     if found is None:
@@ -461,7 +461,7 @@ def run_test(
             category=category,
             data=result,
         )
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  [FAIL] {name}: {e}")
         traceback.print_exc()
         return TestResult(
@@ -542,12 +542,12 @@ def main() -> int:
     for v in vehicles:
         try:
             v.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
     for w in walkers:
         try:
             w.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     # AirSim tests

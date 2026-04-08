@@ -150,11 +150,11 @@ def _cleanup_actors(
         try:
             if hasattr(actor, "stop"):
                 actor.stop()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         try:
             actor.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 
@@ -336,15 +336,15 @@ def main() -> None:
             try:
                 if hasattr(actor, "stop"):
                     actor.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             try:
                 actor.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         try:
             pygame.quit()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         print("  Done.\n")
 

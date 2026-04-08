@@ -429,7 +429,7 @@ def main() -> None:
                             veh_frames[ghost.idx],  # type: ignore[arg-type]
                             carla,
                         )
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         pass
                     ghost.step(len(veh_frames))
             time.sleep(veh_dt / max(0.25, ghost.speed if ghost else 1.0))
@@ -501,7 +501,7 @@ def main() -> None:
                     tf = drone_actor.get_transform()
                     vel = drone_actor.get_velocity()
                     frames.append(_build_drone_frame(len(frames), tf, vel))
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
                 if cfg.verbose and (now - last_print) >= _VERBOSE_INTERVAL:
@@ -528,7 +528,7 @@ def main() -> None:
     if ghost_vehicle is not None:
         try:
             ghost_vehicle.destroy()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     if saved_count:

@@ -533,7 +533,7 @@ class TrajectoryPlayback:
                         z=current_loc.z + self._playback_cfg.jump_boost_z,
                     )
                     self._walker.set_location(boost_loc)
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
         elif self._jump_hold_frames > 0:
             control.jump = True
@@ -637,7 +637,7 @@ class TrajectoryPlayback:
         pygame.quit()
 
 
-import json  # noqa: E402
+import json
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -679,5 +679,5 @@ if __name__ == "__main__":
                 visual_style=visual_style,
             )
             playback.run()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"回放出错: {e}")
