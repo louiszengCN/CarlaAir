@@ -733,8 +733,7 @@ class TrajectoryCollector:
                 print(f"恢复世界失败: {e2}")
 
 
-# Need random for spawn point selection
-import random
+import random  # For spawn point selection
 
 if __name__ == "__main__":
     try:

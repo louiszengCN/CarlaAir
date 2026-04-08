@@ -636,9 +636,6 @@ class TrajectoryPlayback:
             self._record_writer.release()
         pygame.quit()
 
-
-import json
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(

@@ -180,7 +180,7 @@ class CallBack:
 
 
 def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, client, tick):
-  global sensors_callback
+  global sensors_callback  # noqa: PLW0602
   sensors_ret = []
   blueprint_library = world.get_blueprint_library()
 
@@ -356,7 +356,7 @@ def set_world_settings(world, args = None):
     world.apply_settings(settings)
 
 def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
-  global sensors_callback
+  global sensors_callback  # noqa: PLW0602
 
   spawn_points = world.get_map().get_spawn_points()
   n = min(n_vehicles, len(spawn_points))
