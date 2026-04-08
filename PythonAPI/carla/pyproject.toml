@@ -70,6 +70,7 @@ select = [
     "Q",     # flake8-quotes
     "RSE",   # flake8-raise
     "SLOT",  # flake8-slots
+    "T20",   # flake8-print (enforce logging over print)
 ]
 ignore = [
     "ANN101",  # Missing type annotation for `self` (deprecated in newer ruff)
@@ -106,24 +107,23 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"source/**" = ["ANN"]  # Auto-generated carla bindings
-"auto_traffic.py" = ["INP001", "PLW0603", "PLW0602"]  # Not part of a package, globals needed for cleanup
-"examples/auto_traffic.py" = ["INP001"]  # Copy of root, globals needed
-"examples/drive_vehicle.py" = ["INP001"]  # Example script
-"examples/walk_pedestrian.py" = ["INP001"]  # Example script
-"examples/sensor_gallery.py" = ["INP001"]  # Example script
-"examples/air_ground_sync.py" = ["INP001"]  # Example script
-"examples/switch_maps.py" = ["INP001"]  # Example script
-"examples/quick_start_showcase.py" = ["INP001"]  # Example script
-"examples/recording/**" = ["INP001"]  # Recording scripts
-"test_script/**" = ["INP001", "ANN", "PT028", "PT018"]  # Test scripts may not have full typing
-"PythonAPI/examples/**" = ["INP001", "ANN"]  # Upstream examples
+"source/**" = ["ANN", "T201"]  # Auto-generated carla bindings
+"auto_traffic.py" = ["INP001", "PLW0603", "PLW0602", "BLE001"]  # Not part of a package, globals needed for cleanup, exception handling for robustness
+"examples/**" = ["INP001", "T201", "BLE001"]  # CarlaAir examples (CLI output, exception handling)
+"examples/recording/**" = ["INP001", "T201", "BLE001"]  # Recording scripts (CLI output)
+"test_script/**" = ["INP001", "ANN", "PT028", "PT018", "T201", "BLE001"]  # Test scripts (test output)
+"PythonAPI/examples/**" = ["INP001", "ANN", "T201", "BLE001"]  # Upstream examples (CLI output)
 "PythonAPI/examples/generate_traffic.py" = ["E402"]  # Has pydantic import after standard lib
 "PythonAPI/examples/automatic_control.py" = ["N813"]  # ColorConverter as cc is standard CARLA convention
 "PythonAPI/examples/synchronous_mode.py" = ["N813"]  # Queue import compat
-"PythonAPI/util/**" = ["INP001"]  # Utilities not part of a package
-"Util/**" = ["INP001"]  # Build tools not part of a package
-"PythonAPI/test/**" = ["PT009", "UP031", "UP008", "UP036", "SIM", "ANN", "E501", "F401", "PLC0414", "F821", "F841", "N806"]  # Unittest style, legacy patterns
+"PythonAPI/util/**" = ["INP001", "T201", "BLE001"]  # Utilities (CLI output)
+"Util/**" = ["INP001", "T201", "BLE001"]  # Build tools (CLI output)
+"PythonAPI/test/**" = ["PT009", "UP031", "UP008", "UP036", "SIM", "ANN", "E501", "F401", "PLC0414", "F821", "F841", "N806", "T201", "BLE001"]  # Unittest style, legacy patterns
+"PythonAPI/docs/**" = ["T201"]  # Documentation generators (CLI output)
+"Unreal/**/*.py" = ["T201"]  # Unreal Engine scripts (CLI output)
+"PythonAPI/carla/agents/**" = ["T201", "BLE001"]  # Navigation agents (warning messages)
+"PythonAPI/carla/setup.py" = ["T201"]  # Build script (CLI output)
+"PythonAPI/carla/source/**" = ["T201"]  # Auto-generated bindings
 
 [tool.ruff.lint.isort]
 known-first-party = ["carla", "agents"]
