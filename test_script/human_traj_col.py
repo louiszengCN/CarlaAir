@@ -633,7 +633,7 @@ class TrajectoryCollector:
             )
             self._update_camera_mode()
             mode_str = (
-                "第一人称" if self._camera_mode == CameraMode.FPS else "Third-person (第三人称)"
+                "First-person (第一人称)" if self._camera_mode == CameraMode.FPS else "Third-person (第三人称)"
             )
             print(f"Switched to (切换至) {mode_str} view (视图)")
         elif event.key == K_c:
@@ -731,7 +731,7 @@ class TrajectoryCollector:
                 if self._walker is None or self._camera is None:
                     self.spawn_player()
             except Exception as e2:
-                print(f"恢复世界失败: {e2}")
+                print(f"Failed to restore world (恢复世界失败): {e2}")
 
 
 if __name__ == "__main__":

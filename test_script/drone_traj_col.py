@@ -713,7 +713,7 @@ class DroneTrajectoryCollector:
         }
         self.recorded.append(point_meta)
 
-        # 可视化：点+编号+与上一points (个点)的虚线连接（默认永久显示，方便飞行观察）
+        # Visualization: Points + numbers + dashed line connection to previous point (default permanent display for easy flight observation) (可视化：点 + 编号 + 与上一个点的虚线连接（默认永久显示，方便飞行观察）)
         idx = len(self.recorded) - 1
         self.world.debug.draw_point(tf.location, size=0.18, color=carla.Color(0, 255, 255), life_time=0.0)
         self.world.debug.draw_string(tf.location + carla.Location(z=0.6), f"P{idx}", color=carla.Color(0, 255, 255), life_time=0.0, draw_shadow=False)
@@ -910,11 +910,11 @@ class DroneTrajectoryCollector:
                 planar_len = math.sqrt(planar.x * planar.x + planar.y * planar.y)
                 if planar_len > 1e-6:
                     # Avoid "height jumping" (避免"跳高度"：)
-                    # 如果用户只是开始用方向键做Fixed altitude translation (定高平移)，而没有按 E/Q 主动升降，
-                    # Then sync fixed_z to current height first, prevent fixed_z still being old value causing instant jump back to old height (则先把 fixed_z 同步到当前高度，防止 fixed_z 仍是旧值导致瞬间跳回旧高度)。
+                    # If user just starts using arrow keys for fixed altitude translation without pressing E/Q for active升降，(如果用户只是开始用方向键做定高平移，而没有按 E/Q 主动升降，)
+                    # Then sync fixed_z to current height first, prevent fixed_z still being old value causing instant jump back to old height (则先把 fixed_z 同步到当前高度，防止 fixed_z 仍是旧值导致瞬间跳回旧高度)
                     if not (keys[pygame.K_e] or keys[pygame.K_q]):
                         self.fixed_z = tf.location.z
-                    # 使用 yaw 的水平前/右方向（忽略 pitch/roll），确保“Fixed altitude translation (定高平移)”
+                    # Use yaw's horizontal forward/right direction (ignore pitch/roll), ensure "fixed altitude translation" (使用 yaw 的水平前/右方向（忽略 pitch/roll），确保定高平移)
                     yaw_rad = math.radians(self.look_yaw)
                     fwd_xy = carla.Vector3D(x=math.cos(yaw_rad), y=math.sin(yaw_rad), z=0.0)
                     right_xy = carla.Vector3D(x=-math.sin(yaw_rad), y=math.cos(yaw_rad), z=0.0)
