@@ -291,9 +291,9 @@ class TrajectoryCollector:
         """Spawn the walker and camera at a random navigation location."""
         spawn_point = self._get_spawn_point()
         self._spawn_walker_and_camera(spawn_point)
-        mode_str = "第一人称 FPS" if self._camera_mode == CameraMode.FPS else "第三人称"
+        mode_str = "First-person FPS (第一人称 FPS)" if self._camera_mode == CameraMode.FPS else "Third-person (第三人称)"
         print(
-            f"行人已生成，当前为 {mode_str} 模式。速度: {self._move_speed:.1f}m/s"
+            f"Pedestrian spawned, current mode is (行人已生成，当前为) {mode_str} mode. Speed (模式。速度): {self._move_speed:.1f}m/s"
         )
 
     def _get_spawn_point(self) -> carla.Transform:
@@ -393,7 +393,7 @@ class TrajectoryCollector:
         )
         self._recorded_points.append(point.model_dump())
         print(
-            f"已记录第 {len(self._recorded_points)} 个点: "
+            f"Recorded point (已记录第) {len(self._recorded_points)} points (个点): "
             f"({loc.x:.2f}, {loc.y:.2f}, {loc.z:.2f})"
         )
 
@@ -491,16 +491,16 @@ class TrajectoryCollector:
         clock = pygame.time.Clock()
         running = True
 
-        print("\nFPS 模式控制说明:")
-        print("  WASD: 移动")
+        print("\nFPS mode controls (FPS 模式控制说明):")
+        print("  WASD: Move (WASD: 移动)")
         print("  鼠标: 转动视角")
         print("  鼠标滚轮: 调节移动速度")
-        print("  T: 切换第一/第三人称")
-        print("  SPACE: 跳跃")
-        print("  R: 记录当前位置点")
-        print("  C: 清除地图上已绘制的轨迹")
-        print("  Q: 保存当前轨迹并开始新记录")
-        print("  ESC: 退出程序")
+        print("  T: Toggle first/Third-person (切换第一/第三人称)")
+        print("  SPACE: Jump (SPACE: 跳跃)")
+        print("  R: Record current position point (R: 记录当前位置点)")
+        print("  C: Clear drawn trajectory on map (C: 清除地图上已绘制的轨迹)")
+        print("  Q: Save current trajectory and start new record (Q: 保存当前轨迹并开始新记录)")
+        print("  ESC: Exit program (ESC: 退出程序)")
 
         while running:
             clock.tick(self._display_cfg.fps)
@@ -633,15 +633,15 @@ class TrajectoryCollector:
             )
             self._update_camera_mode()
             mode_str = (
-                "第一人称" if self._camera_mode == CameraMode.FPS else "第三人称"
+                "第一人称" if self._camera_mode == CameraMode.FPS else "Third-person (第三人称)"
             )
-            print(f"切换至 {mode_str} 视图")
+            print(f"Switched to (切换至) {mode_str} view (视图)")
         elif event.key == K_c:
             self.clear_drawings()
         elif event.key == K_q:
             self.save_trajectory()
             self._recorded_points.clear()
-            print("已保存并开始新记录。")
+            print("Saved and started new record (已保存并开始新记录)。")
         elif event.key == K_ESCAPE:
             return False
         return True
@@ -657,30 +657,30 @@ class TrajectoryCollector:
                 self._move_speed + self._movement_cfg.speed_increment,
                 self._movement_cfg.max_speed,
             )
-            print(f"移动速度增加: {self._move_speed:.1f}m/s")
+            print(f"Movement speed increased (移动速度增加): {self._move_speed:.1f}m/s")
         elif button == MouseScrollDirection.DOWN.value:
             self._move_speed = max(
                 self._move_speed - self._movement_cfg.speed_increment,
                 self._movement_cfg.min_speed,
             )
-            print(f"移动速度减小: {self._move_speed:.1f}m/s")
+            print(f"Movement speed decreased (移动速度减小): {self._move_speed:.1f}m/s")
 
     def save_trajectory(self) -> None:
         """Save recorded trajectory to JSON file."""
         if not self._recorded_points:
-            print("没有记录任何轨迹点，跳过保存。")
+            print("No trajectory points recorded, skipping save (没有记录任何轨迹点，跳过保存)。")
             return
 
         filename = f"trajectory_{int(time.time())}.json"
         with open(filename, "w") as f:
             json.dump(self._recorded_points, f, indent=4)
         print(
-            f"轨迹已保存至 {filename}, 共 {len(self._recorded_points)} 个点。"
+            f"Trajectory saved to (轨迹已保存至) {filename}, total (共) {len(self._recorded_points)} points (个点)。"
         )
 
     def cleanup(self) -> None:
         """Clean up resources and exit."""
-        print("清理资源...")
+        print("Cleaning up resources (清理资源)...")
         pygame.event.set_grab(False)
         pygame.mouse.set_visible(True)
         self._destroy_actors()
@@ -701,7 +701,7 @@ class TrajectoryCollector:
             base_map_name = (
                 raw_map_name.split("/")[-1] if raw_map_name else raw_map_name
             )
-            print("正在重新加载地图以清除轨迹绘制...")
+            print("Reloading map to clear trajectory drawing (正在重新加载地图以清除轨迹绘制)...")
             self._destroy_actors()
             self._walker = None
             self._camera = None
@@ -721,9 +721,9 @@ class TrajectoryCollector:
                     self.spawn_player()
             else:
                 self.spawn_player()
-            print("轨迹已清除并在原位置重生（如无效则随机重生）。")
+            print("Trajectory cleared and respawned at original position (random if invalid) (轨迹已清除并在原位置重生（如无效则随机重生）)。")
         except Exception as e:
-            print(f"重新加载地图清除轨迹失败: {e}")
+            print(f"Failed to reload map and clear trajectory (重新加载地图清除轨迹失败): {e}")
             try:
                 self._world = self._client.get_world()
                 self._map = self._world.get_map()
@@ -741,10 +741,10 @@ if __name__ == "__main__":
             "--time",
             type=float,
             default=_DEFAULT_DEBUG_LIFE_TIME,
-            help="轨迹可视化显示时长（秒）",
+            help="Trajectory visualization display duration (seconds) (轨迹可视化显示时长（秒）)",
         )
         args = parser.parse_args()
         collector = TrajectoryCollector(debug_life_time=args.time)
         collector.run()
     except Exception as e:
-        print(f"运行出错: {e}")
+        print(f"Runtime error (运行出错): {e}")

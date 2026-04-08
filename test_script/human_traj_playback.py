@@ -304,10 +304,10 @@ class TrajectoryPlayback:
             )
             if writer.isOpened():
                 print(
-                    f"视频录制启用，编码 {codec}, 输出 {self._record_path}"
+                    f"Video recording enabled, codec (视频录制启用，编码) {codec}, output (输出) {self._record_path}"
                 )
                 return writer
-        print(f"视频写入器打开失败，关闭录制: {self._record_path}")
+        print(f"Video writer open failed, close recording (视频写入器打开失败，关闭录制): {self._record_path}")
         return None
 
     def spawn_playback_player(self) -> None:
@@ -349,7 +349,7 @@ class TrajectoryPlayback:
     def run(self) -> None:
         """Main playback loop."""
         if not self._trajectory:
-            print("轨迹为空，退出。")
+            print("Trajectory is empty, exit (轨迹为空，退出)。")
             return
 
         pygame.init()
@@ -383,7 +383,7 @@ class TrajectoryPlayback:
         clock = pygame.time.Clock()
         running = True
 
-        print(f"开始回放，总计 {len(self._trajectory)} 个点...")
+        print(f"Starting playback, total (开始回放，总计) {len(self._trajectory)} points (个点)...")
 
         try:
             while running and current_target_idx < len(self._trajectory):
@@ -447,14 +447,14 @@ class TrajectoryPlayback:
 
                 if distance_2d <= arrival_threshold:
                     print(
-                        f"到达点 {current_target_idx}/{len(self._trajectory)-1}"
+                        f"Arrived at point (到达点) {current_target_idx}/{len(self._trajectory)-1}"
                     )
                     current_target_idx += 1
                     self._prev_distance = None
                     self._stuck_frames = 0
                     self._jump_hold_frames = 0
                     if current_target_idx >= len(self._trajectory):
-                        print("已到达轨迹终点。")
+                        print("Arrived at trajectory end (已到达轨迹终点)。")
                         break
 
                 if self._walker is not None:
@@ -467,7 +467,7 @@ class TrajectoryPlayback:
                     ):
                         running = False
         finally:
-            print(f"回放结束，等待 {_EXIT_DELAY:.0f} 秒后退出...")
+            print(f"Playback ended, waiting (回放结束，等待) {_EXIT_DELAY:.0f} seconds before exit (秒后退出)...")
             time.sleep(_EXIT_DELAY)
             self._cleanup()
 
@@ -678,4 +678,4 @@ if __name__ == "__main__":
             )
             playback.run()
         except Exception as e:
-            print(f"回放出错: {e}")
+            print(f"Playback error (回放出错): {e}")

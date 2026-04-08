@@ -33,10 +33,10 @@ def parse_color(s: str, default):
 
 class HumanTrajectoryRunner:
     """
-    在地面上按预定义轨迹驱动一个行人：
-    - 轨迹文件格式：[{x,y,z,jump?,speed?}, ...]（与 trajectory_collector.py 输出兼容）
-    - 运动方式：按相邻点线性插值，速度优先使用点内 speed，否则使用默认速度
-    - 可选：循环播放；可选：在地图上绘制轨迹点/虚线
+    Drive a pedestrian on a predefined trajectory on the ground: (在地面上按预定义轨迹驱动一个行人：)
+    - Trajectory file format (轨迹文件格式)：[{x,y,z,jump?,speed?}, ...]（compatible with trajectory_collector.py output (与 trajectory_collector.py output (输出)兼容)）
+    - Movement: Linear interpolation between adjacent points, speed prefers point's speed, otherwise uses default speed (运动方式：按相邻点线性插值，速度优先使用点内 speed，否则使用默认速度)
+    - Optional: Loop playback; Optional: Draw trajectory points/dashed lines on map (可选：循环播放；可选：在地图上绘制轨迹点/虚线)
     """
     def __init__(self, world: carla.World, bp_lib: carla.BlueprintLibrary, trajectory_path: str,
                  loop: bool = True, default_speed: float = 1.5, speed_scale: float = 1.0,
@@ -145,7 +145,7 @@ class HumanTrajectoryRunner:
         walker_bp = random.choice(self.bp_lib.filter("walker.pedestrian.*"))
         self.walker = self.world.try_spawn_actor(walker_bp, tf)
         if self.walker is None:
-            # 回退：强制 spawn_actor（可能抛异常）
+            # Fallback: Force spawn_actor (may throw exception) (回退：强制 spawn_actor（可能抛异常）)
             self.walker = self.world.spawn_actor(walker_bp, tf)
 
         if self.use_ai:
@@ -153,7 +153,7 @@ class HumanTrajectoryRunner:
                 ctrl_bp = self.bp_lib.find("controller.ai.walker")
                 self.controller = self.world.spawn_actor(ctrl_bp, carla.Transform(), attach_to=self.walker)
                 self.controller.start()
-                # 初始速度
+                # Initial speed (初始速度)
                 self.controller.set_max_speed(float(self.default_speed) * float(self.speed_scale))
                 self._ai_target_idx = 1
                 self._ai_go_to_current_target()
@@ -206,7 +206,7 @@ class HumanTrajectoryRunner:
         if len(self.traj) < 2:
             return
         if self.paused or self.speed_scale <= 0.0:
-            # AI 模式下将速度压到 0，而不是完全 return（避免 controller 状态漂移）
+            # Set speed to 0 in AI mode instead of full return (avoid controller state drift) (AI 模式下将速度压到 0，而不是完全 return（避免 controller 状态漂移）)
             if self.use_ai and self.controller is not None:
                 try:
                     self.controller.set_max_speed(0.0)
@@ -214,16 +214,16 @@ class HumanTrajectoryRunner:
                     pass
             return
 
-        # --- AI 模式：controller.ai.walker ---
+        # --- AI mode: controller.ai.walker (AI 模式：controller.ai.walker) ---
         if self.use_ai and self.controller is not None:
-            # 更新速度
+            # Update speed (更新速度)
             curr_speed = float(self.default_speed) * float(self.speed_scale)
             try:
                 self.controller.set_max_speed(curr_speed)
             except Exception:
                 pass
 
-            # 检查是否到达当前目标点
+            # Check if arrived at current target point (检查是否到达当前目标点)
             idx = self._ai_target_idx
             if idx >= len(self.traj):
                 if self.loop:
@@ -417,8 +417,8 @@ def async_save_worker(q: Queue):
 
 def project_world_point_to_uv_depth(world_point_xyz, intrinsic, world_to_camera):
     """
-    将世界坐标点投影到像素坐标并返回深度（Z-forward）。
-    返回: (uv, depth) 或 (None, None)
+    Project world coordinate point to pixel coordinates and return depth (Z-forward) (将世界坐标点投影到像素坐标并Returns (返回)深度（Z-forward）)。
+    Returns (返回): (uv, depth) or (或) (None, None)
     """
     pt = np.array([[world_point_xyz[0], world_point_xyz[1], world_point_xyz[2]]], dtype=float)
     pts_h = np.concatenate([pt, np.ones((1, 1), dtype=float)], axis=1)
@@ -476,8 +476,8 @@ def get_actor_bbox_2d(actor: carla.Actor, intrinsic: np.ndarray, world_to_camera
 
 def postprocess_add_nav_uvd(points, img_w, img_h, fov):
     """
-    对记录的无人机轨迹点，补全每个点的 nav_waypoint：
-    把 ego(t+1) 的世界位置投影到 ego(t) 图像，得到 (u,v,depth)。
+    For recorded drone trajectory points, complete nav_waypoint for each point (对记录的无人机轨迹点，补全每points (个点)的 nav_waypoint)：
+    Project ego(t+1) world position to ego(t) image, get (u,v,depth) (把 ego(t+1) 的世界位置投影到 ego(t) 图像，得到 (u,v,depth))。
     """
     intrinsic = get_camera_intrinsic(img_w, img_h, fov)
     for i in range(len(points)):
@@ -496,10 +496,10 @@ def postprocess_add_nav_uvd(points, img_w, img_h, fov):
 
 class DroneTrajectoryCollector:
     """
-    无人机轨迹采集器：
-    - 键盘控制无人机（或纯相机）在空中运动
-    - R 记录当前 pose 点
-    - Q 保存轨迹（自动补全 nav_waypoint: ego(t+1) 投影到 ego(t) 的 (u,v,depth)）
+    Drone trajectory collector (无人机轨迹采集器)：
+    - 键盘控制无人机（or (或)纯相机）在空中运动
+    - R records current pose point (R 记录当前 pose 点)
+    - Q saves trajectory (auto-completes nav_waypoint: ego(t+1) projected to ego(t)'s (u,v,depth)) (Q 保存轨迹（自动补全 nav_waypoint: ego(t+1) 投影到 ego(t) 的 (u,v,depth)）)
     """
     def __init__(self, host="localhost", port=2000, output_dir=None, img_w=1280, img_h=720, fov=120.0,
                  pitch_deg=-30.0, yaw_deg=0.0, roll_deg=0.0, lock_attitude=True,
@@ -536,7 +536,7 @@ class DroneTrajectoryCollector:
         self.look_yaw = float(yaw_deg)
         self.look_pitch = float(pitch_deg)
         self.look_roll = float(roll_deg)
-        # “定高平移”基准高度：初始化为起飞高度，后续若通过升降改变高度则同步更新
+        # “Fixed altitude translation (定高平移)”Base height: Initialize to takeoff height, sync update if height changes via升降 (基准高度：初始化为起飞高度，后续若通过升降改变高度则同步更新)
         self.fixed_z = 25.0
         self.viz_frustum_color = tuple(viz_frustum_color)
         self.viz_frustum_near = float(viz_frustum_near)
@@ -551,7 +551,7 @@ class DroneTrajectoryCollector:
     def _start_new_trace_dir(self):
         """Start a new trace folder so consecutive runs don't connect/overwrite."""
         ts = time.strftime("%Y%m%d_%H%M%S")
-        # 如果同秒内多次保存，追加一个计数避免冲突
+        # If saving multiple times within same second, append counter to avoid conflict (如果同秒内多次保存，追加一个计数避免冲突)
         suffix = ""
         k = 0
         while True:
@@ -570,7 +570,7 @@ class DroneTrajectoryCollector:
         """Clear internal state so next R starts a brand-new polyline."""
         self.recorded = []
         self._last_record_loc = None
-        # 开启新目录，避免把下一段写进旧目录
+        # Open new directory to avoid writing next segment to old directory (开启新目录，避免把下一段写进旧目录)
         self._start_new_trace_dir()
 
     def _ensure_sync_mode(self):
@@ -609,7 +609,7 @@ class DroneTrajectoryCollector:
         cam_bp.set_attribute("image_size_y", str(self.img_h))
         cam_bp.set_attribute("fov", str(self.fov))
 
-        # 起点：地图原点上空一点，避免穿模
+        # Start point: Slightly above map origin to avoid clipping (起点：地图原点上空一点，避免穿模)
         start_loc = carla.Location(x=0.0, y=0.0, z=25.0)
         start_rot = carla.Rotation(pitch=self.look_pitch, yaw=self.look_yaw, roll=self.look_roll)
         start_tf = carla.Transform(start_loc, start_rot)
@@ -713,7 +713,7 @@ class DroneTrajectoryCollector:
         }
         self.recorded.append(point_meta)
 
-        # 可视化：点+编号+与上一个点的虚线连接（默认永久显示，方便飞行观察）
+        # 可视化：点+编号+与上一points (个点)的虚线连接（默认永久显示，方便飞行观察）
         idx = len(self.recorded) - 1
         self.world.debug.draw_point(tf.location, size=0.18, color=carla.Color(0, 255, 255), life_time=0.0)
         self.world.debug.draw_string(tf.location + carla.Location(z=0.6), f"P{idx}", color=carla.Color(0, 255, 255), life_time=0.0, draw_shadow=False)
@@ -721,7 +721,7 @@ class DroneTrajectoryCollector:
             self._draw_dashed_line(self._last_record_loc, tf.location, life_time=0.0)
         self._last_record_loc = tf.location
 
-        # 视椎体（短且暗）
+        # View frustum (short and dark) (视椎体（短且暗）)
         draw_frustum(
             self.world,
             tf,
@@ -735,7 +735,7 @@ class DroneTrajectoryCollector:
             thickness=self.viz_frustum_thickness
         )
 
-        # 异步保存当前帧 rgb + meta（与编号对应）
+        # Asynchronously save current frame rgb + meta (corresponding to number) (异步保存当前帧 rgb + meta（与编号对应）)
         frame_dir = os.path.join(self.frames_dir, f"frame_{idx:05d}")
         self.save_queue.put({
             "kind": "frame",
@@ -748,9 +748,9 @@ class DroneTrajectoryCollector:
 
     def save(self):
         if not self.recorded:
-            print("没有记录任何点，跳过保存。")
+            print("No points recorded, skipping save (没有记录任何点，跳过保存)。")
             return None
-        # 等待当前保存队列刷完，避免 trajectory.json 和 frames 不一致
+        # Wait for current save queue to flush, avoid trajectory.json and frames inconsistency (等待当前保存队列刷完，避免 trajectory.json 和 frames 不一致)
         print("[SAVE] flushing async queue...")
         self.save_queue.join()
 
@@ -848,11 +848,11 @@ class DroneTrajectoryCollector:
                 self._tick_count = tick_count
                 dt = self.world.get_settings().fixed_delta_seconds or 0.05
 
-                # 更新地面行人轨迹
+                # Update ground pedestrian trajectory (更新地面行人轨迹)
                 if self.human_runner is not None:
                     self.human_runner.tick(dt)
 
-                # mouse (可选)：允许动态调姿态；锁定姿态时保持初始 pitch/yaw/roll
+                # mouse (optional): Allow dynamic attitude adjustment; keep initial pitch/yaw/roll when attitude locked (mouse (可选)：允许动态调姿态；锁定姿态时保持初始 pitch/yaw/roll)
                 if not self.lock_attitude:
                     dx, dy = pygame.mouse.get_rel()
                     self.look_yaw += dx * self.mouse_sensitivity
@@ -860,7 +860,7 @@ class DroneTrajectoryCollector:
 
                 # keyboard
                 keys = pygame.key.get_pressed()
-                # 1) 自由 3D 移动（WASD + E/Q）
+                # 1) Free 3D movement (WASD + E/Q) (自由 3D 移动（WASD + E/Q）)
                 move = carla.Vector3D(0, 0, 0)
                 if keys[pygame.K_w]:
                     move.x += 1
@@ -896,7 +896,7 @@ class DroneTrajectoryCollector:
                 else:
                     new_loc = tf.location
 
-                # 2) 定高 XY 平移（方向键）：只改 x/y，z 固定为 fixed_z
+                # 2) Fixed altitude XY translation (arrow keys): Only change x/y, z fixed as fixed_z (定高 XY 平移（方向键）：只改 x/y，z 固定为 fixed_z)
                 planar = carla.Vector3D(0, 0, 0)
                 if keys[pygame.K_UP]:
                     planar.x += 1
@@ -910,11 +910,11 @@ class DroneTrajectoryCollector:
                 planar_len = math.sqrt(planar.x * planar.x + planar.y * planar.y)
                 if planar_len > 1e-6:
                     # 避免“跳高度”：
-                    # 如果用户只是开始用方向键做定高平移，而没有按 E/Q 主动升降，
-                    # 则先把 fixed_z 同步到当前高度，防止 fixed_z 仍是旧值导致瞬间跳回旧高度。
+                    # 如果用户只是开始用方向键做Fixed altitude translation (定高平移)，而没有按 E/Q 主动升降，
+                    # Then sync fixed_z to current height first, prevent fixed_z still being old value causing instant jump back to old height (则先把 fixed_z 同步到当前高度，防止 fixed_z 仍是旧值导致瞬间跳回旧高度)。
                     if not (keys[pygame.K_e] or keys[pygame.K_q]):
                         self.fixed_z = tf.location.z
-                    # 使用 yaw 的水平前/右方向（忽略 pitch/roll），确保“定高平移”
+                    # 使用 yaw 的水平前/右方向（忽略 pitch/roll），确保“Fixed altitude translation (定高平移)”
                     yaw_rad = math.radians(self.look_yaw)
                     fwd_xy = carla.Vector3D(x=math.cos(yaw_rad), y=math.sin(yaw_rad), z=0.0)
                     right_xy = carla.Vector3D(x=-math.sin(yaw_rad), y=math.cos(yaw_rad), z=0.0)
@@ -928,7 +928,7 @@ class DroneTrajectoryCollector:
                         z=self.fixed_z
                     )
 
-                # 如果发生了垂直移动（E/Q），更新 fixed_z
+                # If vertical movement occurred (E/Q), update fixed_z (如果发生了垂直移动（E/Q），更新 fixed_z)
                 if abs(new_loc.z - self.fixed_z) > 1e-4 and (keys[pygame.K_e] or keys[pygame.K_q]):
                     self.fixed_z = new_loc.z
 
@@ -942,7 +942,7 @@ class DroneTrajectoryCollector:
                             running = False
                         elif event.key == pygame.K_l:
                             self.lock_attitude = not self.lock_attitude
-                            # 清一次相对鼠标移动，避免切换瞬间跳变
+                            # Clear relative mouse movement once, avoid instant jump on switch (清一次相对鼠标移动，避免切换瞬间跳变)
                             try:
                                 pygame.mouse.get_rel()
                             except Exception:
@@ -967,7 +967,7 @@ class DroneTrajectoryCollector:
                             self.record_point(tick_count)
                         elif event.key == pygame.K_RETURN:
                             saved_path = self.save()
-                            # 保存后自动开启新轨迹段，避免下一次 R 仍然连到旧点
+                            # Automatically start new trajectory segment after save, avoid next R still connecting to old point (保存后自动开启新轨迹段，避免下一次 R 仍然连到旧点)
                             if saved_path:
                                 print("[TRACE] saved. ready for next trace (state reset).")
                                 self._reset_for_next_trace()
@@ -1011,25 +1011,25 @@ def parse_args():
     p.add_argument("--width", type=int, default=1280)
     p.add_argument("--height", type=int, default=720)
     p.add_argument("--fov", type=float, default=120.0)
-    p.add_argument("--pitch-deg", type=float, default=-30.0, help="默认姿态 pitch（度），负值向下")
-    p.add_argument("--yaw-deg", type=float, default=0.0, help="默认姿态 yaw（度）")
-    p.add_argument("--roll-deg", type=float, default=0.0, help="默认姿态 roll（度）")
-    p.add_argument("--free-look", action="store_true", help="允许鼠标改变 yaw/pitch（默认锁定姿态）")
-    p.add_argument("--viz-frustum-color", type=str, default="0,90,140", help="视椎体颜色 r,g,b (0-255)")
-    p.add_argument("--viz-frustum-near", type=float, default=0.4, help="视椎体 near（米）")
-    p.add_argument("--viz-frustum-far", type=float, default=0.5, help="视椎体 far（米，线长度），默认 0.5 避免长蓝线")
-    p.add_argument("--viz-frustum-thickness", type=float, default=0.02, help="视椎体线宽")
-    p.add_argument("--viz-frustum-life", type=float, default=15.0, help="视椎体留存时间（秒）")
+    p.add_argument("--pitch-deg", type=float, default=-30.0, help="Default attitude pitch (degrees), negative value downward (默认姿态 pitch（度），负值向下)")
+    p.add_argument("--yaw-deg", type=float, default=0.0, help="Default attitude yaw (degrees) (默认姿态 yaw（度）)")
+    p.add_argument("--roll-deg", type=float, default=0.0, help="Default attitude roll (degrees) (默认姿态 roll（度）)")
+    p.add_argument("--free-look", action="store_true", help="Allow mouse to change yaw/pitch (default locked attitude) (允许鼠标改变 yaw/pitch（默认锁定姿态）)")
+    p.add_argument("--viz-frustum-color", type=str, default="0,90,140", help="View frustum color r,g,b (0-255) (视椎体颜色 r,g,b (0-255))")
+    p.add_argument("--viz-frustum-near", type=float, default=0.4, help="View frustum near (meters) (视椎体 near（米）)")
+    p.add_argument("--viz-frustum-far", type=float, default=0.5, help="View frustum far (meters, line length), default 0.5 to avoid long blue line (视椎体 far（米，线长度），默认 0.5 避免长蓝线)")
+    p.add_argument("--viz-frustum-thickness", type=float, default=0.02, help="View frustum line width (视椎体线宽)")
+    p.add_argument("--viz-frustum-life", type=float, default=15.0, help="View frustum lifetime (seconds) (视椎体留存时间（秒）)")
     # human trajectory mode
-    p.add_argument("--human-trajectory", type=str, default=None, help="可选：地面行人轨迹 json 路径（trajectory_collector 输出）")
-    p.add_argument("--human-loop", action="store_true", help="地面行人循环走轨迹（默认不开启则走到终点停）")
-    p.add_argument("--human-speed-scale", type=float, default=1.0, help="地面行人速度倍率（乘到轨迹 speed 上）")
-    p.add_argument("--human-speed-step", type=float, default=0.1, help="按键 1/2 调速步长（作用于 speed_scale）")
-    p.add_argument("--human-show-traj", action="store_true", help="在地图上显示地面行人轨迹点/虚线")
-    p.add_argument("--human-traj-life", type=float, default=0.0, help="地面行人轨迹可视化留存时间（秒），0 表示永久")
-    p.add_argument("--human-ai", action="store_true", help="启用行人 AI 控制器模式（更自然的行走），按轨迹点依次 go_to_location")
-    p.add_argument("--human-ai-arrival", type=float, default=0.6, help="AI 模式到达阈值（米，2D）")
-    p.add_argument("--human-ai-no-project-nav", action="store_true", help="AI 模式不将目标点投影到导航网格/道路")
+    p.add_argument("--human-trajectory", type=str, default=None, help="Optional: Ground pedestrian trajectory json path (trajectory_collector output) (可选：地面行人轨迹 json 路径（trajectory_collector output (输出)）)")
+    p.add_argument("--human-loop", action="store_true", help="Ground pedestrian loop walk trajectory (default stop at end if not enabled) (地面行人循环走轨迹（默认不开启则走到终点停）)")
+    p.add_argument("--human-speed-scale", type=float, default=1.0, help="Ground pedestrian speed multiplier (multiplied to trajectory speed) (地面行人速度倍率（乘到轨迹 speed 上）)")
+    p.add_argument("--human-speed-step", type=float, default=0.1, help="Key 1/2 speed adjustment step (applied to speed_scale) (按键 1/2 调速步长（作用于 speed_scale）)")
+    p.add_argument("--human-show-traj", action="store_true", help="Show ground pedestrian trajectory points/dashed lines on map (在地图上显示地面行人轨迹点/虚线)")
+    p.add_argument("--human-traj-life", type=float, default=0.0, help="Ground pedestrian trajectory visualization lifetime (seconds), 0 means permanent (地面行人轨迹可视化留存时间（秒），0 表示永久)")
+    p.add_argument("--human-ai", action="store_true", help="Enable pedestrian AI controller mode (more natural walking), go_to_location sequentially by trajectory points (启用行人 AI 控制器模式（更自然的行走），按轨迹点依次 go_to_location)")
+    p.add_argument("--human-ai-arrival", type=float, default=0.6, help="AI mode arrival threshold (meters, 2D) (AI 模式到达阈值（米，2D）)")
+    p.add_argument("--human-ai-no-project-nav", action="store_true", help="AI mode do not project target point to nav mesh/road (AI 模式不将目标点投影到导航网格/道路)")
     return p.parse_args()
 
 
