@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random  # For spawn point selection
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -732,8 +733,6 @@ class TrajectoryCollector:
             except Exception as e2:
                 print(f"恢复世界失败: {e2}")
 
-
-import random  # For spawn point selection
 
 if __name__ == "__main__":
     try:
