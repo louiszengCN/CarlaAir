@@ -17,12 +17,12 @@ import json
 import os
 import shutil
 import subprocess
+import carla
 import threading
 
 # Global variables
 IMPORT_SETTING_FILENAME = "importsetting.json"
 SCRIPT_NAME = os.path.basename(__file__)
-import carla
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Go two directories above the current script
