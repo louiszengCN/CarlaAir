@@ -58,6 +58,7 @@
 
 ## 🔥 最新动态
 
+- **[2026-04-10]** 🪟 [Windows 发行版已发布](https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7-win11-x86_64) -- 可在 Releases 下载原生 Windows 11 x86_64 构建
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **登顶 [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)！**
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](https://arxiv.org/abs/2603.28032)
 - **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！

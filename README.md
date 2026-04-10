@@ -60,6 +60,7 @@
 
 ## 🔥 News
 
+- **[2026-04-10]** 🪟 [Windows release published](https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7-win11-x86_64) -- native Windows 11 x86_64 build is now available in Releases
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **on [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)!**
 - **[2026-03-30]** 📄 Technical report released -- [Read the paper](https://arxiv.org/abs/2603.28032)
 - **[2026-03]** `v0.1.7` released -- VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs
