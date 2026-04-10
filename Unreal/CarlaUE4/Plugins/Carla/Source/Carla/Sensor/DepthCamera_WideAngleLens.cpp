@@ -20,13 +20,18 @@ FActorDefinition ADepthCamera_WideAngleLens::GetSensorDefinition()
 ADepthCamera_WideAngleLens::ADepthCamera_WideAngleLens(const FObjectInitializer &ObjectInitializer)
   : Super(ObjectInitializer)
 {
-  AddPostProcessingMaterial(
 #if PLATFORM_LINUX
+  // Linux builds keep the GLSL wide-angle material path.
+  AddPostProcessingMaterial(
       TEXT("Material'/Carla/PostProcessingMaterials/WideAngleLens/DepthEffectMaterial_GLSL_WAL.DepthEffectMaterial_GLSL_WAL'")
-#else
-      TEXT("Material'/Carla/PostProcessingMaterials/WideAngleLens/DepthEffectMaterial_WAL.DepthEffectMaterial_WAL'")
-#endif
   );
+#else
+  // CarlaAir's Windows content bundle does not include the wide-angle depth asset.
+  // Use the standard depth material so the sensor remains loadable during cook.
+  AddPostProcessingMaterial(
+      TEXT("Material'/Carla/PostProcessingMaterials/DepthEffectMaterial.DepthEffectMaterial'")
+  );
+#endif
 }
 
 void ADepthCamera_WideAngleLens::PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaSeconds)

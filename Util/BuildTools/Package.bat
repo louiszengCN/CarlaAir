@@ -12,6 +12,8 @@ rem https://wiki.unrealengine.com/How_to_package_your_game_with_commands
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -124,11 +126,13 @@ rem ============================================================================
 call :get_current_time_in_seconds T_START_DO_PACKAGE
 if %DO_PACKAGE%==true (
 
+    if not defined CARLAAIR_PYTHON_EXE goto error_python_no_found
+
     if %USE_CARSIM% == true (
-        python %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -e
+        "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -e
         echo CarSim ON > "%ROOT_PATH%Unreal/CarlaUE4/Config/CarSimConfig.ini"
     ) else (
-        python %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
+        "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
         echo CarSim OFF > "%ROOT_PATH%Unreal/CarlaUE4/Config/CarSimConfig.ini"
     )
 
@@ -143,6 +147,21 @@ if %DO_PACKAGE%==true (
         "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
 
     if errorlevel 1 goto error_build_editor
+
+    echo "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
+        ShaderCompileWorker^
+        Win64^
+        Development^
+        -WaitMutex^
+        -FromMsBuild
+    call "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
+        ShaderCompileWorker^
+        Win64^
+        Development^
+        -WaitMutex^
+        -FromMsBuild
+
+    if errorlevel 1 goto error_build_shader_compile_worker
 
     echo "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
         CarlaUE4^
@@ -196,6 +215,10 @@ if %DO_PACKAGE%==true (
     if errorlevel 1 goto error_runUAT
 
     call :cook_tagged_materials Carla !SOURCE!
+    if errorlevel 1 goto error_cook_tagged_materials
+
+    call :copy_windows_runtime_files !SOURCE!
+    if errorlevel 1 goto error_stage_runtime_files
 )
 call :get_current_time_in_seconds T_END_DO_PACKAGE
 set /A ELAPSED_TIME=!T_END_DO_PACKAGE! - !T_START_DO_PACKAGE!
@@ -541,6 +564,7 @@ rem ============================================================================
     -run=GenerateTaggedMaterialsRegistry^
     -PackageNames="!CUR_PACKAGES_UE!" !TARGET_ARCHIVE_OPTION!^
     -NoShaderCompile
+    if errorlevel 1 exit /b 1
 
     rem Construct string for all maps to cook all at once
     if %SINGLE_PACKAGE%==true (
@@ -566,6 +590,7 @@ rem ============================================================================
     -OutputDir="!TEMP_BUILD_DIR!"^
     -iterate^
     -cooksinglepackage^
+    if errorlevel 1 exit /b 1
 
     rem Move/Copy the generated files to the correct packages (zipping happens later on)
     echo Copy cooked TaggedMaterialsRegistries
@@ -604,6 +629,77 @@ rem ============================================================================
 
     goto :eof
 
+:copy_matching_files
+    set COPY_PATTERN=%~1
+    set COPY_DEST=%~2
+    if exist "!COPY_PATTERN!" (
+        if not exist "!COPY_DEST!" mkdir "!COPY_DEST!"
+        echo f | xcopy /y "!COPY_PATTERN!" "!COPY_DEST!" >nul
+    )
+    exit /b 0
+
+:copy_windows_runtime_files
+    set RESULT_BUILD_DIR=%~1
+    set RESULT_BUILD_DIR=!RESULT_BUILD_DIR:/=\!
+    set PROJECT_BIN=%ROOT_PATH:/=\%Unreal\CarlaUE4\Binaries\Win64
+    set RESULT_BIN=!RESULT_BUILD_DIR!CarlaUE4\Binaries\Win64
+    set RESULT_ENGINE=!RESULT_BUILD_DIR!Engine
+    set RESULT_CONTENT=!RESULT_BUILD_DIR!CarlaUE4\Content
+    set STAGED_ROOT=%ROOT_PATH:/=\%Unreal\CarlaUE4\Saved\StagedBuilds\WindowsNoEditor
+    set COOKED_ROOT=%ROOT_PATH:/=\%Unreal\CarlaUE4\Saved\Cooked\WindowsNoEditor
+
+    if not exist "!RESULT_BIN!" mkdir "!RESULT_BIN!"
+    if not exist "!RESULT_ENGINE!" mkdir "!RESULT_ENGINE!"
+    if not exist "!RESULT_CONTENT!" mkdir "!RESULT_CONTENT!"
+
+    for %%f in (AgentInterface.dll dxil.dll embree.2.14.0.dll hdf5.dll libfbxsdk.dll tbb.dll tbbmalloc.dll turbojpeg.dll) do (
+        if exist "!PROJECT_BIN!\%%f" (
+            echo f | xcopy /y "!PROJECT_BIN!\%%f" "!RESULT_BIN!\" >nul
+        )
+    )
+
+    call :copy_matching_files "!STAGED_ROOT!\Engine\GlobalShaderCache-*.bin" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!STAGED_ROOT!\Engine\ShaderArchive-*" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!STAGED_ROOT!\Engine\*.ushaderbytecode" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!STAGED_ROOT!\CarlaUE4\Content\ShaderArchive-*" "!RESULT_CONTENT!\"
+    call :copy_matching_files "!STAGED_ROOT!\CarlaUE4\Content\*.ushaderbytecode" "!RESULT_CONTENT!\"
+
+    call :copy_matching_files "!COOKED_ROOT!\Engine\GlobalShaderCache-*.bin" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!COOKED_ROOT!\Engine\ShaderArchive-*" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!COOKED_ROOT!\Engine\*.ushaderbytecode" "!RESULT_ENGINE!\"
+    call :copy_matching_files "!COOKED_ROOT!\CarlaUE4\Content\ShaderArchive-*" "!RESULT_CONTENT!\"
+    call :copy_matching_files "!COOKED_ROOT!\CarlaUE4\Content\*.ushaderbytecode" "!RESULT_CONTENT!\"
+
+    call :copy_matching_files "%UE4_ROOT%\Engine\GlobalShaderCache-*.bin" "!RESULT_ENGINE!\"
+    call :copy_matching_files "%UE4_ROOT%\Engine\ShaderArchive-*" "!RESULT_ENGINE!\"
+    call :copy_matching_files "%UE4_ROOT%\Engine\*.ushaderbytecode" "!RESULT_ENGINE!\"
+
+    set MISSING_RUNTIME_DLLS=
+    for %%f in (AgentInterface.dll dxil.dll embree.2.14.0.dll hdf5.dll libfbxsdk.dll tbb.dll tbbmalloc.dll turbojpeg.dll) do (
+        if not exist "!RESULT_BIN!\%%f" set MISSING_RUNTIME_DLLS=!MISSING_RUNTIME_DLLS! %%f
+    )
+
+    if defined MISSING_RUNTIME_DLLS (
+        echo.
+        echo %FILE_N% [ERROR] Missing packaged runtime DLLs:!MISSING_RUNTIME_DLLS!
+        exit /b 1
+    )
+
+    set HAS_SHADER_ARTIFACTS=false
+    if exist "!RESULT_ENGINE!\GlobalShaderCache-*.bin" set HAS_SHADER_ARTIFACTS=true
+    if exist "!RESULT_ENGINE!\ShaderArchive-*" set HAS_SHADER_ARTIFACTS=true
+    if exist "!RESULT_ENGINE!\*.ushaderbytecode" set HAS_SHADER_ARTIFACTS=true
+    if exist "!RESULT_CONTENT!\ShaderArchive-*" set HAS_SHADER_ARTIFACTS=true
+    if exist "!RESULT_CONTENT!\*.ushaderbytecode" set HAS_SHADER_ARTIFACTS=true
+
+    if /I "!HAS_SHADER_ARTIFACTS!"=="false" (
+        echo.
+        echo %FILE_N% [ERROR] No Windows shader runtime artifacts were staged to "!RESULT_BUILD_DIR!".
+        exit /b 1
+    )
+
+    exit /b 0
+
 
 rem ============================================================================
 rem -- Messages and Errors -----------------------------------------------------
@@ -625,9 +721,20 @@ rem ============================================================================
     echo %FILE_N% [ERROR] Unreal Engine not detected
     goto bad_exit
 
+:error_python_no_found
+    echo.
+    echo %FILE_N% [ERROR] Python interpreter not detected. Set CARLAAIR_PYTHON_EXE or run BuildWindows.ps1.
+    goto bad_exit
+
 :error_build_editor
     echo.
     echo %FILE_N% [ERROR] There was a problem while building the CarlaUE4Editor.
+    echo           [ERROR] Please read the screen log for more information.
+    goto bad_exit
+
+:error_build_shader_compile_worker
+    echo.
+    echo %FILE_N% [ERROR] There was a problem while building ShaderCompileWorker.
     echo           [ERROR] Please read the screen log for more information.
     goto bad_exit
 
@@ -640,6 +747,18 @@ rem ============================================================================
 :error_runUAT
     echo.
     echo %FILE_N% [ERROR] There was a problem while packaging Unreal project.
+    echo           [ERROR] Please read the screen log for more information.
+    goto bad_exit
+
+:error_cook_tagged_materials
+    echo.
+    echo %FILE_N% [ERROR] There was a problem while cooking tagged materials.
+    echo           [ERROR] Please read the screen log for more information.
+    goto bad_exit
+
+:error_stage_runtime_files
+    echo.
+    echo %FILE_N% [ERROR] Required Windows runtime files were not staged.
     echo           [ERROR] Please read the screen log for more information.
     goto bad_exit
 

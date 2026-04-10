@@ -30,7 +30,7 @@ if not "%1"=="" (
         goto help
     )
     if "%1"=="--generator" (
-        set GENERATOR=%2
+        set "GENERATOR=%~2"
         shift
     )
     if "%1"=="--chrono-path" (
@@ -44,7 +44,7 @@ if not "%1"=="" (
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
 if not "%BUILD_DIR:~-1%"=="\" set BUILD_DIR=%BUILD_DIR%\
-if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
+if "%GENERATOR%" == "" set "GENERATOR=Visual Studio 17 2022"
 
 rem ============================================================================
 rem -- Get/Use Eigen (Chrono dependency) ---------------------------------------
@@ -109,7 +109,7 @@ if not exist %CHRONO_INSTALL_DIR% (
     )
 
     echo %FILE_N% Compiling Chrono.
-    cmake -G %GENERATOR% %PLATFORM%^
+cmake -G "%GENERATOR%" %PLATFORM%^
         -DCMAKE_BUILD_TYPE=Release^
         -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP /O2 /Ob2 /DNDEBUG"^
         -DEIGEN3_INCLUDE_DIR="%EIGEN_INCLUDE_ABS%"^

@@ -24,6 +24,10 @@
   ],
   "Plugins": [
 	  {
+		  "Name": "Carla",
+		  "Enabled": true
+	  },
+	  {
 		  "Name": "PhysXVehicles",
 		  "Enabled": true
 	  }

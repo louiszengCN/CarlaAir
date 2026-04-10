@@ -464,6 +464,7 @@ void ASceneCaptureSensor::EnqueueRenderSceneImmediate() {
   }
 }
 
+#if CARLA_HAS_ENGINE_GBUFFER_VIEW
 constexpr const TCHAR* GBufferNames[] =
 {
   TEXT("SceneColor"),
@@ -490,9 +491,21 @@ static void CheckGBufferStream(T& GBufferStream, FGBufferRequest& GBuffer)
 }
 
 static uint64 Prior = 0;
+#endif
 
 void ASceneCaptureSensor::CaptureSceneExtended()
 {
+#if !CARLA_HAS_ENGINE_GBUFFER_VIEW
+  static bool bWarnedAboutStockRenderer = false;
+  if (!bWarnedAboutStockRenderer)
+  {
+    UE_LOG(LogCarla, Warning, TEXT("GBuffer capture is unavailable with this stock UE4.26 install. Falling back to RGB-only scene capture."));
+    bWarnedAboutStockRenderer = true;
+  }
+  bEnableGBuffers = false;
+  CaptureComponent2D->CaptureScene();
+  return;
+#else
   auto GBufferPtr = MakeUnique<FGBufferRequest>();
   auto& GBuffer = *GBufferPtr;
 
@@ -545,11 +558,16 @@ void ASceneCaptureSensor::CaptureSceneExtended()
   {
     SendGBufferTextures(*GBuffer);
   });
+#endif
 }
 
 void ASceneCaptureSensor::SendGBufferTextures(FGBufferRequest& GBuffer)
 {
+#if CARLA_HAS_ENGINE_GBUFFER_VIEW
   SendGBufferTexturesInternal(*this, GBuffer);
+#else
+  (void)GBuffer;
+#endif
 }
 
 void ASceneCaptureSensor::BeginPlay()

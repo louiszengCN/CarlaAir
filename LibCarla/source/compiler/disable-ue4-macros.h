@@ -40,7 +40,7 @@
 // http://nadeausoftware.com/articles/2012/10/c_c_tip_how_detect_compiler_name_and_version_using_compiler_predefined_macros
 #if defined(_MSC_VER)
 #  pragma warning(push)
-#  pragma warning(disable: 4668 4191 4647)
+#  pragma warning(disable: 4668 4191 4647 4103)
 #endif
 
 #if defined(__clang__)
@@ -50,6 +50,40 @@
 #  pragma clang diagnostic ignored "-Wundef"
 #  pragma clang diagnostic ignored "-Wall"
 #  pragma clang diagnostic ignored "-Wshadow"
+#endif
+
+#if defined(_WIN32)
+#  include <intrin.h>
+#  ifdef FLOAT
+#    undef FLOAT
+#  endif
+#  pragma push_macro("TRUE")
+#  pragma push_macro("FALSE")
+#  pragma push_macro("InterlockedIncrement")
+#  pragma push_macro("InterlockedDecrement")
+#  pragma push_macro("InterlockedExchange")
+#  pragma push_macro("InterlockedExchangeAdd")
+#  pragma push_macro("InterlockedCompareExchange")
+#  pragma push_macro("InterlockedExchangePointer")
+#  pragma push_macro("InterlockedCompareExchangePointer")
+#  undef TRUE
+#  undef FALSE
+#  undef InterlockedIncrement
+#  undef InterlockedDecrement
+#  undef InterlockedExchange
+#  undef InterlockedExchangeAdd
+#  undef InterlockedCompareExchange
+#  undef InterlockedExchangePointer
+#  undef InterlockedCompareExchangePointer
+#  define TRUE 1
+#  define FALSE 0
+#  define InterlockedIncrement _InterlockedIncrement
+#  define InterlockedDecrement _InterlockedDecrement
+#  define InterlockedExchange _InterlockedExchange
+#  define InterlockedExchangeAdd _InterlockedExchangeAdd
+#  define InterlockedCompareExchange _InterlockedCompareExchange
+#  define InterlockedExchangePointer _InterlockedExchangePointer
+#  define InterlockedCompareExchangePointer _InterlockedCompareExchangePointer
 #endif
 
 #pragma push_macro("GET_AI_CONFIG_VAR")

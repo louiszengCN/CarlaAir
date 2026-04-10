@@ -8,6 +8,8 @@ rem Run it through a cmd with the x64 Visual C++ Toolset enabled.
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -24,7 +26,7 @@ rem ============================================================================
 rem -- Parse arguments ---------------------------------------------------------
 rem ============================================================================
 
-set GENERATOR=""
+set "GENERATOR="
 set BOOST_VERSION=1.84.0
 set INSTALLERS_DIR=%ROOT_PATH:/=\%Util\InstallersWin\
 set VERSION_FILE=%ROOT_PATH:/=\%Util\ContentVersions.txt
@@ -42,7 +44,7 @@ if not "%1"=="" (
         set NUMBER_OF_ASYNC_JOBS=%2
     )
     if "%1"=="--boost-toolset" (
-        set TOOLSET=%2
+        set "TOOLSET=%~2"
     )
     if "%1"=="--chrono" (
         set USE_CHRONO=true
@@ -56,7 +58,7 @@ if not "%1"=="" (
         set USE_ROS2=true
     )
     if "%1" == "--generator" (
-        set GENERATOR=%2
+        set "GENERATOR=%~2"
         shift
     )
     if "%1"=="-h" (
@@ -71,8 +73,8 @@ if not "%1"=="" (
 )
 
 rem If not defined, use Visual Studio 2022 as tool set
-if "%TOOLSET%" == "" set TOOLSET=msvc-14.3
-if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
+if "%TOOLSET%" == "" set "TOOLSET=msvc-14.3"
+if "%GENERATOR%" == "" set "GENERATOR=Visual Studio 17 2022"
 
 rem If is not set, set the number of parallel jobs to the number of CPU threads
 if "%NUMBER_OF_ASYNC_JOBS%" == "" set NUMBER_OF_ASYNC_JOBS=%NUMBER_OF_PROCESSORS%
@@ -140,7 +142,7 @@ rem ============================================================================
 echo %FILE_N% Installing rpclib...
 call "%INSTALLERS_DIR%install_rpclib.bat"^
  --build-dir "%INSTALLATION_DIR%"^
- --generator %GENERATOR%
+ --generator "%GENERATOR%"
 
 if %errorlevel% neq 0 goto failed
 
@@ -156,7 +158,7 @@ rem ============================================================================
 echo %FILE_N% Installing Google Test...
 call "%INSTALLERS_DIR%install_gtest.bat"^
  --build-dir "%INSTALLATION_DIR%"^
- --generator %GENERATOR%
+ --generator "%GENERATOR%"
 
 if %errorlevel% neq 0 goto failed
 
@@ -173,7 +175,7 @@ rem ============================================================================
 echo %FILE_N% Installing "Recast & Detour"...
 call "%INSTALLERS_DIR%install_recast.bat"^
  --build-dir "%INSTALLATION_DIR%"^
- --generator %GENERATOR%
+ --generator "%GENERATOR%"
 
 if %errorlevel% neq 0 goto failed
 
@@ -210,10 +212,13 @@ rem -- Download and install Boost ----------------------------------------------
 rem ============================================================================
 
 echo %FILE_N% Installing Boost...
+set "BOOST_PYTHON_ARG="
+if defined CARLAAIR_PYTHON_EXE set BOOST_PYTHON_ARG=--python-exe "%CARLAAIR_PYTHON_EXE%"
 call "%INSTALLERS_DIR%install_boost.bat"^
  --build-dir "%INSTALLATION_DIR%"^
  --toolset %TOOLSET%^
  --version %BOOST_VERSION%^
+ %BOOST_PYTHON_ARG%^
  -j %NUMBER_OF_ASYNC_JOBS%
 
 if %errorlevel% neq 0 goto failed
@@ -230,7 +235,7 @@ rem ============================================================================
 echo %FILE_N% Installing Xercesc...
 call "%INSTALLERS_DIR%install_xercesc.bat"^
  --build-dir "%INSTALLATION_DIR%"^
- --generator %GENERATOR%
+ --generator "%GENERATOR%"
 xcopy /Y /I %INSTALLATION_DIR%\xerces-c-3.2.3-install\lib\xerces-c_3.lib %CARLA_PYTHON_DEPENDENCIES%\lib\
 xcopy /Y /I %INSTALLATION_DIR%\xerces-c-3.2.3-install\lib\xerces-c_3.lib %CARLA_DEPENDENCIES_FOLDER%\lib\
 
@@ -250,7 +255,7 @@ rem ============================================================================
 echo %FILE_N% Installing PROJ
 call "%INSTALLERS_DIR%install_proj.bat"^
  --build-dir "%INSTALLATION_DIR%"^
- --generator %GENERATOR%
+ --generator "%GENERATOR%"
 xcopy /Y /I %INSTALLATION_DIR%\proj-install\lib\proj.lib %CARLA_PYTHON_DEPENDENCIES%\lib\
 xcopy /Y /I %INSTALLATION_DIR%\proj-install\lib\proj.lib %CARLA_DEPENDENCIES_FOLDER%\lib\
 
@@ -272,12 +277,12 @@ if %USE_CHRONO% == true (
     if not "%CHRONO_PATH%"=="" (
         call "%INSTALLERS_DIR%install_chrono.bat"^
          --build-dir "%INSTALLATION_DIR%" ^
-         --generator %GENERATOR% ^
+ --generator "%GENERATOR%" ^
          --chrono-path "%CHRONO_PATH%"
     ) else (
         call "%INSTALLERS_DIR%install_chrono.bat"^
          --build-dir "%INSTALLATION_DIR%" ^
-         --generator %GENERATOR%
+ --generator "%GENERATOR%"
     )
 
     if not exist "%CARLA_DEPENDENCIES_FOLDER%" (

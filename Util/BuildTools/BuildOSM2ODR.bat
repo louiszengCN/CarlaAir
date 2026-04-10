@@ -7,6 +7,8 @@ rem Run it through a cmd with the x64 Visual C++ Toolset enabled.
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -17,7 +19,7 @@ rem ============================================================================
 set DOC_STRING=Build LibCarla.
 set USAGE_STRING=Usage: %FILE_N% [-h^|--help] [--rebuild] [--build] [--clean] [--no-pull]
 
-set GENERATOR=""
+set "GENERATOR="
 set REMOVE_INTERMEDIATE=false
 set BUILD_OSM2ODR=false
 set GIT_PULL=true
@@ -41,7 +43,7 @@ if not "%1"=="" (
         set REMOVE_INTERMEDIATE=true
     )
     if "%1"=="--generator" (
-        set GENERATOR=%2
+        set "GENERATOR=%~2"
         shift
     )
     if "%1"=="-h" (
@@ -77,7 +79,7 @@ set OSM2ODR_INSTALL_PATH=%ROOT_PATH:/=\%PythonAPI\carla\dependencies\
 set OSM2ODR__SERVER_INSTALL_PATH=%ROOT_PATH:/=\%Unreal\CarlaUE4\Plugins\Carla\CarlaDependencies
 set CARLA_DEPENDENCIES_FOLDER=%ROOT_PATH:/=\%Unreal\CarlaUE4\Plugins\Carla\CarlaDependencies\
 
-if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
+if "%GENERATOR%" == "" set "GENERATOR=Visual Studio 17 2022"
 
 if %REMOVE_INTERMEDIATE% == true (
     rem Remove directories
@@ -105,7 +107,7 @@ if %BUILD_OSM2ODR% == true (
     if not exist "%OSM2ODR_VSPROJECT_PATH%" mkdir "%OSM2ODR_VSPROJECT_PATH%"
     cd "%OSM2ODR_VSPROJECT_PATH%"
 
-    cmake -G %GENERATOR% -A x64^
+    cmake -G "%GENERATOR%" -A x64^
         -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
         -DCMAKE_INSTALL_PREFIX="%OSM2ODR_INSTALL_PATH:\=/%"^
         -DPROJ_INCLUDE_DIR=%INSTALLATION_DIR:/=\%\proj-install\include^

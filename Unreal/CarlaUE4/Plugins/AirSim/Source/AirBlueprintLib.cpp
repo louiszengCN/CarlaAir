@@ -21,6 +21,7 @@
 #include "Misc/ObjectThumbnail.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include <CineCameraComponent.h>
 #include <exception>
 #include "common/common_utils/Utils.hpp"
 #include "Modules/ModuleManager.h"
@@ -313,6 +314,7 @@ template USceneCaptureComponent2D* UAirBlueprintLib::GetActorComponent(AActor*, 
 template UStaticMeshComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template URotatingMovementComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template UCameraComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
+template UCineCameraComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template UDetectionComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 
 bool UAirBlueprintLib::IsInGameThread()

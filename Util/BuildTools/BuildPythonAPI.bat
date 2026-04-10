@@ -7,6 +7,8 @@ rem Run it through a cmd with the x64 Visual C++ Toolset enabled.
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -89,26 +91,34 @@ rem ============================================================================
 rem -- Check for py ------------------------------------------------------------
 rem ============================================================================
 
-where python 1>nul
-if %errorlevel% neq 0 goto error_py
+if not defined CARLAAIR_PYTHON_EXE goto error_py
+"%CARLAAIR_PYTHON_EXE%" -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 10) else 1)" 1>nul 2>nul
+if %errorlevel% neq 0 goto error_py310
+
+echo Ensuring Python packaging dependencies are installed.
+"%CARLAAIR_PYTHON_EXE%" -m pip install --disable-pip-version-check --upgrade pip setuptools wheel build
+if %errorlevel% neq 0 goto error_pip_prereqs
 
 rem Build for Python 3
 rem
 if %BUILD_PYTHONAPI%==true (
     echo Building Python API wheel for Python 3.
-    python -m build --wheel --outdir dist\.tmp .
+    "%CARLAAIR_PYTHON_EXE%" -m build --wheel --outdir dist\.tmp .
+    if %errorlevel% neq 0 goto error_build_wheel
 
     set WHEEL_FILE=
     for %%f in (dist\.tmp\*.whl) do set WHEEL_FILE=%%f
+    if not defined WHEEL_FILE goto error_missing_wheel
 
     if %INSTALL_PYTHONAPI%==true (
-        python -m pip install --force-reinstall "!WHEEL_FILE!"
+        "%CARLAAIR_PYTHON_EXE%" -m pip install --force-reinstall "!WHEEL_FILE!"
+        if %errorlevel% neq 0 goto error_install_wheel
     )
 
     copy "!WHEEL_FILE!" dist
-    rmdir /s /q dist\.tmp
+    if %errorlevel% neq 0 goto error_copy_wheel
+    if exist dist\.tmp rmdir /s /q dist\.tmp
 
-    if %errorlevel% neq 0 goto error_build_wheel
 )
 
 goto success
@@ -129,16 +139,42 @@ rem ============================================================================
 
 :error_py
     echo.
-    echo %FILE_N% [ERROR] An error ocurred while executing the py.
+    echo %FILE_N% [ERROR] A usable Python executable was not found.
     echo %FILE_N% [ERROR] Possible causes:
-    echo %FILE_N% [ERROR]  - Make sure "py" is installed.
-    echo %FILE_N% [ERROR]  - py = python launcher. This utility is bundled with Python installation but not installed by default.
-    echo %FILE_N% [ERROR]  - Make sure it is available on your Windows "py".
+    echo %FILE_N% [ERROR]  - Set CARLAAIR_PYTHON_EXE to a Python interpreter.
+    echo %FILE_N% [ERROR]  - Install Python 3.10 and ensure either python.exe or py.exe is available.
+    echo %FILE_N% [ERROR]  - Prefer running BuildWindows.ps1, which resolves the interpreter automatically.
+    goto bad_exit
+
+:error_py310
+    echo.
+    echo %FILE_N% [ERROR] Python 3.10 is required to build the CarlaAir wheel.
+    echo %FILE_N% [ERROR] Set CARLAAIR_PYTHON_EXE to a Python 3.10 interpreter or run BuildWindows.ps1.
+    goto bad_exit
+
+:error_pip_prereqs
+    echo.
+    echo %FILE_N% [ERROR] Failed to install Python packaging prerequisites (pip/setuptools/wheel/build).
     goto bad_exit
 
 :error_build_wheel
     echo.
     echo %FILE_N% [ERROR] An error occurred while building the wheel file.
+    goto bad_exit
+
+:error_missing_wheel
+    echo.
+    echo %FILE_N% [ERROR] Wheel build finished without producing a .whl file in dist\.tmp.
+    goto bad_exit
+
+:error_install_wheel
+    echo.
+    echo %FILE_N% [ERROR] Failed to install the generated wheel into the selected Python environment.
+    goto bad_exit
+
+:error_copy_wheel
+    echo.
+    echo %FILE_N% [ERROR] Failed to copy the generated wheel into the dist folder.
     goto bad_exit
 
 :good_exit
@@ -147,5 +183,5 @@ rem ============================================================================
 
 :bad_exit
     endlocal
-    exit /b %errorlevel%
+    exit /b 1
 

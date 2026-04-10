@@ -1048,8 +1048,9 @@ std::vector<msr::airlib::DetectionInfo> WorldSimApi::getDetections(ImageCaptureB
             result[i].name = std::string(TCHAR_TO_UTF8(*(detections[i].Actor->GetFName().ToString())));
 
             Vector3r nedWrtOrigin = ned_transform.toGlobalNed(detections[i].Actor->GetActorLocation());
-            result[i].geo_point = msr::airlib::EarthUtils::nedToGeodetic(nedWrtOrigin,
-                                                                         AirSimSettings::singleton().origin_geopoint);
+            result[i].geo_point = msr::airlib::EarthUtils::nedToGeodetic(
+                nedWrtOrigin,
+                msr::airlib::AirSimSettings::singleton().origin_geopoint);
 
             result[i].box2D.min = Vector2r(detections[i].Box2D.Min.X, detections[i].Box2D.Min.Y);
             result[i].box2D.max = Vector2r(detections[i].Box2D.Max.X, detections[i].Box2D.Max.Y);

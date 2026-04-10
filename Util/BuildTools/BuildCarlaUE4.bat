@@ -7,6 +7,8 @@ rem Run it through a cmd with the x64 Visual C++ Toolset enabled.
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -138,6 +140,8 @@ if %REMOVE_INTERMEDIATE% == true (
 rem Build Carla Editor
 rem
 
+if not defined CARLAAIR_PYTHON_EXE goto error_python_no_found
+
 if %USE_SIMREADY% == true (
     set SIMREADY_PLUGINS_INSTALLED="SimReady ON"
     rem fetch SimReady plugin dependencies
@@ -145,16 +149,16 @@ if %USE_SIMREADY% == true (
     call get_dependencies.bat
     popd
 ) else (
-    python %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -p="MDL"
-    python %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -p="SimReady"
-    python %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/Plugins/CarlaTools/CarlaTools.uplugin" -p="SimReady"
+    "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -p="MDL"
+    "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -p="SimReady"
+    "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/Plugins/CarlaTools/CarlaTools.uplugin" -p="SimReady"
     set SIMREADY_PLUGINS_INSTALLED="SimReady OFF"
 )
 if %USE_CARSIM% == true (
-    python %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -e
+    "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -e
     set CARSIM_STATE="CarSim ON"
 ) else (
-    python %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
+    "%CARLAAIR_PYTHON_EXE%" %ROOT_PATH%Util/BuildTools/enable_carsim_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
     set CARSIM_STATE="CarSim OFF"
 )
 if %USE_CHRONO% == true (
@@ -234,9 +238,14 @@ rem ============================================================================
 
 :bad_exit
     endlocal
-    exit /b %errorlevel%
+    exit /b 1
 
 :error_unreal_no_found
     echo.
     echo %FILE_N% [ERROR] Unreal Engine not detected
+    goto bad_exit
+
+:error_python_no_found
+    echo.
+    echo %FILE_N% [ERROR] Python interpreter not detected. Set CARLAAIR_PYTHON_EXE or run BuildWindows.ps1.
     goto bad_exit

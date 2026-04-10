@@ -7,6 +7,8 @@ rem Run it through a cmd with the x64 Visual C++ Toolset enabled.
 set LOCAL_PATH=%~dp0
 set FILE_N=-[%~n0]:
 
+call "%LOCAL_PATH%Bootstrap.bat"
+
 rem Print batch params (debug purpose)
 echo %FILE_N% [Batch params]: %*
 
@@ -17,7 +19,7 @@ rem ============================================================================
 set DOC_STRING=Build LibCarla.
 set USAGE_STRING=Usage: %FILE_N% [-h^|--help] [--rebuild] [--server] [--client] [--clean]
 
-set GENERATOR=""
+set "GENERATOR="
 set REMOVE_INTERMEDIATE=false
 set BUILD_SERVER=false
 set BUILD_CLIENT=false
@@ -39,7 +41,7 @@ if not "%1"=="" (
         set REMOVE_INTERMEDIATE=true
     )
     if "%1"=="--generator" (
-        set GENERATOR=%2
+        set "GENERATOR=%~2"
         shift
     )
     if "%1"=="-h" (
@@ -73,7 +75,7 @@ rem Set the visual studio solution directory
 rem
 set LIBCARLA_VSPROJECT_PATH=%INSTALLATION_DIR:/=\%libcarla-visualstudio\
 
-if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
+if "%GENERATOR%" == "" set "GENERATOR=Visual Studio 17 2022"
 
 
 set LIBCARLA_SERVER_INSTALL_PATH=%ROOT_PATH:/=\%Unreal\CarlaUE4\Plugins\Carla\CarlaDependencies\
@@ -118,7 +120,7 @@ set errorlevel=0
 rem Build libcarla server
 rem
 if %BUILD_SERVER% == true (
-    cmake -G %GENERATOR% %PLATFORM%^
+    cmake -G "%GENERATOR%" %PLATFORM%^
       -DCMAKE_BUILD_TYPE=Server^
       -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
       -DCMAKE_INSTALL_PREFIX="%LIBCARLA_SERVER_INSTALL_PATH:\=/%"^
@@ -133,7 +135,7 @@ if %BUILD_SERVER% == true (
 rem Build libcarla client
 rem
 if %BUILD_CLIENT% == true (
-    cmake -G %GENERATOR% %PLATFORM%^
+    cmake -G "%GENERATOR%" %PLATFORM%^
       -DCMAKE_BUILD_TYPE=Client^
       -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
       -DCMAKE_INSTALL_PREFIX="%LIBCARLA_CLIENT_INSTALL_PATH:\=/%"^
