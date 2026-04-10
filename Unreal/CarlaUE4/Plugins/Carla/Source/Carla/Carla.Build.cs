@@ -19,6 +19,8 @@ public class Carla : ModuleRules
   {
     PrivatePCHHeaderFile = "Carla.h";
 
+    bool HasCustomGBufferView = File.Exists(Path.Combine(EngineDirectory, "Source", "Runtime", "Renderer", "Public", "GBufferView.h"));
+
     if (IsWindows(Target))
     {
       bEnableExceptions = true;
@@ -70,7 +72,7 @@ public class Carla : ModuleRules
 
     PrivateIncludePaths.AddRange(
       new string[] {
-        // ... add other private include paths required here ...
+        Path.Combine(EngineDirectory, "Source", "Runtime", "Engine", "Private")
       }
       );
 
@@ -137,6 +139,7 @@ public class Carla : ModuleRules
       );
 
     AddCarlaServerDependency(Target);
+    PublicDefinitions.Add(HasCustomGBufferView ? "CARLA_HAS_ENGINE_GBUFFER_VIEW=1" : "CARLA_HAS_ENGINE_GBUFFER_VIEW=0");
   }
 
   private bool UseDebugLibs(ReadOnlyTargetRules Target)

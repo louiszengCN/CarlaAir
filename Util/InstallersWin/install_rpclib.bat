@@ -24,7 +24,7 @@ if not "%1"=="" (
         set BUILD_DIR=%~dpn2
     )
     if "%1"=="--generator" (
-        set GENERATOR=%2
+        set "GENERATOR=%~2"
         shift
     )
     if "%1"=="--delete-src" (
@@ -34,7 +34,7 @@ if not "%1"=="" (
     goto :arg-parse
 )
 
-if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
+if "%GENERATOR%" == "" set "GENERATOR=Visual Studio 17 2022"
 
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
@@ -78,7 +78,7 @@ echo.%GENERATOR% | findstr /C:"Visual Studio" >nul && (
 )
 
 
-cmake .. -G %GENERATOR% %PLATFORM%^
+cmake .. -G "%GENERATOR%" %PLATFORM%^
         -DCMAKE_BUILD_TYPE=Release^
         -DRPCLIB_BUILD_EXAMPLES=OFF^
         -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^

@@ -17,6 +17,7 @@
 #include "common/common_utils/WindowsApisCommonPre.hpp"
 
 #include "common/common_utils/MinWinDefines.hpp"
+#include <winsock2.h>
 #include <windows.h>
 
 #include <dinput.h>

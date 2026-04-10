@@ -15,6 +15,18 @@
 #  pragma clang diagnostic pop
 #endif
 
+#if defined(_WIN32)
+#  pragma pop_macro("InterlockedCompareExchangePointer")
+#  pragma pop_macro("InterlockedExchangePointer")
+#  pragma pop_macro("InterlockedCompareExchange")
+#  pragma pop_macro("InterlockedExchangeAdd")
+#  pragma pop_macro("InterlockedExchange")
+#  pragma pop_macro("InterlockedDecrement")
+#  pragma pop_macro("InterlockedIncrement")
+#  pragma pop_macro("FALSE")
+#  pragma pop_macro("TRUE")
+#endif
+
 #pragma pop_macro("GET_AI_CONFIG_VAR")
 #pragma pop_macro("BT_VLOG")
 #pragma pop_macro("BT_SEARCHLOG")

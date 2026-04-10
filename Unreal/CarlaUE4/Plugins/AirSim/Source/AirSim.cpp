@@ -5,6 +5,12 @@
 #include "Misc/Paths.h"
 #include "Modules/ModuleManager.h"
 #include "Modules/ModuleInterface.h"
+#if WITH_EDITOR
+#include <compiler/disable-ue4-macros.h>
+#include <carla/Exception.h>
+#include <compiler/enable-ue4-macros.h>
+#include <exception>
+#endif
 
 class FAirSim : public IModuleInterface
 {
@@ -24,3 +30,15 @@ void FAirSim::ShutdownModule()
 {
     //plugin shutdown
 }
+
+#if WITH_EDITOR
+namespace carla {
+
+void throw_exception(const std::exception &e)
+{
+    UE_LOG(LogTemp, Fatal, TEXT("Carla exception forwarded via AirSim: %s"), UTF8_TO_TCHAR(e.what()));
+    std::terminate();
+}
+
+} // namespace carla
+#endif

@@ -10,6 +10,8 @@ public class CarlaUE4EditorTarget : TargetRules
 	public CarlaUE4EditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
+		BuildEnvironment = TargetBuildEnvironment.Shared;
+		bOverrideBuildEnvironment = true;
 		ExtraModuleNames.Add("CarlaUE4");
 
 		string ConfigDir = Path.GetDirectoryName(ProjectFile.ToString()) + "/Config/";
@@ -31,5 +33,7 @@ public class CarlaUE4EditorTarget : TargetRules
 			bForceUnityBuild = false;
 			bUseAdaptiveUnityBuild = false;
 		}
+
+		AdditionalCompilerArguments = "/wd4103";
 	}
 }

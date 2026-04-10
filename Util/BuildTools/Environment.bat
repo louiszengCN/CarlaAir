@@ -3,6 +3,8 @@ setlocal enabledelayedexpansion
 
 rem BAT script containing utility functions for reuse across other scripts.
 
+call "%~dp0Bootstrap.bat"
+
 :get_git_repository_version
     for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set BRANCH=%%b
 

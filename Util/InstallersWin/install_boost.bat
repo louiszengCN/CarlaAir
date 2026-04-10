@@ -36,6 +36,10 @@ if not "%1"=="" (
         set BOOST_VERSION=%~2
         shift
     )
+    if "%1"=="--python-exe" (
+        set PYTHON_EXE=%~2
+        shift
+    )
     if "%1"=="-h" (
         goto help
     )
@@ -50,6 +54,7 @@ if "%BOOST_VERSION%" == "" (
     echo %FILE_N% You must specify a boost version using [-v^|--version]
     goto bad_exit
 )
+if not defined PYTHON_EXE if defined CARLAAIR_PYTHON_EXE set "PYTHON_EXE=%CARLAAIR_PYTHON_EXE%"
 
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
@@ -82,7 +87,16 @@ rem -- Get Boost ---------------------------------------------------------------
 rem ============================================================================
 
 if exist "%BOOST_INSTALL_DIR%" (
-    goto already_build
+    if defined PYTHON_EXE (
+        if exist "%BOOST_LIB_DIR%*boost_python*.lib" (
+            goto already_build
+        ) else (
+            echo %FILE_N% Existing Boost installation is missing Boost.Python. Rebuilding with "%PYTHON_EXE%".
+            rd /s /q "%BOOST_INSTALL_DIR%"
+        )
+    ) else (
+        goto already_build
+    )
 )
 
 set _checksum=""
@@ -120,6 +134,13 @@ if not exist "b2.exe" (
 
 if %errorlevel% neq 0 goto error_bootstrap
 
+if defined PYTHON_EXE (
+    call :configure_python
+    if errorlevel 1 goto error_python_config
+)
+set "PYTHON_B2_ARG="
+if defined PYTHON_VERSION set "PYTHON_B2_ARG=python=%PYTHON_VERSION%"
+
 rem This fix some kind of issue installing headers of boost < 1.67, not installing correctly
 rem echo %FILE_N% Packing headers...
 rem b2 headers link=static
@@ -131,7 +152,7 @@ b2 -j%NUMBER_OF_ASYNC_JOBS%^
     --build-dir=.\build^
     --with-system^
     --with-filesystem^
-    --with-python^
+    --with-python %PYTHON_B2_ARG%^
     --with-date_time^
     architecture=x86^
     address-model=64^
@@ -190,6 +211,11 @@ rem ============================================================================
     echo %FILE_N% [B2 ERROR] An error ocurred while installing using "b2.exe".
     goto bad_exit
 
+:error_python_config
+    echo.
+    echo %FILE_N% [PYTHON ERROR] Failed to configure Boost.Python for "%PYTHON_EXE%".
+    goto bad_exit
+
 :good_exit
     echo %FILE_N% Exiting...
     endlocal
@@ -202,6 +228,45 @@ rem ============================================================================
     echo %FILE_N% Exiting with error...
     endlocal
     exit /b %errorlevel%
+
+:configure_python
+if not exist "%PYTHON_EXE%" (
+    echo %FILE_N% [PYTHON ERROR] Python executable not found: "%PYTHON_EXE%"
+    exit /b 1
+)
+if defined CARLAAIR_PYTHON_VERSION set "PYTHON_VERSION=%CARLAAIR_PYTHON_VERSION%"
+if defined CARLAAIR_PYTHON_ROOT set "PYTHON_ROOT=%CARLAAIR_PYTHON_ROOT%"
+if not defined PYTHON_VERSION for /f "delims=" %%I in ('"%PYTHON_EXE%" -c "import sys; print(str(sys.version_info[0])+'.'+str(sys.version_info[1]))"') do set "PYTHON_VERSION=%%I"
+if not defined PYTHON_ROOT for /f "delims=" %%I in ('"%PYTHON_EXE%" -c "import sys; print(sys.prefix)"') do set "PYTHON_ROOT=%%I"
+if not defined PYTHON_VERSION (
+    echo %FILE_N% [PYTHON ERROR] Failed to detect Python version from "%PYTHON_EXE%"
+    exit /b 1
+)
+if not defined PYTHON_ROOT (
+    echo %FILE_N% [PYTHON ERROR] Failed to detect Python root from "%PYTHON_EXE%"
+    exit /b 1
+)
+set "PYTHON_INCLUDE=%PYTHON_ROOT%\include"
+set "PYTHON_LIBDIR=%PYTHON_ROOT%\libs"
+if not exist "%PYTHON_INCLUDE%\Python.h" (
+    echo %FILE_N% [PYTHON ERROR] Python headers not found under "%PYTHON_INCLUDE%"
+    exit /b 1
+)
+dir /b "%PYTHON_LIBDIR%\python*.lib" >nul 2>nul
+if %errorlevel% neq 0 (
+    echo %FILE_N% [PYTHON ERROR] Python import libraries were not found under "%PYTHON_LIBDIR%"
+    exit /b 1
+)
+if exist "project-config.jam" (
+    findstr /V /B /C:"using python" "project-config.jam" > "project-config.tmp"
+    move /Y "project-config.tmp" "project-config.jam" >nul
+)
+set "PYTHON_EXE_JAM=%PYTHON_EXE:\=/%"
+set "PYTHON_INCLUDE_JAM=%PYTHON_INCLUDE:\=/%"
+set "PYTHON_LIBDIR_JAM=%PYTHON_LIBDIR:\=/%"
+>> "project-config.jam" echo using python : %PYTHON_VERSION% : "%PYTHON_EXE_JAM%" : "%PYTHON_INCLUDE_JAM%" : "%PYTHON_LIBDIR_JAM%" ;
+echo %FILE_N% Configured Boost.Python for Python %PYTHON_VERSION%.
+exit /b 0
 
 :CheckSumEvaluate
 set filepath=%1
