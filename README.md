@@ -38,7 +38,7 @@
 <p align="center">
   <a href="https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai"><img src="https://img.shields.io/badge/Baidu%20Pan-Download-2932E1?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="Baidu Pan"/></a>
   <a href="https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7"><img src="https://img.shields.io/badge/HuggingFace-Download-FFD21E?logo=huggingface&logoColor=black" alt="HuggingFace"/></a>
-  <a href="docs/images/wxg.jpg"><img src="https://img.shields.io/badge/WeChat-Group-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
+  <a href="docs/images/wxg.jpg?v=20260419"><img src="https://img.shields.io/badge/WeChat-Group-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
 </p>
 
 ## 📌 Table of Contents
@@ -60,7 +60,7 @@
 
 ## 🔥 News
 
-- **[2026-04-10]** 🪟 [Windows source branch published](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows build and runtime support is now available on the dedicated branch
+- **[2026-04-10]** [![Windows Source](https://img.shields.io/badge/Windows-Source%20Branch-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows source branch published](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows build and runtime support is now available on the dedicated branch
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **on [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)!**
 - **[2026-03-30]** 📄 Technical report released -- [Read the paper](https://arxiv.org/abs/2603.28032)
 - **[2026-03]** `v0.1.7` released -- VSync fix, stable traffic, one-click env setup, drone recording toolkit, coordinate docs

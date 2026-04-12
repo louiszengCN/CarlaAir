@@ -38,7 +38,7 @@
 <p align="center">
   <a href="https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai"><img src="https://img.shields.io/badge/百度网盘-下载-2932E1?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="Baidu Pan"/></a>
   <a href="https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7"><img src="https://img.shields.io/badge/HuggingFace-下载-FFD21E?logo=huggingface&logoColor=black" alt="HuggingFace"/></a>
-  <a href="docs/images/wxg.jpg"><img src="https://img.shields.io/badge/微信-交流群-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
+  <a href="docs/images/wxg.jpg?v=20260419"><img src="https://img.shields.io/badge/微信-交流群-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
 </p>
 
 ## 📌 目录
@@ -58,7 +58,7 @@
 
 ## 🔥 最新动态
 
-- **[2026-04-10]** 🪟 [Windows 源码分支已发布](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows 构建与运行支持现已在独立分支中提供
+- **[2026-04-10]** [![Windows 源码分支](https://img.shields.io/badge/Windows-源码分支-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows 源码分支已发布](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows 构建与运行支持现已在独立分支中提供
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **登顶 [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)！**
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](https://arxiv.org/abs/2603.28032)
 - **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！
