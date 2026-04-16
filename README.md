@@ -11,6 +11,7 @@
 
 👉 **Get started instantly with our pre-built executable (no compilation required):**  
 [Baidu Pan](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
+
 👉 **pre-built executable For Windows:**
 [Baidu Pan](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm)
 
