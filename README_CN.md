@@ -12,6 +12,9 @@
 👉 **无需编译，下载即用的预构建可执行版本：**  
 [百度网盘](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
+👉 **Windows上运行的预编译版本：**
+[百度网盘](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm)
+
 <div align="center">
   <a href="https://huggingface.co/papers/2603.28032"><img src="https://img.shields.io/badge/%F0%9F%8F%86%20HF%20Daily%20Papers-%231%20Paper%20of%20the%20Day-FFD700" alt="#1 Paper of the Day"/></a>
   <a href="docs/pdf/CarlaAir.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red" alt="Paper PDF"/></a>
@@ -58,6 +61,7 @@
 
 ## 🔥 最新动态
 
+- **[2026-04-16]** Windows版的预编译版本已发布
 - **[2026-04-10]** [![Windows 源码分支](https://img.shields.io/badge/Windows-源码分支-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows 源码分支已发布](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows 构建与运行支持现已在独立分支中提供
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **登顶 [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)！**
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](docs/pdf/CarlaAir.pdf)
