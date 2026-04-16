@@ -9,7 +9,7 @@
 
 **CARLA-Air** 是一个开源仿真基础设施，在单一 Unreal Engine 进程中统一了高保真城市驾驶与物理精确的多旋翼飞行，为空地一体具身智能研究提供了实用的仿真基础。  
 
-👉 **无需编译，下载即用的预构建可执行版本：**  
+👉 **无需编译，下载即用的 Linux 预构建版本：**  
 [百度网盘](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
@@ -44,6 +44,7 @@
 ## 📌 目录
 
 - [🔥 最新动态](#最新动态)
+- [🪟 Windows 状态](#windows-status-cn)
 - [✨ 核心亮点](#核心亮点)
 - [🏆 平台对比](#平台对比) — 15 款仿真器横向对比
 - [🎮 快速开始](#快速开始) — 4 步上手
@@ -66,6 +67,32 @@
 - **[2026-03]** `v0.1.6` 发布 -- 自动交通生成、UE4 原生 Sweep 碰撞、地面夹紧系统
 - **[2026-03]** `v0.1.5` 发布 -- 12 方向碰撞系统、双语帮助菜单（`H`）
 - **[2026-03]** `v0.1.4` 发布 -- ROS2 验证（63 个话题）、首个官方二进制发布
+
+---
+
+<a id="windows-status-cn"></a>
+
+## 🪟 Windows 状态
+
+Windows 支持目前维护在独立分支：
+
+- [windows/v0.1.7-win11-x86_64](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64)
+
+请注意：
+
+- 本 README 顶部的下载链接指向的是预构建 Linux 包，不是 Windows 源码分支。
+- 在 Windows 下，标准启动入口是 `CarlaAir.ps1`，不要直接双击 `CarlaUE4.exe`。
+- 如果你已经在 Windows 上完成构建和打包，生成的可执行文件通常位于：
+  - `Build/UE4Carla/<build-id>/WindowsNoEditor/CarlaUE4.exe`
+- 如果 `2000` 端口正常但 `41451` 端口不正常，优先排查 AirSim 初始化问题：
+  - 确认是否通过 `CarlaAir.ps1` 启动
+  - 确认 `<真实Documents路径>\\AirSim\\settings.json` 是否存在
+
+推荐阅读：
+
+- [Windows 启动教程（英文）](https://github.com/louiszengCN/CarlaAir/blob/windows/v0.1.7-win11-x86_64/STARTUP_GUIDE.md)
+- [Windows 启动教程（中文）](https://github.com/louiszengCN/CarlaAir/blob/windows/v0.1.7-win11-x86_64/STARTUP_GUIDE_CN.md)
+- [Windows 源码分支](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64)
 
 ---
 

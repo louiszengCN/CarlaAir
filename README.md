@@ -9,7 +9,7 @@
 
 **CARLA-Air** is an open-source infrastructure that unifies high-fidelity urban driving and physics-accurate multirotor flight within a single Unreal Engine process, providing a practical simulation foundation for air-ground embodied intelligence research.  
 
-👉 **Get started instantly with our pre-built executable (no compilation required):**  
+👉 **Get started instantly with our pre-built Linux package (no compilation required):**  
 [Baidu Pan](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
 
 <div align="center">
@@ -44,6 +44,7 @@
 ## 📌 Table of Contents
 
 - [🔥 News](#news)
+- [🪟 Windows Status](#windows-status)
 - [✨ Highlights](#highlights)
 - [🏆 Platform Comparison](#platform-comparison) — 15 simulators, side-by-side
 - [🎮 Quick Start](#quick-start) — up and running in 4 steps
@@ -67,6 +68,32 @@
 - **[2026-03]** `v0.1.6` released -- Auto traffic spawn, UE4 native Sweep collision, ground clamping
 - **[2026-03]** `v0.1.5` released -- 12-direction collision system, bilingual help overlay (`H`)
 - **[2026-03]** `v0.1.4` released -- ROS2 validation (63 topics), first official binary release
+
+---
+
+<a id="windows-status"></a>
+
+## 🪟 Windows Status
+
+Windows support is currently maintained on the dedicated branch:
+
+- [windows/v0.1.7-win11-x86_64](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64)
+
+Key points:
+
+- The download links at the top of this README point to the pre-built Linux package, not the Windows source branch.
+- On Windows, the standard startup entry is `CarlaAir.ps1`. Do not start by directly double-clicking `CarlaUE4.exe`.
+- If you build and package CarlaAir on Windows, the packaged executable is typically generated at:
+  - `Build/UE4Carla/<build-id>/WindowsNoEditor/CarlaUE4.exe`
+- If port `2000` works but port `41451` does not, first troubleshoot AirSim initialization:
+  - confirm CarlaAir was launched through `CarlaAir.ps1`
+  - confirm `<real Documents path>\\AirSim\\settings.json` exists
+
+Useful links:
+
+- [Windows startup guide](https://github.com/louiszengCN/CarlaAir/blob/windows/v0.1.7-win11-x86_64/STARTUP_GUIDE.md)
+- [Windows startup guide (Chinese)](https://github.com/louiszengCN/CarlaAir/blob/windows/v0.1.7-win11-x86_64/STARTUP_GUIDE_CN.md)
+- [Windows source branch](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64)
 
 ---
 
