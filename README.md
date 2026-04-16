@@ -11,6 +11,8 @@
 
 👉 **Get started instantly with our pre-built executable (no compilation required):**  
 [Baidu Pan](https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai) | [Hugging Face](https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7)
+👉 **pre-built executable For Windows:**
+[Baidu Pan](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm)
 
 <div align="center">
   <a href="https://huggingface.co/papers/2603.28032"><img src="https://img.shields.io/badge/%F0%9F%8F%86%20HF%20Daily%20Papers-%231%20Paper%20of%20the%20Day-FFD700" alt="#1 Paper of the Day"/></a>
@@ -59,7 +61,7 @@
 <a id="news"></a>
 
 ## 🔥 News
-
+- **[2026-04-16]** Windows pre-built package is now available. 
 - **[2026-04-10]** [![Windows Source](https://img.shields.io/badge/Windows-Source%20Branch-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows source branch published](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows build and runtime support is now available on the dedicated branch
 - **[2026-04-01]** 🏆 $\color{red}{\textbf{\\#1 Paper of the Day}}$ **on [Hugging Face Daily Papers](https://huggingface.co/papers/2603.28032)!**
 - **[2026-03-30]** 📄 Technical report released -- [Read the paper](docs/pdf/CarlaAir.pdf)
