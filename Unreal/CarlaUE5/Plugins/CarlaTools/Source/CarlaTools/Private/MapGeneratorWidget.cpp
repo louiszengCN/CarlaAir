@@ -16,7 +16,6 @@
 // FoliageEdMode.h removed: FEdModeFoliage::AddInstances is a hidden (non-exported) symbol in UE5.7.
 // Replaced with public-API equivalent using FoliageTrace + FPotentialInstance + FFoliageInfo::AddInstances.
 #include "InstancedFoliageActor.h" // AInstancedFoliageActor, FPotentialInstance (via InstancedFoliage.h)
-#include "EditorLevelLibrary.h"
 #include "FileHelpers.h"
 #include "GenericPlatform/GenericPlatformFile.h"
 #include "HAL/PlatformFilemanager.h"
