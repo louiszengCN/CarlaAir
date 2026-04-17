@@ -18,7 +18,7 @@
 #include "Online/CustomFileDownloader.h"
 #include "Util/ProceduralCustomMesh.h"
 #include "Carla/Game/CarlaStatics.h"
-#include "Carla/BlueprintLibary/MapGenFunctionLibrary.h"
+#include "Carla/BlueprintLibrary/MapGenFunctionLibrary.h"
 #include "OpenDrive/OpenDriveGenerator.h"
 
 #include <compiler/disable-ue4-macros.h>

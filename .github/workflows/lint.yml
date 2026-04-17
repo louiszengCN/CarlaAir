@@ -28,3 +28,13 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           args: check --config PythonAPI/carla/pyproject.toml
+
+  clang-format:
+    name: clang-format (C++ style)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jidicula/clang-format-action@v4.14.0
+        with:
+          clang-format-version: '18'
+          check-path: LibCarla/source

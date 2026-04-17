@@ -13672,7 +13672,7 @@ SOURCES += \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/CarlaBlueprintRegistry.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/StaticMeshFactory.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/UtilActorFactory.cpp" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/BlueprintLibary/MapGenFunctionLibrary.cpp" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/BlueprintLibrary/MapGenFunctionLibrary.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/GenerateTaggedMaterialsRegistry.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/LoadAssetMaterialsCommandlet.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/MoveAssetsCommandlet.cpp" \

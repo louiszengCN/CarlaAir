@@ -1,0 +1,54 @@
+# CarlaAir .clang-tidy — C++ naming and style conventions
+#
+# NOTE: Full clang-tidy analysis requires compile_commands.json from UBT.
+# Without it, only header-only / standalone (LibCarla) code can be checked.
+# The UE plugin code (Unreal/) cannot be analyzed without the full UE include graph.
+#
+# Naming conventions:
+#   UE plugin (Unreal/): PascalCase types, PascalCase functions, PascalCase members
+#   LibCarla:            PascalCase types, camelCase/STL-style methods, snake_case files
+
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  modernize-use-auto,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-using,
+  modernize-redundant-void-arg,
+  performance-*,
+  readability-braces-around-statements,
+  readability-else-after-return,
+  readability-redundant-smartptr-get,
+
+WarningsAsErrors: ''
+
+CheckOptions:
+  # UE naming conventions (PascalCase everywhere)
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.ParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.MemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.MemberPrefix
+    value: ''
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: '_'
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE

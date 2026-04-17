@@ -18511,7 +18511,7 @@ HEADERS += \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/StaticMeshFactory.h" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/UtilActorFactory.h" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Actor/VehicleParameters.h" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/BlueprintLibary/MapGenFunctionLibrary.h" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/BlueprintLibrary/MapGenFunctionLibrary.h" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/GenerateTaggedMaterialsRegistry.h" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/LoadAssetMaterialsCommandlet.h" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Commandlet/MoveAssetsCommandlet.h" \
