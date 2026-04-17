@@ -1,4 +1,5 @@
 #include "SimModeBase.h"
+#include "AirSim.h"
 #include "Recording/RecordingThread.h"
 #include "Misc/MessageDialog.h"
 #include "Misc/EngineVersion.h"
@@ -159,7 +160,7 @@ void ASimModeBase::BeginPlay()
         TArray<AActor*> existing_meshes;
         UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), existing_meshes);
         if (existing_meshes.Num() == 0 && cube_mesh) {
-            UE_LOG(LogTemp, Warning, TEXT("AirSim: Empty map detected - spawning test environment"));
+            UE_LOG(LogAirSim, Warning, TEXT("AirSim: Empty map detected - spawning test environment"));
 
             // Remove existing ExponentialHeightFog (from WeatherActor, causes black fog)
             TArray<AActor*> fog_actors;
@@ -302,7 +303,7 @@ void ASimModeBase::BeginPlay()
                 }
             }
 
-            UE_LOG(LogTemp, Warning, TEXT("AirSim: Test environment spawned - ground, buildings, grid"));
+            UE_LOG(LogAirSim, Warning, TEXT("AirSim: Test environment spawned - ground, buildings, grid"));
         }
     }
 

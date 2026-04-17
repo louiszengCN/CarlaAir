@@ -28,6 +28,8 @@
 #include "AssetRegistryModule.h"
 #include "DetectionComponent.h"
 
+DEFINE_LOG_CATEGORY(LogAirSim);
+
 /*
 //TODO: change naming conventions to same as other files?
 Naming conventions in this file:
@@ -584,7 +586,7 @@ UObject* UAirBlueprintLib::GetMeshFromRegistry(const std::string& load_object)
 
     UObject* LoadObject = nullptr;
     for (auto asset : AssetData) {
-        UE_LOG(LogTemp, Log, TEXT("Asset path: %s"), *asset.PackagePath.ToString());
+        UE_LOG(LogAirSim, Log, TEXT("Asset path: %s"), *asset.PackagePath.ToString());
         if (asset.AssetName == FName(load_object.c_str())) {
             LoadObject = asset.GetAsset();
             break;

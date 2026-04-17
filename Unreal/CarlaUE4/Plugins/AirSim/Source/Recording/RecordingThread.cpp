@@ -1,4 +1,5 @@
 #include "RecordingThread.h"
+#include "AirSim.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "HAL/RunnableThread.h"
 
@@ -79,7 +80,7 @@ void FRecordingThread::killRecording()
     stopRecording();
     bool finished = finishing_signal_.waitForRetry(1, 5);
     if (!finished) {
-        UE_LOG(LogTemp, Log, TEXT("killing thread"));
+        UE_LOG(LogAirSim, Log, TEXT("killing thread"));
         finishing_instance_->thread_->Kill(false);
     }
 }

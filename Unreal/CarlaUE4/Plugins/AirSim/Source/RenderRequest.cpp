@@ -1,4 +1,5 @@
 #include "RenderRequest.h"
+#include "AirSim.h"
 #include "TextureResource.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Async/TaskGraphInterfaces.h"
@@ -96,7 +97,7 @@ void RenderRequest::getScreenshot(std::shared_ptr<RenderParams> params[], std::v
             // log a message and continue wait
             // lamda function still references a few objects for which there is no refcount.
             // Walking away will cause memory corruption, which is much more difficult to debug.
-            UE_LOG(LogTemp, Warning, TEXT("Failed: timeout waiting for screenshot"));
+            UE_LOG(LogAirSim, Warning, TEXT("Failed: timeout waiting for screenshot"));
         }
     }
 

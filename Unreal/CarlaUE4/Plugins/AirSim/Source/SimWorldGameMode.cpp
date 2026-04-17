@@ -3,6 +3,7 @@
 // v0.1.5: Scroll wheel speed, physics/invincible toggle (P), help overlay (H).
 
 #include "SimWorldGameMode.h"
+#include "AirSim.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/FileHelper.h"
@@ -59,13 +60,13 @@ public:
         }
 
         if (level == msr::airlib::Utils::kLogLevelError) {
-            UE_LOG(LogTemp, Error, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Error, TEXT("%s"), *FString(message.c_str()));
         }
         else if (level == msr::airlib::Utils::kLogLevelWarn) {
-            UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Warning, TEXT("%s"), *FString(message.c_str()));
         }
         else {
-            UE_LOG(LogTemp, Log, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Log, TEXT("%s"), *FString(message.c_str()));
         }
 
         msr::airlib::Utils::Logger::log(level, message);
@@ -100,21 +101,21 @@ public:
         // Get the multirotor API
         auto* PawnApi = SimMode_ ? SimMode_->getVehicleSimApi() : nullptr;
         if (!PawnApi) {
-            UE_LOG(LogTemp, Error, TEXT("FDroneControlWorker: No vehicle sim API!"));
+            UE_LOG(LogAirSim, Error, TEXT("FDroneControlWorker: No vehicle sim API!"));
             return 1;
         }
 
         auto* MultiPawnApi = static_cast<MultirotorPawnSimApi*>(PawnApi);
         MultirotorApiBase* DroneApi = MultiPawnApi->getVehicleApi();
         if (!DroneApi) {
-            UE_LOG(LogTemp, Error, TEXT("FDroneControlWorker: No multirotor API!"));
+            UE_LOG(LogAirSim, Error, TEXT("FDroneControlWorker: No multirotor API!"));
             return 1;
         }
 
         // Don't call enableApiControl/armDisarm at startup — this allows
         // external Python API to control the drone freely. FPS control will
         // activate on first keyboard input.
-        UE_LOG(LogTemp, Log, TEXT("FDroneControlWorker: Ready. Use WASD/QE for FPS control, or Python API for scripted flight."));
+        UE_LOG(LogAirSim, Log, TEXT("FDroneControlWorker: Ready. Use WASD/QE for FPS control, or Python API for scripted flight."));
 
         *bDroneReady_ = true;
         bool bWasHovering = true;   // true = don't hover on startup
@@ -150,7 +151,7 @@ public:
                     bFPSActivated = true;
                     DroneApi->enableApiControl(true);
                     DroneApi->armDisarm(true);
-                    UE_LOG(LogTemp, Log, TEXT("FDroneControlWorker: FPS control activated!"));
+                    UE_LOG(LogAirSim, Log, TEXT("FDroneControlWorker: FPS control activated!"));
                 }
 
                 if (bFPSActivated)
@@ -174,7 +175,7 @@ public:
             }
             catch (const std::exception& ex)
             {
-                UE_LOG(LogTemp, Warning, TEXT("FDroneControlWorker: %s"), *FString(ex.what()));
+                UE_LOG(LogAirSim, Warning, TEXT("FDroneControlWorker: %s"), *FString(ex.what()));
                 FPlatformProcess::Sleep(0.1f);
             }
         }
@@ -182,7 +183,7 @@ public:
         // Cleanup on shutdown (only if FPS was activated)
         if (bFPSActivated)
         {
-            UE_LOG(LogTemp, Log, TEXT("FDroneControlWorker: Landing..."));
+            UE_LOG(LogAirSim, Log, TEXT("FDroneControlWorker: Landing..."));
             try {
                 DroneApi->hover();
                 DroneApi->land(10.0f);
@@ -190,7 +191,7 @@ public:
                 DroneApi->enableApiControl(false);
             }
             catch (const std::exception& ex) {
-                UE_LOG(LogTemp, Warning, TEXT("FDroneControlWorker: Landing error: %s"), *FString(ex.what()));
+                UE_LOG(LogAirSim, Warning, TEXT("FDroneControlWorker: Landing error: %s"), *FString(ex.what()));
             }
         }
 
@@ -311,13 +312,13 @@ void ASimWorldGameMode::BeginPlay()
                     Description.Id = TEXT("spectator");
                     Description.Class = SpectatorPawn->GetClass();
                     Episode->ActorDispatcher->RegisterActor(*SpectatorPawn, Description);
-                    UE_LOG(LogTemp, Log, TEXT("SimWorldGameMode: Spectator pawn created and registered."));
+                    UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: Spectator pawn created and registered."));
                 }
             }
         }
     }
 
-    UE_LOG(LogTemp, Log, TEXT("SimWorldGameMode: CARLA BeginPlay complete, starting AirSim bootstrap..."));
+    UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: CARLA BeginPlay complete, starting AirSim bootstrap..."));
 
     try {
         UAirBlueprintLib::OnBeginPlay();
@@ -333,7 +334,7 @@ void ASimWorldGameMode::BeginPlay()
         if (SimMode_)
             SimMode_->startApiServer();
 
-        UE_LOG(LogTemp, Log, TEXT("SimWorldGameMode: AirSim bootstrap complete. API server started."));
+        UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: AirSim bootstrap complete. API server started."));
 
         // Setup FPS drone control (must be after SimMode creation)
         SetupFPSControl();
@@ -371,7 +372,7 @@ void ASimWorldGameMode::Tick(float DeltaSeconds)
                     Description.Id = TEXT("airsim.drone");
                     Description.Class = DronePawn->GetClass();
                     Episode->ActorDispatcher->RegisterActor(*DronePawn, Description);
-                    UE_LOG(LogTemp, Log, TEXT("SimWorldGameMode: Drone pawn registered with CARLA (type_id=airsim.drone)"));
+                    UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: Drone pawn registered with CARLA (type_id=airsim.drone)"));
                 }
                 bDroneRegistered_ = true;
             }
@@ -454,20 +455,20 @@ void ASimWorldGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ASimWorldGameMode::SetupFPSControl()
 {
     if (!SimMode_) {
-        UE_LOG(LogTemp, Warning, TEXT("SetupFPSControl: No SimMode, skipping FPS control."));
+        UE_LOG(LogAirSim, Warning, TEXT("SetupFPSControl: No SimMode, skipping FPS control."));
         return;
     }
 
     // Only enable for multirotor mode
     std::string simmode_name = AirSimSettings::singleton().simmode_name;
     if (simmode_name != AirSimSettings::kSimModeTypeMultirotor) {
-        UE_LOG(LogTemp, Log, TEXT("SetupFPSControl: SimMode is not Multirotor, skipping FPS control."));
+        UE_LOG(LogAirSim, Log, TEXT("SetupFPSControl: SimMode is not Multirotor, skipping FPS control."));
         return;
     }
 
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
     if (!PC) {
-        UE_LOG(LogTemp, Warning, TEXT("SetupFPSControl: No PlayerController!"));
+        UE_LOG(LogAirSim, Warning, TEXT("SetupFPSControl: No PlayerController!"));
         return;
     }
 
@@ -543,7 +544,7 @@ void ASimWorldGameMode::SetupFPSControl()
     DroneThread_ = FRunnableThread::Create(DroneWorker_, TEXT("DroneControlThread"));
 
     bFPSControlActive_ = true;
-    UE_LOG(LogTemp, Log, TEXT("SetupFPSControl: FPS drone control active. WASD=Move, Mouse=Look, Scroll=Speed, N=Weather, H=Help, P=PhysicsToggle"));
+    UE_LOG(LogAirSim, Log, TEXT("SetupFPSControl: FPS drone control active. WASD=Move, Mouse=Look, Scroll=Speed, N=Weather, H=Help, P=PhysicsToggle"));
 }
 
 void ASimWorldGameMode::UpdateFPSControl(float DeltaSeconds)
@@ -652,7 +653,7 @@ void ASimWorldGameMode::InputEventNextWeather()
         TEXT("ClearNoon"), TEXT("Cloudy"), TEXT("Rain"),
         TEXT("Sunset"), TEXT("Night"), TEXT("DustStorm")
     };
-    UE_LOG(LogTemp, Log, TEXT("Weather: %s"), PresetNames[WeatherIndex_]);
+    UE_LOG(LogAirSim, Log, TEXT("Weather: %s"), PresetNames[WeatherIndex_]);
 }
 
 void ASimWorldGameMode::InputEventToggleMouseCapture()
@@ -686,27 +687,27 @@ void ASimWorldGameMode::InputEventToggleMouseCapture()
             ViewportClient->SetCaptureMouseOnClick(EMouseCaptureMode::NoCapture);
         }
     }
-    UE_LOG(LogTemp, Log, TEXT("Mouse capture: %s"),
+    UE_LOG(LogAirSim, Log, TEXT("Mouse capture: %s"),
            bMouseCaptured_ ? TEXT("ON") : TEXT("OFF"));
 }
 
 void ASimWorldGameMode::InputEventSpeedUp()
 {
     DroneSpeed_ = FMath::Min(30.0f, DroneSpeed_ + 1.0f);
-    UE_LOG(LogTemp, Log, TEXT("Drone speed: %.0f m/s"), DroneSpeed_);
+    UE_LOG(LogAirSim, Log, TEXT("Drone speed: %.0f m/s"), DroneSpeed_);
 }
 
 void ASimWorldGameMode::InputEventSpeedDown()
 {
     DroneSpeed_ = FMath::Max(1.0f, DroneSpeed_ - 1.0f);
-    UE_LOG(LogTemp, Log, TEXT("Drone speed: %.0f m/s"), DroneSpeed_);
+    UE_LOG(LogAirSim, Log, TEXT("Drone speed: %.0f m/s"), DroneSpeed_);
 }
 
 void ASimWorldGameMode::InputEventToggleHelpOverlay()
 {
     bShowHelp_ = !bShowHelp_;
     ShowHelpOverlay(bShowHelp_);
-    UE_LOG(LogTemp, Log, TEXT("Help overlay: %s"), bShowHelp_ ? TEXT("ON") : TEXT("OFF"));
+    UE_LOG(LogAirSim, Log, TEXT("Help overlay: %s"), bShowHelp_ ? TEXT("ON") : TEXT("OFF"));
 }
 
 void ASimWorldGameMode::InputEventTogglePhysicsMode()
@@ -732,7 +733,7 @@ void ASimWorldGameMode::InputEventTogglePhysicsMode()
             : TEXT("Invincible Mode ON / 无敌穿越模式");
         GEngine->AddOnScreenDebugMessage(7777, 2.0f, FColor::Yellow, Msg);
     }
-    UE_LOG(LogTemp, Log, TEXT("Collision mode: %s"), bPhysicsCollision_ ? TEXT("Physics") : TEXT("Invincible"));
+    UE_LOG(LogAirSim, Log, TEXT("Collision mode: %s"), bPhysicsCollision_ ? TEXT("Physics") : TEXT("Invincible"));
 }
 
 void ASimWorldGameMode::DrawHelpOverlay()
