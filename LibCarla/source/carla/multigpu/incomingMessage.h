@@ -4,6 +4,8 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+#pragma once
+
 #include "carla/BufferPool.h"
 #include "carla/Debug.h"
 #include "carla/Exception.h"
