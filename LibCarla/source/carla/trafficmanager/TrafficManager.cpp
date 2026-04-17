@@ -107,7 +107,7 @@ void TrafficManager::CreateTrafficManagerServer(
         } else {
           char buffer[IP_DATA_BUFFER_SIZE];
           const char* p = inet_ntop(AF_INET, &loopback.sin_addr, buffer, IP_DATA_BUFFER_SIZE);
-          if(p != NULL) {
+          if(p != nullptr) {
             localIP = std::pair<std::string, uint16_t>(std::string(buffer), sport);
           } else {
             log_debug("inet_ntop error:", errno, strerror(errno));

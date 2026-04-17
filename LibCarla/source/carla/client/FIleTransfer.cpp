@@ -23,7 +23,7 @@ namespace client {
       "HOME";
 #endif
     const char* override = std::getenv(OverridePathEV);
-    if (override != NULL)
+    if (override != nullptr)
       return override;
       std::string path;
     path += std::getenv(HomePathEV);

@@ -106,7 +106,7 @@ private:
   /// Last processed frame
   size_t last_frame;
   /// Randomization seed.
-  uint64_t seed {static_cast<uint64_t>(time(NULL))};
+  uint64_t seed {static_cast<uint64_t>(time(nullptr))};
   /// Structure holding random devices per vehicle.
   UniformPRNG random_device = UniformPRNG(seed);
   std::vector<ActorId> marked_for_removal;
