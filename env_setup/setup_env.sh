@@ -36,6 +36,7 @@ ok "conda found: $CONDA_EXE"
 
 # Source conda shell functions
 CONDA_BASE="$("$CONDA_EXE" info --base)"
+# shellcheck source=/dev/null
 source "$CONDA_BASE/etc/profile.d/conda.sh"
 
 # ---------- 2. Check tarball ----------
@@ -83,7 +84,7 @@ done
 
 echo "Installing CarlaAir carla module to $SITE_PKG ..."
 tar xzf "$TARBALL" -C "$SITE_PKG"
-ok "carla + carla.libs installed ($(ls "$SITE_PKG/carla.libs/" | wc -l) shared libs)"
+ok "carla + carla.libs installed ($(find "$SITE_PKG/carla.libs/" -maxdepth 1 -type f | wc -l) shared libs)"
 
 # ---------- 7. Verify ----------
 echo ""
@@ -91,20 +92,26 @@ echo "Verifying imports..."
 
 VERIFY_OK=true
 
-python3 -c "
+if python3 -c "
 import carla
 print('  carla loaded from:', carla.__file__)
 c = carla.Client('localhost', 9999)
 print('  client version:', c.get_client_version())
-" 2>/dev/null && ok "carla verified" || {
+" 2>/dev/null; then
+    ok "carla verified"
+else
     # Import might work even if no server — test import alone
-    python3 -c "import carla; print('  carla import OK')" 2>&1 && ok "carla import OK (no server running)" || { fail "carla import failed!"; VERIFY_OK=false; }
-}
+    if python3 -c "import carla; print('  carla import OK')" 2>&1; then
+        ok "carla import OK (no server running)"
+    else
+        fail "carla import failed!"
+    fi
+fi
 
-python3 -c "import airsim; print('  airsim OK')" && ok "airsim verified" || { warn "airsim import failed"; VERIFY_OK=false; }
-python3 -c "import pygame" 2>/dev/null && ok "pygame verified" || { warn "pygame import failed"; VERIFY_OK=false; }
-python3 -c "import numpy" && ok "numpy verified" || { warn "numpy import failed"; VERIFY_OK=false; }
-python3 -c "import PIL" && ok "Pillow verified" || { warn "Pillow import failed"; VERIFY_OK=false; }
+if python3 -c "import airsim; print('  airsim OK')"; then ok "airsim verified"; else warn "airsim import failed"; VERIFY_OK=false; fi
+if python3 -c "import pygame" 2>/dev/null; then ok "pygame verified"; else warn "pygame import failed"; VERIFY_OK=false; fi
+if python3 -c "import numpy"; then ok "numpy verified"; else warn "numpy import failed"; VERIFY_OK=false; fi
+if python3 -c "import PIL"; then ok "Pillow verified"; else warn "Pillow import failed"; VERIFY_OK=false; fi
 
 # ---------- Done ----------
 echo ""

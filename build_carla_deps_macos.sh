@@ -8,7 +8,6 @@ UE4_ROOT="$CARLA_ROOT/Unreal/CarlaUE4"
 PLUGIN_ROOT="$UE4_ROOT/Plugins/Carla"
 CARLA_DEPS="$PLUGIN_ROOT/CarlaDependencies"
 BUILD_DIR="$CARLA_ROOT/Build/macos"
-LIBCARLA_SOURCE="$CARLA_ROOT/LibCarla/source"
 
 BOOST_INCLUDE="/opt/homebrew/include"
 SQLITE_PREFIX="/opt/homebrew/opt/sqlite"

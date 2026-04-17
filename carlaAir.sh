@@ -144,16 +144,16 @@ if [ ${USE_OPENGL} -eq 0 ]; then
 fi
 
 # Build launch command
-CMD="${BINARY} CarlaUE4 ${MAP}"
-CMD="${CMD} -windowed -ResX=${RES_X} -ResY=${RES_Y}"
-CMD="${CMD} -carla-rpc-port=${CARLA_PORT}"
-CMD="${CMD} -quality-level=${QUALITY}"
-CMD="${CMD} -TexturePoolSize=2048"
-CMD="${CMD} -unattended -nosound -UseVSync"
-if [ ${USE_OPENGL} -eq 1 ]; then
-    CMD="${CMD} -opengl4"
+CMD=("${BINARY}" "CarlaUE4" "${MAP}")
+CMD+=("-windowed" "-ResX=${RES_X}" "-ResY=${RES_Y}")
+CMD+=("-carla-rpc-port=${CARLA_PORT}")
+CMD+=("-quality-level=${QUALITY}")
+CMD+=("-TexturePoolSize=2048")
+CMD+=("-unattended" "-nosound" "-UseVSync")
+if [ "${USE_OPENGL}" -eq 1 ]; then
+    CMD+=("-opengl4")
 fi
-# CMD="${CMD} -RenderOffScreen"  # Uncomment for headless mode
+# CMD+=("-RenderOffScreen")  # Uncomment for headless mode
 
 echo "============================================"
 echo "  CarlaAir - Air-Ground Co-Simulation"
@@ -167,10 +167,10 @@ echo "  Quality:    ${QUALITY}"
 echo "  Renderer:   $([ ${USE_OPENGL} -eq 1 ] && echo 'OpenGL4' || echo 'Vulkan')"
 echo "============================================"
 
-if [ ${FG} -eq 1 ]; then
-    exec ${CMD}
+if [ "${FG}" -eq 1 ]; then
+    exec "${CMD[@]}"
 else
-    nohup ${CMD} > "${LOGFILE}" 2>&1 &
+    nohup "${CMD[@]}" > "${LOGFILE}" 2>&1 &
     PID=$!
     echo "  PID: ${PID}"
     echo "  Log: ${LOGFILE}"
@@ -178,7 +178,7 @@ else
     echo "Waiting for ports..."
 
     # Wait for CARLA port
-    for i in $(seq 1 120); do
+    for _ in $(seq 1 120); do
         if ss -tlnp 2>/dev/null | grep -q ":${CARLA_PORT} "; then
             echo "  CARLA (port ${CARLA_PORT}): Ready"
             break
@@ -191,7 +191,7 @@ else
     done
 
     # Wait for AirSim port
-    for i in $(seq 1 60); do
+    for _ in $(seq 1 60); do
         if ss -tlnp 2>/dev/null | grep -q ":${AIRSIM_PORT} "; then
             echo "  AirSim (port ${AIRSIM_PORT}): Ready"
             break
@@ -214,8 +214,8 @@ else
     if [ -f "${TRAFFIC_SCRIPT}" ] && [ -n "${TRAFFIC_PYTHON}" ]; then
         echo ""
         echo "Spawning city traffic (30 vehicles + 50 walkers)..."
-        nohup ${TRAFFIC_PYTHON} "${TRAFFIC_SCRIPT}" \
-            --vehicles 30 --walkers 50 --port ${CARLA_PORT} \
+        nohup "${TRAFFIC_PYTHON}" "${TRAFFIC_SCRIPT}" \
+            --vehicles 30 --walkers 50 --port "${CARLA_PORT}" \
             >> "${SCRIPT_DIR}/traffic.log" 2>&1 &
         sleep 8
         echo "  Traffic running in background."

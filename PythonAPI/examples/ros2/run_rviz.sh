@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 function transfer_x11_permissions() {
     # store X11 access rights in temp file to be passed into docker container
     XAUTH=/tmp/.docker.xauth
-    touch $XAUTH
-    xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+    touch "$XAUTH"
+    xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "$XAUTH" nmerge -
 }
 
 transfer_x11_permissions
