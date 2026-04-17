@@ -97,7 +97,7 @@ namespace ros2 {
       efd::DataWriterListener* listener = (efd::DataWriterListener*)(this);
       _datawriter = _publisher->create_datawriter(_topic, wqos, listener);
       if (_datawriter == nullptr) {
-        std::cerr << "Failed to create DataWriter" << std::endl;
+        log_error("Failed to create DataWriter");
         return false;
       }
 
