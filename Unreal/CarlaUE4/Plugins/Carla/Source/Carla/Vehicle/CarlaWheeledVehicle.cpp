@@ -393,7 +393,7 @@ void ACarlaWheeledVehicle::SetWheelsFrictionScale(TArray<float> &WheelsFrictionS
   UChaosWheeledVehicleMovementComponent* Movement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
   if (Movement)
   {
-    // Soft guard: in shipping check() is stripped; clamp loop to the smaller count to prevent OOB
+    // Soft guard: in shipping ensure() is stripped; clamp loop to the smaller count to prevent OOB
     if (Movement->Wheels.Num() != WheelsFrictionScale.Num())
     {
       UE_LOG(LogCarla, Warning, TEXT("SetWheelsFrictionScale: wheel count mismatch (%d vs %d)"),

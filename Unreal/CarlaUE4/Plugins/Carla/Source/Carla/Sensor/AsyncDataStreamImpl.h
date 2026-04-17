@@ -21,7 +21,7 @@ inline FAsyncDataStreamTmpl<T>::FAsyncDataStreamTmpl(
     StreamType InStream)
   : Stream(std::move(InStream)),
     Header([&Sensor, Timestamp]() {
-      //check(IsInGameThread());
+      //ensure(IsInGameThread());
       using Serializer = carla::sensor::s11n::SensorHeaderSerializer;
       FTransform Transform = Sensor.GetActorTransform();
       FTransform RelativeTransform = Transform;

@@ -138,7 +138,7 @@ namespace SimReadyAnimationImporterImpl
                 FString AnimationName = Name.ToString();
                 FString PkgPath = FPaths::Combine(ParentPath, AnimationName);
                 auto ParentPackage = CreatePackage(*PkgPath);
-                check(ParentPackage);
+                ensure(ParentPackage);
                 ParentPackage->FullyLoad();
 
                 // Check for an existing object
@@ -171,7 +171,7 @@ namespace SimReadyAnimationImporterImpl
                 }
 
                 UAnimSequence* Sequence = NewObject<UAnimSequence>(ParentPackage, *AnimationName, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public);
-                check(Sequence);
+                ensure(Sequence);
 
                 double TimeCodesPerSecond = Stage->GetRootLayer()->HasTimeCodesPerSecond() ? Stage->GetRootLayer()->GetTimeCodesPerSecond() : DEFAULT_TIMECODESPERSECOND;
                 double StartTimeCode = Stage->GetRootLayer()->HasStartTimeCode() ? Stage->GetRootLayer()->GetStartTimeCode() : DEFAULT_STARTTIMECODE;
@@ -198,7 +198,7 @@ namespace SimReadyAnimationImporterImpl
                         FSmartName NewName;
                         Skeleton->AddSmartNameAndModify(USkeleton::AnimCurveMappingName, *CurveNames[CurveIndex], NewName);
 
-                        check(Sequence->RawCurveData.AddCurveData(NewName));
+                        ensure(Sequence->RawCurveData.AddCurveData(NewName));
                         FFloatCurve* NewCurve = static_cast<FFloatCurve*> (Sequence->RawCurveData.GetCurveData(NewName.UID, ERawCurveTrackTypes::RCT_Float));
 
                         for (auto CurveTimeSample : CurveValuesTimeSamples)

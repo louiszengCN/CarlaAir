@@ -1152,7 +1152,7 @@ void FUSDExporter::ExportMdlSchema(const pxr::UsdStageRefPtr& Stage, UMaterialIn
         if (FSimReadyUSDImporterHelper::GetMdlPathAndName(ShadeShader, MdlPath, MaterialName, bRelativePath))
         {
             UMaterialInterface* ParentMaterial = MaterialInst.Parent;
-            check(ParentMaterial);
+            ensure(ParentMaterial);
             auto LocalBaseMdl = USimReadyMDL::GetLocalBaseMaterial(&MaterialInst);
             bool bLocalBase = (LocalBaseMdl != nullptr);
             FString MdlMaterialName = LocalBaseMdl ? LocalBaseMdl->GetName() : TEXT("");
