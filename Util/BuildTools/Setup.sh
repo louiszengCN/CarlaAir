@@ -120,9 +120,9 @@ move_if_changed "${LIBCPP_TOOLCHAIN_FILE}.gen" "${LIBCPP_TOOLCHAIN_FILE}"
 # -- Get boost includes --------------------------------------------------------
 # ==============================================================================
 
-BOOST_VERSION=1.84.0
+BOOST_VERSION=1.87.0
 BOOST_BASENAME="boost-${BOOST_VERSION}-${CXX_TAG}"
-BOOST_SHA256SUM="a5800f405508f5df8114558ca9855d2640a2de8f0445f051fa1c7c3383045724"
+BOOST_SHA256SUM="afff36d392885120bcac079148c177d1f6d4af9d707d43f18e8b8ad5b5339e3e"
 
 BOOST_INCLUDE=${PWD}/${BOOST_BASENAME}-install/include
 BOOST_LIBPATH=${PWD}/${BOOST_BASENAME}-install/lib
@@ -293,7 +293,7 @@ unset RPCLIB_BASENAME
 # -- Get GTest and compile it with libc++ --------------------------------------
 # ==============================================================================
 
-GTEST_VERSION=1.8.1
+GTEST_VERSION=1.15.2
 GTEST_BASENAME=gtest-${GTEST_VERSION}-${CXX_TAG}
 
 GTEST_LIBCXX_INCLUDE=${PWD}/${GTEST_BASENAME}-libcxx-install/include
