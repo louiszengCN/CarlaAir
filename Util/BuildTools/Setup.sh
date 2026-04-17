@@ -129,7 +129,7 @@ BOOST_LIBPATH=${PWD}/${BOOST_BASENAME}-install/lib
 
 for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
   SHOULD_BUILD_BOOST=true
-  PYTHON_VERSION=$(/usr/bin/env python${PY_VERSION} -V 2>&1)
+  PYTHON_VERSION=$(/usr/bin/env "python${PY_VERSION}" -V 2>&1)
   LIB_NAME=$(cut -d . -f 1,2 <<< "$PYTHON_VERSION" | tr -d .)
   LIB_NAME=${LIB_NAME:7}
   if [[ -d "${BOOST_BASENAME}-install" ]] ; then
@@ -917,10 +917,10 @@ FASTDDS_INCLUDE=${FASTDDS_INSTALL_DIR}/include
 FASTDDS_LIB=${FASTDDS_INSTALL_DIR}/lib
 if ${USE_ROS2} ; then
 
-  if [[ -d ${FASTDDS_INSTALL_DIR} ]] ; then
+  if [[ -d "${FASTDDS_INSTALL_DIR}" ]] ; then
     log "FastDDS already installed."
   else
-    mkdir -p ${FASTDDS_INSTALL_DIR}
+    mkdir -p "${FASTDDS_INSTALL_DIR}"
 
     # foonathan library is not added as a submodule in the fast dds repository so we neet to handle it ourselves.
     log "Building foonathan memory vendor"
@@ -929,20 +929,20 @@ if ${USE_ROS2} ; then
     FOONATHAN_MEMORY_VENDOR_REPO="https://github.com/eProsima/foonathan_memory_vendor.git"
     FOONATHAN_MEMORY_VENDOR_BRANCH=v1.3.2
 
-    git clone --depth 1 --branch ${FOONATHAN_MEMORY_VENDOR_BRANCH} ${FOONATHAN_MEMORY_VENDOR_REPO} ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}
+    git clone --depth 1 --branch "${FOONATHAN_MEMORY_VENDOR_BRANCH}" "${FOONATHAN_MEMORY_VENDOR_REPO}" "${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}"
 
-    mkdir -p ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build
-    pushd ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build >/dev/null || exit 1
+    mkdir -p "${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build"
+    pushd "${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build" >/dev/null || exit 1
     cmake -G "Ninja" \
       -DCMAKE_INSTALL_PREFIX="${FASTDDS_INSTALL_DIR}" \
-      -DCMAKE_TOOLCHAIN_FILE=${LIBCPP_TOOLCHAIN_FILE} \
+      -DCMAKE_TOOLCHAIN_FILE="${LIBCPP_TOOLCHAIN_FILE}" \
       -DBUILD_SHARED_LIBS=OFF \
       -DFOONATHAN_MEMORY_FORCE_VENDORED_BUILD=ON \
       ..
     ninja
     ninja install
     popd >/dev/null
-    rm -Rf ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}
+    rm -Rf "${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}"
 
     log "Building fastdds"
     FAST_DDS_LIB_BASENAME=fast-dds-lib
@@ -950,27 +950,27 @@ if ${USE_ROS2} ; then
     FAST_DDS_LIB_REPO="https://github.com/eProsima/Fast-DDS.git"
     FAST_DDS_LIB_BRANCH=v2.11.2
 
-    git clone --recurse-submodules --depth 1 --branch ${FAST_DDS_LIB_BRANCH} ${FAST_DDS_LIB_REPO} ${FAST_DDS_LIB_SOURCE_DIR}
+    git clone --recurse-submodules --depth 1 --branch "${FAST_DDS_LIB_BRANCH}" "${FAST_DDS_LIB_REPO}" "${FAST_DDS_LIB_SOURCE_DIR}"
 
     # copy OpenSSL from UE4
-    cp -r ${UE4_ROOT}/Engine/Source/ThirdParty/OpenSSL/1.1.1c/include/Linux/x86_64-unknown-linux-gnu/* ${FASTDDS_INCLUDE}
-    cp -r ${UE4_ROOT}/Engine/Source/ThirdParty/OpenSSL/1.1.1c/lib/Linux/x86_64-unknown-linux-gnu/* ${FASTDDS_LIB}
+    cp -r "${UE4_ROOT}/Engine/Source/ThirdParty/OpenSSL/1.1.1c/include/Linux/x86_64-unknown-linux-gnu/"* "${FASTDDS_INCLUDE}"
+    cp -r "${UE4_ROOT}/Engine/Source/ThirdParty/OpenSSL/1.1.1c/lib/Linux/x86_64-unknown-linux-gnu/"* "${FASTDDS_LIB}"
 
     # copy libatomic from UE4
     # cp -r ${UE4_ROOT}/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/include/c++/4.8.5/atomic ${FASTDDS_INCLUDE}
     # cp -r ${UE4_ROOT}/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/lib64/libatomic* ${FASTDDS_LIB}
 
     # we have to tweak the sources a bit to be able to compile with our boost version and without exceptions
-    if [[ -e ${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/include/boost ]]; then
+    if [[ -e "${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/include/boost" ]]; then
       # remove their boost includes, but keep their entry point
-      rm -rf ${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/include/boost
+      rm -rf "${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/include/boost"
       # ensure the find boost compiles without exceptions
       sed -i s/"CXX_STANDARD 11"/"CXX_STANDARD 11\n         COMPILE_DEFINITIONS \"-DBOOST_NO_EXCEPTIONS\""/ ${FAST_DDS_LIB_SOURCE_DIR}/cmake/modules/FindThirdpartyBoost.cmake
       sed -i s/"class ThirdpartyBoostCompileTest"/"#ifdef BOOST_NO_EXCEPTIONS\nnamespace boost {void throw_exception(std::exception const \& e) {}}\n#endif\nclass ThirdpartyBoostCompileTest"/ ${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/test/ThirdpartyBoostCompile_test.cpp
     fi
 
-    mkdir -p ${FAST_DDS_LIB_SOURCE_DIR}/build
-    pushd ${FAST_DDS_LIB_SOURCE_DIR}/build >/dev/null || exit 1
+    mkdir -p "${FAST_DDS_LIB_SOURCE_DIR}/build"
+    pushd "${FAST_DDS_LIB_SOURCE_DIR}/build" >/dev/null || exit 1
     # removed -DASIO_NO_EXCEPTIONS as fastdds makes usage of them.
     cmake -G "Ninja" \
       -DCMAKE_INSTALL_PREFIX="${FASTDDS_INSTALL_DIR}" \
@@ -985,15 +985,15 @@ if ${USE_ROS2} ; then
       -DTHIRDPARTY_TinyXML2=FORCE \
       -DSQLITE3_SUPPORT=OFF \
       -DOPENSSL_FOUND:BOOL=ON \
-      -DOPENSSL_INCLUDE_DIR:FILEPATH=${FASTDDS_INCLUDE} \
-      -DOPENSSL_SSL_LIBRARY:FILEPATH=${FASTDDS_LIB}/libssl.a \
-      -DOPENSSL_CRYPTO_LIBRARY:FILEPATH=${FASTDDS_LIB}/libcrypto.a \
+      -DOPENSSL_INCLUDE_DIR:FILEPATH="${FASTDDS_INCLUDE}" \
+      -DOPENSSL_SSL_LIBRARY:FILEPATH="${FASTDDS_LIB}/libssl.a" \
+      -DOPENSSL_CRYPTO_LIBRARY:FILEPATH="${FASTDDS_LIB}/libcrypto.a" \
       -DTHIRDPARTY_BOOST_INCLUDE_DIR="${BOOST_INCLUDE};${FAST_DDS_LIB_SOURCE_DIR}/thirdparty/boost/include" \
       ..
     ninja
     ninja install
     popd >/dev/null
-    rm -Rf ${FAST_DDS_LIB_SOURCE_DIR}
+    rm -Rf "${FAST_DDS_LIB_SOURCE_DIR}"
 
     mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
     cp -p ${FASTDDS_LIB}/*.a ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
