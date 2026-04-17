@@ -195,7 +195,7 @@ bool FSimReadyUSDImporterHelper::USDImportMesh(const pxr::UsdGeomMesh& USDMesh, 
                 VertexPos = FVector(0, 0, 0);
 
                 const FString MeshPath = USDMesh.GetPath().GetText();
-                UE_LOG(LogTemp, Warning, TEXT("Mesh at %s contains NaN vertex at index %d"), *MeshPath, VertIdx);
+                UE_LOG(LogSimReadyUsd, Warning, TEXT("Mesh at %s contains NaN vertex at index %d"), *MeshPath, VertIdx);
             }
         }
 
