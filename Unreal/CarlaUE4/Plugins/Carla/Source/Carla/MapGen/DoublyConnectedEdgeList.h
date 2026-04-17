@@ -211,73 +211,73 @@ namespace MapGen {
 
     static Node &GetSource(HalfEdge &halfEdge)
     {
-      check(halfEdge.Source != nullptr);
+      ensure(halfEdge.Source != nullptr);
       return *halfEdge.Source;
     }
 
     static const Node &GetSource(const HalfEdge &halfEdge)
     {
-      check(halfEdge.Source != nullptr);
+      ensure(halfEdge.Source != nullptr);
       return *halfEdge.Source;
     }
 
     static Node &GetTarget(HalfEdge &halfEdge)
     {
-      check(halfEdge.Target != nullptr);
+      ensure(halfEdge.Target != nullptr);
       return *halfEdge.Target;
     }
 
     static const Node &GetTarget(const HalfEdge &halfEdge)
     {
-      check(halfEdge.Target != nullptr);
+      ensure(halfEdge.Target != nullptr);
       return *halfEdge.Target;
     }
 
     static HalfEdge &GetPair(HalfEdge &halfEdge)
     {
-      check(halfEdge.Pair != nullptr);
+      ensure(halfEdge.Pair != nullptr);
       return *halfEdge.Pair;
     }
 
     static const HalfEdge &GetPair(const HalfEdge &halfEdge)
     {
-      check(halfEdge.Pair != nullptr);
+      ensure(halfEdge.Pair != nullptr);
       return *halfEdge.Pair;
     }
 
     static Face &GetFace(HalfEdge &halfEdge)
     {
-      check(halfEdge.Face != nullptr);
+      ensure(halfEdge.Face != nullptr);
       return *halfEdge.Face;
     }
 
     static const Face &GetFace(const HalfEdge &halfEdge)
     {
-      check(halfEdge.Face != nullptr);
+      ensure(halfEdge.Face != nullptr);
       return *halfEdge.Face;
     }
 
     static HalfEdge &GetLeavingHalfEdge(Node &node)
     {
-      check(node.LeavingHalfEdge != nullptr);
+      ensure(node.LeavingHalfEdge != nullptr);
       return *node.LeavingHalfEdge;
     }
 
     static const HalfEdge &GetLeavingHalfEdge(const Node &node)
     {
-      check(node.LeavingHalfEdge != nullptr);
+      ensure(node.LeavingHalfEdge != nullptr);
       return *node.LeavingHalfEdge;
     }
 
     static HalfEdge &GetHalfEdge(Face &face)
     {
-      check(face.HalfEdge != nullptr);
+      ensure(face.HalfEdge != nullptr);
       return *face.HalfEdge;
     }
 
     static const HalfEdge &GetHalfEdge(const Face &face)
     {
-      check(face.HalfEdge != nullptr);
+      ensure(face.HalfEdge != nullptr);
       return *face.HalfEdge;
     }
 
@@ -285,13 +285,13 @@ namespace MapGen {
 
     static HalfEdge &GetNextInFace(HalfEdge &halfEdge)
     {
-      check(halfEdge.Next != nullptr);
+      ensure(halfEdge.Next != nullptr);
       return *halfEdge.Next;
     }
 
     static const HalfEdge &GetNextInFace(const HalfEdge &halfEdge)
     {
-      check(halfEdge.Next != nullptr);
+      ensure(halfEdge.Next != nullptr);
       return *halfEdge.Next;
     }
 
