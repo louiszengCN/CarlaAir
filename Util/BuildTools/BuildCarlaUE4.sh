@@ -25,7 +25,7 @@ EDITOR_FLAGS=""
 GDB=
 RHI="-vulkan"
 
-OPTS=`getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -64,7 +64,7 @@ while [[ $# -gt 0 ]]; do
       USE_CHRONO=true
       shift ;;
     --chrono-path )
-      CHRONO_PATH=$2
+      export CHRONO_PATH=$2
       USE_CHRONO=true
       shift 2 ;;
     --pytorch )
@@ -93,7 +93,8 @@ done
 # -- Set up environment --------------------------------------------------------
 # ==============================================================================
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 if [ ! -d "${UE4_ROOT}" ]; then
   fatal_error "UE4_ROOT is not defined, or points to a non-existant directory, please set this environment variable."
@@ -133,13 +134,13 @@ if ${REMOVE_INTERMEDIATE} ; then
 
   rm -f Makefile
 
-  pushd "${CARLAUE4_PLUGIN_ROOT_FOLDER}" >/dev/null
+  pushd "${CARLAUE4_PLUGIN_ROOT_FOLDER}" >/dev/null || exit 1
 
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
   rm -Rf Plugins/HoudiniEngine
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi
 
@@ -154,20 +155,20 @@ if ${BUILD_CARLAUE4} ; then
   if ${USE_SIMREADY} ; then
     OPTIONAL_MODULES_TEXT="SimReady ON"$'\n'"${OPTIONAL_MODULES_TEXT}"
     # fetch SimReady plugin dependencies
-    pushd "${CARLAUE4_ADDPLUGINS_FOLDER}/Converters" >/dev/null
+    pushd "${CARLAUE4_ADDPLUGINS_FOLDER}/Converters" >/dev/null || exit 1
     ./get_dependencies.sh
-    popd >/dev/null
+    popd >/dev/null || exit 1
   else
-    python3 ${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py -f="CarlaUE4.uproject" -p="MDL"
-    python3 ${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py -f="CarlaUE4.uproject" -p="SimReady"
-    python3 ${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py -f="Plugins/CarlaTools/CarlaTools.uplugin" -p="SimReady"
+    python3 "${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py" -f="CarlaUE4.uproject" -p="MDL"
+    python3 "${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py" -f="CarlaUE4.uproject" -p="SimReady"
+    python3 "${PWD}/../../Util/BuildTools/enable_simready_to_uproject.py" -f="Plugins/CarlaTools/CarlaTools.uplugin" -p="SimReady"
     OPTIONAL_MODULES_TEXT="SimReady OFF"$'\n'"${OPTIONAL_MODULES_TEXT}"
   fi
   if ${USE_CARSIM} ; then
-    python3 ${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py -f="CarlaUE4.uproject" -e
+    python3 "${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py" -f="CarlaUE4.uproject" -e
     OPTIONAL_MODULES_TEXT="CarSim ON"$'\n'"${OPTIONAL_MODULES_TEXT}"
   else
-    python3 ${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py -f="CarlaUE4.uproject"
+    python3 "${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py" -f="CarlaUE4.uproject"
     OPTIONAL_MODULES_TEXT="CarSim OFF"$'\n'"${OPTIONAL_MODULES_TEXT}"
   fi
   if ${USE_CHRONO} ; then
@@ -191,7 +192,7 @@ if ${BUILD_CARLAUE4} ; then
     OPTIONAL_MODULES_TEXT="Unity OFF"$'\n'"${OPTIONAL_MODULES_TEXT}"
   fi
   OPTIONAL_MODULES_TEXT="Fast_dds ON"$'\n'"${OPTIONAL_MODULES_TEXT}"
-  echo ${OPTIONAL_MODULES_TEXT} > ${PWD}/Config/OptionalModules.ini
+  echo "${OPTIONAL_MODULES_TEXT}" > "${PWD}/Config/OptionalModules.ini"
 
   if [ ! -f Makefile ]; then
 
@@ -220,7 +221,7 @@ fi
 if ${LAUNCH_UE4_EDITOR} ; then
 
   log "Launching UE4Editor..."
-  ${GDB} ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${PWD}/CarlaUE4.uproject" ${RHI} ${EDITOR_FLAGS}
+  ${GDB} "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${PWD}/CarlaUE4.uproject" ${RHI} ${EDITOR_FLAGS}
 
 else
 
