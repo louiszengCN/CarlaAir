@@ -178,7 +178,7 @@ void ACarlaRecorder::Disable(void)
 
 void ACarlaRecorder::AddActorPosition(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FTransform Transform = CarlaActor->GetActorGlobalTransform();
   // get position of the vehicle
@@ -192,7 +192,7 @@ void ACarlaRecorder::AddActorPosition(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
   if (!CarlaActor->GetActor() || !IsValid(CarlaActor->GetActor()))
     return;
 
@@ -217,7 +217,7 @@ void ACarlaRecorder::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
   if (!CarlaActor->GetActor() || !IsValid(CarlaActor->GetActor()))
   {
     return;
@@ -234,7 +234,7 @@ void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddTrafficLightState(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   ETrafficLightState LightState = CarlaActor->GetTrafficLightState();
   UTrafficLightController* Controller = CarlaActor->GetTrafficLightController();
@@ -256,7 +256,7 @@ void ACarlaRecorder::AddTrafficLightState(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddVehicleLight(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FVehicleLightState LightState;
   CarlaActor->GetVehicleLightState(LightState);
@@ -281,7 +281,7 @@ void ACarlaRecorder::AddVehicleDoor(const ACarlaWheeledVehicle &Vehicle, const E
 
 void ACarlaRecorder::AddActorKinematics(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FVector Velocity, AngularVelocity;
   constexpr float TO_METERS = 1e-2;
@@ -298,7 +298,7 @@ void ACarlaRecorder::AddActorKinematics(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddActorBoundingBox(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   const auto &Box = CarlaActor->GetActorInfo()->BoundingBox;
   CarlaRecorderActorBoundingBox BoundingBox =
@@ -370,7 +370,7 @@ void ACarlaRecorder::AddTrafficLightTime(const ATrafficLightBase& TrafficLight)
 
 void ACarlaRecorder::AddActorBones(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   // get the bones
   FWalkerBoneControlOut Bones;

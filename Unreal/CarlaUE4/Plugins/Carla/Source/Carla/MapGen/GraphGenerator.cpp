@@ -47,7 +47,7 @@ namespace MapGen {
       edges.emplace_back(edge);
       edge = &Graph::GetNextInFace(*edge);
     } while (edge != &firstEdge);
-    check(edges.size() == 4u);
+    ensure(edges.size() == 4u);
     auto randomIndex = random.RandRange(0, edges.size() - 1);
     return {edges[randomIndex], edges[(randomIndex + 2u) % edges.size()]};
   }
@@ -57,7 +57,7 @@ namespace MapGen {
     auto dir = getDirection(*edgePair.first);
     // Assumes both edges are opposing faces on a rectangle.
     auto otherDir = getDirection(*edgePair.second);
-    check((dir.x == -1 * otherDir.x) && (dir.y == -1 * otherDir.y));
+    ensure((dir.x == -1 * otherDir.x) && (dir.y == -1 * otherDir.y));
     // If the rectangle is not big enough do not split it.
     if ((std::abs(dir.x) < 2*MARGIN+1) && (std::abs(dir.y) < 2*MARGIN+1))
       return nullptr;
@@ -74,9 +74,9 @@ namespace MapGen {
 
   static void randomize(Graph &graph, const int32 seed)
   {
-    check(graph.CountNodes() == 4u);
-    check(graph.CountHalfEdges() == 8u);
-    check(graph.CountFaces() == 2u);
+    ensure(graph.CountNodes() == 4u);
+    ensure(graph.CountHalfEdges() == 8u);
+    ensure(graph.CountFaces() == 2u);
     FRandomStream random(seed);
     /// @todo We skip first face because is the surrounding face. But this won't
     /// be always the case, if the graph is generated differently it might be a
