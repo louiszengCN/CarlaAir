@@ -28,23 +28,23 @@ while [[ $# -gt 0 ]]; do
 done
 
 function pyver_major {
-  echo $PYTHON_VERSION | awk -F "." '{printf "%d", $1}'
+  echo "$PYTHON_VERSION" | awk -F "." '{printf "%d", $1}'
 }
 
 function pyver_minor {
-  echo $PYTHON_VERSION | awk -F "." '{printf "%d", $2}'
+  echo "$PYTHON_VERSION" | awk -F "." '{printf "%d", $2}'
 }
 
 function pyver_micro {
-  echo $PYTHON_VERSION | awk -F "." '{printf "%d", $3}'
+  echo "$PYTHON_VERSION" | awk -F "." '{printf "%d", $3}'
 }
 
-wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
-tar -xvzf Python-${PYTHON_VERSION}.tgz
-pushd Python-${PYTHON_VERSION}
+wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
+tar -xvzf "Python-${PYTHON_VERSION}.tgz"
+pushd "Python-${PYTHON_VERSION}" || exit
 ./configure
 make altinstall
-popd
+popd || exit
 
-rm -rf Python-${PYTHON_VERSION}
-rm -rf Python-${PYTHON_VERSION}.tgz
+rm -rf "Python-${PYTHON_VERSION}"
+rm -rf "Python-${PYTHON_VERSION}.tgz"

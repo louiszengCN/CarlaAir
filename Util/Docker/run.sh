@@ -79,7 +79,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CARLA_ROOT="${SCRIPT_DIR}/../..".
 
 # Docker / NVIDIA checks
 if ! command -v docker &> /dev/null; then
