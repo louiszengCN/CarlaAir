@@ -98,7 +98,7 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
   // Impact: animated foliage / road displacement may have coarser instance segmentation.
   // TODO(#UE5-WPO-TAG): restore WPO check when UE5 exposes IsConnected() or an equivalent.
   if (!UsedMaterial || !UsedMaterial->IsMasked()) {
-    return NULL;
+    return nullptr;
   }
 
 #if WITH_EDITOR
@@ -131,7 +131,7 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
     }
   }
   // Reaching this could happen in a cooked build, if UsedMaterial is missing in the cooked TaggedMaterialsRegistries
-  return NULL;
+  return nullptr;
 }
 
 #if WITH_EDITOR
@@ -351,7 +351,7 @@ FString UTaggedMaterialsRegistry::GetTaggedName(const FString& OriginalName) {
   // Check if the name is already in use by any other object in this TaggedMaterialsRegistry.
   // Append growing index, if this is actually the case (rare).
   int32 i = 0;
-  while (StaticFindObject(NULL, this, *TaggedName, true)) {
+  while (StaticFindObject(nullptr, this, *TaggedName, true)) {
     i++;
     TaggedName = FString(OriginalName + FString::Printf(TEXT("_Tagged%d"), i));
   }
@@ -364,7 +364,7 @@ UMaterialExpression* UTaggedMaterialsRegistry::CopyMaterialExpressions(UMaterial
   TArray<UMaterialExpression*> CopiedExpressions;
   TArray<UMaterialExpressionComment*> EmptyComments;
   TArray<UMaterialExpression*> CopiedEmptyComments;
-  UMaterialExpression::CopyMaterialExpressions(InputExpressions, EmptyComments, TargetMaterial, NULL, CopiedExpressions, CopiedEmptyComments);
+  UMaterialExpression::CopyMaterialExpressions(InputExpressions, EmptyComments, TargetMaterial, nullptr, CopiedExpressions, CopiedEmptyComments);
   return CopiedExpressions[0];
 }
 #endif // 0 (UE5_TODO: Rewrite using UMaterial::GetEditorOnlyData())

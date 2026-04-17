@@ -110,7 +110,7 @@ T* ATagger::FindTaggedComponent(const USceneComponent* Component) {
         return TaggedSceneComponent;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void ATagger::TagActor(const AActor &Actor, bool bTagForSemanticSegmentation, uint32_t ActorID)
