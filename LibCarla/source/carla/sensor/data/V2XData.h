@@ -7,7 +7,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <cstdio>
 #include "LibITS.h"
 
 namespace carla

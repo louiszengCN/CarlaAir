@@ -8,7 +8,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <cstdio>
 
 namespace carla {
 
