@@ -33,7 +33,7 @@ public:
     Episode = &InEpisode;
   }
 
-  virtual void Set(const FActorDescription &Description) override;
+  virtual void Set(const FActorDescription &Description);
 
   boost::optional<FActorAttribute> GetAttribute(const FString Name);
 

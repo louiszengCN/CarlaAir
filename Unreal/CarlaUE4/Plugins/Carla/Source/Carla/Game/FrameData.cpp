@@ -967,7 +967,7 @@ bool FFrameData::ProcessReplayerStateTrafficLight(CarlaRecorderStateTrafficLight
 // set the animation for Vehicles
 void FFrameData::ProcessReplayerAnimVehicle(CarlaRecorderAnimVehicle Vehicle)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return; }
   FCarlaActor *CarlaActor = Episode->FindCarlaActor(Vehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -1001,7 +1001,7 @@ void FFrameData::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWheels Vehicl
 // set the lights for vehicles
 void FFrameData::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle LightVehicle)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(LightVehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -1012,7 +1012,7 @@ void FFrameData::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle LightVehi
 
 void FFrameData::ProcessReplayerLightScene(CarlaRecorderLightScene LightScene)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return; }
   UWorld* World = Episode->GetWorld();
   if(World)
   {
