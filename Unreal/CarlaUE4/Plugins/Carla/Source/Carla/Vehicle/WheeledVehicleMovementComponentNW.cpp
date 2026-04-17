@@ -242,7 +242,7 @@ void UWheeledVehicleMovementComponentNW::SetupVehicle()
 
 	// Create the vehicle
 	PxVehicleDriveNW* PVehicleDriveNW = PxVehicleDriveNW::allocate(WheelSetups.Num());
-	check(PVehicleDriveNW);
+	if (!PVehicleDriveNW) { return; }
 
 	FBodyInstance* TargetInstance = UpdatedPrimitive->GetBodyInstance();
 

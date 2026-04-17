@@ -33,7 +33,7 @@ static const USplineComponent *PickARoute(
     const TArray<USplineComponent *> &Routes,
     const TArray<float> &Probabilities)
 {
-  check(Routes.Num() > 0);
+  if (Routes.Num() == 0) { return nullptr; }
 
   if (Routes.Num() == 1)
   {
@@ -41,7 +41,7 @@ static const USplineComponent *PickARoute(
   }
 
   auto Index = RandomEngine.GetIntWithWeight(Probabilities);
-  check((Index >= 0) && (Index < Routes.Num()));
+  if ((Index < 0) || (Index >= Routes.Num())) { return Routes[0]; }
   return Routes[Index];
 }
 
