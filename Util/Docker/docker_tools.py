@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma
 # de Barcelona (UAB).
@@ -20,9 +20,9 @@ import docker
 import docker_utils
 
 
-def print_formated_dict(dic: dict[str, Any]) -> None:
-    for _k, _v in dic.items():
-        pass
+def print_formatted_dict(dic: dict[str, Any]) -> None:
+    for key, value in dic.items():
+        print(f"  {key}: {value}")
 
 
 def bold(text: str) -> str:
@@ -70,10 +70,9 @@ def parse_args() -> argparse.Namespace | None:
     if not args.output:
         args.output = os.getcwd()
 
-    if args.packages is not None and args.packages and not args.input:
+    if args.packages and not args.input:
+        print("error: --input is required when --packages is specified", file=sys.stderr)
         sys.exit(1)
-
-
 
     return args
 
@@ -99,7 +98,7 @@ def main() -> None:
         container_args["volumes"] = {
             args.input: {"bind": inbox_assets_path, "mode": "rw"}}
 
-    print_formated_dict(container_args)
+    print_formatted_dict(container_args)
 
     try:
 
@@ -111,7 +110,7 @@ def main() -> None:
                 build_cmd.append("--force-rebuild")
             subprocess.check_call(build_cmd)
         except docker.errors.APIError:
-            raise
+            raise  # re-raise Docker API errors as-is
 
         carla_container = client.containers.run(**container_args)
 
@@ -124,7 +123,7 @@ def main() -> None:
 
             docker_utils.exec_command(
                 carla_container,
-                'make package ARGS="--packages=' + str(args.packages) + '"',
+                f'make package ARGS="--packages={args.packages}"',
                 user="carla", verbose=args.verbose, ignore_error=False)
         else:
             # Just create a package of the whole project
