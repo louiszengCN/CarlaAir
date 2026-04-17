@@ -68,7 +68,7 @@ void ACityMapGenerator::PreSave(FObjectPreSaveContext SaveContext)
     // Generate road map only if we are not cooking.
     // UE5: FCoreUObjectDelegates::OnObjectSaved removed; save notification is implicit
     if (!GIsCookerLoadingPackage) {
-      check(RoadMap != nullptr);
+      if (!RoadMap) { return; }
       GenerateRoadMap();
     }
   }
@@ -153,7 +153,7 @@ void ACityMapGenerator::GenerateGraph()
 
 void ACityMapGenerator::GenerateRoads()
 {
-  check(Dcel != nullptr);
+  if (!Dcel) { return; }
   using Graph = MapGen::DoublyConnectedEdgeList;
   const Graph &graph = *Dcel;
 
@@ -265,8 +265,8 @@ void ACityMapGenerator::GenerateRoadMap()
   UE_LOG(LogCarla, Log, TEXT("Generating road map..."));
 
   auto World = GetWorld();
-  check(GetWorld() != nullptr);
-  check(RoadMap != nullptr);
+  if (!World) { return; }
+  if (!RoadMap) { return; }
 
   ATagger::TagActorsInLevel(*GetWorld(), bTagForSemanticSegmentation); // We need the tags.
 

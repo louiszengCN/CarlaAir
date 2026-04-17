@@ -707,7 +707,7 @@ FCarlaMapTile& ALargeMapManager::GetCarlaMapTile(ULevel* InLevel)
       break;
     }
   }
-  check(Tile);
+  ensureAlwaysMsgf(Tile != nullptr, TEXT("ALargeMapManager: tile not found for level"));
   return *Tile;
 }
 
@@ -745,7 +745,11 @@ FCarlaMapTile& ALargeMapManager::LoadCarlaMapTile(FString TileMapPath, TileID Ti
   FString UniqueLevelPackageName = LongLevelPackageName;
 
   ULevelStreamingDynamic* StreamingLevel = NewObject<ULevelStreamingDynamic>(World, *TileName);
-  check(StreamingLevel);
+  if (!IsValid(StreamingLevel))
+  {
+    UE_LOG(LogCarla, Error, TEXT("ALargeMapManager: failed to create streaming level for %s"), *TileName);
+    return MapTiles.Add(TileId, NewTile);
+  }
 
   StreamingLevel->SetWorldAssetByPackageName(*UniqueLevelPackageName);
 
@@ -1027,7 +1031,7 @@ void ALargeMapManager::GetTilesToConsider(const AActor* ActorToConsider,
                                           TSet<TileID>& OutTilesToConsider)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE(ALargeMapManager::GetTilesToConsider);
-  check(ActorToConsider);
+  if (!IsValid(ActorToConsider)) { return; }
   // World location
   FDVector ActorLocation = CurrentOriginD + ActorToConsider->GetActorLocation();
 
@@ -1084,7 +1088,7 @@ void ALargeMapManager::UpdateTileState(
   for (const TileID TileID : InTilesToUpdate)
   {
       FCarlaMapTile* CarlaTile = MapTiles.Find(TileID);
-      check(CarlaTile); // If an invalid ID reach here, we did something very wrong
+      if (!ensureAlwaysMsgf(CarlaTile != nullptr, TEXT("ALargeMapManager: invalid TileID in UpdateTilesState"))) { continue; }
       ULevelStreamingDynamic* StreamingLevel = CarlaTile->StreamingLevel;
       StreamingLevel->bShouldBlockOnLoad = InShouldBlockOnLoad;
       StreamingLevel->SetShouldBeLoaded(InShouldBeLoaded);
