@@ -18,7 +18,7 @@ AActorWithRandomEngine::AActorWithRandomEngine(const FObjectInitializer& ObjectI
 void AActorWithRandomEngine::OnConstruction(const FTransform &Transform)
 {
   Super::OnConstruction(Transform);
-  check(RandomEngine != nullptr);
+  if (!IsValid(RandomEngine)) { return; }
   RandomEngine->Seed(Seed);
 }
 
@@ -31,7 +31,7 @@ void AActorWithRandomEngine::PostEditChangeProperty(FPropertyChangedEvent& Prope
       Seed = URandomEngine::GenerateRandomSeed();
       bGenerateRandomSeed = false;
     }
-    check(RandomEngine != nullptr);
+    if (!IsValid(RandomEngine)) { return; }
     RandomEngine->Seed(Seed);
   }
 }
@@ -39,7 +39,7 @@ void AActorWithRandomEngine::PostEditChangeProperty(FPropertyChangedEvent& Prope
 
 void AActorWithRandomEngine::SetSeed(const int32 InSeed)
 {
-  check(RandomEngine != nullptr);
+  if (!IsValid(RandomEngine)) { return; }
   Seed = InSeed;
   RandomEngine->Seed(InSeed);
 }
