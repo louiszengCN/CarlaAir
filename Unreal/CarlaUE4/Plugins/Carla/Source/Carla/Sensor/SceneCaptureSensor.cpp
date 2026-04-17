@@ -491,7 +491,7 @@ void ASceneCaptureSensor::BeginPlay()
     CaptureRenderTarget->TargetGamma = TargetGamma;
   }
 
-  check(IsValid(CaptureComponent2D));
+  ensure(IsValid(CaptureComponent2D));
 
   CaptureComponent2D->Deactivate();
   CaptureComponent2D->TextureTarget = CaptureRenderTarget;
