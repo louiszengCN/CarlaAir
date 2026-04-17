@@ -8,7 +8,7 @@ set -euo pipefail
 
 VERSION="0.1.7"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BINARY="${SCRIPT_DIR}/CarlaUE4/Binaries/Linux/CarlaUE4-Linux-Shipping"
+BINARY="${SCRIPT_DIR}/CarlaUE5/Binaries/Linux/CarlaUE5-Linux-Shipping"
 LOGFILE="${SCRIPT_DIR}/CarlaAir.log"
 
 # Defaults
@@ -87,7 +87,7 @@ while [ $# -gt 0 ]; do
         --kill)
             pkill -f "auto_traffic.py" 2>/dev/null && echo "Traffic stopped." || true
             sleep 1
-            pkill -f "CarlaUE4-Linux-Shipping" 2>/dev/null && echo "CarlaAir stopped." || echo "No running instance found."
+            pkill -f "CarlaUE5-Linux-Shipping" 2>/dev/null && echo "CarlaAir stopped." || echo "No running instance found."
             exit 0 ;;
         --log)
             [ -f "${LOGFILE}" ] && tail -f "${LOGFILE}" || echo "No log file found."
@@ -126,14 +126,14 @@ if [ ! -f "${AIRSIM_SETTINGS}" ]; then
 fi
 
 # Auto-kill existing instance (no need for --kill)
-if pgrep -f "CarlaUE4-Linux-Shipping" > /dev/null 2>&1; then
+if pgrep -f "CarlaUE5-Linux-Shipping" > /dev/null 2>&1; then
     echo "Stopping previous CarlaAir instance..."
-    pkill -9 -f "CarlaUE4-Linux-Shipping" 2>/dev/null
+    pkill -9 -f "CarlaUE5-Linux-Shipping" 2>/dev/null
     sleep 3
     # Double-check
-    if pgrep -f "CarlaUE4-Linux-Shipping" > /dev/null 2>&1; then
+    if pgrep -f "CarlaUE5-Linux-Shipping" > /dev/null 2>&1; then
         echo "Warning: Could not stop previous instance. Trying harder..."
-        pkill -9 -f "CarlaUE4" 2>/dev/null
+        pkill -9 -f "CarlaUE5" 2>/dev/null
         sleep 2
     fi
     echo "Previous instance stopped."
@@ -145,7 +145,7 @@ if [ ${USE_OPENGL} -eq 0 ]; then
 fi
 
 # Build launch command
-CMD=("${BINARY}" "CarlaUE4" "${MAP}")
+CMD=("${BINARY}" "CarlaUE5" "${MAP}")
 CMD+=("-windowed" "-ResX=${RES_X}" "-ResY=${RES_Y}")
 CMD+=("-carla-rpc-port=${CARLA_PORT}")
 CMD+=("-quality-level=${QUALITY}")

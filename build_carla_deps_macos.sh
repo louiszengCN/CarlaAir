@@ -4,7 +4,7 @@
 set -euo pipefail
 
 CARLA_ROOT="$(cd "$(dirname "$0")" && pwd)"
-UE4_ROOT="$CARLA_ROOT/Unreal/CarlaUE4"
+UE4_ROOT="$CARLA_ROOT/Unreal/CarlaUE5"
 PLUGIN_ROOT="$UE4_ROOT/Plugins/Carla"
 CARLA_DEPS="$PLUGIN_ROOT/CarlaDependencies"
 BUILD_DIR="$CARLA_ROOT/Build/macos"

@@ -2,11 +2,11 @@
 
 using UnrealBuildTool;
 
-public class CarlaUE4 : ModuleRules
+public class CarlaUE5 : ModuleRules
 {
-	public CarlaUE4(ReadOnlyTargetRules Target) : base(Target)
+	public CarlaUE5(ReadOnlyTargetRules Target) : base(Target)
 	{
-    PrivatePCHHeaderFile = "CarlaUE4.h";
+    PrivatePCHHeaderFile = "CarlaUE5.h";
     bLegacyPublicIncludePaths = true;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 
-public class CarlaUE4EditorTarget : TargetRules
+public class CarlaUE5EditorTarget : TargetRules
 {
-	public CarlaUE4EditorTarget(TargetInfo Target) : base(Target)
+	public CarlaUE5EditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V6;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
 		CppStandard = CppStandardVersion.Cpp20;
-		ExtraModuleNames.Add("CarlaUE4");
+		ExtraModuleNames.Add("CarlaUE5");
 
 		string ConfigDir = Path.GetDirectoryName(ProjectFile.ToString()) + "/Config/";
 		string OptionalModulesFile = Path.Combine(ConfigDir, "OptionalModules.ini");
