@@ -47,18 +47,18 @@ int32 UGenerateTileCommandlet::Main(const FString &Params)
 
   std::string logstr = std::string(TCHAR_TO_UTF8(*Params));
   std::ofstream file("CommandletParameters.txt", std::ios::app);
-  file << logstr << std::endl;
+  file << logstr << '\n';
 
   for( auto fstr : Tokens )
   {
     logstr = std::string(TCHAR_TO_UTF8(*fstr));
-    file << " Tokens " << logstr << std::endl;
+    file << " Tokens " << logstr << '\n';
   }
 
   for( auto fstr : Switches )
   {
     logstr = std::string(TCHAR_TO_UTF8(*fstr));
-    file << " SWITCHES " << logstr << std::endl;
+    file << " SWITCHES " << logstr << '\n';
   }
 
   for( auto PairMap : ParamsMap )
@@ -66,7 +66,7 @@ int32 UGenerateTileCommandlet::Main(const FString &Params)
     std::string key = std::string(TCHAR_TO_UTF8(*PairMap.Key));
     std::string value = std::string(TCHAR_TO_UTF8(*PairMap.Value));
 
-    file << "Key: " << key << " Value: " << value << std::endl;
+    file << "Key: " << key << " Value: " << value << '\n';
   }
 
 

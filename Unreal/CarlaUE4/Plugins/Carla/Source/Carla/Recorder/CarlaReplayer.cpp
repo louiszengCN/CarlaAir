@@ -126,7 +126,7 @@ std::string CarlaReplayer::ReplayFile(
   // get the final path + filename
   std::string Filename2 = GetRecorderFilename(Filename);
 
-  Info << "Replaying File: " << Filename2 << std::endl;
+  Info << "Replaying File: " << Filename2 << '\n';
 
   // try to open
   File.open(Filename2, std::ios::binary);
@@ -148,12 +148,12 @@ std::string CarlaReplayer::ReplayFile(
   {
     if (!Episode->LoadNewEpisode(RecInfo.Mapfile))
     {
-      Info << "Could not load mapfile " << TCHAR_TO_UTF8(*RecInfo.Mapfile) << std::endl;
+      Info << "Could not load mapfile " << TCHAR_TO_UTF8(*RecInfo.Mapfile) << '\n';
       Stop();
       return Info.str();
     }
-    Info << "Loading map " << TCHAR_TO_UTF8(*RecInfo.Mapfile) << std::endl;
-    Info << "Replayer will start after map is loaded..." << std::endl;
+    Info << "Loading map " << TCHAR_TO_UTF8(*RecInfo.Mapfile) << '\n';
+    Info << "Replayer will start after map is loaded..." << '\n';
   
     // prepare autoplay after map is loaded
     Autoplay.Enabled = true;
@@ -170,7 +170,7 @@ std::string CarlaReplayer::ReplayFile(
 
   // get Total time of recorder
   TotalTime = GetTotalTime();
-  Info << "Total time recorded: " << TotalTime << std::endl;
+  Info << "Total time recorded: " << TotalTime << '\n';
 
   // set time to start replayer
   if (TimeStart < 0.0f)
@@ -187,13 +187,13 @@ std::string CarlaReplayer::ReplayFile(
     TimeToStop = TotalTime;
 
   Info << "Replaying from " << TimeStart << " s - " << TimeToStop << " s (" << TotalTime << " s) at " <<
-      std::setprecision(1) << std::fixed << TimeFactor << "x" << std::endl;
+      std::setprecision(1) << std::fixed << TimeFactor << "x" << '\n';
 
   if (IgnoreHero)
-    Info << "Ignoring Hero vehicle" << std::endl;
+    Info << "Ignoring Hero vehicle" << '\n';
 
   if (IgnoreSpectator)
-    Info << "Ignoring Spectator camera" << std::endl;
+    Info << "Ignoring Spectator camera" << '\n';
 
   // set the follow Id and offset
   FollowId = ThisFollowId;
