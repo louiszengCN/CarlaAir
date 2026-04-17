@@ -9,7 +9,7 @@
 #include <string>
 #include <sstream>
 #include <ios>
-#include <iostream>
+#include "carla/Logging.h"
 #include <fstream>
 
 #include <carla/geom/Math.h>
@@ -20,18 +20,18 @@ namespace geom {
   bool Mesh::IsValid() const {
     // should be at least some one vertex
     if (_vertices.empty()) {
-      std::cout << "Mesh validation error: there are no vertices in the mesh." << std::endl;
+      log_error("Mesh validation error: there are no vertices in the mesh.");
       return false;
     }
 
     // if there are indices, the amount must be multiple of 3
     if (!_indexes.empty() && _indexes.size() % 3 != 0) {
-      std::cout << "Mesh validation error: the index amount must be multiple of 3." << std::endl;
+      log_error("Mesh validation error: the index amount must be multiple of 3.");
       return false;
     }
 
     if (!_materials.empty() && _materials.back().index_end == 0) {
-      std::cout << "Mesh validation error: last material was not closed." << std::endl;
+      log_error("Mesh validation error: last material was not closed.");
       return false;
     }
 
@@ -120,7 +120,7 @@ namespace geom {
       }
     }
     if (open_index % 3 != 0) {
-      std::cout << "open_index % 3 != 0" << std::endl;
+      log_debug("open_index % 3 != 0");
       return;
     }
     _materials.emplace_back(material_name, open_index, 0);
