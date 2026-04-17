@@ -29,7 +29,7 @@ namespace SceneCaptureSensor_local_ns {
   static auto GetQualitySettings(UWorld *World)
   {
     auto Settings = UCarlaStatics::GetCarlaSettings(World);
-    check(Settings != nullptr);
+    if (!Settings) { return EQualityLevel::Epic; }
     return Settings->GetQualityLevel();
   }
 
@@ -57,7 +57,7 @@ ASceneCaptureSensor::ASceneCaptureSensor(const FObjectInitializer &ObjectInitial
   // UE5: Changed from USceneCaptureComponent2D_CARLA to USceneCaptureComponent2D
   CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>(
       FName(*FString::Printf(TEXT("USceneCaptureComponent2D_%d"), SCENE_CAPTURE_COUNTER)));
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   // UE5.7: ViewActor removed from USceneCaptureComponent2D. Add the sensor actor to HiddenActors
   // so it does not appear in its own capture. (ViewActor-based relevance filtering in
   // LineBatchComponent_CARLA::GetViewRelevance still works via the engine's auto-populated
@@ -88,31 +88,31 @@ void ASceneCaptureSensor::SetImageSize(uint32 InWidth, uint32 InHeight)
 
 void ASceneCaptureSensor::SetFOVAngle(const float FOVAngle)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->FOVAngle = FOVAngle;
 }
 
 float ASceneCaptureSensor::GetFOVAngle() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->FOVAngle;
 }
 
 void ASceneCaptureSensor::SetExposureMethod(EAutoExposureMethod Method)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureMethod = Method;
 }
 
 EAutoExposureMethod ASceneCaptureSensor::GetExposureMethod() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureMethod;
 }
 
 void ASceneCaptureSensor::SetExposureCompensation(float Compensation)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
 #if PLATFORM_LINUX
   // Looks like Windows and Linux have different outputs with the
   // same exposure compensation, this fixes it.
@@ -124,331 +124,331 @@ void ASceneCaptureSensor::SetExposureCompensation(float Compensation)
 
 float ASceneCaptureSensor::GetExposureCompensation() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureBias;
 }
 
 void ASceneCaptureSensor::SetShutterSpeed(float Speed)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.CameraShutterSpeed = Speed;
 }
 
 float ASceneCaptureSensor::GetShutterSpeed() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.CameraShutterSpeed;
 }
 
 void ASceneCaptureSensor::SetISO(float ISO)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.CameraISO = ISO;
 }
 
 float ASceneCaptureSensor::GetISO() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.CameraISO;
 }
 
 void ASceneCaptureSensor::SetAperture(float Aperture)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldFstop = Aperture;
 }
 
 float ASceneCaptureSensor::GetAperture() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldFstop;
 }
 
 void ASceneCaptureSensor::SetFocalDistance(float Distance)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldFocalDistance = Distance;
 }
 
 float ASceneCaptureSensor::GetFocalDistance() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldFocalDistance;
 }
 
 void ASceneCaptureSensor::SetDepthBlurAmount(float Amount)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldDepthBlurAmount = Amount;
 }
 
 float ASceneCaptureSensor::GetDepthBlurAmount() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldDepthBlurAmount;
 }
 
 void ASceneCaptureSensor::SetDepthBlurRadius(float Radius)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldDepthBlurRadius = Radius;
 }
 
 float ASceneCaptureSensor::GetDepthBlurRadius() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldDepthBlurRadius;
 }
 
 void ASceneCaptureSensor::SetDepthOfFieldMinFstop(float MinFstop)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldMinFstop = MinFstop;
 }
 
 float ASceneCaptureSensor::GetDepthOfFieldMinFstop() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldMinFstop;
 }
 
 void ASceneCaptureSensor::SetBladeCount(int Count)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldBladeCount = Count;
 }
 
 int ASceneCaptureSensor::GetBladeCount() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.DepthOfFieldBladeCount;
 }
 
 void ASceneCaptureSensor::SetFilmSlope(float Slope)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.FilmSlope = Slope;
 }
 
 float ASceneCaptureSensor::GetFilmSlope() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.FilmSlope;
 }
 
 void ASceneCaptureSensor::SetFilmToe(float Toe)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.FilmToe = Toe; // FilmToeAmount?
 }
 
 float ASceneCaptureSensor::GetFilmToe() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.FilmToe;
 }
 
 void ASceneCaptureSensor::SetFilmShoulder(float Shoulder)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.FilmShoulder = Shoulder;
 }
 
 float ASceneCaptureSensor::GetFilmShoulder() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.FilmShoulder;
 }
 
 void ASceneCaptureSensor::SetFilmBlackClip(float BlackClip)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.FilmBlackClip = BlackClip;
 }
 
 float ASceneCaptureSensor::GetFilmBlackClip() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.FilmBlackClip;
 }
 
 void ASceneCaptureSensor::SetFilmWhiteClip(float WhiteClip)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.FilmWhiteClip = WhiteClip;
 }
 
 float ASceneCaptureSensor::GetFilmWhiteClip() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.FilmWhiteClip;
 }
 
 void ASceneCaptureSensor::SetExposureMinBrightness(float Brightness)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureMinBrightness = Brightness;
 }
 
 float ASceneCaptureSensor::GetExposureMinBrightness() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureMinBrightness;
 }
 
 void ASceneCaptureSensor::SetExposureMaxBrightness(float Brightness)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureMaxBrightness = Brightness;
 }
 
 float ASceneCaptureSensor::GetExposureMaxBrightness() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureMaxBrightness;
 }
 
 void ASceneCaptureSensor::SetExposureSpeedDown(float Speed)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureSpeedDown = Speed;
 }
 
 float ASceneCaptureSensor::GetExposureSpeedDown() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureSpeedDown;
 }
 
 void ASceneCaptureSensor::SetExposureSpeedUp(float Speed)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureSpeedUp = Speed;
 }
 
 float ASceneCaptureSensor::GetExposureSpeedUp() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureSpeedUp;
 }
 
 void ASceneCaptureSensor::SetExposureCalibrationConstant(float Constant)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.AutoExposureCalibrationConstant_DEPRECATED = Constant;
 }
 
 float ASceneCaptureSensor::GetExposureCalibrationConstant() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.AutoExposureCalibrationConstant_DEPRECATED;
 }
 
 void ASceneCaptureSensor::SetMotionBlurIntensity(float Intensity)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.MotionBlurAmount = Intensity;
 }
 
 float ASceneCaptureSensor::GetMotionBlurIntensity() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.MotionBlurAmount;
 }
 
 void ASceneCaptureSensor::SetMotionBlurMaxDistortion(float MaxDistortion)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.MotionBlurMax = MaxDistortion;
 }
 
 float ASceneCaptureSensor::GetMotionBlurMaxDistortion() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.MotionBlurMax;
 }
 
 void ASceneCaptureSensor::SetMotionBlurMinObjectScreenSize(float ScreenSize)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.MotionBlurPerObjectSize = ScreenSize;
 }
 
 float ASceneCaptureSensor::GetMotionBlurMinObjectScreenSize() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.MotionBlurPerObjectSize;
 }
 
 void ASceneCaptureSensor::SetLensFlareIntensity(float Intensity)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.LensFlareIntensity = Intensity;
 }
 
 float ASceneCaptureSensor::GetLensFlareIntensity() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.LensFlareIntensity;
 }
 
 void ASceneCaptureSensor::SetBloomIntensity(float Intensity)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.BloomIntensity = Intensity;
 }
 
 float ASceneCaptureSensor::GetBloomIntensity() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.BloomIntensity;
 }
 
 void ASceneCaptureSensor::SetWhiteTemp(float Temp)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.WhiteTemp = Temp;
 }
 
 float ASceneCaptureSensor::GetWhiteTemp() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.WhiteTemp;
 }
 
 void ASceneCaptureSensor::SetWhiteTint(float Tint)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.WhiteTint = Tint;
 }
 
 float ASceneCaptureSensor::GetWhiteTint() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.WhiteTint;
 }
 
 void ASceneCaptureSensor::SetChromAberrIntensity(float Intensity)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.SceneFringeIntensity = Intensity;
 }
 
 float ASceneCaptureSensor::GetChromAberrIntensity() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.SceneFringeIntensity;
 }
 
 void ASceneCaptureSensor::SetChromAberrOffset(float ChromAberrOffset)
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.ChromaticAberrationStartOffset = ChromAberrOffset;
 }
 
 float ASceneCaptureSensor::GetChromAberrOffset() const
 {
-  check(CaptureComponent2D != nullptr);
+  ensure(CaptureComponent2D != nullptr);
   return CaptureComponent2D->PostProcessSettings.ChromaticAberrationStartOffset;
 }
 
