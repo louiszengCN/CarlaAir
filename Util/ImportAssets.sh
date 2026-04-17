@@ -8,11 +8,9 @@ DOC_STRING="Unpack and copy over CarlaUE4's Exported Assets"
 
 USAGE_STRING="Usage: $0 [-h|--help] [-d|--dir] <outdir>"
 
-OUTPUT_DIRECTORY=""
+export OUTPUT_DIRECTORY=""
 
-OPTS=$(getopt -o h,d:: --long help,dir:: -n 'parse-options' -- "$@")
-
-if [ $? != 0 ] ; then echo "$USAGE_STRING" ; exit 2; fi  # SC2181: getopt exit code check is intentional here
+if ! OPTS=$(getopt -o h,d:: --long help,dir:: -n 'parse-options' -- "$@"); then echo "$USAGE_STRING"; exit 2; fi
 
 eval set -- "$OPTS"
 

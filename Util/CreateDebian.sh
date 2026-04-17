@@ -45,7 +45,7 @@ sudo apt-get install build-essential dh-make
 # -- Download --------------------------------------------------------------------------------------
 # ==================================================================================================
 mkdir -p carla-debian/"${CARLA_DIR}"
-cd carla-debian/"${CARLA_DIR}"
+cd carla-debian/"${CARLA_DIR}" || exit 1
 
 FILE=$(pwd)/ImportAssets.sh
 if [ -f "$FILE" ]; then
@@ -96,7 +96,7 @@ EOF
 # Create necessary file structure for debian packaging
 timeout --signal=SIGINT 10 dh_make -e carla.simulator@gmail.com --indep --createorig -y
 
-cd debian/
+cd debian/ || exit 1
 
 # Removing unnecessary files
 rm ./*.ex
@@ -202,7 +202,7 @@ cp ../LICENSE ./copyright
 # Updating debian/Changelog
 awk '{sub(/UNRELEASED/,"stable")}1' changelog > tmp && mv tmp changelog
 awk '{sub(/unstable/,"stable")}1' changelog > tmp && mv tmp changelog
-cd ..
+cd .. || exit 1
 
 # Building debian package.
 dpkg-buildpackage -uc -us -b
