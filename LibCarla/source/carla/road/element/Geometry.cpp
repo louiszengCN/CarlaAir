@@ -146,7 +146,7 @@ namespace element {
       double current_v = _poly.Evaluate(current_u);
       double du = current_u - last_u;
       double dv = current_v - last_v;
-      double ds = sqrt(du * du + dv * dv);
+      double ds = std::sqrt(du * du + dv * dv);
       current_s += ds;
       double current_t = _poly.Tangent(current_u);
       RtreeValue current_val{current_u, current_v, current_s, current_t};
@@ -214,7 +214,7 @@ namespace element {
       double current_v = _polyV.Evaluate(param_p);
       double du = current_u - last_u;
       double dv = current_v - last_v;
-      double ds = sqrt(du * du + dv * dv);
+      double ds = std::sqrt(du * du + dv * dv);
       current_s += ds;
       double current_t_u = _polyU.Tangent(param_p);
       double current_t_v = _polyV.Tangent(param_p);

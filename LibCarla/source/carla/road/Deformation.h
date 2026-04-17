@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cmath>
+
 #include <memory>
 #include <vector>
 
@@ -32,8 +34,8 @@ namespace deformation {
     const float Ky1 = -0.08f;
     const float Ky2 = 0.05f;
 
-    return A1 * sin((Kx1 * posx + Ky1 * posy + F1)) +
-      A2 * sin((Kx2 * posx + Ky2 * posy + F2));
+    return A1 * std::sin((Kx1 * posx + Ky1 * posy + F1)) +
+      A2 * std::sin((Kx2 * posx + Ky2 * posy + F2));
   }
 
   inline float GetBumpDeformation(float posx, float posy){
@@ -49,11 +51,11 @@ namespace deformation {
     BumpX *= constraintX;
     BumpY *= constraintY;
 
-    float DistanceToBumpOrigin = sqrt(pow(BumpX - posx, 2) + pow(BumpY - posy, 2) );
+    float DistanceToBumpOrigin = std::sqrt(std::pow(BumpX - posx, 2) + std::pow(BumpY - posy, 2) );
     float MaxDistance = 2.0;
 
     if (DistanceToBumpOrigin <= MaxDistance) {
-      bumpsoffset = sin(DistanceToBumpOrigin);
+      bumpsoffset = std::sin(DistanceToBumpOrigin);
     }
 
     return A3 * bumpsoffset;
