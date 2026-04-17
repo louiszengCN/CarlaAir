@@ -4,8 +4,9 @@
 #  CARLA + AirSim Unified Launcher
 # ============================================
 
-set -e
+set -euo pipefail
 
+VERSION="0.1.7"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BINARY="${SCRIPT_DIR}/CarlaUE4/Binaries/Linux/CarlaUE4-Linux-Shipping"
 LOGFILE="${SCRIPT_DIR}/CarlaAir.log"
@@ -41,7 +42,7 @@ usage() {
     cat <<EOF
 Usage: $0 [MAP] [OPTIONS]
 
-CarlaAir v0.1.7 - CARLA + AirSim Air-Ground Co-Simulation Platform
+CarlaAir v${VERSION} - CARLA + AirSim Air-Ground Co-Simulation Platform
 
 Arguments:
   MAP                Map name (default: Town10HD)
@@ -157,7 +158,7 @@ fi
 
 echo "============================================"
 echo "  CarlaAir - Air-Ground Co-Simulation"
-echo "  Version:   v0.1.7"
+echo "  Version:   v${VERSION}"
 echo "============================================"
 echo "  Map:        ${MAP}"
 echo "  Resolution: ${RES_X}x${RES_Y}"
@@ -199,7 +200,7 @@ else
         sleep 2
     done
 
-    # v0.1.7: Auto-spawn traffic (vehicles + pedestrians)
+    # Auto-spawn traffic (vehicles + pedestrians)
     TRAFFIC_SCRIPT="${SCRIPT_DIR}/auto_traffic.py"
     TRAFFIC_PYTHON=""
     # Find a working python3 with carla module
