@@ -99,8 +99,7 @@ void UActorAttacher::AttachActors(
     const EAttachmentType AttachmentType,
     const FString& SocketName)
 {
-  check(Child != nullptr);
-  check(Parent != nullptr);
+  if (!IsValid(Child) || !IsValid(Parent)) { return; }
 
   switch (AttachmentType)
   {
