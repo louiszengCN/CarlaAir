@@ -11,7 +11,6 @@
 #include "carla/sensor/data/RadarData.h"
 
 #include <cstdint>
-#include <cstring>
 
 namespace carla {
 namespace sensor {

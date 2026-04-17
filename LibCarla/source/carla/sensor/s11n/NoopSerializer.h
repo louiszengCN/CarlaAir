@@ -10,7 +10,6 @@
 #include "carla/sensor/RawData.h"
 
 #include <cstdint>
-#include <cstring>
 
 namespace carla {
 namespace sensor {

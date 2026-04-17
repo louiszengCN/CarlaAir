@@ -11,7 +11,6 @@
 #include "carla/sensor/data/V2XData.h"
 
 #include <cstdint>
-#include <cstring>
 class CAMContainer;
 namespace carla
 {
