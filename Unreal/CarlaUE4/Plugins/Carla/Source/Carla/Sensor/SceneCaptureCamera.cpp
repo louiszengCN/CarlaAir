@@ -52,8 +52,4 @@ void ASceneCaptureCamera::PostPhysTick(UWorld *World, ELevelTick TickType, float
   FPixelReader::SendPixelsInRenderThread<ASceneCaptureCamera, FColor>(*this);
 }
 
-// UE5: GBuffer API removed - SendGBufferTextures disabled
-// void ASceneCaptureCamera::SendGBufferTextures(FGBufferRequest& GBuffer)
-// {
-//     SendGBufferTexturesInternal(*this, GBuffer);
-// }
+// UE5: SendGBufferTextures removed — GBuffer API not available in UE5.7.

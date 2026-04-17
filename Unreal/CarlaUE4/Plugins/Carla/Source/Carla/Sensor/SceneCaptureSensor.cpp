@@ -453,53 +453,20 @@ float ASceneCaptureSensor::GetChromAberrOffset() const
 }
 
 void ASceneCaptureSensor::EnqueueRenderSceneImmediate() {
-  // 
-  if( bEnableGBuffers )
-  {
-    TRACE_CPUPROFILER_EVENT_SCOPE(ASceneCaptureSensor::EnqueueRenderSceneImmediateGBuffers);
-
-    // // Equivalent to "CaptureComponent2D->CaptureScene" + (optional) GBuffer extraction.
-    CaptureSceneExtended();
-  }
-  else
-  {
-    TRACE_CPUPROFILER_EVENT_SCOPE(ASceneCaptureSensor::EnqueueRenderSceneImmediate);
-    // Creates an snapshot of the scene, requieres bCaptureEveryFrame = false.
-    GetCaptureComponent2D()->CaptureScene();
-  }
+  TRACE_CPUPROFILER_EVENT_SCOPE(ASceneCaptureSensor::EnqueueRenderSceneImmediate);
+  // UE5: GBuffer API (FGBufferRequest / CaptureSceneWithGBuffer) removed.
+  // bEnableGBuffers is a no-op; both paths call CaptureScene(). GBuffer streams
+  // will not receive data. TODO(#UE5-GBUFFER): reimplement via render targets.
+  GetCaptureComponent2D()->CaptureScene();
 }
 
-constexpr const TCHAR* GBufferNames[] =
-{
-  TEXT("SceneColor"),
-  TEXT("SceneDepth"),
-  TEXT("SceneStencil"),
-  TEXT("GBufferA"),
-  TEXT("GBufferB"),
-  TEXT("GBufferC"),
-  TEXT("GBufferD"),
-  TEXT("GBufferE"),
-  TEXT("GBufferF"),
-  TEXT("Velocity"),
-  TEXT("SSAO"),
-  TEXT("CustomDepth"),
-  TEXT("CustomStencil"),
-};
-
-// UE5: GBuffer API removed.
-// CheckGBufferStream, FGBufferRequest, EGBufferTextureID, and
-// CaptureSceneWithGBuffer are no longer available in UE5.
-// Use CaptureScene() + RenderTarget->ReadPixels() instead.
-//
-// template <EGBufferTextureID ID, typename T>
-// static void CheckGBufferStream(T& GBufferStream, FGBufferRequest& GBuffer) { ... }
-
-static uint64 Prior = 0;
+// UE5: GBufferNames[], Prior, CheckGBufferStream, FGBufferRequest, EGBufferTextureID,
+// and CaptureSceneWithGBuffer removed — GBuffer API no longer available in UE5.7.
+// TODO(#UE5-GBUFFER): retrieve GBuffer data via render targets + ReadPixels().
 
 void ASceneCaptureSensor::CaptureSceneExtended()
 {
-  // UE5: GBuffer path disabled — FGBufferRequest / CaptureSceneWithGBuffer removed.
-  // Fall back to standard CaptureScene() for all cases.
+  // UE5: GBuffer path disabled — falls back to standard CaptureScene().
   CaptureComponent2D->CaptureScene();
 }
 

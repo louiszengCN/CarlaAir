@@ -408,6 +408,11 @@ public:
   void EnableGBuffers(bool Enable = true)
   {
     bEnableGBuffers = Enable;
+    // UE5: GBuffer API removed — this flag is a no-op. GBuffer streams will not receive data.
+    if (Enable)
+    {
+      UE_LOG(LogCarla, Warning, TEXT("EnableGBuffers: GBuffer API is not available in UE5.7 — GBuffer streams disabled. See #UE5-GBUFFER."));
+    }
   }
 
   bool AreGBuffersEnabled() const

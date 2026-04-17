@@ -27,10 +27,6 @@ public:
   ASceneCaptureCamera(const FObjectInitializer &ObjectInitializer);
 
 protected:
-	
-  // UE5: GBuffer API removed - SendGBufferTextures disabled
-  // virtual void SendGBufferTextures(FGBufferRequest& GBuffer) override;
-
 
   void BeginPlay() override;
   void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

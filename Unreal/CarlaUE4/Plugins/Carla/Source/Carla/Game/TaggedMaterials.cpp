@@ -91,9 +91,12 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
     return TranslucentMaterial;
   }
 
-  // If UsedMaterial is null OR neither masked nor using WorldPositionOffset, we return NULL to indicate,
-  // that the requested material does not require a fine-grained tag-injected correspondence.
-  // UE5: UMaterial::WorldPositionOffset is private; disable WPO check conservatively
+  // If UsedMaterial is null OR not masked, return NULL (no fine-grained tag injection needed).
+  // UE5: UMaterial::WorldPositionOffset.IsConnected() is private in UE5.7 and cannot be called.
+  // BEHAVIOR CHANGE: WPO materials that are non-masked were previously tag-injected (fine-grained
+  // segmentation for displaced geometry). They now fall through to coarse annotation material.
+  // Impact: animated foliage / road displacement may have coarser instance segmentation.
+  // TODO(#UE5-WPO-TAG): restore WPO check when UE5 exposes IsConnected() or an equivalent.
   if (!UsedMaterial || !UsedMaterial->IsMasked()) {
     return NULL;
   }
