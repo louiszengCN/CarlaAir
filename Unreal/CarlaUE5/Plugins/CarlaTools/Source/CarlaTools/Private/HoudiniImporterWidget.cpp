@@ -12,7 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "FileHelpers.h"
-#include "EditorLevelLibrary.h"
+#include "LevelEditorSubsystem.h"  // UE5: replaces UEditorLevelLibrary
 #include "Components/PrimitiveComponent.h"
 
 void UHoudiniImporterWidget::CreateSubLevels(ALargeMapManager* LargeMapManager)
@@ -74,7 +74,7 @@ void UHoudiniImporterWidget::MoveActorsToSubLevelWithLargeMap(TArray<AActor*> Ac
       continue;
     }
 
-    UWorld* World = UEditorLevelLibrary::GetEditorWorld();
+    UWorld* World = GEditor->GetEditorWorldContext().World();
     ULevelStreamingDynamic* StreamingLevel = Tile->StreamingLevel;
     StreamingLevel->bShouldBlockOnLoad = true;
     StreamingLevel->SetShouldBeVisible(true);
@@ -100,7 +100,7 @@ void UHoudiniImporterWidget::MoveActorsToSubLevelWithLargeMap(TArray<AActor*> Ac
 
 void UHoudiniImporterWidget::ForceStreamingLevelsToUnload( ALargeMapManager* LargeMapManager )
 {
-  UWorld* World = UEditorLevelLibrary::GetGameWorld();
+  UWorld* World = GEditor->GetEditorWorldContext().World(); // UE5: was GetGameWorld()
 
   FIntVector NumTilesInXY  = LargeMapManager->GetNumTilesInXY();
 
