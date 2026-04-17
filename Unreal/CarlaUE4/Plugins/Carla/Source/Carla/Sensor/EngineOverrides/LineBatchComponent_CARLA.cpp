@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma de Barcelona (UAB). This work is licensed under the terms of the MIT license. For a copy, see <https://opensource.org/licenses/MIT>.
 
 
-#include "Sensor/UE4_Overridden/LineBatchComponent_CARLA.h"
+#include "Sensor/EngineOverrides/LineBatchComponent_CARLA.h"
 #include "Sensor/CosmosControlSensor.h"
 #include "ConstructorHelpers.h"
 #include "DynamicMeshBuilder.h" // UE5: FDynamicMeshBuilder

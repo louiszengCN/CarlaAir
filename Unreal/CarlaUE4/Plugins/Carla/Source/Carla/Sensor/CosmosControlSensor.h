@@ -12,7 +12,7 @@
 #include "Carla/Actor/ActorDefinition.h"
 #include "Components/LineBatchComponent.h"
 #include "Carla/Game/Tagger.h"
-#include "Carla/Sensor/UE4_Overridden/LineBatchComponent_CARLA.h"
+#include "Carla/Sensor/EngineOverrides/LineBatchComponent_CARLA.h"
 #include "CosmosControlSensor.generated.h"
 
 /**

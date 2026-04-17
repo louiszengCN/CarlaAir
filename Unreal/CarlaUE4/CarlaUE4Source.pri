@@ -13778,10 +13778,10 @@ SOURCES += \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/ShaderBasedSensor_WideAngleLens.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/V2XSensor.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/WorldObserver.cpp" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/UE4_Overridden/LineBatchComponent_CARLA.cpp" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/UE4_Overridden/SceneCaptureComponent2D_CARLA.cpp" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/UE4_Overridden/SceneCaptureComponentCube_CARLA.cpp" \
-	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/UE4_Overridden/SceneCaptureComponent_CARLA.cpp" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/EngineOverrides/LineBatchComponent_CARLA.cpp" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/EngineOverrides/SceneCaptureComponent2D_CARLA.cpp" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/EngineOverrides/SceneCaptureComponentCube_CARLA.cpp" \
+	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/EngineOverrides/SceneCaptureComponent_CARLA.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/V2X/CaService.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Sensor/V2X/PathLossModel.cpp" \
 	"$$CarlaUE4RootPath/Plugins/Carla/Source/Carla/Server/CarlaServer.cpp" \
