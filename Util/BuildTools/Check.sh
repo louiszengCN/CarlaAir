@@ -109,16 +109,16 @@ if { ${LIBCARLA_RELEASE} || ${LIBCARLA_DEBUG}; }; then
   CONTENT_TAG=0.1.4
 
   mkdir -p "${LIBCARLA_TEST_CONTENT_FOLDER}"
-  pushd "${LIBCARLA_TEST_CONTENT_FOLDER}" >/dev/null
+  pushd "${LIBCARLA_TEST_CONTENT_FOLDER}" >/dev/null || exit 1
 
   if [ "$(get_git_repository_version)" != "${CONTENT_TAG}" ]; then
-    pushd .. >/dev/null
+    pushd .. >/dev/null || exit 1
     rm -Rf "${LIBCARLA_TEST_CONTENT_FOLDER}"
     git clone -b "${CONTENT_TAG}" https://github.com/carla-simulator/opendrive-test-files.git "${LIBCARLA_TEST_CONTENT_FOLDER}"
-    popd >/dev/null
+    popd >/dev/null || exit 1
   fi
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi
 
@@ -136,10 +136,12 @@ if ${LIBCARLA_DEBUG} ; then
 
   log "Running LibCarla.server unit tests (debug)."
   echo "Running: ${GDB} libcarla_test_server_debug ${GTEST_ARGS} ${EXTRA_ARGS}"
+  # shellcheck disable=SC2086  # GTEST_ARGS/EXTRA_ARGS are option word lists
   LD_LIBRARY_PATH="${LIBCARLA_INSTALL_SERVER_FOLDER}/lib" ${GDB} "${LIBCARLA_INSTALL_SERVER_FOLDER}/test/libcarla_test_server_debug" ${GTEST_ARGS} ${EXTRA_ARGS}
 
   log "Running LibCarla.client unit tests (debug)."
   echo "Running: ${GDB} libcarla_test_client_debug ${GTEST_ARGS} ${EXTRA_ARGS}"
+  # shellcheck disable=SC2086
   ${GDB} "${LIBCARLA_INSTALL_CLIENT_FOLDER}/test/libcarla_test_client_debug" ${GTEST_ARGS} ${EXTRA_ARGS}
 
 fi
@@ -154,12 +156,14 @@ if ${LIBCARLA_RELEASE} ; then
 
   log "Running LibCarla.server unit tests (release)."
   echo "Running: ${GDB} libcarla_test_server_release ${GTEST_ARGS} ${EXTRA_ARGS}"
+  # shellcheck disable=SC2086
   LD_LIBRARY_PATH="${LIBCARLA_INSTALL_SERVER_FOLDER}/lib" ${GDB} "${LIBCARLA_INSTALL_SERVER_FOLDER}/test/libcarla_test_server_release" ${GTEST_ARGS} ${EXTRA_ARGS}
 
   if ! { ${RUN_BENCHMARK} ; }; then
 
     log "Running LibCarla.client unit tests (release)."
     echo "Running: ${GDB} libcarla_test_client_debug ${GTEST_ARGS} ${EXTRA_ARGS}"
+    # shellcheck disable=SC2086
     ${GDB} "${LIBCARLA_INSTALL_CLIENT_FOLDER}/test/libcarla_test_client_release" ${GTEST_ARGS} ${EXTRA_ARGS}
 
   fi
@@ -170,7 +174,7 @@ fi
 # -- Run Python API unit tests -------------------------------------------------
 # ==============================================================================
 
-pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/test/unit" >/dev/null
+pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/test/unit" >/dev/null || exit 1
 
 if ${XML_OUTPUT} ; then
   EXTRA_ARGS="-X"
@@ -184,32 +188,32 @@ if ${PYTHON_API} ; then
 
     log "Running Python API for Python ${PY_VERSION} unit tests."
 
-    /usr/bin/env python${PY_VERSION} -m nose2 ${EXTRA_ARGS}
+    /usr/bin/env "python${PY_VERSION}" -m nose2 ${EXTRA_ARGS}
 
   done
 
   if ${XML_OUTPUT} ; then
-    mv test-results.xml ${CARLA_TEST_RESULTS_FOLDER}/python-api-3.xml
+    mv test-results.xml "${CARLA_TEST_RESULTS_FOLDER}/python-api-3.xml"
   fi
 
 fi
 
-popd >/dev/null
+popd >/dev/null || exit 1
 
 # ==============================================================================
 # -- Run smoke tests -----------------------------------------------------------
 # ==============================================================================
 
 if ${SMOKE_TESTS} ; then
-  pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/util" >/dev/null
+  pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/util" >/dev/null || exit 1
     log "Checking connection with the simulator."
     for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
-      /usr/bin/env python${PY_VERSION} test_connection.py -p 3654 --timeout=60.0
+      /usr/bin/env "python${PY_VERSION}" test_connection.py -p 3654 --timeout=60.0
     done
-  popd >/dev/null
+  popd >/dev/null || exit 1
 fi
 
-pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/test" >/dev/null
+pushd "${CARLA_PYTHONAPI_ROOT_FOLDER}/test" >/dev/null || exit 1
 
 if ${XML_OUTPUT} ; then
   EXTRA_ARGS="-c smoke/unittest.cfg -X"
@@ -221,16 +225,17 @@ if ${SMOKE_TESTS} ; then
   smoke_list=$(cat smoke_test_list.txt)
   for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
     log "Running smoke tests for Python ${PY_VERSION}."
-    /usr/bin/env python${PY_VERSION} -m nose2 -v ${EXTRA_ARGS} ${smoke_list}
+    # shellcheck disable=SC2086  # EXTRA_ARGS and smoke_list are word lists
+    /usr/bin/env "python${PY_VERSION}" -m nose2 -v ${EXTRA_ARGS} ${smoke_list}
   done
 
   if ${XML_OUTPUT} ; then
-    mv test-results.xml ${CARLA_TEST_RESULTS_FOLDER}/smoke-tests-3.xml
+    mv test-results.xml "${CARLA_TEST_RESULTS_FOLDER}/smoke-tests-3.xml"
   fi
 
 fi
 
-popd >/dev/null
+popd >/dev/null || exit 1
 
 # ==============================================================================
 # -- ...and we are done --------------------------------------------------------
