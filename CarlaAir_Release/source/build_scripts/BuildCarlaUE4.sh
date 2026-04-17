@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -25,7 +25,7 @@ EDITOR_FLAGS=""
 GDB=
 RHI="-vulkan"
 
-OPTS=`getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -93,7 +93,8 @@ done
 # -- Set up environment --------------------------------------------------------
 # ==============================================================================
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 if [ ! -d "${UE4_ROOT}" ]; then
   fatal_error "UE4_ROOT is not defined, or points to a non-existant directory, please set this environment variable."
@@ -129,12 +130,14 @@ if ${REMOVE_INTERMEDIATE} ; then
 
   UE4_INTERMEDIATE_FOLDERS="Binaries Build Intermediate DerivedDataCache"
 
+  # shellcheck disable=SC2086
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
   rm -f Makefile
 
   pushd "${CARLAUE4_PLUGIN_ROOT_FOLDER}" >/dev/null
 
+  # shellcheck disable=SC2086
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
   rm -Rf Plugins/HoudiniEngine
@@ -191,7 +194,7 @@ if ${BUILD_CARLAUE4} ; then
     OPTIONAL_MODULES_TEXT="Unity OFF"$'\n'"${OPTIONAL_MODULES_TEXT}"
   fi
   OPTIONAL_MODULES_TEXT="Fast_dds ON"$'\n'"${OPTIONAL_MODULES_TEXT}"
-  echo ${OPTIONAL_MODULES_TEXT} > ${PWD}/Config/OptionalModules.ini
+  echo "${OPTIONAL_MODULES_TEXT}" > "${PWD}/Config/OptionalModules.ini"
 
   if [ ! -f Makefile ]; then
 
@@ -220,7 +223,7 @@ fi
 if ${LAUNCH_UE4_EDITOR} ; then
 
   log "Launching UE4Editor..."
-  ${GDB} ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${PWD}/CarlaUE4.uproject" ${RHI} ${EDITOR_FLAGS}
+  ${GDB} "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${PWD}/CarlaUE4.uproject" ${RHI} ${EDITOR_FLAGS}
 
 else
 
