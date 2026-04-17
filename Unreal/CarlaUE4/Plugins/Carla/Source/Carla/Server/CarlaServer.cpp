@@ -5,6 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "Carla.h"
+#include <cstring>
 #include "rpc/this_session.h"
 #include "Carla/Server/CarlaServer.h"
 #include "Carla/Server/CarlaServerResponse.h"
@@ -723,7 +724,7 @@ void FCarlaServer::FPimpl::BindActions()
     auto FileContents = FNavigationMesh::Load(Episode->GetMapName());
     // make a mem copy (from TArray to std::vector)
     std::vector<uint8_t> Result(FileContents.Num());
-    memcpy(&Result[0], FileContents.GetData(), FileContents.Num());
+    std::memcpy(&Result[0], FileContents.GetData(), FileContents.Num());
     return Result;
   };
 
@@ -773,7 +774,7 @@ void FCarlaServer::FPimpl::BindActions()
     TArray<uint8_t> Content;
     FFileHelper::LoadFileToArray(Content, *path, 0);
     std::vector<uint8_t> Result(Content.Num());
-    memcpy(&Result[0], Content.GetData(), Content.Num());
+    std::memcpy(&Result[0], Content.GetData(), Content.Num());
 
     return Result;
   };
