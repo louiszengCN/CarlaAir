@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
         args: ["-f", "gcc"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.15.11
     hooks:
       - id: ruff
         args: [--config, PythonAPI/carla/pyproject.toml]

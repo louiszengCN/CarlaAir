@@ -1,4 +1,4 @@
-auditwheel==5.1.0
+auditwheel==6.6.0
 build
 distro==1.9.0
 packaging

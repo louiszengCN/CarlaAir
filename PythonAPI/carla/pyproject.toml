@@ -8,18 +8,18 @@ version = "0.1.0"
 description = "CARLA autonomous driving agents with proper typing"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy>=1.20.0",
-    "networkx>=2.5",
-    "shapely>=1.7",
-    "pydantic>=2.0",
-    "typing-extensions>=4.0; python_version < '3.11'",
+    "numpy>=1.24.0",
+    "networkx>=3.0",
+    "shapely>=2.0",
+    "pydantic>=2.5",
+    "typing-extensions>=4.8; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.4.0",
-    "ty>=0.0.1a14",
-    "mypy>=1.0",
+    "ruff>=0.15.0",
+    "ty>=0.0.31",
+    "mypy>=1.20.0",
 ]
 
 [tool.ruff]
