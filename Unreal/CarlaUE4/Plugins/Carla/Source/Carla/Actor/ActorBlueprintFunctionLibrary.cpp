@@ -2012,8 +2012,12 @@ FColor UActorBlueprintFunctionLibrary::RetrieveActorAttributeToColor(
     return;                                                   \
   }
 #else
-#  define CARLA_ABFL_CHECK_ACTOR(ActorPtr) \
-  check(IsValid(ActorPtr));
+#  define CARLA_ABFL_CHECK_ACTOR(ActorPtr)                                               \
+  if (!IsValid(ActorPtr))                                                                \
+  {                                                                                      \
+    UE_LOG(LogCarla, Error, TEXT("Cannot set empty actor!"));                            \
+    return;                                                                              \
+  }
 #endif // WITH_EDITOR
 
 void UActorBlueprintFunctionLibrary::SetCamera(
