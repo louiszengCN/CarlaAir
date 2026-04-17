@@ -301,7 +301,7 @@ FString FMDLImporterUtility::GetDistillerTargetName()
         return "ue4";
         break;
     default:
-        check(false);
+        ensure(false);
     }
 
     return "";
@@ -768,7 +768,7 @@ bool FMDLImporterUtility::FindDisplayNameByParameterName(const mi::base::Handle<
                     }
 
                     TArray<FString> DisplayNames = GetExpressionConstant<FString, mi::neuraylib::IValue_string>(mi::base::make_handle(Anno->get_arguments()));
-                    check(DisplayNames.Num() == 1);
+                    ensure(DisplayNames.Num() == 1);
 
                     DisplayName = DisplayNames[0];
                     return true;

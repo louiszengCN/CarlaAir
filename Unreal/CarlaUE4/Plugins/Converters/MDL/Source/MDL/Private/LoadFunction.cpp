@@ -2170,7 +2170,7 @@ static void Generator_DFMeasuredEDF(UMaterialFunction* Function, const TArray<in
 
 static void Generator_DFMeasuredCurveFactor(UMaterialFunction* Function, const TArray<int32>& ArrayInputSizes)
 {
-    check(ArrayInputSizes.Num() > 0 && 0 < ArrayInputSizes[0]);
+    ensure(ArrayInputSizes.Num() > 0 && 0 < ArrayInputSizes[0]);
 
     UMaterialFunction* StateNormal = LoadFunction(FMDLImporterUtility::GetProjectMdlFunctionPath(), TEXT("mdl_state_normal"));
 
@@ -2312,7 +2312,7 @@ static void Generator_DFMicrofacetGGXVCavitiesBSDF(UMaterialFunction* Function, 
 static TPair<UMaterialExpression*, UMaterialExpression*> MixAttributesRecursive(UMaterialFunction* Function, UMaterialFunction* MatLayerBlend_Standard,
     const TArray<UMaterialExpressionClamp*>& Weights, const TArray<UMaterialExpressionFunctionInput*>& Components, int32 Begin, int32 End)
 {
-    check(Begin < End);
+    ensure(Begin < End);
 
     int32 Count = End - Begin;
     if (Count == 1)
@@ -2340,7 +2340,7 @@ static TPair<UMaterialExpressionClamp*, UMaterialExpression*> MixAttributes(UMat
 
 static void Generator_DFNormalizedMix(UMaterialFunction* Function, const TArray<int32>& ArrayInputSizes)
 {
-    check(ArrayInputSizes.Num() > 0 && 0 < ArrayInputSizes[0]);
+    ensure(ArrayInputSizes.Num() > 0 && 0 < ArrayInputSizes[0]);
 
     UMaterialFunction* MatLayerBlend_Standard = LoadFunction(TEXT("/Engine/Functions/MaterialLayerFunctions"), TEXT("MatLayerBlend_Standard"));
     UMaterialFunction* StateNormal = LoadFunction(FMDLImporterUtility::GetProjectMdlFunctionPath(), TEXT("mdl_state_normal"));
@@ -9828,7 +9828,7 @@ UMaterialFunction* FMDLFunctionGenerator::GenerateFunction(const FString& AssetP
         UPackage* Package = CreatePackage(*(AssetPath / FunctionName));
 
         Function = dynamic_cast<UMaterialFunction*>(FunctionFactory->FactoryCreateNew(UMaterialFunction::StaticClass(), Package, *FunctionName, RF_Public | RF_Standalone, nullptr, GWarn));
-        check(Function);
+        ensure(Function);
         Function->StateId = FGuid::NewGuid();
 
         FGD->Generator(Function, ArrayInputSizes);
@@ -9871,7 +9871,7 @@ static int32 GetVersion(UMaterialFunction* Function)
     int32 VersionPosition = Function->Description.Find(TEXT("\nVersion "), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
     if (0 <= VersionPosition)
     {
-        check(VersionPosition + 9 < Function->Description.Len());
+        ensure(VersionPosition + 9 < Function->Description.Len());
         FString VersionString = Function->Description.RightChop(VersionPosition + 9);
         Version = FCString::Atoi(*VersionString);
     }

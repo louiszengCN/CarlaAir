@@ -13,7 +13,7 @@
 template <typename ReturnType, typename MDLType>
 static bool GetExpressionConstant(mi::base::Handle<mi::neuraylib::IExpression const> const& Expression, ReturnType& OutValue)
 {
-    check(Expression->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT);
+    ensure(Expression->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT);
 
     mi::base::Handle<mi::neuraylib::IValue const> const& Value = mi::base::make_handle(Expression.get_interface<mi::neuraylib::IExpression_constant const>()->get_value());
 

@@ -240,7 +240,7 @@ struct FMaterialExpressionConnection
 template <typename T>
 inline T* NewMaterialExpression(UObject* Parent)
 {
-    check(Parent != nullptr);
+    ensure(Parent != nullptr);
 
     auto Expression = NewObject<T>(Parent);
     Expression->MaterialExpressionGuid = FGuid::NewGuid();

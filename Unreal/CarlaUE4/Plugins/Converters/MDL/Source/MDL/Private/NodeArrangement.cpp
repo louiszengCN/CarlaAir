@@ -91,12 +91,12 @@ static void EstimateSize(FNodeData& Node)
         else if (Node.Expression->IsA<UMaterialExpressionCustom>())
         {
             UMaterialExpressionCustom* Custom = Cast<UMaterialExpressionCustom>(Node.Expression);
-            check((CaptionWidth == Custom->Description.Len()) && (CharCount == 0));
+            ensure((CaptionWidth == Custom->Description.Len()) && (CharCount == 0));
             for (int32 i = 0; i < Custom->Inputs.Num(); i++)
             {
                 CharCount = FMath::Max(CharCount, Custom->Inputs[i].InputName.ToString().Len());
             }
-            check(0 < CharCount);
+            ensure(0 < CharCount);
         }
         else if (Node.Expression->IsA<UMaterialExpressionIf>() ||
             Node.Expression->IsA<UMaterialExpressionPower>())
@@ -132,7 +132,7 @@ static void EstimateSize(FNodeData& Node)
             {
                 maxOutputLen = FMath::Max(maxOutputLen, Outputs[i].OutputName.ToString().Len());
             }
-            check(0 < maxOutputLen);
+            ensure(0 < maxOutputLen);
             CharCount = maxInputLen + maxOutputLen;
         }
         else if (Node.Expression->IsA<UMaterialExpressionTextureObjectParameter>())
@@ -153,7 +153,7 @@ static void AdjustLevel(FNodeData* ParentNode, FNodeData* ChildNode, int32 Index
         {
             // this expression was anchored to a lower level -> remove it from that anchor
             FNodeData& AnchorNode = Nodes.FindChecked(ChildNode->Anchor);
-            check(AnchorNode.Children.ContainsByPredicate([ChildNode](const FChildData& Child) { return Child.Expression == ChildNode->Expression; }));
+            ensure(AnchorNode.Children.ContainsByPredicate([ChildNode](const FChildData& Child) { return Child.Expression == ChildNode->Expression; }));
             AnchorNode.Children.RemoveAll([ChildNode](const FChildData& Child) { return Child.Expression == ChildNode->Expression; });
 
             // ... and anchor it here
@@ -161,7 +161,7 @@ static void AdjustLevel(FNodeData* ParentNode, FNodeData* ChildNode, int32 Index
         }
         ChildNode->Level = ParentNode->Level + 1;
 
-        check(!ParentNode->Children.ContainsByPredicate([ChildNode](const FChildData& Child) { return Child.Expression == ChildNode->Expression; }));
+        ensure(!ParentNode->Children.ContainsByPredicate([ChildNode](const FChildData& Child) { return Child.Expression == ChildNode->Expression; }));
         ParentNode->Children.Add({ ChildNode->Expression, Index });
 
         // adjust level of all inputs, recreating the set of children anchored to this node
@@ -201,7 +201,7 @@ static void DetermineHierarchy(const TArray<UMaterialExpression*>& Expressions, 
                 DetermineHierarchy(InputExpressions, Expression, Nodes);
 
                 ParentNode = Nodes.Find(ParentExpression);		// get the ParentNode again, as it might have been moved by the operations above
-                check(!ParentNode->Children.ContainsByPredicate([Expression](const FChildData& Child) { return Child.Expression == Expression; }));
+                ensure(!ParentNode->Children.ContainsByPredicate([Expression](const FChildData& Child) { return Child.Expression == Expression; }));
                 ParentNode->Children.Add({ Expression, I });
             }
             else
@@ -223,7 +223,7 @@ static void DetermineRelativePositions(FNodeData* ParentNode, TMap<UMaterialExpr
     TArray<FNodeData*> ChildrenNodes;
     for (const FChildData& Child : ParentNode->Children)
     {
-        check(Child.Expression && Nodes.Contains(Child.Expression));
+        ensure(Child.Expression && Nodes.Contains(Child.Expression));
         FNodeData* ChildNode = Nodes.Find(Child.Expression);
 
         // preliminary relative position of the child corresponding to its input into the parent and the output from the child
@@ -384,7 +384,7 @@ static void SetNodeEditorPositions(const FNodeData* Node, TMap<UMaterialExpressi
 
 void ArrangeNodes(UObject* Parent, const TArray<UMaterialExpression*>& OutputExpressions)
 {
-    check(Parent->IsA<UMaterial>() || Parent->IsA<UMaterialFunction>());
+    ensure(Parent->IsA<UMaterial>() || Parent->IsA<UMaterialFunction>());
 
     TMap<UMaterialExpression*, FNodeData> Nodes;
     Nodes.Add(nullptr);

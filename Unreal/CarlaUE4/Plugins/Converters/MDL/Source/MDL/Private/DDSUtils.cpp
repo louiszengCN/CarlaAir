@@ -148,7 +148,7 @@ bool FDDSUtils::ExportToDDS(UTexture* Tex, const FCubeFacesComposite& CompositeS
     UTextureRenderTarget2D* TexRenderTarget2D = Cast<UTextureRenderTarget2D>(Tex);
     static uint32 DDSMagic = 0x20534444;
 
-    check(Tex != nullptr);
+    ensure(Tex != nullptr);
 
     EPixelFormat pf = PF_Unknown;
     if (TexCube)

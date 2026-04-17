@@ -108,10 +108,10 @@ void FMDLModule::StartupModule()
     FString MDLDistiller = TEXT("mdl_distiller" MI_BASE_DLL_FILE_EXT);
 
     MDLSDKHandle = FPlatformProcess::GetDllHandle(*(MDLSDKPath / LibMDLSDK));
-    check(MDLSDKHandle != nullptr);
+    ensure(MDLSDKHandle != nullptr);
 
     Neuray = mi::neuraylib::mi_factory<mi::neuraylib::INeuray>(FPlatformProcess::GetDllExport(MDLSDKHandle, TEXT("mi_factory")));
-    check(Neuray.is_valid_interface());
+    ensure(Neuray.is_valid_interface());
 
     GMDLEntityResolver = new FMDLEntityResolver();
 
@@ -159,7 +159,7 @@ void FMDLModule::StartupModule()
     verify(PluginConfiguration->load_plugin_library(TCHAR_TO_UTF8(*(MDLSDKPath / MDLDistiller))) == 0);
 
     // start neuray AFTER loading the plugin !!
-    check(Neuray->start() == 0);
+    ensure(Neuray->start() == 0);
     UE_LOG(LogMDLOutput, Log, TEXT("Neuray Library Version: %s"), *FString(Neuray->get_version()));
 
     // set external entity resolver
