@@ -11,21 +11,35 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - run: sudo apt-get install -y --no-install-recommends shellcheck
       - run: |
           shellcheck -f gcc \
             build_carla_deps_macos.sh \
             carlaAir.sh \
             env_setup/setup_env.sh \
-            PythonAPI/examples/ros2/run_rviz.sh
+            PythonAPI/examples/ros2/run_rviz.sh \
+            Util/BuildTools/Setup.sh \
+            Util/BuildTools/BuildCarlaUE4.sh \
+            Util/BuildTools/BuildLibCarla.sh \
+            Util/BuildTools/BuildPythonAPI.sh \
+            Util/BuildTools/BuildOSMRenderer.sh \
+            Util/BuildTools/Check.sh \
+            Util/BuildTools/Deploy.sh \
+            Util/BuildTools/Environment.sh \
+            Util/BuildTools/Ad-rss.sh \
+            Util/BuildTools/Import.sh \
+            Util/BuildTools/Package.sh \
+            Util/BuildTools/Prettify.sh \
+            Util/CreateDebian.sh \
+            Util/ImportAssets.sh
 
   ruff:
     name: Ruff (Python lint)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: astral-sh/ruff-action@v4
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
         with:
           args: check --config PythonAPI/carla/pyproject.toml
 
@@ -33,8 +47,8 @@ jobs:
     name: clang-format (C++ style)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: jidicula/clang-format-action@v4.18.0
+      - uses: actions/checkout@v4
+      - uses: jidicula/clang-format-action@v4.13.0
         with:
           clang-format-version: '19'
           check-path: LibCarla/source
