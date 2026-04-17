@@ -1825,19 +1825,19 @@ struct FTextIterator
         : SourceString(InSourceString)
         , CurrentPosition(InSourceString)
     {
-        check(InSourceString);
+        ensure(InSourceString);
     }
 
     bool NextLine()
     {
-        check(CurrentPosition);
+        ensure(CurrentPosition);
         return (CurrentPosition[0] != '\0');
     }
 
     bool NextCharacterInLine(TCHAR& Ch)
     {
         bool bRet = false;
-        check(CurrentPosition);
+        ensure(CurrentPosition);
 
         if (CurrentPosition[0] == '\0')
         {
@@ -1863,7 +1863,7 @@ struct FTextIterator
 
     bool Peek(TCHAR& Ch)
     {
-        check(CurrentPosition);
+        ensure(CurrentPosition);
         if (CurrentPosition[0] == '\0' || (CurrentPosition[0] == '<' && CurrentPosition[1] == 'b' && CurrentPosition[2] == 'r' && CurrentPosition[3] == '>') || (CurrentPosition[0] == '\n'))
         {
             return false;
@@ -1971,7 +1971,7 @@ static float ComputeHorizontalAlignmentOffset(FVector2D Size, EHorizTextAligment
     default:
     {
         // internal error
-        check(0);
+        ensureAlwaysMsgf(false, TEXT("Unhandled branch in SimReadyUSDHelper"));
     }
     }
 
@@ -2000,7 +2000,7 @@ float ComputeVerticalAlignmentOffset(float SizeY, EVerticalTextAligment Vertical
     }
     default:
     {
-        check(0);
+        ensureAlwaysMsgf(false, TEXT("Unhandled branch in SimReadyUSDHelper"));
         return 0.f;
     }
     }
@@ -2102,10 +2102,10 @@ bool ExportStringMeshToMeshDescription(UTextRenderComponent* TextRenderComponent
                 const int32 V01 = OutVertices.Add(FDynamicMeshVertex(V2, TangentX, TangentZ, FVector2D(U, V + SizeV), TextRenderComponent->TextRenderColor));
                 const int32 V11 = OutVertices.Add(FDynamicMeshVertex(V3, TangentX, TangentZ, FVector2D(U + SizeU, V + SizeV), TextRenderComponent->TextRenderColor));
 
-                check(V00 < 65536);
-                check(V10 < 65536);
-                check(V01 < 65536);
-                check(V11 < 65536);
+                ensure(V00 < 65536);
+                ensure(V10 < 65536);
+                ensure(V01 < 65536);
+                ensure(V11 < 65536);
 
                 OutIndices.Add(V00);
                 OutIndices.Add(V11);
@@ -3026,7 +3026,7 @@ void FSimReadyUSDHelper::GetActorsToExportFromWorld(class UWorld* World, bool bS
     {
         AActor* Actor = Level->Actors[ActorIndex];
 
-        if (Actor != NULL && (!bSelectedOnly || (bSelectedOnly && Actor->IsSelected())))
+        if (Actor != nullptr && (!bSelectedOnly || (bSelectedOnly && Actor->IsSelected())))
         {
             if (IsActorSupported(Actor, ExportSettings))
             {
@@ -3046,7 +3046,7 @@ void FSimReadyUSDHelper::GetActorsToExportFromWorld(class UWorld* World, bool bS
     for (int32 CurLevelIndex = 0; CurLevelIndex < World->GetNumLevels(); ++CurLevelIndex)
     {
         ULevel* CurLevel = World->GetLevel(CurLevelIndex);
-        if (CurLevel != NULL && CurLevel != Level)
+        if (CurLevel != nullptr && CurLevel != Level)
         {
             if (!ExportSettings.bExportInvisibleLevel && !FLevelUtils::IsLevelVisible(CurLevel))
             {
@@ -3057,7 +3057,7 @@ void FSimReadyUSDHelper::GetActorsToExportFromWorld(class UWorld* World, bool bS
             {
                 AActor* Actor = CurLevel->Actors[ActorIndex];
 
-                if (Actor != NULL && (!bSelectedOnly || (bSelectedOnly && Actor->IsSelected())))
+                if (Actor != nullptr && (!bSelectedOnly || (bSelectedOnly && Actor->IsSelected())))
                 {
                     if (IsActorSupported(Actor, ExportSettings))
                     {
@@ -3147,7 +3147,7 @@ void FetchSettingsFromPostProcessVolumes(UWorld* World, FPostProcessSettings& Po
                     {
                         LocalWeight *= 1.0f - DistanceToPoint / VolumeProperties.BlendRadius;
 
-                        check(LocalWeight >= 0 && LocalWeight <= 1.0f);
+                        ensure(LocalWeight >= 0 && LocalWeight <= 1.0f);
                     }
                 }
             }
@@ -3342,7 +3342,7 @@ bool FSimReadyUSDHelper::ExportUWorldAsUSDToPath(UWorld * World, const FString &
             }
 
             UWorld* SubLevel = Cast<UWorld>(ActorLevel->GetOuter());
-            check(SubLevel);
+            ensure(SubLevel);
             ExportPrimPath = ExportPrimPath.AppendElementString(pxr::TfMakeValidIdentifier(TCHAR_TO_UTF8(*SubLevel->GetMapName())));
             auto Xform = pxr::UsdGeomXform::Define(ExportUSDStage, ExportPrimPath);
             pxr::UsdModelAPI(Xform).SetKind(pxr::KindTokens->group);
