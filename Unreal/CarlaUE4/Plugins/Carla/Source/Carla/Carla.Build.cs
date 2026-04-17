@@ -18,7 +18,7 @@ public class Carla : ModuleRules
   public Carla(ReadOnlyTargetRules Target) : base(Target)
   {
     PCHUsage = PCHUsageMode.UseSharedPCHs; // UE5: disable IWYU enforcement for legacy includes
-    bLegacyPublicIncludePaths = true; // UE5: restore module src-dir in include path for Carla.h resolution
+    bLegacyPublicIncludePaths = true; // TODO: remove once all internal includes are IWYU-clean (UE5 deprecates this flag)
     PrivatePCHHeaderFile = "Carla.h";
     CppStandard = CppStandardVersion.Cpp20;
 
@@ -72,9 +72,13 @@ public class Carla : ModuleRules
     PublicIncludePaths.AddRange(
       new string[] {
         ModuleDirectory, // UE5: explicitly export module source dir so Carla.h is found by dependents
-        "/opt/homebrew/include", // UE5: Boost headers from homebrew (CarlaDependencies missing)
       }
       );
+    // macOS: Boost headers from Homebrew when CarlaDependencies/include hasn't been built yet.
+    if (Target.Platform == UnrealTargetPlatform.Mac)
+    {
+      PublicIncludePaths.Add("/opt/homebrew/include");
+    }
 
     PrivateIncludePaths.AddRange(
       new string[] {
@@ -255,12 +259,64 @@ public class Carla : ModuleRules
 
       if (UsingPytorch)
       {
-        // PyTorch + CUDA libs: Linux/CUDA only, skip on macOS
+        // PyTorch + CUDA libs: Linux/CUDA only — not supported on macOS or Windows.
         if (Target.Platform == UnrealTargetPlatform.Linux)
         {
-          PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("carla_pytorch")));
+          string LibTorchPath = LibCarlaInstallPath;
+          string[] PytorchStaticLibs = {
+            "libonnx_proto.a", "libfbgemm.a", "libgloo.a", "libXNNPACK.a",
+            "libprotobuf-lite.a", "libprotobuf.a", "libasmjit.a",
+            "libcpuinfo_internals.a", "libclog.a", "libbenchmark.a",
+            "libtensorpipe.a", "libpytorch_qnnpack.a", "libtensorpipe_cuda.a",
+            "libnnpack_reference_layers.a", "libgmock.a", "libdnnl.a",
+            "libpthreadpool.a", "libcpuinfo.a", "libqnnpack.a", "libkineto.a",
+            "libprotoc.a", "libgtest.a", "libgmock_main.a", "libgtest_main.a",
+            "libbenchmark_main.a", "libfmt.a", "libtensorpipe_uv.a",
+            "libfoxi_loader.a", "libgloo_cuda.a", "libnnpack.a",
+            "libcaffe2_protos.a", "libonnx.a",
+          };
+          string[] PytorchDynamicLibs = {
+            "libtorch.so", "libnnapi_backend.so", "libbackend_with_compiler.so",
+            "libcaffe2_nvrtc.so", "libtorch_cuda_cpp.so", "libc10_cuda.so",
+            "libtorchbind_test.so", "libjitbackend_test.so", "libc10.so",
+            "libtorch_cuda.so", "libtorch_global_deps.so", "libtorch_cpu.so",
+            "libshm.so", "libtorch_cuda_cu.so", "libtorchscatter.so",
+            "libtorchcluster.so",
+          };
+          PublicAdditionalLibraries.Add(Path.Combine(LibTorchPath, "lib", GetLibName("carla_pytorch")));
+          foreach (string lib in PytorchStaticLibs)
+          {
+            string p = Path.Combine(LibTorchPath, "lib", lib);
+            if (File.Exists(p)) PublicAdditionalLibraries.Add(p);
+          }
+          foreach (string lib in PytorchDynamicLibs)
+          {
+            string p = Path.Combine(LibTorchPath, "lib", lib);
+            if (File.Exists(p)) AddDynamicLibrary(p);
+          }
+          string[] CudaLibs = {
+            "/usr/local/cuda/lib64/stubs/libcuda.so",
+            "/usr/local/cuda/lib64/libnvrtc.so",
+            "/usr/local/cuda/lib64/libnvToolsExt.so",
+            "/usr/local/cuda/lib64/libcudart.so",
+            "/usr/lib/llvm-10/lib/libgomp.so",
+            "/usr/lib/x86_64-linux-gnu/libpython3.9.so",
+          };
+          foreach (string lib in CudaLibs)
+          {
+            if (File.Exists(lib)) PublicAdditionalLibraries.Add(lib);
+          }
           PublicAdditionalLibraries.Add("stdc++");
-          // Note: remaining PyTorch/CUDA lib additions omitted — requires Linux CUDA build environment
+          string[] CudaRt = {
+            "libcudart-a7b20f20.so.11.0", "libgomp-a34b3233.so.1",
+            "libnvrtc-builtins-4730a239.so.11.3", "libnvrtc-1ea278b5.so.11.2",
+            "libnvToolsExt-24de1d56.so.1",
+          };
+          foreach (string lib in CudaRt)
+          {
+            string p = Path.Combine(LibTorchPath, "lib", lib);
+            if (File.Exists(p)) RuntimeDependencies.Add(p);
+          }
         }
       }
 
@@ -307,15 +363,6 @@ public class Carla : ModuleRules
     // Add LibCarla source first (takes priority for carla/ headers)
     PublicIncludePaths.Add(LibCarlaIncludePath);
     PrivateIncludePaths.Add(LibCarlaIncludePath);
-
-    // Add rpc headers from old CarlaDependencies (provides rpc/msgpack.hpp)
-    // These must come AFTER LibCarlaIncludePath so new carla/ headers take priority
-    string OldCarlaRpc = "/Users/vincent/carla-air-source/CarlaAir/Unreal/CarlaUE4/Plugins/Carla/CarlaDependencies/include";
-    if (Directory.Exists(OldCarlaRpc))
-    {
-      PublicIncludePaths.Add(OldCarlaRpc);
-      PrivateIncludePaths.Add(OldCarlaRpc);
-    }
 
     PublicDefinitions.Add("ASIO_NO_EXCEPTIONS");
     PublicDefinitions.Add("BOOST_NO_EXCEPTIONS");

@@ -396,7 +396,9 @@ TArray<float> ACarlaWheeledVehicle::GetWheelsFrictionScale()
 
     for (auto &Wheel : Movement->Wheels)
     {
-      // UE5: TireConfig->GetFrictionScale() replaced by UChaosVehicleWheel friction
+      // UE5: TireConfig->GetFrictionScale() replaced by FrictionForceMultiplier.
+      // Note: this reads the live wheel instance property; changes made by
+      // SetWheelsFrictionScale take effect after RecreatePhysicsState() is called.
       WheelsFrictionScale.Add(Wheel->FrictionForceMultiplier);
     }
   }

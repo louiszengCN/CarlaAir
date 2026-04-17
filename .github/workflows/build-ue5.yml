@@ -1,0 +1,194 @@
+name: Build CarlaAir UE5.7
+
+# Trigger manually only — UE5 builds require self-hosted runners with
+# large proprietary SDKs. Set workflow_dispatch to avoid accidental CI spend.
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build (macos | linux | windows | all)'
+        required: false
+        default: 'all'
+
+# Runner label expectations:
+#   self-hosted-macos-arm   — Apple Silicon, UE5.7 at /Users/Shared/Epic Games/UE_5.7
+#   self-hosted-linux-x64   — Ubuntu 22.04,  UE5.7 at /opt/UnrealEngine/5.7
+#   self-hosted-windows-x64 — Windows 2022,  UE5.7 at C:\Program Files\Epic Games\UE_5.7
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────────────────
+  # macOS ARM (Apple Silicon)
+  # ────────────────────────────────────────────────────────────────────────
+  build-macos:
+    name: Build (macOS ARM)
+    if: ${{ github.event.inputs.platform == 'macos' || github.event.inputs.platform == 'all' }}
+    runs-on: [self-hosted, macos-arm]
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools (Homebrew)
+        run: |
+          brew install cmake ninja boost xerces-c proj sqlite
+
+      - name: Build CARLA dependencies
+        run: bash build_carla_deps_macos.sh
+        env:
+          PATH: /opt/homebrew/bin:${{ env.PATH }}
+
+      - name: Build CarlaUE4Editor (Mac Development)
+        run: |
+          UE_ROOT="/Users/Shared/Epic Games/UE_5.7"
+          DOTNET="$UE_ROOT/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-arm64/dotnet"
+          UBT="$UE_ROOT/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll"
+          "$DOTNET" "$UBT" \
+            CarlaUE4Editor Mac Development \
+            -project="$(pwd)/Unreal/CarlaUE4/CarlaUE4.uproject" \
+            -NoHotReload \
+            2>&1 | tee build.log
+          grep -q "Result: Succeeded" build.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-macos
+          path: build.log
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Linux x86-64
+  # ────────────────────────────────────────────────────────────────────────
+  build-linux:
+    name: Build (Linux x64)
+    if: ${{ github.event.inputs.platform == 'linux' || github.event.inputs.platform == 'all' }}
+    runs-on: [self-hosted, linux-x64]
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            cmake ninja-build clang \
+            libboost-all-dev libxerces-c-dev libproj-dev libsqlite3-dev
+
+      - name: Build CARLA dependencies (Linux)
+        run: |
+          set -euo pipefail
+          BUILD_DIR="$(pwd)/Build/linux"
+          CARLA_DEPS="$(pwd)/Unreal/CarlaUE4/Plugins/Carla/CarlaDependencies"
+          RPCLIB_INSTALL="$BUILD_DIR/rpclib-install"
+          mkdir -p "$BUILD_DIR" "$CARLA_DEPS/lib" "$CARLA_DEPS/include"
+
+          # rpclib
+          if [ ! -d "$BUILD_DIR/rpclib/.git" ]; then
+            git clone --depth=1 --branch carla-callbacks \
+              https://github.com/carla-simulator/rpclib.git "$BUILD_DIR/rpclib"
+          fi
+          cmake -S "$BUILD_DIR/rpclib" -B "$BUILD_DIR/rpclib-build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$RPCLIB_INSTALL" \
+            -DCMAKE_CXX_STANDARD=14 \
+            -DRPCLIB_ENABLE_TESTS=OFF
+          cmake --build "$BUILD_DIR/rpclib-build" --parallel "$(nproc)"
+          cmake --install "$BUILD_DIR/rpclib-build"
+          cp "$RPCLIB_INSTALL/lib/librpc.a" "$CARLA_DEPS/lib/"
+          cp -r "$RPCLIB_INSTALL/include/"* "$CARLA_DEPS/include/"
+
+          # libcarla_server
+          cmake -S "$(pwd)/LibCarla/cmake" -B "$BUILD_DIR/libcarla-build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Server \
+            -DLIBCARLA_BUILD_RELEASE=ON \
+            -DLIBCARLA_BUILD_DEBUG=OFF \
+            -DLIBCARLA_BUILD_TEST=OFF \
+            -DCMAKE_CXX_STANDARD=17 \
+            "-DCMAKE_CXX_FLAGS_RELEASE=-O2 -DNDEBUG -DBOOST_NO_EXCEPTIONS -DASIO_NO_EXCEPTIONS -DLIBCARLA_NO_EXCEPTIONS -DBOOST_DISABLE_ABI_HEADERS -DBOOST_TYPE_INDEX_FORCE_NO_RTTI_COMPATIBILITY" \
+            -DRPCLIB_INCLUDE_PATH="$RPCLIB_INSTALL/include" \
+            -DRPCLIB_LIB_PATH="$RPCLIB_INSTALL/lib" \
+            -DBOOST_INCLUDE_PATH="/usr/include" \
+            -DLLVM_LIB_PATH="" \
+            -DCMAKE_INSTALL_PREFIX="$CARLA_DEPS"
+          cmake --build "$BUILD_DIR/libcarla-build" --parallel "$(nproc)" --target install
+
+          # System libs expected by Carla.Build.cs
+          cp /usr/lib/x86_64-linux-gnu/libsqlite3.so "$CARLA_DEPS/lib/" || true
+          cp /usr/lib/x86_64-linux-gnu/libxerces-c.a "$CARLA_DEPS/lib/libxerces-c.a" 2>/dev/null || true
+          cp /usr/lib/x86_64-linux-gnu/libproj.a    "$CARLA_DEPS/lib/libproj.a"    2>/dev/null || true
+
+      - name: Build CarlaUE4Editor (Linux Development)
+        run: |
+          UE_ROOT="/opt/UnrealEngine/5.7"
+          DOTNET="$UE_ROOT/Engine/Binaries/ThirdParty/DotNet/8.0.412/linux-x64/dotnet"
+          UBT="$UE_ROOT/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll"
+          "$DOTNET" "$UBT" \
+            CarlaUE4Editor Linux Development \
+            -project="$(pwd)/Unreal/CarlaUE4/CarlaUE4.uproject" \
+            -NoHotReload \
+            2>&1 | tee build.log
+          grep -q "Result: Succeeded" build.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-linux
+          path: build.log
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Windows x86-64
+  # ────────────────────────────────────────────────────────────────────────
+  build-windows:
+    name: Build (Windows x64)
+    if: ${{ github.event.inputs.platform == 'windows' || github.event.inputs.platform == 'all' }}
+    runs-on: [self-hosted, windows-x64]
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check CARLA dependencies
+        shell: pwsh
+        run: |
+          # Windows CarlaDependencies are built by the upstream CARLA make system.
+          # This step warns but does not fail — Carla.Build.cs guards all libs with File.Exists().
+          $depsLib = "Unreal\CarlaUE4\Plugins\Carla\CarlaDependencies\lib"
+          if (-not (Test-Path $depsLib)) {
+            Write-Warning "CarlaDependencies\lib not found — UBT will skip missing libs (compile-only check)."
+          }
+
+      - name: Build CarlaUE4Editor (Win64 Development)
+        shell: pwsh
+        run: |
+          $UERoot  = "C:\Program Files\Epic Games\UE_5.7"
+          $dotnet  = "$UERoot\Engine\Binaries\ThirdParty\DotNet\8.0.412\win-x64\dotnet.exe"
+          $UBT     = "$UERoot\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll"
+          $project = "$(Get-Location)\Unreal\CarlaUE4\CarlaUE4.uproject"
+
+          & $dotnet $UBT `
+            CarlaUE4Editor Win64 Development `
+            "-project=$project" `
+            -NoHotReload `
+            2>&1 | Tee-Object -FilePath build.log
+
+          $log = Get-Content build.log -Raw
+          if ($log -notmatch "Result: Succeeded") {
+            Write-Error "UBT did not succeed — see build.log"
+            exit 1
+          }
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-windows
+          path: build.log
+          retention-days: 7

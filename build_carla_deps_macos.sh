@@ -3,7 +3,7 @@
 # Produces: librpc.a, libcarla_server.a + headers in CarlaDependencies/
 set -euo pipefail
 
-CARLA_ROOT="/Users/vincent/Work/CarlaAir"
+CARLA_ROOT="$(cd "$(dirname "$0")" && pwd)"
 UE4_ROOT="$CARLA_ROOT/Unreal/CarlaUE4"
 PLUGIN_ROOT="$UE4_ROOT/Plugins/Carla"
 CARLA_DEPS="$PLUGIN_ROOT/CarlaDependencies"
@@ -58,7 +58,7 @@ cmake -S "$CARLA_ROOT/LibCarla/cmake" -B "$CARLA_BUILD_DIR" \
   -DLIBCARLA_BUILD_DEBUG=OFF \
   -DLIBCARLA_BUILD_TEST=OFF \
   -DCMAKE_CXX_STANDARD=17 \
-  -DCMAKE_CXX_FLAGS_RELEASE="-O2 -DNDEBUG" \
+  -DCMAKE_CXX_FLAGS_RELEASE="-O2 -DNDEBUG -DBOOST_NO_EXCEPTIONS -DASIO_NO_EXCEPTIONS -DLIBCARLA_NO_EXCEPTIONS -DBOOST_DISABLE_ABI_HEADERS -DBOOST_TYPE_INDEX_FORCE_NO_RTTI_COMPATIBILITY" \
   -DRPCLIB_INCLUDE_PATH="$RPCLIB_INSTALL/include" \
   -DRPCLIB_LIB_PATH="$RPCLIB_INSTALL/lib" \
   -DBOOST_INCLUDE_PATH="$BOOST_INCLUDE" \
@@ -74,7 +74,9 @@ SUMO_SRC="$BUILD_DIR/sumo-carla"
 OSM2ODR_BUILD="$BUILD_DIR/osm2odr-build"
 
 if [ ! -d "$SUMO_SRC/.git" ]; then
-  git clone --depth=100 https://github.com/carla-simulator/sumo.git "$SUMO_SRC"
+  # Use --filter=blob:none (treeless clone) to avoid downloading all blobs upfront,
+  # while still being able to reach any commit. Plain --depth=N can miss older commits.
+  git clone --filter=blob:none --no-checkout https://github.com/carla-simulator/sumo.git "$SUMO_SRC"
   git -C "$SUMO_SRC" checkout "$SUMO_COMMIT"
 fi
 

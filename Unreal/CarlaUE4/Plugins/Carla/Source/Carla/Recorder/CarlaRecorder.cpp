@@ -18,7 +18,7 @@
 #include "Carla/Walker/WalkerController.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "VehicleAnimationInstance.h" // UE5: renamed from ChaosVehicleAnimationInstance.h
+// VehicleAnimationInstance.h removed: AddVehicleWheelsAnimation stubbed for UE5 ChaosVehicles.
 
 #include <compiler/disable-ue4-macros.h>
 #include "carla/rpc/VehicleLightState.h"
@@ -194,11 +194,6 @@ void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (!CarlaActor)
-  {
-    return;
-  }
-
   FVehicleControl Control;
   CarlaActor->GetVehicleControl(Control);
 
@@ -222,16 +217,13 @@ void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (CarlaActor != nullptr)
+  FWalkerControl Control;
+  CarlaActor->GetWalkerControl(Control);
+  AddAnimWalker(CarlaRecorderAnimWalker
   {
-    FWalkerControl Control;
-    CarlaActor->GetWalkerControl(Control);
-    AddAnimWalker(CarlaRecorderAnimWalker
-    {
-      CarlaActor->GetActorId(),
-      Control.Speed
-    });
-  }
+    CarlaActor->GetActorId(),
+    Control.Speed
+  });
 }
 
 void ACarlaRecorder::AddTrafficLightState(FCarlaActor *CarlaActor)
