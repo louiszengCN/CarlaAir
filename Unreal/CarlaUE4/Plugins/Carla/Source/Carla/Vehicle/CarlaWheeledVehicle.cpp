@@ -647,7 +647,8 @@ FVehicleTelemetryData ACarlaWheeledVehicle::GetVehicleTelemetryData() const
     WheelTelemetryData.LatSlip = 0.0f;   // UE5: not directly available in ChaosVehicles
     WheelTelemetryData.LongSlip = 0.0f;  // UE5: not directly available in ChaosVehicles
     WheelTelemetryData.Omega = 0.0f;  // UE5: UChaosVehicleWheel has no angular-velocity accessor;
-    // GetRotationAngle() returns cumulative angle (degrees), not rad/s — zeroed like other PhysX-era fields
+    // GetRotationAngle() returns cumulative angle (degrees), not rad/s — zeroed like other PhysX-era fields.
+    // TODO: restore by finite-differencing GetRotationAngle() over DeltaTime in Tick() and caching per wheel.
     // UE5: DebugTireLoad, DebugNormalizedTireLoad, DebugWheelTorque, DebugLongForce, DebugLatForce
     // are PhysX-era debug fields not present on UChaosVehicleWheel
     WheelTelemetryData.TireLoad = 0.0f;

@@ -74,7 +74,8 @@ public class Carla : ModuleRules
         ModuleDirectory, // UE5: explicitly export module source dir so Carla.h is found by dependents
       }
       );
-    // macOS: Boost headers from Homebrew when CarlaDependencies/include hasn't been built yet.
+    // macOS ARM64: Boost headers from Homebrew (/opt/homebrew is the Apple Silicon prefix).
+    // Intel Mac (/usr/local/homebrew) is not supported — UE5.7 requires Apple Silicon.
     if (Target.Platform == UnrealTargetPlatform.Mac)
     {
       PublicIncludePaths.Add("/opt/homebrew/include");
@@ -125,11 +126,9 @@ public class Carla : ModuleRules
         "Landscape",
         "ChaosVehicles",
         "Chaos",
-        "Projects",
         "Slate",
         "SlateCore",
         "PhysicsCore",
-        "Projects"
         // ... add private dependencies that you statically link with here ...
       }
       );

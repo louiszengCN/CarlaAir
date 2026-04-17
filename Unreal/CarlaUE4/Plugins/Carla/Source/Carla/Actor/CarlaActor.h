@@ -172,6 +172,7 @@ public:
     // SAFETY CONTRACT: caller must verify GetActorType() matches the expected subtype
     // (FVehicleData→Vehicle, FWalkerData→Walker, FActorSensorData→Sensor, etc.)
     // before calling this template. A wrong T silently reinterprets memory.
+    check(ActorData.IsValid()); // guard null dereference; type correctness is caller's responsibility
     return static_cast<T*>(ActorData.Get());
   }
 
@@ -180,6 +181,7 @@ public:
   {
     // UE5: RTTI globally disabled — replaced dynamic_cast with static_cast.
     // See non-const overload for safety contract.
+    check(ActorData.IsValid());
     return static_cast<const T*>(ActorData.Get());
   }
 

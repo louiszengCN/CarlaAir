@@ -124,7 +124,9 @@ namespace detail {
           // UE5/rpclib 2.2.1: this_session().set_id() is private — session context cannot be
           // restored inside the async task. Any RPC handler that calls ::rpc::this_session().id()
           // from within the io_context thread will receive an incorrect session ID in multi-client
-          // scenarios. Single-client use is unaffected. Tracked: session routing regression.
+          // scenarios. Single-client use is unaffected.
+          // TODO: fix by upgrading to a rpclib fork that exposes set_id(), or by passing
+          // session_id through a thread_local / call context rather than rpc::this_session().
           (void)session_id;
           return functor(args...);
         });
