@@ -39,15 +39,56 @@ Example: `feat: add multi-drone spawn support`
 
 ## Development Environment
 
+### Prerequisites
+
+| Component | Version |
+|-----------|---------|
+| Unreal Engine | 5.7+ |
+| Python | 3.10–3.12 |
+| CMake | 3.20+ |
+| Ninja | latest |
+
+### macOS ARM (Apple Silicon — recommended for local dev)
+
 ```bash
 # Clone and set up
 git clone git@github.com:louiszengCN/CarlaAir.git
 cd CarlaAir
 
-# Set up Python environment
+# Install Homebrew dependencies for building CARLA libs
+brew install boost sqlite xerces-c proj ninja cmake
+
+# Build CARLA server dependencies (rpclib, libcarla_server, osm2odr)
+bash build_carla_deps_macos.sh
+
+# Set up Python environment (Python 3.12)
 bash env_setup/setup_env.sh
 conda activate carlaAir
 bash env_setup/test_env.sh
+```
+
+### Linux (Ubuntu 20.04/22.04)
+
+```bash
+git clone git@github.com:louiszengCN/CarlaAir.git
+cd CarlaAir
+make setup
+make LibCarla.server.release
+make PythonAPI
+```
+
+### Static Analysis
+
+```bash
+# Python linting
+ruff check .
+mypy src/
+
+# Shell script linting
+shellcheck Util/BuildTools/*.sh carlaAir.sh
+
+# C++ linting (requires compile_commands.json from UBT)
+clang-tidy --config-file=.clang-tidy <file>
 ```
 
 ## Code of Conduct
