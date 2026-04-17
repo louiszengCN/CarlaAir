@@ -842,14 +842,14 @@ if ${USE_PYTORCH} ; then
   LIBTORCH_LIB=${LIBTORCH_PATH}/lib
   LIBTORCH_ZIPFILE=libtorch-shared-with-deps-1.11.0+cu113.zip
   LIBTORCH_REPO=https://download.pytorch.org/libtorch/cu113/libtorch-shared-with-deps-1.11.0%2Bcu113.zip
-  if [[ ! -d ${LIBTORCH_PATH} ]] ; then
+  if [[ ! -d "${LIBTORCH_PATH}" ]] ; then
 
     start=$(date +%s)
-    wget ${LIBTORCH_REPO}
+    wget "${LIBTORCH_REPO}"
     end=$(date +%s)
     echo "Elapsed Time downloading LIBTORCH_REPO: $((end-start)) seconds"
 
-    unzip ${LIBTORCH_ZIPFILE}
+    unzip "${LIBTORCH_ZIPFILE}"
   fi
 
   function build_torch_extension {
@@ -857,14 +857,14 @@ if ${USE_PYTORCH} ; then
     LIB_SOURCE=$1
     LIB_INSTALL=$2
     LIB_REPO=$3
-    if [[ ! -d ${LIB_INSTALL} ]] ; then
-      if [[ ! -d ${LIB_SOURCE} ]] ; then
-        mkdir -p ${LIB_SOURCE}
+    if [[ ! -d "${LIB_INSTALL}" ]] ; then
+      if [[ ! -d "${LIB_SOURCE}" ]] ; then
+        mkdir -p "${LIB_SOURCE}"
         log "${LIB_REPO}"
-        git clone ${LIB_REPO} ${LIB_SOURCE}
-        mkdir -p ${LIB_SOURCE}/build
+        git clone "${LIB_REPO}" "${LIB_SOURCE}"
+        mkdir -p "${LIB_SOURCE}/build"
       fi
-      pushd ${LIB_SOURCE}/build >/dev/null || exit 1
+      pushd "${LIB_SOURCE}/build" >/dev/null || exit 1
 
       cmake -DCMAKE_PREFIX_PATH="${LIBTORCH_PATH}" \
           -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" \
@@ -888,7 +888,7 @@ if ${USE_PYTORCH} ; then
   LIBTORCHSCATTER_LIB=${LIBTORCHSCATTER_INSTALL_DIR}/lib
   LIBTORCHSCATTER_REPO="https://github.com/rusty1s/pytorch_scatter.git"
 
-  build_torch_extension ${LIBTORCHSCATTER_SOURCE_DIR} ${LIBTORCHSCATTER_INSTALL_DIR} "${LIBTORCHSCATTER_REPO}"
+  build_torch_extension "${LIBTORCHSCATTER_SOURCE_DIR}" "${LIBTORCHSCATTER_INSTALL_DIR}" "${LIBTORCHSCATTER_REPO}"
 
   log "Build libtorch cluster"
   LIBTORCHCLUSTER_BASENAME=libtorchcluster
@@ -898,18 +898,18 @@ if ${USE_PYTORCH} ; then
   LIBTORCHCLUSTER_LIB=${LIBTORCHCLUSTER_INSTALL_DIR}/lib
   LIBTORCHCLUSTER_REPO="https://github.com/rusty1s/pytorch_cluster.git"
 
-  build_torch_extension ${LIBTORCHCLUSTER_SOURCE_DIR} ${LIBTORCHCLUSTER_INSTALL_DIR} "${LIBTORCHCLUSTER_REPO}"
+  build_torch_extension "${LIBTORCHCLUSTER_SOURCE_DIR}" "${LIBTORCHCLUSTER_INSTALL_DIR}" "${LIBTORCHCLUSTER_REPO}"
 
   mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
-  cp -p ${LIBTORCH_LIB}/*.a ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-  cp -p ${LIBTORCH_LIB}/*.so* ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-  cp -p ${LIBTORCHSCATTER_LIB}/*.so ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-  cp -p ${LIBTORCHCLUSTER_LIB}/*.so ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+  cp -p "${LIBTORCH_LIB}"/*.a "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+  cp -p "${LIBTORCH_LIB}"/*.so* "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+  cp -p "${LIBTORCHSCATTER_LIB}"/*.so "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+  cp -p "${LIBTORCHCLUSTER_LIB}"/*.so "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
 
-  mkdir -p ${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/
-  cp -p ${LIBTORCH_LIB}/*.so* ${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/
-  cp -p ${LIBTORCHSCATTER_LIB}/*.so* ${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/
-  cp -p ${LIBTORCHCLUSTER_LIB}/*.so* ${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/
+  mkdir -p "${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/"
+  cp -p "${LIBTORCH_LIB}"/*.so* "${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/"
+  cp -p "${LIBTORCHSCATTER_LIB}"/*.so* "${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/"
+  cp -p "${LIBTORCHCLUSTER_LIB}"/*.so* "${CARLAUE4_PLUGIN_ROOT_FOLDER}/Binaries/Linux/"
 fi
 
 # ==============================================================================
