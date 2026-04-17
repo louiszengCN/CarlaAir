@@ -7,6 +7,7 @@
 //#include "carla/client/Client.h"
 
 
+#include "carla/Logging.h"
 #include "carla/Sockets.h"
 #include "carla/client/detail/Simulator.h"
 
@@ -16,7 +17,6 @@
 #include "carla/trafficmanager/TrafficManagerLocal.h"
 #include "carla/trafficmanager/TrafficManagerRemote.h"
 
-#define DEBUG_PRINT_TM  0
 #define IP_DATA_BUFFER_SIZE     80
 
 namespace carla {
@@ -88,10 +88,7 @@ void TrafficManager::CreateTrafficManagerServer(
     std::pair<std::string, uint16_t> localIP;
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock == SOCK_INVALID_INDEX) {
-      #if DEBUG_PRINT_TM
-      std::cout << "Error number 1: " << errno << std::endl;
-      std::cout << "Error message: " << strerror(errno) << std::endl;
-      #endif
+      log_debug("Socket creation error:", errno, strerror(errno));
     } else {
       int err;
       sockaddr_in loopback;
@@ -101,28 +98,19 @@ void TrafficManager::CreateTrafficManagerServer(
       loopback.sin_port = htons(9);
       err = connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback));
       if(err == SOCK_INVALID_INDEX) {
-        #if DEBUG_PRINT_TM
-        std::cout << "Error number 2: " << errno << std::endl;
-        std::cout << "Error message: " << strerror(errno) << std::endl;
-        #endif
+        log_debug("Socket connect error:", errno, strerror(errno));
       } else {
         socklen_t addrlen = sizeof(loopback);
         err = getsockname(sock, reinterpret_cast<struct sockaddr*> (&loopback), &addrlen);
         if(err == SOCK_INVALID_INDEX) {
-          #if DEBUG_PRINT_TM
-          std::cout << "Error number 3: " << errno << std::endl;
-          std::cout << "Error message: " << strerror(errno) << std::endl;
-          #endif
+          log_debug("getsockname error:", errno, strerror(errno));
         } else {
           char buffer[IP_DATA_BUFFER_SIZE];
           const char* p = inet_ntop(AF_INET, &loopback.sin_addr, buffer, IP_DATA_BUFFER_SIZE);
           if(p != NULL) {
             localIP = std::pair<std::string, uint16_t>(std::string(buffer), sport);
           } else {
-            #if DEBUG_PRINT_TM
-            std::cout << "Error number 4: " << errno << std::endl;
-            std::cout << "Error message: " << strerror(errno) << std::endl;
-            #endif
+            log_debug("inet_ntop error:", errno, strerror(errno));
           }
         }
       }
@@ -160,13 +148,7 @@ void TrafficManager::CreateTrafficManagerServer(
   /// Set this client as the TM to server
   episode_proxy.Lock()->AddTrafficManagerRunning(serverTM);
 
-  #if DEBUG_PRINT_TM
-  /// Print status
-  std::cout << "NEW@: Registered TM at "
-        << serverTM.first  << ":"
-        << serverTM.second << " ..... SUCCESS."
-        << std::endl;
-  #endif
+  log_debug("NEW@: Registered TM at", serverTM.first, ":", serverTM.second, "..... SUCCESS.");
 
   /// Set the pointer of the instance
   _tm_map.insert(std::make_pair(port, tm_ptr));
@@ -195,13 +177,7 @@ bool TrafficManager::CreateTrafficManagerClient(
       /// Check memory allocated or not
       if(tm_ptr != nullptr) {
 
-        #if DEBUG_PRINT_TM
-        // Test print
-        std::cout << "OLD@: Registered TM at "
-              << serverTM.first  << ":"
-              << serverTM.second << " ..... TRY "
-              << std::endl;
-        #endif
+        log_debug("OLD@: Registered TM at", serverTM.first, ":", serverTM.second, "..... TRY");
         /// Try to reset all traffic lights
         tm_ptr->HealthCheckRemoteTM();
 
@@ -218,13 +194,7 @@ bool TrafficManager::CreateTrafficManagerClient(
       /// Clear previously allocated memory
       delete tm_ptr;
 
-      #if DEBUG_PRINT_TM
-      /// Test print
-      std::cout 	<< "OLD@: Registered TM at "
-            << serverTM.first  << ":"
-            << serverTM.second << " ..... FAILED "
-            << std::endl;
-      #endif
+      log_debug("OLD@: Registered TM at", serverTM.first, ":", serverTM.second, "..... FAILED");
     }
 
   }
