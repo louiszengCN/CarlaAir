@@ -326,7 +326,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeCameraDefinition(
   FActorDefinition Definition;
   bool Success;
   MakeCameraDefinition(Id, bEnableModifyingPostProcessEffects, Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -790,7 +790,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeWideAngleLensCameraDefiniti
   FActorDefinition Definition;
   bool Success;
   MakeWideAngleLensCameraDefinition(Id, bEnableModifyingPostProcessEffects, Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -818,7 +818,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeIMUDefinition()
   FActorDefinition Definition;
   bool Success;
   MakeIMUDefinition(Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -916,7 +916,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeRadarDefinition()
   FActorDefinition Definition;
   bool Success;
   MakeRadarDefinition(Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -974,7 +974,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeLidarDefinition(
   FActorDefinition Definition;
   bool Success;
   MakeLidarDefinition(Id, Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -1119,7 +1119,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeV2XDefinition()
   FActorDefinition Definition;
   bool Success;
   MakeV2XDefinition(Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -1360,7 +1360,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeCustomV2XDefinition()
   FActorDefinition Definition;
   bool Success;
   MakeCustomV2XDefinition(Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -1480,7 +1480,7 @@ FActorDefinition UActorBlueprintFunctionLibrary::MakeGnssDefinition()
   FActorDefinition Definition;
   bool Success;
   MakeGnssDefinition(Success, Definition);
-  check(Success);
+  ensure(Success);
   return Definition;
 }
 
@@ -1775,7 +1775,7 @@ void UActorBlueprintFunctionLibrary::MakeTriggerDefinition(
   FillIdAndTags(Definition, TEXT("static"), TEXT("trigger"), Id);
   AddVariationsForTrigger(Definition);
   Success = CheckActorDefinition(Definition);
-  check(Success);
+  ensure(Success);
 }
 
 void UActorBlueprintFunctionLibrary::MakePropDefinition(

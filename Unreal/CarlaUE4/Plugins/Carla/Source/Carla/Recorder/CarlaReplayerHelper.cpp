@@ -42,7 +42,7 @@ std::pair<int, FCarlaActor*>CarlaReplayerHelper::TryToCreateReplayerActor(
     uint32_t DesiredId,
     bool SpawnSensors)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return {0, nullptr}; }
 
   // check type of actor we need
   if (ActorDesc.Id.StartsWith("traffic."))
@@ -94,9 +94,9 @@ std::pair<int, FCarlaActor*>CarlaReplayerHelper::TryToCreateReplayerActor(
 
 FCarlaActor *CarlaReplayerHelper::FindTrafficSignAt(FVector Location)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return nullptr; }
   auto World = Episode->GetWorld();
-  check(World != nullptr);
+  if (!World) { return nullptr; }
 
   // get its position (truncated as int's)
   int x = static_cast<int>(Location.X);
@@ -167,7 +167,7 @@ std::pair<int, uint32_t> CarlaReplayerHelper::ProcessReplayerEventAdd(
     bool bIgnoreSpectator,
     bool ReplaySensors)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return {0, 0}; }
   FActorDescription ActorDesc;
   bool IsHero = false;
 
@@ -237,7 +237,7 @@ std::pair<int, uint32_t> CarlaReplayerHelper::ProcessReplayerEventAdd(
 // replay event for removing actor
 bool CarlaReplayerHelper::ProcessReplayerEventDel(uint32_t DatabaseId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(DatabaseId);
   if (CarlaActor == nullptr)
   {
@@ -251,7 +251,7 @@ bool CarlaReplayerHelper::ProcessReplayerEventDel(uint32_t DatabaseId)
 // replay event for parenting actors
 bool CarlaReplayerHelper::ProcessReplayerEventParent(uint32_t ChildId, uint32_t ParentId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor * Child = Episode->FindCarlaActor(ChildId);
   FCarlaActor * Parent = Episode->FindCarlaActor(ParentId);
   if(!Child)
@@ -287,7 +287,7 @@ bool CarlaReplayerHelper::ProcessReplayerEventParent(uint32_t ChildId, uint32_t 
 // reposition actors
 bool CarlaReplayerHelper::ProcessReplayerPosition(CarlaRecorderPosition Pos1, CarlaRecorderPosition Pos2, double Per, double DeltaTime, bool bIgnoreSpectator)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(Pos1.DatabaseId);
   FVector Location;
   FRotator Rotation;
@@ -321,7 +321,7 @@ bool CarlaReplayerHelper::ProcessReplayerPosition(CarlaRecorderPosition Pos1, Ca
 
 void CarlaReplayerHelper::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWheels VehicleAnimWheels)
 {
-  check(Episode != nullptr)
+  if (!Episode) { return; }
   FCarlaActor *CarlaActor = Episode->FindCarlaActor(VehicleAnimWheels.DatabaseId);
   if (CarlaActor == nullptr)
     return;
@@ -336,7 +336,7 @@ void CarlaReplayerHelper::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWhee
 // reposition the camera
 bool CarlaReplayerHelper::SetCameraPosition(uint32_t Id, FVector Offset, FQuat Rotation)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
 
   // get the actor to follow
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(Id);
@@ -362,7 +362,7 @@ bool CarlaReplayerHelper::SetCameraPosition(uint32_t Id, FVector Offset, FQuat R
 
 bool CarlaReplayerHelper::ProcessReplayerStateTrafficLight(CarlaRecorderStateTrafficLight State)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(State.DatabaseId);
   if(CarlaActor)
   {
@@ -385,7 +385,7 @@ bool CarlaReplayerHelper::ProcessReplayerStateTrafficLight(CarlaRecorderStateTra
 // set the animation for Vehicles
 void CarlaReplayerHelper::ProcessReplayerAnimVehicle(CarlaRecorderAnimVehicle Vehicle)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   FCarlaActor *CarlaActor = Episode->FindCarlaActor(Vehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -405,7 +405,7 @@ void CarlaReplayerHelper::ProcessReplayerAnimVehicle(CarlaRecorderAnimVehicle Ve
 // set the openings and closings of vehicle doors
 void CarlaReplayerHelper::ProcessReplayerDoorVehicle(CarlaRecorderDoorVehicle DoorVehicle)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(DoorVehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -423,7 +423,7 @@ void CarlaReplayerHelper::ProcessReplayerDoorVehicle(CarlaRecorderDoorVehicle Do
 // set the lights for vehicles
 void CarlaReplayerHelper::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle LightVehicle)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(LightVehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -434,7 +434,7 @@ void CarlaReplayerHelper::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle 
 
 void CarlaReplayerHelper::ProcessReplayerWeather(const CarlaRecorderWeather &Weather)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
 
   AWeather *WeatherActor = Episode->GetWeather();
   if (WeatherActor != nullptr)
@@ -460,7 +460,7 @@ void CarlaReplayerHelper::ProcessReplayerWeather(const CarlaRecorderWeather &Wea
 
 void CarlaReplayerHelper::ProcessReplayerLightScene(CarlaRecorderLightScene LightScene)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   UWorld* World = Episode->GetWorld();
   if(World)
   {
@@ -488,7 +488,7 @@ void CarlaReplayerHelper::ProcessReplayerAnimWalker(CarlaRecorderAnimWalker Walk
 
 void CarlaReplayerHelper::ProcessReplayerAnimBiker(CarlaRecorderAnimBiker Biker)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(Biker.DatabaseId);
   if (CarlaActor == nullptr)
     return;
@@ -501,7 +501,7 @@ void CarlaReplayerHelper::ProcessReplayerAnimBiker(CarlaRecorderAnimBiker Biker)
 // set walker bones
 void CarlaReplayerHelper::ProcessReplayerWalkerBones(const CarlaRecorderWalkerBones &WalkerBones)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
 
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(WalkerBones.DatabaseId);
   if (!CarlaActor) return;
@@ -582,7 +582,7 @@ void CarlaReplayerHelper::SetActorVelocity(FCarlaActor *CarlaActor, FVector Velo
 // set the animation speed for walkers
 void CarlaReplayerHelper::SetWalkerSpeed(uint32_t ActorId, float Speed)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(ActorId);
   if (!CarlaActor)
   {
@@ -595,14 +595,14 @@ void CarlaReplayerHelper::SetWalkerSpeed(uint32_t ActorId, float Speed)
 
 void CarlaReplayerHelper::RemoveStaticProps()
 {
-  check(Episode != nullptr);
+  if (!Episode) { return; }
   auto World = Episode->GetWorld();
   for (TActorIterator<AStaticMeshActor> It(World); It; ++It)
   {
     auto Actor = *It;
-    check(Actor != nullptr);
+    if (!Actor) { continue; }
     auto MeshComponent = Actor->GetStaticMeshComponent();
-    check(MeshComponent != nullptr);
+    if (!MeshComponent) { continue; }
     if (MeshComponent->Mobility == EComponentMobility::Movable)
     {
       Actor->Destroy();
