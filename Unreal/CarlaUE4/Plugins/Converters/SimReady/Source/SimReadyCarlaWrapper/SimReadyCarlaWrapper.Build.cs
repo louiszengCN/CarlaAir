@@ -32,7 +32,7 @@ namespace UnrealBuildTool.Rules
 			PublicDefinitions.Add("PUGIXML_NO_EXCEPTIONS");
 			PublicDefinitions.Add("BOOST_DISABLE_ABI_HEADERS");
 			PublicDefinitions.Add("BOOST_TYPE_INDEX_FORCE_NO_RTTI_COMPATIBILITY");
-			bool IsWindows = (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32);
+			bool IsWindows = (Target.Platform == UnrealTargetPlatform.Win64); // UE5: Win32 removed
 			string LibName = IsWindows ? "carla_server.lib" : "libcarla_server.a";
         	PublicAdditionalLibraries.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "../../Carla/CarlaDependencies/lib", LibName)));
 		}

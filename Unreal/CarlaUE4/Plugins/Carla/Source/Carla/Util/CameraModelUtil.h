@@ -10,7 +10,7 @@ class FRDGBuilder;
 class FRDGTexture;
 class FRHISamplerState;
 class UTextureRenderTarget2D;
-struct FIntPoint;
+// struct FIntPoint; // UE5: FIntPoint is a type alias, not a struct — forward decl removed
 
 
 

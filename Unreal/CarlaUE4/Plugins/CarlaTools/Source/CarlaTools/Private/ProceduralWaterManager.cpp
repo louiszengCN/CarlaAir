@@ -10,8 +10,8 @@
 #include "FileHelpers.h"
 #include "Misc/FileHelper.h"
 #include "Misc/CString.h"
-#include "Runtime/Engine/Public/DrawDebugHelpers.h"
-#include "UnrealString.h"
+#include "DrawDebugHelpers.h" // UE5: drop Runtime/Engine/Public/ prefix
+#include "Containers/UnrealString.h" // UE5: moved to Containers/
 
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"

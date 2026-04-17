@@ -2,7 +2,8 @@
 #include "Carla/Game/CarlaEpisode.h"
 
 #include "ConstructorHelpers.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: moved
+#include "UObject/SavePackage.h" // UE5: FSavePackageArgs
 #include "Interfaces/IPluginManager.h"
 #include "HAL/FileManager.h"
 
@@ -92,7 +93,8 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
 
   // If UsedMaterial is null OR neither masked nor using WorldPositionOffset, we return NULL to indicate,
   // that the requested material does not require a fine-grained tag-injected correspondence.
-  if (!UsedMaterial || !(UsedMaterial->IsMasked() || UsedMaterial->GetMaterial()->WorldPositionOffset.IsConnected())) {
+  // UE5: UMaterial::WorldPositionOffset is private; disable WPO check conservatively
+  if (!UsedMaterial || !UsedMaterial->IsMasked()) {
     return NULL;
   }
 
@@ -141,6 +143,11 @@ void UTaggedMaterialsRegistry::InjectTag(UMaterialInterface* MaterialInterface) 
     UE_LOG(LogCarla, Error, TEXT("MaterialInterface '%s' is neither UMaterial nor UMaterialInstance."), *MaterialInterface->GetPathName());
   }
 }
+
+// UE5: FMaterialAttributeDefinitionMap removed; UMaterial private members (Expressions, EmissiveColor, etc.)
+// are now accessed through GetEditorOnlyData(). This material injection code needs a full UE5 rewrite.
+// Disabled for now — tagged materials will use the default annotation material only.
+#if 0 // UE5_TODO: Rewrite using UMaterial::GetEditorOnlyData()->ExpressionCollection
 
 const static FGuid EmissiveColorGuid = FMaterialAttributeDefinitionMap::GetID(EMaterialProperty::MP_EmissiveColor);
 const static FGuid OpacityMaskGuid = FMaterialAttributeDefinitionMap::GetID(EMaterialProperty::MP_OpacityMask);
@@ -357,6 +364,11 @@ UMaterialExpression* UTaggedMaterialsRegistry::CopyMaterialExpressions(UMaterial
   UMaterialExpression::CopyMaterialExpressions(InputExpressions, EmptyComments, TargetMaterial, NULL, CopiedExpressions, CopiedEmptyComments);
   return CopiedExpressions[0];
 }
+#endif // 0 (UE5_TODO: Rewrite using UMaterial::GetEditorOnlyData())
+
+// Stub implementations needed by InjectTag (disabled above)
+void UTaggedMaterialsRegistry::InjectTagIntoMaterial(UMaterial* Material) {}
+void UTaggedMaterialsRegistry::InjectTagIntoMaterialInstance(UMaterialInstance* MaterialInstance) {}
 
 void UTaggedMaterialsRegistry::PostInitProperties() {
   Super::PostInitProperties();

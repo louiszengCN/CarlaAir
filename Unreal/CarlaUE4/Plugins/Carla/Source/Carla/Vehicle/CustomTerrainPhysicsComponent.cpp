@@ -42,6 +42,7 @@
 #include "Async/Async.h"
 #include "Async/Future.h"
 #include "LandscapeProxy.h"
+#include "UObject/SavePackage.h"
 
 
 #include "Carla/Game/CarlaStatics.h"
@@ -184,14 +185,14 @@ FDenseTile& FDenseTile::operator=(FDenseTile&& Origin)
   return *this;
  }
   
-void FDenseTile::InitializeTile(uint32_t TextureSize, float AffectedRadius, float ParticleSize, float Depth, 
-    FDVector TileOrigin, FDVector TileEnd, 
-    const FString& SavePath, const FHeightMapData &HeightMap)
+void FDenseTile::InitializeTile(uint32_t TextureSize, float AffectedRadius, float ParticleSize, float Depth,
+    FDVector TileOrigin, FDVector TileEnd,
+    const FString& InSavePath, const FHeightMapData &HeightMap)
 {
 
   TileSize = (TileEnd.X - TileOrigin.X );
   PartialHeightMapSize = TileSize * TextureSize / (2*AffectedRadius);
-  std::string FileName = std::string(TCHAR_TO_UTF8(*( SavePath + TileOrigin.ToString() + ".tile" ) ) );
+  std::string FileName = std::string(TCHAR_TO_UTF8(*( InSavePath + TileOrigin.ToString() + ".tile" ) ) );
   
   //UE_LOG(LogCarla, Log, TEXT("Tile origin %s"), *TileOrigin.ToString() );
   if( FPaths::FileExists(FString(FileName.c_str())) )
@@ -853,10 +854,10 @@ void FSparseHighDetailMap::Update(FVector Position, float RadiusX, float RadiusY
   PositionTranslated.Z = ( Position.Z * 0.01 ) + (Extension.Z * 0.5f);
   PositionToUpdate = PositionTranslated;
 
-  double MinX = std::min( std::max( PositionTranslated.X - RadiusX, 0.0f) , static_cast<float>(Extension.X - 1.0f) );
-  double MinY = std::min( std::max( PositionTranslated.Y - RadiusY, 0.0f) , static_cast<float>(-Extension.Y + 1.0f) );
-  double MaxX = std::min( std::max( PositionTranslated.X + RadiusX, 0.0f) , static_cast<float>(Extension.X - 1.0f) );
-  double MaxY = std::min( std::max( PositionTranslated.Y + RadiusY, 0.0f) , static_cast<float>(-Extension.Y + 1.0f) );
+  double MinX = std::min( std::max( (double)PositionTranslated.X - RadiusX, 0.0) , (double)(Extension.X - 1.0f) );
+  double MinY = std::min( std::max( (double)PositionTranslated.Y - RadiusY, 0.0) , (double)(-Extension.Y + 1.0f) );
+  double MaxX = std::min( std::max( (double)PositionTranslated.X + RadiusX, 0.0) , (double)(Extension.X - 1.0f) );
+  double MaxY = std::min( std::max( (double)PositionTranslated.Y + RadiusY, 0.0) , (double)(-Extension.Y + 1.0f) );
 
   FIntVector MinVector = GetVectorTileId(FDVector(std::floor(MinX), std::floor(MinY), 0));
   FIntVector MaxVector = GetVectorTileId(FDVector(std::floor(MaxX), std::floor(MaxY), 0));
@@ -918,7 +919,7 @@ void UCustomTerrainPhysicsComponent::UpdateTexture()
 
   ENQUEUE_RENDER_COMMAND(UpdateDynamicTextureCode)
   (
-    [NewData=Data, Texture=TextureToUpdate](auto &InRHICmdList) mutable
+    [NewData=Data, Texture=TextureToUpdate](FRHICommandListImmediate &InRHICmdList) mutable
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("UCustomTerrainPhysicsComponent::TickComponent Renderthread"));
     FUpdateTextureRegion2D region;
@@ -929,9 +930,9 @@ void UCustomTerrainPhysicsComponent::UpdateTexture()
     region.Width = Texture->GetSizeX();
     region.Height = Texture->GetSizeY();
 
-    FTexture2DResource* resource = (FTexture2DResource*)Texture->Resource;
+    FTexture2DResource* resource = (FTexture2DResource*)Texture->GetResource();
     RHIUpdateTexture2D(
-        resource->GetTexture2DRHI(), 0, region, region.Width * sizeof(uint8_t), &NewData[0]); 
+        resource->GetTexture2DRHI(), 0, region, region.Width * sizeof(uint8_t), &NewData[0]);
   });
 }
 
@@ -1012,7 +1013,7 @@ void UCustomTerrainPhysicsComponent::UpdateLargeTexture()
 
   ENQUEUE_RENDER_COMMAND(UpdateDynamicTextureCode)
   (
-    [NewData=LargeData, Texture=LargeTextureToUpdate](auto &InRHICmdList) mutable
+    [NewData=LargeData, Texture=LargeTextureToUpdate](FRHICommandListImmediate &InRHICmdList) mutable
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("UCustomTerrainPhysicsComponent::TickComponent Renderthread"));
     FUpdateTextureRegion2D region;
@@ -1023,7 +1024,7 @@ void UCustomTerrainPhysicsComponent::UpdateLargeTexture()
     region.Width = Texture->GetSizeX();
     region.Height = Texture->GetSizeY();
 
-    FTexture2DResource* resource = (FTexture2DResource*)Texture->Resource;
+    FTexture2DResource* resource = (FTexture2DResource*)Texture->GetResource();
     RHIUpdateTexture2D(
         resource->GetTexture2DRHI(), 0, region, region.Width * sizeof(uint8_t), &NewData[0]); 
   });
@@ -1366,7 +1367,7 @@ void UCustomTerrainPhysicsComponent::BuildLandscapeHeightMapDataAasset(ALandscap
   int TextureHeight = Resolution;
   FString PackageName = AssetPath;
   PackageName += AssetName;
-  UPackage* Package = CreatePackage(NULL, *PackageName);
+  UPackage* Package = CreatePackage(*PackageName);
   Package->FullyLoad();
 
   UHeightMapDataAsset* HeightMapAsset = NewObject<UHeightMapDataAsset>(Package, *AssetName, RF_Public | RF_Standalone | RF_MarkAsRootSet);
@@ -1379,7 +1380,7 @@ void UCustomTerrainPhysicsComponent::BuildLandscapeHeightMapDataAasset(ALandscap
   // FAssetRegistryModule::AssetCreated(NewTexture);
 
   FString PackageFileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
-  bool bSaved = UPackage::Save(Package, nullptr, *PackageFileName, FSavePackageArgs());
+  UPackage::Save(Package, nullptr, *PackageFileName, FSavePackageArgs());
 }
 
 
@@ -1640,33 +1641,35 @@ void UCustomTerrainPhysicsComponent::DrawOrientedBox(UWorld* World, const TArray
         Point = LargeMapManager->GlobalToLocalLocation(Point);
       }
     }
-    LineBatcher->DrawLines({
-        FBatchedLine(Vertices[0], Vertices[1], 
+    // UE5: TArrayView<FBatchedLine> (non-const T) cannot bind to initializer_list; build TArray first
+    TArray<FBatchedLine> BoxLines = {
+        FBatchedLine(Vertices[0], Vertices[1],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[0], Vertices[2], 
+        FBatchedLine(Vertices[0], Vertices[2],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[2], Vertices[3], 
+        FBatchedLine(Vertices[2], Vertices[3],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[3], Vertices[1], 
-            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-
-        FBatchedLine(Vertices[4], Vertices[5], 
-            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[4], Vertices[6], 
-            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[6], Vertices[7], 
-            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[7], Vertices[5], 
+        FBatchedLine(Vertices[3], Vertices[1],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
 
-        FBatchedLine(Vertices[0], Vertices[4], 
+        FBatchedLine(Vertices[4], Vertices[5],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[1], Vertices[5], 
+        FBatchedLine(Vertices[4], Vertices[6],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[2], Vertices[6], 
+        FBatchedLine(Vertices[6], Vertices[7],
             FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
-        FBatchedLine(Vertices[3], Vertices[7], 
-            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0)});
+        FBatchedLine(Vertices[7], Vertices[5],
+            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
+
+        FBatchedLine(Vertices[0], Vertices[4],
+            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
+        FBatchedLine(Vertices[1], Vertices[5],
+            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
+        FBatchedLine(Vertices[2], Vertices[6],
+            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0),
+        FBatchedLine(Vertices[3], Vertices[7],
+            FLinearColor(0.0,0.0,1.0), LifeTime, Thickness, 0)};
+    LineBatcher->DrawLines(BoxLines);
   }
 }
 
@@ -1703,15 +1706,13 @@ void UCustomTerrainPhysicsComponent::DrawTiles(UWorld* World, const std::vector<
     V2.Z = Height;
     V3.Z = Height;
     V4.Z = Height;
-    LineBatcher->DrawLines({
-        FBatchedLine(V1, V2, 
-            Color, LifeTime, Thickness, 0),
-        FBatchedLine(V2, V4, 
-            Color, LifeTime, Thickness, 0),
-        FBatchedLine(V1, V3, 
-            Color, LifeTime, Thickness, 0),
-        FBatchedLine(V3, V4, 
-            Color, LifeTime, Thickness, 0)});
+    // UE5: TArrayView<FBatchedLine> (non-const T) cannot bind to initializer_list; build TArray first
+    TArray<FBatchedLine> TileLines = {
+        FBatchedLine(V1, V2, Color, LifeTime, Thickness, 0),
+        FBatchedLine(V2, V4, Color, LifeTime, Thickness, 0),
+        FBatchedLine(V1, V3, Color, LifeTime, Thickness, 0),
+        FBatchedLine(V3, V4, Color, LifeTime, Thickness, 0)};
+    LineBatcher->DrawLines(TileLines);
     // UE_LOG(LogCarla, Log, TEXT("Drawing Tile %ld with verts %s, %s, %s, %s"),
     //     TileId, *V1.ToString(), *V2.ToString(), *V3.ToString(), *V4.ToString());
   }

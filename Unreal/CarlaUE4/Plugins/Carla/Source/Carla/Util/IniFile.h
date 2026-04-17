@@ -54,12 +54,14 @@ public:
 
   void ProcessInputFileContents(const FString &INIFileContents)
   {
-    ConfigFile.ProcessInputFileContents(INIFileContents);
+    // UE5: ProcessInputFileContents now requires a second FString FileHint argument
+    ConfigFile.ProcessInputFileContents(INIFileContents, TEXT(""));
   }
 
   bool HasSection(const FString &Section) const
   {
-    return (ConfigFile.Num() > 0) && (ConfigFile.Find(Section) != nullptr);
+    // UE5: FConfigFile::Find() is private (private TMap inheritance); use FindSection()
+    return (ConfigFile.Num() > 0) && (ConfigFile.FindSection(Section) != nullptr);
   }
 
   void AddSectionIfMissing(const FString &Section)

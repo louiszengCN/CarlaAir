@@ -5,6 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "HoudiniImportNodeWrapper.h"
+#include "CarlaTools.h" // LogCarlaTools declaration
 
 UHoudiniImportNodeWrapper::UHoudiniImportNodeWrapper(const FObjectInitializer& ObjectInitializer)
 {

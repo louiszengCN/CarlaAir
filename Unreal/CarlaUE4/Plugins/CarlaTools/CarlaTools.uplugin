@@ -31,7 +31,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "PhysXVehicles",
+			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
 		},
 		{
@@ -40,11 +40,13 @@
 		},
     	{
 			"Name": "StreetMap",
-			"Enabled": true
+			"Enabled": false,
+			"Optional": true
 		},
 		{
 			"Name": "SimReady",
-			"Enabled": true
+			"Enabled": false,
+			"Optional": true
 		}
 	]
 }

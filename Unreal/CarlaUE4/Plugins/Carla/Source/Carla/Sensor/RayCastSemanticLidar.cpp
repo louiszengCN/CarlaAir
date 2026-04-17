@@ -4,7 +4,7 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-#include <PxScene.h>
+// #include <PxScene.h> // UE5: PhysX removed, using Chaos
 #include <cmath>
 #include "Carla.h"
 #include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
@@ -17,8 +17,8 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/CollisionProfile.h"
-#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
-#include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "Kismet/KismetMathLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
+#include "Async/ParallelFor.h" // UE5: drop Runtime/Core/Public/ prefix
 
 namespace crp = carla::rpc;
 
@@ -118,7 +118,7 @@ void ARayCastSemanticLidar::SimulateLidar(const float DeltaTime)
   ResetRecordedHits(ChannelCount, PointsToScanWithOneLaser);
   PreprocessRays(ChannelCount, PointsToScanWithOneLaser);
 
-  GetWorld()->GetPhysicsScene()->GetPxScene()->lockRead();
+  // UE5: GetPxScene()->lockRead()/unlockRead() removed; Chaos physics does not need scene lock
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(ParallelFor);
     ParallelFor(ChannelCount, [&](int32 idxChannel) {
@@ -141,7 +141,6 @@ void ARayCastSemanticLidar::SimulateLidar(const float DeltaTime)
       };
     });
   }
-  GetWorld()->GetPhysicsScene()->GetPxScene()->unlockRead();
 
   FTransform ActorTransf = GetTransform();
   ComputeAndSaveDetections(ActorTransf);
@@ -203,7 +202,7 @@ void ARayCastSemanticLidar::ComputeRawDetection(const FHitResult& HitInfo, const
 
     const FActorRegistry &Registry = GetEpisode().GetActorRegistry();
 
-    const AActor* actor = HitInfo.Actor.Get();
+    const AActor* actor = HitInfo.GetActor();
     Detection.object_idx = 0;
     Detection.object_tag = static_cast<uint32_t>(HitInfo.Component->CustomDepthStencilValue);
 
@@ -239,7 +238,7 @@ bool ARayCastSemanticLidar::ShootLaser(const float VerticalAngle, const float Ho
   const auto Range = Description.Range;
   FVector EndTrace = Range * UKismetMathLibrary::GetForwardVector(ResultRot) + LidarBodyLoc;
 
-  GetWorld()->ParallelLineTraceSingleByChannel(
+  GetWorld()->LineTraceSingleByChannel( // UE5: ParallelLineTraceSingleByChannel removed; LineTraceSingleByChannel is thread-safe in Chaos
     HitInfo,
     LidarBodyLoc,
     EndTrace,

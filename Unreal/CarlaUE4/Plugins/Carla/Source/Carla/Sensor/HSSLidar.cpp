@@ -5,7 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 // Lidar implemented by Csonthó Mihály based on RayCastLidar code
 
-#include <PxScene.h>
+// #include <PxScene.h> // UE5: PhysX removed, using Chaos
 #include <cmath>
 #include "Carla.h"
 #include "Carla/Sensor/HSSLidar.h"
@@ -20,8 +20,8 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/CollisionProfile.h"
-#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
-#include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "Kismet/KismetMathLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
+#include "Async/ParallelFor.h" // UE5: drop Runtime/Core/Public/ prefix
 
 FActorDefinition AHSSLidar::GetSensorDefinition()
 {
@@ -202,7 +202,7 @@ void AHSSLidar::SimulateLidar(const float DeltaTime)
   ResetRecordedHits(ChannelCount, PointsToScanWithOneLaser);
   PreprocessRays(ChannelCount, PointsToScanWithOneLaser);
 
-  GetWorld()->GetPhysicsScene()->GetPxScene()->lockRead();
+  // UE5: GetPxScene()->lockRead()/unlockRead() removed; Chaos physics does not need scene lock
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(ParallelFor);
     ParallelFor(ChannelCount, [&](int32 idxChannel) {
@@ -224,7 +224,6 @@ void AHSSLidar::SimulateLidar(const float DeltaTime)
       }
     });
   }
-  GetWorld()->GetPhysicsScene()->GetPxScene()->unlockRead();
 
   FTransform ActorTransf = GetTransform();
   ComputeAndSaveDetections(ActorTransf);

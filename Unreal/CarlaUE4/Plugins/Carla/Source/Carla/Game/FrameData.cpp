@@ -34,7 +34,7 @@ void FFrameData::GetFrameData(UCarlaEpisode *ThisEpisode, bool bAdditionalData, 
   // through all actors in registry
   for (auto It = Registry.begin(); It != Registry.end(); ++It)
   {
-    FCarlaActor* View = It.Value().Get();
+    FCarlaActor* View = It->Value.Get();
 
     switch (View->GetActorType())
     {
@@ -148,9 +148,9 @@ void FFrameData::PlayFrameData(
 
   for (const CarlaRecorderAnimWheels &AnimWheel : Wheels.GetVehicleWheels())
   {
-    CarlaRecorderAnimWheels Wheels = AnimWheel;
-    Wheels.DatabaseId = MappedId[Wheels.DatabaseId];
-    ProcessReplayerAnimVehicleWheels(Wheels);
+    CarlaRecorderAnimWheels AnimWheelData = AnimWheel; // UE5: renamed to avoid -Wshadow with FFrameData::Wheels field
+    AnimWheelData.DatabaseId = MappedId[AnimWheelData.DatabaseId];
+    ProcessReplayerAnimVehicleWheels(AnimWheelData);
   }
 
   for (const CarlaRecorderAnimWalker &AnimWalker : Walkers.GetWalkers())
@@ -394,7 +394,7 @@ void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (IsGarbage(CarlaActor))
+  if (!CarlaActor->GetActor() || !::IsValid(CarlaActor->GetActor())) // UE5: IsGarbage takes UObject*; check underlying actor
   {
     return;
   }
@@ -416,7 +416,7 @@ void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr)
-  if (IsGarbage(CarlaActor))
+  if (!CarlaActor->GetActor() || !::IsValid(CarlaActor->GetActor())) // UE5: IsGarbage not for non-UObject
     return;
   if (CarlaActor->GetActorType() != FCarlaActor::ActorType::Vehicle)
     return;
@@ -437,7 +437,7 @@ void FFrameData::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (IsValid(CarlaActor))
+  if (CarlaActor->GetActor() && ::IsValid(CarlaActor->GetActor())) // UE5: IsValid takes UObject*
   {
     FWalkerControl Control;
     CarlaActor->GetWalkerControl(Control);
@@ -1159,7 +1159,7 @@ FCarlaActor *FFrameData::FindTrafficSignAt(FVector Location)
   // through all actors in registry
   for (auto It = Registry.begin(); It != Registry.end(); ++It)
   {
-    FCarlaActor* CarlaActor = It.Value().Get();
+    FCarlaActor* CarlaActor = It->Value.Get();
     if(CarlaActor->GetActorType() == FCarlaActor::ActorType::TrafficLight || CarlaActor->GetActorType() == FCarlaActor::ActorType::TrafficSign)
     {
       FVector vec = CarlaActor->GetActorGlobalLocation();

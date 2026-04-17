@@ -11,7 +11,7 @@
 #include "Modules/ModuleManager.h"
 #include "HAL/FileManagerGeneric.h"
 #include "PluginDescriptor.h"
-#include "Runtime/Core/Public/HAL/FileManagerGeneric.h"
+// UE5: duplicate Runtime/Core/Public/ path removed (already included above)
 
 TArray<FString> UCarlaStatics::GetAllPluginContentPaths()
 {

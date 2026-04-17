@@ -4,7 +4,7 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-#include "GenerateTileCommandlet.h"
+#include "Commandlet/GenerateTileCommandlet.h" // UE5: use subdirectory path since UBT doesn't add Public/Commandlet/ to include paths
 
 #include <iostream>
 #include <fstream>

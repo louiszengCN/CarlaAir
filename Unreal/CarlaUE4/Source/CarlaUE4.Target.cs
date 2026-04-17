@@ -10,6 +10,9 @@ public class CarlaUE4Target : TargetRules
 	public CarlaUE4Target(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
+		DefaultBuildSettings = BuildSettingsVersion.V6;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
+		CppStandard = CppStandardVersion.Cpp20;
 		ExtraModuleNames.Add("CarlaUE4");
 
     string ConfigDir = Path.GetDirectoryName(ProjectFile.ToString()) + "/Config/";

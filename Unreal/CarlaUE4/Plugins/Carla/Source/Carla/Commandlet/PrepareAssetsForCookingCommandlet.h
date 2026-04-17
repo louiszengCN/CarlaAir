@@ -8,8 +8,8 @@
 
 #include "Carla/OpenDrive/OpenDriveActor.h"
 #include "Commandlets/Commandlet.h"
-#include "Runtime/Engine/Classes/Engine/ObjectLibrary.h"
-#include "Runtime/Engine/Classes/Engine/StaticMeshActor.h"
+#include "Engine/ObjectLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
+#include "Engine/StaticMeshActor.h" // UE5: drop Runtime/Engine/Classes/ prefix
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "PrepareAssetsForCookingCommandlet.generated.h"
 

@@ -7,13 +7,15 @@
 #include "MapGeneratorWidget.h"
 
 #include "ActorFactories/ActorFactory.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: moved
 #include "Carla/MapGen/LargeMapManager.h"
 #include "Carla/MapGen/SoilTypeManager.h"
 #include "Carla/Weather/Weather.h"
 #include "Carla/Vehicle/CustomTerrainPhysicsComponent.h"
 #include "Components/SplineComponent.h"
-#include "Editor/FoliageEdit/Public/FoliageEdMode.h"
+// FoliageEdMode.h removed: FEdModeFoliage::AddInstances is a hidden (non-exported) symbol in UE5.7.
+// Replaced with public-API equivalent using FoliageTrace + FPotentialInstance + FFoliageInfo::AddInstances.
+#include "InstancedFoliageActor.h" // AInstancedFoliageActor, FPotentialInstance (via InstancedFoliage.h)
 #include "EditorLevelLibrary.h"
 #include "FileHelpers.h"
 #include "GenericPlatform/GenericPlatformFile.h"
@@ -26,8 +28,8 @@
 #include "Misc/CString.h"
 #include "ProceduralFoliageComponent.h"
 #include "ProceduralFoliageVolume.h"
-#include "Runtime/Engine/Classes/Engine/ObjectLibrary.h"
-#include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "Engine/ObjectLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
+#include "DrawDebugHelpers.h" // UE5: drop Runtime/Engine/Public/ prefix
 
 #include "EditorAssetLibrary.h"
 #include "EngineUtils.h"
@@ -36,6 +38,7 @@
 #include "UObject/UObjectGlobals.h"
 #include "UObject/ObjectMacros.h"
 
+#include "UObject/SavePackage.h"         // UE5: FSavePackageArgs
 #include "Dom/JsonObject.h"
 #include "JsonObjectConverter.h"
 #include "Serialization/JsonSerializer.h"
@@ -437,8 +440,14 @@ UWorld* UMapGeneratorWidget::DuplicateWorld(FString BaseWorldPath, FString Targe
   const FString PackageFileName = FPackageName::LongPackageNameToFilename(
           PackageName, 
           FPackageName::GetMapPackageExtension());
-      UPackage::SavePackage(WorldPackage, DuplicateWorld, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-          *PackageFileName, GError, nullptr, true, true, SAVE_NoError);
+      // UE5: SavePackage API changed to use FSavePackageArgs
+      {
+        FSavePackageArgs SaveArgs;
+        SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+        SaveArgs.Error = GError;
+        SaveArgs.SaveFlags = SAVE_NoError;
+        UPackage::SavePackage(WorldPackage, DuplicateWorld, *PackageFileName, SaveArgs);
+      }
 
   return DuplicateWorld;
 }
@@ -751,8 +760,14 @@ bool UMapGeneratorWidget::CreateMainLargeMap(const FMapGeneratorMetaInfo& MetaIn
   const FString PackageFileName = FPackageName::LongPackageNameToFilename(
       PackageName, 
       FPackageName::GetMapPackageExtension());
-  UPackage::SavePackage(BaseMapPackage, World, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-      *PackageFileName, GError, nullptr, true, true, SAVE_NoError);
+  // UE5: SavePackage API changed to use FSavePackageArgs
+  {
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SaveArgs.Error = GError;
+    SaveArgs.SaveFlags = SAVE_NoError;
+    UPackage::SavePackage(BaseMapPackage, World, *PackageFileName, SaveArgs);
+  }
 
 
   bool bLoadedSuccess = FEditorFileUtils::LoadMap(*PackageName, false, true);
@@ -774,9 +789,9 @@ bool UMapGeneratorWidget::CreateMainLargeMap(const FMapGeneratorMetaInfo& MetaIn
   ALargeMapManager* LargeMapManager = StaticCast<ALargeMapManager*>(LargeMapManagerActor);
   if(LargeMapManager == nullptr)
   {
-    UE_LOG(LogCarlaToolsMapGenerator, Error, 
+    UE_LOG(LogCarlaToolsMapGenerator, Error,
         TEXT("%s: Failed to cast Large Map Actor in %s."),
-        *MetaInfo.MapName); 
+        *CUR_CLASS_FUNC_LINE, *MetaInfo.MapName);
     return false;
   }
 
@@ -810,8 +825,14 @@ bool UMapGeneratorWidget::CreateMainLargeMap(const FMapGeneratorMetaInfo& MetaIn
 
   }
 
-  UPackage::SavePackage(BaseMapPackage, World, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-      *PackageFileName, GError, nullptr, true, true, SAVE_NoError);
+  // UE5: SavePackage API changed to use FSavePackageArgs
+  {
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SaveArgs.Error = GError;
+    SaveArgs.SaveFlags = SAVE_NoError;
+    UPackage::SavePackage(BaseMapPackage, World, *PackageFileName, SaveArgs);
+  }
 
   return true;
 }
@@ -1062,7 +1083,8 @@ bool UMapGeneratorWidget::CreateTilesMaps(const FMapGeneratorMetaInfo& MetaInfo)
       HeightmapDataPerLayers.Add(FGuid(), HeightData);
       MaterialLayerDataPerLayer.Add(FGuid(), TArray<FLandscapeImportLayerInfo>());
       Landscape->Import(Landscape->GetLandscapeGuid(), 0, 0, HeightRT->SizeX-1, HeightRT->SizeY-1, Landscape->NumSubsections, Landscape->SubsectionSizeQuads,
-          HeightmapDataPerLayers, TEXT("NONE"), MaterialLayerDataPerLayer, ELandscapeImportAlphamapType::Layered);
+          HeightmapDataPerLayers, TEXT("NONE"), MaterialLayerDataPerLayer, ELandscapeImportAlphamapType::Layered,
+          TArrayView<const FLandscapeLayer>()); // UE5: new InImportLayers parameter
 
       Landscape->ReregisterAllComponents();
       Landscape->CreateLandscapeInfo();
@@ -1082,8 +1104,14 @@ bool UMapGeneratorWidget::CreateTilesMaps(const FMapGeneratorMetaInfo& MetaInfo)
       const FString PackageFileName = FPackageName::LongPackageNameToFilename(
           PackageName, 
           FPackageName::GetMapPackageExtension());
-      UPackage::SavePackage(TilePackage, World, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-          *PackageFileName, GError, nullptr, true, true, SAVE_NoError);
+      // UE5: SavePackage API changed to use FSavePackageArgs
+      {
+        FSavePackageArgs SaveArgs;
+        SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+        SaveArgs.Error = GError;
+        SaveArgs.SaveFlags = SAVE_NoError;
+        UPackage::SavePackage(TilePackage, World, *PackageFileName, SaveArgs);
+      }
 
       // TODO PROV
       FText ErrorUnloadingStr;
@@ -1191,17 +1219,19 @@ bool UMapGeneratorWidget::CookVegetationToWorld(
   {
     ULevel* Level = World->GetCurrentLevel();
 
-    VectorRegister	Rotation{ 0,0,0 };
-    VectorRegister	Translation{ 200000.0, 200000.0, 0.0 };
-    VectorRegister Scale3D{ 2500,2500,900 };
+    // UE5: VectorRegister constructor changed (SIMD type, 4 components). Use FTransform directly.
     EObjectFlags InObjectFlags = RF_Transactional;
     FName InName = NAME_None;
 
-    FTransform Transform{ Rotation,Translation,Scale3D };
+    FTransform Transform(FQuat::Identity, FVector(200000.0f, 200000.0f, 0.0f), FVector(2500.0f, 2500.0f, 900.0f));
 
     UActorFactory* ActorFactory = GEditor->FindActorFactoryForActorClass(AProceduralFoliageVolume::StaticClass());
+    // UE5: CreateActor signature changed; EObjectFlags+FName moved into FActorSpawnParameters
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.ObjectFlags = InObjectFlags;
+    SpawnParams.Name = InName;
     AProceduralFoliageVolume* FoliageVolumeActor = (AProceduralFoliageVolume*) ActorFactory->CreateActor(
-        AProceduralFoliageVolume::StaticClass(), Level, Transform, InObjectFlags, InName);
+        AProceduralFoliageVolume::StaticClass(), Level, Transform, SpawnParams);
 
     UProceduralFoliageComponent* FoliageComponent = FoliageVolumeActor->ProceduralComponent;
     FoliageComponent->FoliageSpawner = Spawner;
@@ -1213,14 +1243,40 @@ bool UMapGeneratorWidget::CookVegetationToWorld(
     {
       FoliageComponent->RemoveProceduralContent(false);
 
-      FFoliagePaintingGeometryFilter OverrideGeometryFilter;
-      OverrideGeometryFilter.bAllowStaticMesh = FoliageComponent->bAllowStaticMesh;
-      OverrideGeometryFilter.bAllowBSP = FoliageComponent->bAllowBSP;
-      OverrideGeometryFilter.bAllowLandscape = FoliageComponent->bAllowLandscape;
-      OverrideGeometryFilter.bAllowFoliage = FoliageComponent->bAllowFoliage;
-      OverrideGeometryFilter.bAllowTranslucent = FoliageComponent->bAllowTranslucent;
-
-      FEdModeFoliage::AddInstances(World, FoliageInstances, OverrideGeometryFilter, true);
+      // UE5: FEdModeFoliage::AddInstances is a hidden (non-exported) symbol. Use public APIs only:
+      // FoliageTrace → FPotentialInstance::PlaceInstance → FFoliageInfo::AddInstances
+      {
+        TMap<const UFoliageType*, TArray<FFoliageInstance>> PlacedByType;
+        for (const FDesiredFoliageInstance& DesiredInst : FoliageInstances)
+        {
+          if (!DesiredInst.FoliageType) continue;
+          FHitResult HitResult;
+          if (!AInstancedFoliageActor::FoliageTrace(World, HitResult, DesiredInst)) continue;
+          FPotentialInstance PotentialInst(HitResult.Location, HitResult.Normal,
+                                           HitResult.GetComponent(), 1.0f, DesiredInst);
+          FFoliageInstance NewInst;
+          if (PotentialInst.PlaceInstance(World, DesiredInst.FoliageType, NewInst, false))
+            PlacedByType.FindOrAdd(DesiredInst.FoliageType).Add(NewInst);
+        }
+        AInstancedFoliageActor* IFA =
+            AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(World, /*bCreateIfNone=*/true);
+        if (IFA)
+        {
+          for (auto& Entry : PlacedByType)
+          {
+            FFoliageInfo* Info = nullptr;
+            IFA->AddFoliageType(Entry.Key, &Info);
+            if (Info)
+            {
+              TArray<const FFoliageInstance*> Ptrs;
+              for (const FFoliageInstance& Inst : Entry.Value)
+                Ptrs.Add(&Inst);
+              Info->AddInstances(Entry.Key, Ptrs);
+            }
+          }
+          IFA->MapRebuild();
+        }
+      }
     }
     else
     {

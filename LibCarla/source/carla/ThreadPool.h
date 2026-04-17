@@ -12,6 +12,7 @@
 #include "carla/Time.h"
 
 #include <boost/asio/io_context.hpp>
+#include <boost/asio/executor_work_guard.hpp>
 #include <boost/asio/post.hpp>
 
 #include <future>
@@ -25,7 +26,7 @@ namespace carla {
   class ThreadPool : private NonCopyable {
   public:
 
-    ThreadPool() : _work_to_do(_io_context) {}
+    ThreadPool() : _work_to_do(boost::asio::make_work_guard(_io_context)) {}
 
     /// Stops the ThreadPool and joins all its threads.
     ~ThreadPool() {
@@ -43,7 +44,7 @@ namespace carla {
     }
 
     /// Post a task to the pool.
-    template <typename FunctorT, typename ResultT = typename std::result_of<FunctorT()>::type>
+    template <typename FunctorT, typename ResultT = std::invoke_result_t<FunctorT>> // C++17: result_of removed in C++20
     std::future<ResultT> Post(FunctorT &&functor) {
       auto task = std::packaged_task<ResultT()>(std::forward<FunctorT>(functor));
       auto future = task.get_future();
@@ -88,7 +89,8 @@ namespace carla {
 
     boost::asio::io_context _io_context;
 
-    boost::asio::io_context::work _work_to_do;
+    // Boost 1.66+: io_context::work removed; use executor_work_guard
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type> _work_to_do;
 
     ThreadGroup _workers;
   };

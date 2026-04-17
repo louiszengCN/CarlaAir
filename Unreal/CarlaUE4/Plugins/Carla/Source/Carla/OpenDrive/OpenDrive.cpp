@@ -11,7 +11,7 @@
 #include "Carla/Game/CarlaStatics.h"
 #include "GenericPlatform/GenericPlatformProcess.h"
 
-#include "Runtime/Core/Public/HAL/FileManagerGeneric.h"
+#include "HAL/FileManagerGeneric.h" // UE5: drop Runtime/Core/Public/ prefix
 #include "Misc/FileHelper.h"
 
 FString UOpenDrive::FindPathToXODRFile(const FString &InMapName){

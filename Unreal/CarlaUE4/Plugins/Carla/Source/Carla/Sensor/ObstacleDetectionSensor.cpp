@@ -126,7 +126,7 @@ void AObstacleDetectionSensor::PostPhysTick(UWorld *World, ELevelTick TickType, 
 
   if (isHitReturned)
   {
-    OnObstacleDetectionEvent(this, HitOut.Actor.Get(), HitOut.Distance, HitOut);
+    OnObstacleDetectionEvent(this, HitOut.GetActor(), HitOut.Distance, HitOut);
   }
 }
 

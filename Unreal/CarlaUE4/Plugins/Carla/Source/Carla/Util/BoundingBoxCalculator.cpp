@@ -290,7 +290,7 @@ TArray<FVector> UBoundingBoxCalculator::GetSkeletalMeshVertices(const USkeletalM
 
   Vertices.Reserve(NumVertices);
   for(uint32 i = 0; i < NumVertices; i++) {
-    Vertices.Add(FPositionVertexBuffer.VertexPosition(i));
+    Vertices.Add(FVector(FPositionVertexBuffer.VertexPosition(i))); // UE5: VertexPosition returns FVector3f
   }
 
   return Vertices;
@@ -317,7 +317,7 @@ FBoundingBox UBoundingBoxCalculator::GetSkeletalMeshBoundingBox(const USkeletalM
 
   for(uint32 i = 0; i < NumVertices; i++)
   {
-    auto Pos = FPositionVertexBuffer.VertexPosition(i);
+    FVector Pos(FPositionVertexBuffer.VertexPosition(i)); // UE5: VertexPosition returns FVector3f; convert to FVector(double)
     Max = Max.ComponentMax(Pos);
     Min = Min.ComponentMin(Pos);
   }

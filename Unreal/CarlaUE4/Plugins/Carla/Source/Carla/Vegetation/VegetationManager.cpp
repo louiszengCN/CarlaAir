@@ -491,7 +491,8 @@ void AVegetationManager::UpdateMaterials(FTileData* Tile)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE(AVegetationManager::UpdateMaterials);
   const FTransform GlobalTransform = HeroVehicle->GetActorTransform();
-  const FLinearColor Position = GlobalTransform.GetLocation();
+  // UE5: FLinearColor constructor from FVector3d is explicit; must convert via FVector3f
+  const FLinearColor Position(FVector3f(GlobalTransform.GetLocation()));
   Tile->UpdateMaterialCache(Position, DebugMaterials);
 }
 

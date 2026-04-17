@@ -36,7 +36,7 @@ void PrimaryCommands::SendFrameData(carla::Buffer buffer) {
 
 // broadcast to all secondary servers the map to load
 void PrimaryCommands::SendLoadMap(std::string map) {
-  carla::Buffer buf((unsigned char *) map.c_str(), (size_t) map.size() + 1);
+  carla::Buffer buf((unsigned char *) map.c_str(), (uint64_t) map.size() + 1);
   _router->Write(MultiGPUCommand::LOAD_MAP, std::move(buf));
 }
 
@@ -44,7 +44,7 @@ void PrimaryCommands::SendLoadMap(std::string map) {
 token_type PrimaryCommands::SendGetToken(stream_id stream_id) {
   log_info("asking for a token");
   carla::Buffer buf((carla::Buffer::value_type *) &stream_id,
-                    (size_t) sizeof(stream_id));
+                    (uint64_t) sizeof(stream_id));
   auto fut = _router->WriteToNext(MultiGPUCommand::GET_TOKEN, std::move(buf));
 
   auto response = fut.get();
@@ -56,7 +56,7 @@ token_type PrimaryCommands::SendGetToken(stream_id stream_id) {
 // send to know if a connection is alive
 void PrimaryCommands::SendIsAlive() {
   std::string msg("Are you alive?");
-  carla::Buffer buf((unsigned char *) msg.c_str(), (size_t) msg.size());
+  carla::Buffer buf((unsigned char *) msg.c_str(), (uint64_t) msg.size());
   log_info("sending is alive command");
   auto fut = _router->WriteToNext(MultiGPUCommand::YOU_ALIVE, std::move(buf));
   auto response = fut.get();
@@ -68,7 +68,7 @@ void PrimaryCommands::SendEnableForROS(carla::streaming::detail::stream_actor_id
   auto it = _servers.find(stream_actor_id.stream_id);
   if (it != _servers.end()) {
     carla::Buffer buf((carla::Buffer::value_type *) &stream_actor_id,
-                      (size_t) (sizeof(stream_actor_id)));
+                      (uint64_t) (sizeof(stream_actor_id)));
     auto fut = _router->WriteToOne(it->second, MultiGPUCommand::ENABLE_ROS, std::move(buf));
 
     auto response = fut.get();
@@ -83,7 +83,7 @@ void PrimaryCommands::SendDisableForROS(carla::streaming::detail::stream_actor_i
   auto it = _servers.find(stream_actor_id.stream_id);
   if (it != _servers.end()) {
     carla::Buffer buf((carla::Buffer::value_type *) &stream_actor_id,
-                      (size_t) (sizeof(stream_actor_id)));
+                      (uint64_t) (sizeof(stream_actor_id)));
     auto fut = _router->WriteToOne(it->second, MultiGPUCommand::DISABLE_ROS, std::move(buf));
 
     auto response = fut.get();
@@ -98,7 +98,7 @@ bool PrimaryCommands::SendIsEnabledForROS(carla::streaming::detail::stream_actor
   auto it = _servers.find(stream_actor_id.stream_id);
   if (it != _servers.end()) {
     carla::Buffer buf((carla::Buffer::value_type *) &stream_actor_id,
-                      (size_t) (sizeof(stream_actor_id)));
+                      (uint64_t) (sizeof(stream_actor_id)));
     auto fut = _router->WriteToOne(it->second, MultiGPUCommand::IS_ENABLED_ROS, std::move(buf));
 
     auto response = fut.get();

@@ -58,7 +58,7 @@ ASceneCaptureSensor::ASceneCaptureSensor(const FObjectInitializer &ObjectInitial
   CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>(
       FName(*FString::Printf(TEXT("USceneCaptureComponent2D_%d"), SCENE_CAPTURE_COUNTER)));
   check(CaptureComponent2D != nullptr);
-  CaptureComponent2D->ViewActor = this;
+  // CaptureComponent2D->ViewActor = this; // UE5.7: ViewActor removed from USceneCaptureComponent2D
   CaptureComponent2D->SetupAttachment(RootComponent);
   CaptureComponent2D->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
   CaptureComponent2D->bCaptureOnMovement = false;
@@ -728,7 +728,7 @@ namespace SceneCaptureSensor_local_ns {
     // ShowFlags.SetLandscape(false);
     // ShowFlags.SetLargeVertices(false);
     ShowFlags.SetLensFlares(false);
-    ShowFlags.SetLevelColoration(false);
+    // ShowFlags.SetLevelColoration(false); // UE5.7: LevelColoration ShowFlag removed
     ShowFlags.SetLightComplexity(false);
     ShowFlags.SetLightFunctions(false);
     ShowFlags.SetLightInfluences(false);
@@ -758,7 +758,7 @@ namespace SceneCaptureSensor_local_ns {
     // ShowFlags.SetPrecomputedVisibilityCells(false);
     // ShowFlags.SetPreviewShadowsIndicator(false);
     // ShowFlags.SetPrimitiveDistanceAccuracy(false);
-    ShowFlags.SetPropertyColoration(false);
+    // ShowFlags.SetPropertyColoration(false); // UE5.7: PropertyColoration ShowFlag removed
     // ShowFlags.SetQuadOverdraw(false);
     // ShowFlags.SetReflectionEnvironment(false);
     // ShowFlags.SetReflectionOverride(false);
@@ -804,7 +804,7 @@ namespace SceneCaptureSensor_local_ns {
     ShowFlags.SetVisualizeDOF(false);
     ShowFlags.SetVisualizeHDR(false);
     ShowFlags.SetVisualizeLightCulling(false);
-    ShowFlags.SetVisualizeLPV(false);
+    // ShowFlags.SetVisualizeLPV(false); // UE5.7: VisualizeLPV ShowFlag removed (LPV removed)
     ShowFlags.SetVisualizeMeshDistanceFields(false);
     ShowFlags.SetVisualizeMotionBlur(false);
     ShowFlags.SetVisualizeOutOfBoundsPixels(false);

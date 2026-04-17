@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/LineBatchComponent.h"
+#include "PrimitiveSceneProxy.h"             // UE5: FLineBatcherSceneProxy is private in engine; base on FPrimitiveSceneProxy
+#include "Materials/MaterialRenderProxy.h"   // FColoredMaterialRenderProxy
 #include "LineBatchComponent_CARLA.generated.h"
 
 /**
@@ -21,8 +23,10 @@ class CARLA_API ULineBatchComponent_CARLA : public ULineBatchComponent
 	UMaterial* CosmosMeshMaterial = nullptr;
 };
 
-/** Represents a LineBatchComponent to the scene manager. */
-class FLineBatcherSceneProxy_CARLA : public FLineBatcherSceneProxy
+/** Represents a LineBatchComponent to the scene manager.
+ *  UE5: FLineBatcherSceneProxy is defined in a private .cpp in stock UE5.7; inherit from FPrimitiveSceneProxy directly.
+ */
+class FLineBatcherSceneProxy_CARLA : public FPrimitiveSceneProxy
 {
 public:
 	SIZE_T GetTypeHash() const override;
@@ -38,13 +42,16 @@ public:
 	*/
 	virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView* View) const override;
 
+	// UE5: FPrimitiveSceneProxy requires GetMemoryFootprint()
+	virtual uint32 GetMemoryFootprint() const override { return sizeof(*this) + Lines.GetAllocatedSize() + Points.GetAllocatedSize() + Meshes.GetAllocatedSize(); }
+
 	UMaterial* CosmosMeshMaterial = nullptr;
 
 private:
 	TArray<FBatchedLine> Lines;
 	TArray<FBatchedPoint> Points;
 	TArray<FBatchedMesh> Meshes;
-	
+
 	// Cache for material render proxies to avoid memory leaks
 	// Key is the color, value is the cached proxy
 	mutable TMap<uint32, FColoredMaterialRenderProxy*> CachedMaterialProxies;

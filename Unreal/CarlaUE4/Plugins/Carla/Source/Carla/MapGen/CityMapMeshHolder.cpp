@@ -57,7 +57,7 @@ void ACityMapMeshHolder::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
 
-  if(IsValid(GetLevel())&&!IsGarbage(GetLevel()))
+  if(IsValid(GetLevel())) // UE5: IsGarbage(UObject*) redundant after IsValid check
   {
 	 TArray<AActor*> roadpieces;
      GetAttachedActors(roadpieces);

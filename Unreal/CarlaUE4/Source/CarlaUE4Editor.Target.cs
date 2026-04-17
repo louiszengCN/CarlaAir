@@ -10,6 +10,9 @@ public class CarlaUE4EditorTarget : TargetRules
 	public CarlaUE4EditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
+		DefaultBuildSettings = BuildSettingsVersion.V6;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
+		CppStandard = CppStandardVersion.Cpp20;
 		ExtraModuleNames.Add("CarlaUE4");
 
 		string ConfigDir = Path.GetDirectoryName(ProjectFile.ToString()) + "/Config/";

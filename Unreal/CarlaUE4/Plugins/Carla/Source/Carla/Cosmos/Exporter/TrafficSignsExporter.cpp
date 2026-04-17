@@ -211,7 +211,7 @@ bool UTrafficSignsExporter::ExportCosmosTrafficSigns(UWorld* World, const FStrin
 
   // Scan all mesh components with tags (same approach as CosmosControlSensor)
   TArray<UObject*> AllMeshComponents;
-  GetObjectsOfClass(UMeshComponent::StaticClass(), AllMeshComponents, true, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
+  GetObjectsOfClass(UMeshComponent::StaticClass(), AllMeshComponents, true, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None); // UE5: AllFlags removed; use None to scan all
 
   UE_LOG(LogCarla, Warning, TEXT("TrafficSignsExporter: Found %d total mesh components"), AllMeshComponents.Num());
 

@@ -19,11 +19,8 @@ void ACarlaHUD::DrawHUD()
     return;
   }
 
-  if(DebugVehicle) {
-    float YL = 1600.0f;
-    float Y0 = 0.0f;
-    DebugVehicle->DrawDebug(Canvas, YL, Y0);
-  }
+  // UE5: UChaosVehicleMovementComponent::DrawDebug is protected; telemetry HUD disabled
+  // if(DebugVehicle) { float YL = 1600.0f; float Y0 = 0.0f; DebugVehicle->DrawDebug(Canvas, YL, Y0); }
 
   double Now = FPlatformTime::Seconds();
   int i = 0;

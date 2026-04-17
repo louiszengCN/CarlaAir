@@ -119,7 +119,7 @@ namespace UnrealBuildTool.Rules
 			{
 				PublicDefinitions.Add("USD_USES_SYSTEM_MALLOC=0"); // USD uses tbb malloc on Linux
 
-				USDLibsDir = Path.Combine(USDWrapperModuleDirectory, "../../Binaries/Linux/", Target.Architecture);
+				USDLibsDir = Path.Combine(USDWrapperModuleDirectory, "../../Binaries/Linux/", Target.Architecture.ToString()); // UE5: UnrealArch not implicitly string
 
 				var USDLibs = new string[]
 				{
@@ -161,8 +161,11 @@ namespace UnrealBuildTool.Rules
 				PublicSystemLibraryPaths.Add(Path.Combine(EngineDir, "Source/ThirdParty/Python3/" + Target.Platform.ToString() + "/lib"));
 			}
 			
-			PublicRuntimeLibraryPaths.Add(USDLibsDir);
-			PublicSystemLibraryPaths.Add(USDLibsDir);
+			if (!string.IsNullOrEmpty(USDLibsDir)) // UE5: guard against empty path on Mac
+			{
+				PublicRuntimeLibraryPaths.Add(USDLibsDir);
+				PublicSystemLibraryPaths.Add(USDLibsDir);
+			}
 			///////////////////////////////////////////////////////////
 
 			if (Target.Platform == UnrealTargetPlatform.Win64)

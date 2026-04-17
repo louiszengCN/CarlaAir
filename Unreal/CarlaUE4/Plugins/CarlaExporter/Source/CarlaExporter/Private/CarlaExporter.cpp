@@ -10,8 +10,8 @@
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "SlateBasics.h"
 #include "SlateExtras.h"
-#include "Runtime/Engine/Classes/Engine/Selection.h"
-#include "Runtime/Engine/Classes/Engine/StaticMeshActor.h"
+#include "Engine/Selection.h" // UE5: drop Runtime/Engine/Classes/ prefix
+#include "Engine/StaticMeshActor.h" // UE5: drop Runtime/Engine/Classes/ prefix
 #include "Components/InstancedStaticMeshComponent.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "PhysicsEngine/ConvexElem.h"

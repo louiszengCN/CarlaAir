@@ -22,7 +22,7 @@ class CARLATOOLS_API UMapPreviewUserWidget : public UUserWidget
 
 private:
 	// Boost socket
-  boost::asio::io_service io_service;
+  boost::asio::io_context io_service; // UE5/Boost 1.74+: io_service renamed to io_context
   std::unique_ptr<boost::asio::ip::tcp::socket> SocketPtr;
 
 

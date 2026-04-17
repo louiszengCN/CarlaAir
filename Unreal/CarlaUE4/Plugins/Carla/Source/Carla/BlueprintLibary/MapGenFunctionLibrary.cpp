@@ -5,12 +5,17 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "MapGenFunctionLibrary.h"
+#include "Carla.h" // UE5: provides LogCarla log category
 
 // Engine headers
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "PhysicsEngine/BodySetup.h" // UE5: UBodySetup incomplete type
 #include "Materials/MaterialInstance.h"
 #include "StaticMeshAttributes.h"
 #include "RenderingThread.h"
+#if WITH_EDITOR
+#include "Editor/Transactor.h" // UE5: UTransactor complete type for GEditor->Trans->Reset()
+#endif
 // Carla C++ headers
 
 // Carla plugin headers
@@ -34,12 +39,12 @@ FMeshDescription UMapGenFunctionLibrary::BuildMeshDescriptionFromData(
   AttributeGetter.Register();
 
   TPolygonGroupAttributesRef<FName> PolygonGroupNames = AttributeGetter.GetPolygonGroupMaterialSlotNames();
-  TVertexAttributesRef<FVector> VertexPositions = AttributeGetter.GetVertexPositions();
-  TVertexInstanceAttributesRef<FVector> Tangents = AttributeGetter.GetVertexInstanceTangents();
+  TVertexAttributesRef<FVector3f> VertexPositions = AttributeGetter.GetVertexPositions(); // UE5: FVector3f
+  TVertexInstanceAttributesRef<FVector3f> Tangents = AttributeGetter.GetVertexInstanceTangents(); // UE5: FVector3f
   TVertexInstanceAttributesRef<float> BinormalSigns = AttributeGetter.GetVertexInstanceBinormalSigns();
-  TVertexInstanceAttributesRef<FVector> Normals = AttributeGetter.GetVertexInstanceNormals();
-  TVertexInstanceAttributesRef<FVector4> Colors = AttributeGetter.GetVertexInstanceColors();
-  TVertexInstanceAttributesRef<FVector2D> UVs = AttributeGetter.GetVertexInstanceUVs();
+  TVertexInstanceAttributesRef<FVector3f> Normals = AttributeGetter.GetVertexInstanceNormals(); // UE5: FVector3f
+  TVertexInstanceAttributesRef<FVector4f> Colors = AttributeGetter.GetVertexInstanceColors(); // UE5: FVector4f
+  TVertexInstanceAttributesRef<FVector2f> UVs = AttributeGetter.GetVertexInstanceUVs(); // UE5: FVector2f
 
   // Calculate the totals for each ProcMesh element type
   FPolygonGroupID PolygonGroupForSection;
@@ -74,7 +79,7 @@ FMeshDescription UMapGenFunctionLibrary::BuildMeshDescriptionFromData(
   {
     const FVector &Vert = Data.Vertices[VertexIndex];
     const FVertexID VertexID = MeshDescription.CreateVertex();
-    VertexPositions[VertexID] = Vert;
+    VertexPositions[VertexID] = FVector3f(Vert); // UE5: convert FVector→FVector3f
     VertexIndexToVertexID.Add(VertexIndex, VertexID);
   }
 
@@ -90,26 +95,26 @@ FMeshDescription UMapGenFunctionLibrary::BuildMeshDescriptionFromData(
     const FVertexInstanceID VertexInstanceID =
     MeshDescription.CreateVertexInstance(VertexID);
     IndiceIndexToVertexInstanceID.Add(IndiceIndex, VertexInstanceID);
-    Normals[VertexInstanceID] = Data.Normals[VertexIndex];
+    Normals[VertexInstanceID] = FVector3f(Data.Normals[VertexIndex]); // UE5: FVector3f
 
     if(ParamTangents.Num() == Data.Vertices.Num())
     {
-      Tangents[VertexInstanceID] = ParamTangents[VertexIndex].TangentX;
+      Tangents[VertexInstanceID] = FVector3f(ParamTangents[VertexIndex].TangentX); // UE5: FVector3f
       BinormalSigns[VertexInstanceID] =
         ParamTangents[VertexIndex].bFlipTangentY ? -1.f : 1.f;
     }else{
 
     }
-    Colors[VertexInstanceID] = FLinearColor(0,0,0);
+    Colors[VertexInstanceID] = FVector4f(0,0,0,1); // UE5: FVector4f (was FLinearColor)
     if(Data.UV0.Num() == Data.Vertices.Num())
     {
-      UVs.Set(VertexInstanceID, 0, Data.UV0[VertexIndex]);
+      UVs.Set(VertexInstanceID, 0, FVector2f(Data.UV0[VertexIndex])); // UE5: FVector2f
     }else{
-      UVs.Set(VertexInstanceID, 0, FVector2D(0,0));
+      UVs.Set(VertexInstanceID, 0, FVector2f(0,0)); // UE5: FVector2f
     }
-    UVs.Set(VertexInstanceID, 1, FVector2D(0,0));
-    UVs.Set(VertexInstanceID, 2, FVector2D(0,0));
-    UVs.Set(VertexInstanceID, 3, FVector2D(0,0));
+    UVs.Set(VertexInstanceID, 1, FVector2f(0,0)); // UE5: FVector2f
+    UVs.Set(VertexInstanceID, 2, FVector2f(0,0));
+    UVs.Set(VertexInstanceID, 3, FVector2f(0,0));
   }
 
   for (int32 TriIdx = 0; TriIdx < NumTri; TriIdx++)
@@ -166,12 +171,12 @@ UStaticMesh* UMapGenFunctionLibrary::CreateMesh(
 
     Mesh->InitResources();
 
-    Mesh->LightingGuid = FGuid::NewGuid();
-    Mesh->StaticMaterials.Add(FStaticMaterial(MaterialInstance));
+    Mesh->SetLightingGuid(FGuid::NewGuid()); // UE5: LightingGuid is private
+    Mesh->GetStaticMaterials().Add(FStaticMaterial(MaterialInstance)); // UE5: StaticMaterials is private
     Mesh->BuildFromMeshDescriptions({ &Description }, Params);
     Mesh->CreateBodySetup();
-    Mesh->BodySetup->CollisionTraceFlag = ECollisionTraceFlag::CTF_UseComplexAsSimple;
-    Mesh->BodySetup->CreatePhysicsMeshes();
+    Mesh->GetBodySetup()->CollisionTraceFlag = ECollisionTraceFlag::CTF_UseComplexAsSimple; // UE5: BodySetup private
+    Mesh->GetBodySetup()->CreatePhysicsMeshes();
     // Build mesh from source
     Mesh->NeverStream = false;
     TArray<UObject*> CreatedAssets;
@@ -211,7 +216,7 @@ void UMapGenFunctionLibrary::SetThreadToSleep(float seconds){
 }
 
 void UMapGenFunctionLibrary::FlushRenderingCommandsInBlueprint(){
-  FlushRenderingCommands(true);
+  FlushRenderingCommands(); // UE5: bool param removed
  	FlushPendingDeleteRHIResources_GameThread();
 }
 

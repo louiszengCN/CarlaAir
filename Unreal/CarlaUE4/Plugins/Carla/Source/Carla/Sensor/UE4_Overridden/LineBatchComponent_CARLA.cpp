@@ -4,9 +4,11 @@
 #include "Sensor/UE4_Overridden/LineBatchComponent_CARLA.h"
 #include "Sensor/CosmosControlSensor.h"
 #include "ConstructorHelpers.h"
+#include "DynamicMeshBuilder.h" // UE5: FDynamicMeshBuilder
 
 FLineBatcherSceneProxy_CARLA::FLineBatcherSceneProxy_CARLA(const ULineBatchComponent_CARLA* InComponent) :
-	FLineBatcherSceneProxy(InComponent), Lines(InComponent->BatchedLines),
+	// UE5: FLineBatcherSceneProxy is private; use FPrimitiveSceneProxy directly
+	FPrimitiveSceneProxy(InComponent), Lines(InComponent->BatchedLines),
 	Points(InComponent->BatchedPoints), Meshes(InComponent->BatchedMeshes)
 {
 	bWillEverBeLit = false;
@@ -50,7 +52,7 @@ FPrimitiveViewRelevance FLineBatcherSceneProxy_CARLA::GetViewRelevance(const FSc
 {
 	FPrimitiveViewRelevance ViewRelevance;
 
-	ViewRelevance.bDrawRelevance = Cast<ACosmosControlSensor>(View->ViewActor) != nullptr;//|| View->ViewActor->IsA(ACosmosControlSensor::StaticClass());
+	ViewRelevance.bDrawRelevance = Cast<ACosmosControlSensor>(View->ViewActor.Get()) != nullptr; // UE5: ViewActor is FSceneViewOwner, use .Get() for raw pointer
 	ViewRelevance.bDynamicRelevance = true;
 	// ideally the TranslucencyRelevance should be filled out by the material, here we do it conservative
 	ViewRelevance.bSeparateTranslucency = ViewRelevance.bNormalTranslucency = true;
@@ -82,9 +84,10 @@ void FLineBatcherSceneProxy_CARLA::GetDynamicMeshElements(const TArray<const FSc
 
 			for (int32 i = 0; i < Meshes.Num(); i++)
 			{
-				static FVector const PosX(1.f, 0, 0);
-				static FVector const PosY(0, 1.f, 0);
-				static FVector const PosZ(0, 0, 1.f);
+				// UE5: DynamicMeshBuilder::AddVertex requires FVector3f/FVector2f
+				static FVector3f const PosX(1.f, 0, 0);
+				static FVector3f const PosY(0, 1.f, 0);
+				static FVector3f const PosZ(0, 0, 1.f);
 
 				FBatchedMesh const& M = Meshes[i];
 
@@ -94,7 +97,8 @@ void FLineBatcherSceneProxy_CARLA::GetDynamicMeshElements(const TArray<const FSc
 				// set up geometry
 				for (int32 VertIdx = 0; VertIdx < M.MeshVerts.Num(); ++VertIdx)
 				{
-					MeshBuilder.AddVertex(M.MeshVerts[VertIdx], FVector2D::ZeroVector, PosX, PosY, PosZ, FColor::White);
+					// UE5: AddVertex now takes FVector3f/FVector2f; cast MeshVerts element (FVector→FVector3f)
+				MeshBuilder.AddVertex(FVector3f(M.MeshVerts[VertIdx]), FVector2f::ZeroVector, PosX, PosY, PosZ, FColor::White);
 				}
 				//MeshBuilder.AddTriangles(M.MeshIndices);
 				for (int32 Idx = 0; Idx < M.MeshIndices.Num(); Idx += 3)

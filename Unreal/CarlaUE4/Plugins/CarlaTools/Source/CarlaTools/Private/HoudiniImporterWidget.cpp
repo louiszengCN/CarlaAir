@@ -5,6 +5,8 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "HoudiniImporterWidget.h"
+#include "CarlaTools.h" // LogCarlaTools
+#include "Editor/Transactor.h" // UE5: UTransactor complete type needed for GEditor->Trans->Reset()
 
 #include "EditorLevelUtils.h"
 #include "Kismet/GameplayStatics.h"

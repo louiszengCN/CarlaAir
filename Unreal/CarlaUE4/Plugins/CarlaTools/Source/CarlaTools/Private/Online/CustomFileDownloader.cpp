@@ -4,14 +4,18 @@
 
 #include "Online/CustomFileDownloader.h"
 #include "OpenDriveToMap.h"
+#include "MapGeneratorWidget.h" // LogCarlaToolsMapGenerator declaration
 #include "HttpModule.h"
 #include "Http.h"
 #include "Misc/FileHelper.h"
 
-#include <OSM2ODR.h>
+#if PLATFORM_WINDOWS || PLATFORM_LINUX
+#include <OSM2ODR.h> // UE5/macOS: OSM2ODR only built for Windows/Linux
+#endif
 
 void UCustomFileDownloader::ConvertOSMInOpenDrive(FString FilePath, float Lat_0, float Lon_0)
 {
+#if PLATFORM_WINDOWS || PLATFORM_LINUX
   IPlatformFile &FileManager = FPlatformFileManager::Get().GetPlatformFile();
 
   FString FileContent;
@@ -52,6 +56,9 @@ void UCustomFileDownloader::ConvertOSMInOpenDrive(FString FilePath, float Lat_0,
   {
     UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("FileManipulation: Failed to write FString to file."));
   }
+#else
+  UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("ConvertOSMInOpenDrive: OSM2ODR not available on this platform"));
+#endif
 }
 
 void UCustomFileDownloader::StartDownload()

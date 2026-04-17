@@ -74,7 +74,7 @@ FSensorActor::FSensorActor(
   ActorData = MakeShared<FActorSensorData>();
 }
 
-ASensor* FSensorActor::GetSensor() { return dynamic_cast<ASensor*>(GetActor()); }
+ASensor* FSensorActor::GetSensor() { return Cast<ASensor>(GetActor()); } // UE5: use Cast<> instead of dynamic_cast (no RTTI)
 
 
 FTrafficSignActor::FTrafficSignActor(

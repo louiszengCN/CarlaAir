@@ -14,6 +14,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/World.h"
 #include "Paths.h"
+#include "UObject/ObjectSaveContext.h" // UE5: FObjectPreSaveContext
 
 #include <algorithm>
 #include <unordered_set>
@@ -65,7 +66,7 @@ void ACityMapGenerator::PreSave(FObjectPreSaveContext SaveContext)
 #if WITH_EDITOR
   if (bGenerateRoadMapOnSave) {
     // Generate road map only if we are not cooking.
-    FCoreUObjectDelegates::OnObjectSaved.Broadcast(this);
+    // UE5: FCoreUObjectDelegates::OnObjectSaved removed; save notification is implicit
     if (!GIsCookerLoadingPackage) {
       check(RoadMap != nullptr);
       GenerateRoadMap();

@@ -3,7 +3,7 @@
 
 #include "ProceduralBuildingUtilities.h"
 
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: moved
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/TextureRenderTarget2D.h"
@@ -15,6 +15,10 @@
 #include "ProceduralMeshComponent.h"
 #include "UObject/Class.h"
 #include "UObject/UObjectGlobals.h"
+#include "UObject/SavePackage.h"         // UE5: FSavePackageArgs
+#include "PhysicsEngine/BodySetup.h"     // UE5: UBodySetup complete type
+#include "MeshMerge/MeshMergingSettings.h"  // UE5: FMeshMergingSettings
+#include "ProceduralMeshConversion.h"       // UE5: BuildMeshDescription(UProceduralMeshComponent*)
 
 void AProceduralBuildingUtilities::GenerateImpostorTexture(const FVector& BuildingSize)
 {
@@ -127,15 +131,14 @@ void AProceduralBuildingUtilities::CookProceduralBuildingToMesh(const FString& D
       ScreenAreaSize,
       true);
 
-  UPackage::SavePackage(NewPackage,
-      AssetsToSync[0],
-      EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-      *FileName,
-      GError,
-      nullptr,
-      true,
-      true,
-      SAVE_NoError);
+  // UE5: SavePackage API changed to use FSavePackageArgs
+  {
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SaveArgs.Error = GError;
+    SaveArgs.SaveFlags = SAVE_NoError;
+    UPackage::SavePackage(NewPackage, AssetsToSync[0], *FileName, SaveArgs);
+  }
 }
 
 void AProceduralBuildingUtilities::CookProceduralMeshToMesh(
@@ -151,7 +154,7 @@ void AProceduralBuildingUtilities::CookProceduralMeshToMesh(
 
   UStaticMesh* StaticMesh = NewObject<UStaticMesh>(NewPackage, *FileName, RF_Public | RF_Standalone);
   StaticMesh->InitResources();
-  StaticMesh->LightingGuid = FGuid::NewGuid();
+  StaticMesh->SetLightingGuid(FGuid::NewGuid()); // UE5: LightingGuid is private, use accessor
 
   FStaticMeshSourceModel& SrcModel = StaticMesh->AddSourceModel();
   SrcModel.BuildSettings.bRecomputeNormals = false;
@@ -168,7 +171,7 @@ void AProceduralBuildingUtilities::CookProceduralMeshToMesh(
   if (!Mesh->bUseComplexAsSimpleCollision )
   {
     StaticMesh->CreateBodySetup();
-    UBodySetup* NewBodySetup = StaticMesh->BodySetup;
+    UBodySetup* NewBodySetup = StaticMesh->GetBodySetup(); // UE5: BodySetup is private, use accessor
     NewBodySetup->BodySetupGuid = FGuid::NewGuid();
     NewBodySetup->AggGeom.ConvexElems = Mesh->ProcMeshBodySetup->AggGeom.ConvexElems;
     NewBodySetup->bGenerateMirroredCollision = false;
@@ -189,23 +192,22 @@ void AProceduralBuildingUtilities::CookProceduralMeshToMesh(
 
   for (auto* Material : UniqueMaterials)
   {
-    StaticMesh->StaticMaterials.Add(FStaticMaterial(Material));
+    StaticMesh->AddMaterial(Material); // UE5: StaticMaterials is private, use AddMaterial()
   }
 
-  StaticMesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
+  StaticMesh->SetImportVersion(EImportStaticMeshVersion::LastVersion); // UE5: ImportVersion deprecated
   StaticMesh->Build(false);
   StaticMesh->PostEditChange();
   FAssetRegistryModule::AssetCreated(StaticMesh);
 
-  UPackage::SavePackage(NewPackage,
-      StaticMesh,
-      EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-      *FileName,
-      GError,
-      nullptr,
-      true,
-      true,
-      SAVE_NoError);
+  // UE5: SavePackage API changed to use FSavePackageArgs
+  {
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SaveArgs.Error = GError;
+    SaveArgs.SaveFlags = SAVE_NoError;
+    UPackage::SavePackage(NewPackage, StaticMesh, *FileName, SaveArgs);
+  }
 }
 
 UMaterialInstanceConstant* AProceduralBuildingUtilities::GenerateBuildingMaterialAsset(
@@ -232,8 +234,14 @@ UMaterialInstanceConstant* AProceduralBuildingUtilities::GenerateBuildingMateria
   const FString PackageFileName = FPackageName::LongPackageNameToFilename(
       PackageName, 
       ".uasset");
-  UPackage::SavePackage(NewPackage, DuplicatedMaterial, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
-      *PackageFileName, GError, nullptr, true, true, SAVE_NoError);
+  // UE5: SavePackage API changed to use FSavePackageArgs
+  {
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SaveArgs.Error = GError;
+    SaveArgs.SaveFlags = SAVE_NoError;
+    UPackage::SavePackage(NewPackage, DuplicatedMaterial, *PackageFileName, SaveArgs);
+  }
 
   return DuplicatedMaterial;
 }

@@ -1,12 +1,15 @@
 // Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma de Barcelona (UAB). This work is licensed under the terms of the MIT license. For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "OpenDriveToMap.h"
-#include "DesktopPlatform/Public/IDesktopPlatform.h"
-#include "DesktopPlatform/Public/DesktopPlatformModule.h"
+#include "MapGeneratorWidget.h" // LogCarlaToolsMapGenerator
+#include "HoudiniImporterWidget.h" // UHoudiniImporterWidget::MoveActorsToSubLevelWithLargeMap
+#include "FileHelpers.h" // UE5: UEditorLoadingAndSavingUtils (UnrealEd FileHelpers, not Misc/FileHelper)
+#include "IDesktopPlatform.h" // UE5: include directly (module Public/ is on search path)
+#include "DesktopPlatformModule.h"
 #include "Misc/FileHelper.h"
 #include "Engine/LevelBounds.h"
 #include "Engine/SceneCapture2D.h"
-#include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "Async/ParallelFor.h" // UE5: drop Runtime/Core/Public/ prefix
 #include "Kismet/KismetRenderingLibrary.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "StaticMeshAttributes.h"
@@ -24,17 +27,17 @@
 #include <carla/geom/Simplification.h>
 #include <carla/road/Deformation.h>
 #include <carla/rpc/String.h>
-#include <OSM2ODR.h>
+// OSM2ODR.h removed - not in CarlaDependencies and not used directly in this file
 #include <compiler/enable-ue4-macros.h>
 
-#include "Engine/Classes/Interfaces/Interface_CollisionDataProvider.h"
+#include "Interfaces/Interface_CollisionDataProvider.h" // UE5: drop Engine/Classes/ prefix
 #include "Engine/TriggerBox.h"
 #include "Engine/AssetManager.h"
 #include "Factories/MaterialInstanceConstantFactoryNew.h"
-#include "PhysicsCore/Public/BodySetupEnums.h"
+#include "BodySetupEnums.h" // UE5: drop PhysicsCore/Public/ prefix
 #include "PhysicsEngine/BodySetup.h"
 #include "RawMesh.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: moved
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "MeshDescription.h"
@@ -773,7 +776,8 @@ void UOpenDriveToMap::GenerateTreePositions( const boost::optional<carla::road::
 
 float UOpenDriveToMap::GetHeight(float PosX, float PosY, bool bDrivingLane){
   if( DefaultHeightmap ){
-    const FColor* FormatedImageData = static_cast<const FColor*>( DefaultHeightmap->PlatformData->Mips[0].BulkData.LockReadOnly());
+    // UE5: PlatformData is private; use GetPlatformData()
+    const FColor* FormatedImageData = static_cast<const FColor*>( DefaultHeightmap->GetPlatformData()->Mips[0].BulkData.LockReadOnly());
 
     int32 TextureSizeX = DefaultHeightmap->GetSizeX();
     int32 TextureSizeY = DefaultHeightmap->GetSizeY();
@@ -805,7 +809,7 @@ float UOpenDriveToMap::GetHeight(float PosX, float PosY, bool bDrivingLane){
     //UE_LOG(LogCarlaToolsMapGenerator, Error, TEXT("PixelColor %s "), *WorldEndPosition.ToString() );
     //UE_LOG(LogCarlaToolsMapGenerator, Error, TEXT("Reading Pixel X: %d Y %d Total Size X %d Y %d"), PixelX, PixelY, TextureSizeX, TextureSizeY );
 
-    DefaultHeightmap->PlatformData->Mips[0].BulkData.Unlock();
+    DefaultHeightmap->GetPlatformData()->Mips[0].BulkData.Unlock(); // UE5: use GetPlatformData()
 
     float LandscapeHeight = ( (PixelColor.R/255.0f ) * ( MaxHeight - MinHeight ) ) + MinHeight;
 

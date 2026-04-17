@@ -5,6 +5,7 @@
 #include "Engine/InstancedStaticMesh.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "SplineMeshSceneProxy.h"
+#include "SkeletalMeshSceneProxy.h" // UE5: explicit include needed for FSkeletalMeshSceneProxy
 #include "Landscape.h"
 #include "LandscapeRender.h"
 #include "LandscapeMaterialInstanceConstant.h"
@@ -63,17 +64,8 @@ private:
   UMaterialInstance * TaggedMaterialInstance;
 };
 
-class FTaggedSplineMeshSceneProxy : public FSplineMeshSceneProxy
-{
-public:
-
-  FTaggedSplineMeshSceneProxy(USplineMeshComponent * Component, UMaterialInstance * MaterialInstance, TMap<UMaterialInterface*, UMaterialInstanceDynamic*> TaggedMaterials);
-
-  virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView * View) const override;
-
-private:
-  UMaterialInstance * TaggedMaterialInstance;
-};
+// UE5: FSplineMeshSceneProxy is final in UE5.7; cannot inherit from it.
+// Spline meshes use FTaggedStaticMeshSceneProxy instead (segmentation color is preserved).
 
 class FTaggedSkeletalMeshSceneProxy : public FSkeletalMeshSceneProxy
 {
@@ -98,7 +90,8 @@ private:
 };
 
 
-class FTaggedHierarchicalStaticMeshSceneProxy : public FHierarchicalStaticMeshSceneProxy
+// UE5: FHierarchicalStaticMeshSceneProxy is final in UE5.7; inherit from FInstancedStaticMeshSceneProxy instead
+class FTaggedHierarchicalStaticMeshSceneProxy : public FInstancedStaticMeshSceneProxy
 {
 public:
   FTaggedHierarchicalStaticMeshSceneProxy(UHierarchicalInstancedStaticMeshComponent * Component, bool bInIsGrass, ERHIFeatureLevel::Type InFeatureLevel, UMaterialInstance * MaterialInstance, TMap<UMaterialInterface*, UMaterialInstanceDynamic*> TaggedMaterials);

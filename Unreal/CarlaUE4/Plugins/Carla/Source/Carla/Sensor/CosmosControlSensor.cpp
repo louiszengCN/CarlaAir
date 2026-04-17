@@ -24,7 +24,7 @@
 #include "Carla/Game/CarlaStatics.h"
 #include "Carla/Actor/ActorRegistry.h"
 #include "Carla/Game/CarlaEpisode.h"
-#include "Engine/Public/ConvexVolume.h"
+#include "ConvexVolume.h" // UE5: drop Engine/Public/ prefix
 
 const FColor ACosmosControlSensor::CosmosColors::LaneLines(98, 183, 249, 255);
 const FColor ACosmosControlSensor::CosmosColors::Lanes(56, 103, 221, 255);
@@ -155,7 +155,7 @@ void ACosmosControlSensor::PostPhysTick(UWorld *World, ELevelTick TickType, floa
   }
 
   TArray<UObject*> CosmosRelevantComponents;
-  GetObjectsOfClass(UMeshComponent::StaticClass(), CosmosRelevantComponents, true, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
+  GetObjectsOfClass(UMeshComponent::StaticClass(), CosmosRelevantComponents, true, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None);
 
   for (UObject* Object : CosmosRelevantComponents) {
 

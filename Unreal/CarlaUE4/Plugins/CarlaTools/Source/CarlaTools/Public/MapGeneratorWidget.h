@@ -12,7 +12,7 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "ProceduralFoliageSpawner.h"
 #include "RegionOfInterest.h"
-#include "UnrealString.h"
+#include "Containers/UnrealString.h" // UE5: moved to Containers/
 
 #include "MapGeneratorWidget.generated.h"
 

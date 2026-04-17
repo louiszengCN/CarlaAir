@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Animation/Skeleton.h"
-#include "VehicleWheel.h"
+// #include "VehicleWheel.h"  // UE5: replaced by ChaosVehicleWheel
+#include "ChaosVehicleWheel.h"
 #include "Materials/MaterialInterface.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
@@ -16,13 +17,13 @@ struct FWheelTemplates
 {
   GENERATED_BODY()
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UVehicleWheel> WheelFR;
+  TSubclassOf<UChaosVehicleWheel> WheelFR;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UVehicleWheel> WheelFL;
+  TSubclassOf<UChaosVehicleWheel> WheelFL;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UVehicleWheel> WheelRR;
+  TSubclassOf<UChaosVehicleWheel> WheelRR;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UVehicleWheel> WheelRL;
+  TSubclassOf<UChaosVehicleWheel> WheelRL;
 };
 
 USTRUCT(BlueprintType)

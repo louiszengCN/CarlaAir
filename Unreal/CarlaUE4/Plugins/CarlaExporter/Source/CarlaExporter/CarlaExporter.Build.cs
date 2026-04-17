@@ -10,7 +10,7 @@ public class CarlaExporter : ModuleRules
 {
   public CarlaExporter(ReadOnlyTargetRules Target) : base(Target)
   {
-    PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+    PCHUsage = ModuleRules.PCHUsageMode.UseSharedPCHs; // UE5: disable IWYU enforcement for legacy includes
 
     PublicIncludePaths.AddRange(
       new string[] {
@@ -46,7 +46,7 @@ public class CarlaExporter : ModuleRules
         "Engine",
         "Slate",
         "SlateCore",
-        "Physx",
+        // "Physx",  // UE5: PhysX removed, using Chaos
         "EditorStyle"
         // ... add private dependencies that you statically link with here ...
       }

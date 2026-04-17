@@ -67,9 +67,12 @@ void WriteFString(std::ostream &OutFile, const FString &InObj)
 // read binary data to FVector
 void ReadFVector(std::istream &InFile, FVector &OutObj)
 {
-  ReadValue<float>(InFile, OutObj.X);
-  ReadValue<float>(InFile, OutObj.Y);
-  ReadValue<float>(InFile, OutObj.Z);
+  // UE5: FVector uses double; read float from file then widen
+  float X, Y, Z;
+  ReadValue<float>(InFile, X);
+  ReadValue<float>(InFile, Y);
+  ReadValue<float>(InFile, Z);
+  OutObj.X = X; OutObj.Y = Y; OutObj.Z = Z;
 }
 
 // read binary data to FTransform

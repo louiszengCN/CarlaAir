@@ -27,8 +27,8 @@ ASensor::ASensor(const FObjectInitializer &ObjectInitializer)
 void ASensor::BeginPlay()
 {
   Super::BeginPlay();
-  UCarlaEpisode* Episode = UCarlaStatics::GetCurrentEpisode(GetWorld());
-  FSensorManager& SensorManager = Episode->GetSensorManager();
+  UCarlaEpisode* CurrentEpisode = UCarlaStatics::GetCurrentEpisode(GetWorld()); // renamed to avoid shadowing member Episode
+  FSensorManager& SensorManager = CurrentEpisode->GetSensorManager();
   SensorManager.RegisterSensor(this);
 }
 
@@ -129,10 +129,10 @@ void ASensor::EndPlay(EEndPlayReason::Type EndPlayReason)
   auto StreamId = carla::streaming::detail::token_type(Stream.GetToken()).get_stream_id();
   StreamingServer.CloseStream(StreamId);
 
-  UCarlaEpisode* Episode = UCarlaStatics::GetCurrentEpisode(GetWorld());
-  if(Episode)
+  UCarlaEpisode* CurrentEpisode = UCarlaStatics::GetCurrentEpisode(GetWorld()); // renamed to avoid shadowing member Episode
+  if(CurrentEpisode)
   {
-    FSensorManager& SensorManager = Episode->GetSensorManager();
+    FSensorManager& SensorManager = CurrentEpisode->GetSensorManager();
     SensorManager.DeRegisterSensor(this);
   }
 }

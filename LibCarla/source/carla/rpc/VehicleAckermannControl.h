@@ -9,7 +9,12 @@
 #include "carla/MsgPack.h"
 
 #ifdef LIBCARLA_INCLUDED_FROM_UE4
+// UE5: wrap with enable/disable to match VehicleControl.h pattern.
+// disable-ue4-macros.h undefines USTRUCT but leaves LIBCARLA_INCLUDED_FROM_UE4 set,
+// so without re-enabling macros first, the UE-side struct header fails to compile.
+#  include <compiler/enable-ue4-macros.h>
 #  include "Carla/Vehicle/VehicleAckermannControl.h"
+#  include <compiler/disable-ue4-macros.h>
 #endif // LIBCARLA_INCLUDED_FROM_UE4
 
 namespace carla {

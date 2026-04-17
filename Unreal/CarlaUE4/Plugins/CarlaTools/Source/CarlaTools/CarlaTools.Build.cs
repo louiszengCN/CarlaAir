@@ -9,12 +9,12 @@ public class CarlaTools : ModuleRules
   bool bUsingSimReadyPlugins = false;
   private bool IsWindows(ReadOnlyTargetRules Target)
   {
-    return (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32);
+    return (Target.Platform == UnrealTargetPlatform.Win64); // UE5: Win32 removed
   }
 
 	public CarlaTools(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+		PCHUsage = ModuleRules.PCHUsageMode.UseSharedPCHs; // UE5: disable IWYU enforcement for legacy includes
 
     // PrivatePCHHeaderFile = "Carla.h";
 
@@ -47,7 +47,8 @@ public class CarlaTools : ModuleRules
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				// ... add other private include paths required here ...
+				// UE5: FoliageEdMode.h (private) removed — FEdModeFoliage::AddInstances is a hidden symbol.
+				// Replaced with public API (FoliageTrace + FFoliageInfo::AddInstances) in MapGeneratorWidget.cpp.
 			}
 			);
 
@@ -73,6 +74,8 @@ public class CarlaTools : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UnrealEd",
+				"DesktopPlatform", // UE5: for IDesktopPlatform / file dialogs
+				"StaticMeshEditor", // UE5: for UStaticMeshEditorSubsystem (AddSimpleCollisions)
 				"Blutility",
 				"UMG",
 				"EditorScriptingUtilities",
@@ -82,7 +85,7 @@ public class CarlaTools : ModuleRules
         "MeshMergeUtilities",
 				"Carla",
         "StaticMeshDescription",
-				"PhysXVehicles",
+				"ChaosVehicles",
         "Json",
         "JsonUtilities",
         "Networking",
@@ -91,8 +94,8 @@ public class CarlaTools : ModuleRules
         "RHI",
         "RenderCore",
         "MeshMergeUtilities",
-        "StreetMapImporting",
-        "StreetMapRuntime"
+        // "StreetMapImporting",  // UE5: StreetMap plugin unavailable
+        // "StreetMapRuntime"     // UE5: StreetMap plugin unavailable
 				// ... add private dependencies that you statically link with here ...
 			}
 			);
@@ -157,38 +160,31 @@ public class CarlaTools : ModuleRules
 			}
 		};
 
-    // Link dependencies.
+    // Link dependencies. UE5/macOS: guard with File.Exists — CarlaDependencies may not be built yet.
     if (IsWindows(Target))
     {
       AddBoostLibs(Path.Combine(LibCarlaInstallPath, "lib"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("rpc")));
+      string RpcLib = Path.Combine(LibCarlaInstallPath, "lib", GetLibName("rpc"));
+      if (File.Exists(RpcLib)) PublicAdditionalLibraries.Add(RpcLib);
 
-      if (UseDebugLibs(Target))
-      {
-        PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("carla_server_debug")));
-      }
-      else
-      {
-        PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("carla_server")));
-      }
+      string ServerLib = Path.Combine(LibCarlaInstallPath, "lib", GetLibName(UseDebugLibs(Target) ? "carla_server_debug" : "carla_server"));
+      if (File.Exists(ServerLib)) PublicAdditionalLibraries.Add(ServerLib);
     }
     else
     {
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("rpc")));
-      if (UseDebugLibs(Target))
-      {
-        PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("carla_server_debug")));
-      }
-      else
-      {
-        PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", GetLibName("carla_server")));
-      }
-    }
-    // Include path.
-    string LibCarlaIncludePath = Path.Combine(LibCarlaInstallPath, "include");
+      string RpcLib = Path.Combine(LibCarlaInstallPath, "lib", GetLibName("rpc"));
+      if (File.Exists(RpcLib)) PublicAdditionalLibraries.Add(RpcLib);
 
-    PublicIncludePaths.Add(LibCarlaIncludePath);
-    PrivateIncludePaths.Add(LibCarlaIncludePath);
+      string ServerLib = Path.Combine(LibCarlaInstallPath, "lib", GetLibName(UseDebugLibs(Target) ? "carla_server_debug" : "carla_server"));
+      if (File.Exists(ServerLib)) PublicAdditionalLibraries.Add(ServerLib);
+    }
+    // Include path — only add if it exists to avoid UBT warnings.
+    string LibCarlaIncludePath = Path.Combine(LibCarlaInstallPath, "include");
+    if (Directory.Exists(LibCarlaIncludePath))
+    {
+      PublicIncludePaths.Add(LibCarlaIncludePath);
+      PrivateIncludePaths.Add(LibCarlaIncludePath);
+    }
 
     PublicDefinitions.Add("ASIO_NO_EXCEPTIONS");
     PublicDefinitions.Add("BOOST_NO_EXCEPTIONS");

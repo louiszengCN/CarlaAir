@@ -322,7 +322,7 @@ namespace carla {
     template <typename T>
     typename std::enable_if<boost::asio::is_const_buffer_sequence<T>::value>::type
     copy_from(size_type offset, const T &source) {
-      reset(boost::asio::buffer_size(source) + offset);
+      reset(static_cast<uint64_t>(boost::asio::buffer_size(source) + offset));
       DEBUG_ASSERT(boost::asio::buffer_size(source) == size() - offset);
       DEBUG_ONLY(auto bytes_copied = )
       boost::asio::buffer_copy(buffer() + offset, source);

@@ -7,6 +7,8 @@
 #include "PrepareAssetsForCookingCommandlet.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "PhysicsEngine/BodySetup.h" // UE5: UBodySetup incomplete type
+#include "UObject/SavePackage.h" // UE5: FSavePackageArgs
 
 #include "SSTags.h"
 
@@ -31,7 +33,7 @@ static bool ValidateStaticMesh(UStaticMesh *Mesh)
     return false;
   }
 
-  for (int i = 0; i < Mesh->StaticMaterials.Num(); i++)
+  for (int i = 0; i < Mesh->GetStaticMaterials().Num(); i++) // UE5: StaticMaterials private
   {
     UMaterialInterface *Material = Mesh->GetMaterial(i);
     if (!Material) {
@@ -211,7 +213,7 @@ TArray<AStaticMeshActor *> UPrepareAssetsForCookingCommandlet::SpawnMeshesToWorl
         MeshActor->SetActorLabel(AssetName, true);
 
         // set complex collision as simple in asset
-        UBodySetup *BodySetup = MeshAsset->BodySetup;
+        UBodySetup *BodySetup = MeshAsset->GetBodySetup(); // UE5: BodySetup private
         if (BodySetup)
         {
           BodySetup->CollisionTraceFlag = CTF_UseComplexAsSimple;
@@ -226,15 +228,15 @@ TArray<AStaticMeshActor *> UPrepareAssetsForCookingCommandlet::SpawnMeshesToWorl
           // tag
           if (AssetName.Contains(SSTags::R_MARKING1) || AssetName.Contains(SSTags::R_MARKING2))
           {
-            for (int32 i = 0; i < MeshActor->GetStaticMeshComponent()->GetStaticMesh()->StaticMaterials.Num(); ++i)
+            for (int32 MatIdx = 0; MatIdx < MeshActor->GetStaticMeshComponent()->GetStaticMesh()->GetStaticMaterials().Num(); ++MatIdx) // renamed to avoid shadowing outer i
             {
-              if (MeshActor->GetStaticMeshComponent()->GetStaticMesh()->StaticMaterials[i].ImportedMaterialSlotName.ToString().Contains("Yellow"))
+              if (MeshActor->GetStaticMeshComponent()->GetStaticMesh()->GetStaticMaterials()[MatIdx].ImportedMaterialSlotName.ToString().Contains("Yellow"))
               {
-                MeshActor->GetStaticMeshComponent()->SetMaterial(i, MarkingNodeYellow);
+                MeshActor->GetStaticMeshComponent()->SetMaterial(MatIdx, MarkingNodeYellow);
               }
               else
               {
-                MeshActor->GetStaticMeshComponent()->SetMaterial(i, MarkingNodeWhite);
+                MeshActor->GetStaticMeshComponent()->SetMaterial(MatIdx, MarkingNodeWhite);
               }
             }
           }
@@ -337,7 +339,8 @@ bool UPrepareAssetsForCookingCommandlet::SaveWorld(
 {
   // Create Package to save
   UPackage *Package = AssetData.GetPackage();
-  Package->SetFolderName(*WorldName);
+  // UE5: UPackage::SetFolderName removed; folder name is determined by package path
+  // Package->SetFolderName(*WorldName);
   Package->FullyLoad();
   Package->MarkPackageDirty();
   FAssetRegistryModule::AssetCreated(World);

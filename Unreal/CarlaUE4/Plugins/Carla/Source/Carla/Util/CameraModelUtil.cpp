@@ -50,7 +50,7 @@ struct FWideAngleLensShaderBase
         SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2D, CubeBottom)
         SHADER_PARAMETER_SAMPLER(SamplerState, FaceSampler)
         SHADER_PARAMETER(float, YFOVAngle)
-        SHADER_PARAMETER(FVector4, CameraParams)
+        SHADER_PARAMETER(FVector4f, CameraParams)
         SHADER_PARAMETER(uint32, Flags)
         SHADER_PARAMETER(float, LongitudeOffset)
         SHADER_PARAMETER(float, FOVFadeSize)
@@ -70,7 +70,7 @@ struct FWideAngleLensShaderBase<ECameraModel::KannalaBrandt>
         SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2D, CubeBottom)
         SHADER_PARAMETER_SAMPLER(SamplerState, FaceSampler)
         SHADER_PARAMETER(float, YFOVAngle)
-        SHADER_PARAMETER(FVector4, CameraParams)
+        SHADER_PARAMETER(FVector4f, CameraParams)
         SHADER_PARAMETER(uint32, Flags)
         SHADER_PARAMETER(float, LongitudeOffset)
         SHADER_PARAMETER(float, FOVFadeSize)
@@ -87,8 +87,8 @@ struct FToPerspectiveShaderBase
         SHADER_PARAMETER_RDG_TEXTURE_UAV(RWTexture2D<float4>, Destination)
         SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2D, Source)
         SHADER_PARAMETER_SAMPLER(SamplerState, SourceSampler)
-        SHADER_PARAMETER(FVector4, DestinationCameraParams)
-        SHADER_PARAMETER(FVector4, SourceCameraParams)
+        SHADER_PARAMETER(FVector4f, DestinationCameraParams)
+        SHADER_PARAMETER(FVector4f, SourceCameraParams)
     END_SHADER_PARAMETER_STRUCT()
 };
 
@@ -99,8 +99,8 @@ struct FToPerspectiveShaderBase<ECameraModel::KannalaBrandt>
         SHADER_PARAMETER_RDG_TEXTURE_UAV(RWTexture2D<float4>, Destination)
         SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2D, Source)
         SHADER_PARAMETER_SAMPLER(SamplerState, SourceSampler)
-        SHADER_PARAMETER(FVector4, DestinationCameraParams)
-        SHADER_PARAMETER(FVector4, SourceCameraParams)
+        SHADER_PARAMETER(FVector4f, DestinationCameraParams)
+        SHADER_PARAMETER(FVector4f, SourceCameraParams)
         SHADER_PARAMETER_RDG_BUFFER_SRV(StructuredBuffer<float>, Coefficients)
     END_SHADER_PARAMETER_STRUCT()
 };
@@ -204,7 +204,7 @@ static auto CreateDistortionParameters(
     Parameters->CubeTop = GraphBuilder.CreateSRV(FRDGTextureSRVDesc::Create(CubeTextures[4]));
     Parameters->CubeBottom = GraphBuilder.CreateSRV(FRDGTextureSRVDesc::Create(CubeTextures[5]));
     Parameters->FaceSampler = Sampler;
-    Parameters->CameraParams = FVector4(FocalDistance, FocalDistance, Center.X, Center.Y);
+    Parameters->CameraParams = FVector4f(FocalDistance, FocalDistance, Center.X, Center.Y);
     Parameters->YFOVAngle = YFOVAngle;
     Parameters->LongitudeOffset = LongitudeOffset;
     Parameters->FOVFadeSize = FOVFadeSize;
@@ -336,8 +336,8 @@ static void ToPerspective(
     Parameters->Destination = GraphBuilder.CreateUAV(Destination);
     Parameters->Source = GraphBuilder.CreateSRV(FRDGTextureSRVDesc::Create(Source));
     Parameters->SourceSampler = Sampler;
-    Parameters->SourceCameraParams = FVector4(SourceFocalDistance, SourceFocalDistance, Center.X, Center.Y);
-    Parameters->DestinationCameraParams = FVector4(DestinationFocalDistance, DestinationFocalDistance, Center.X, Center.Y);
+    Parameters->SourceCameraParams = FVector4f(SourceFocalDistance, SourceFocalDistance, Center.X, Center.Y);
+    Parameters->DestinationCameraParams = FVector4f(DestinationFocalDistance, DestinationFocalDistance, Center.X, Center.Y);
 
     GraphBuilder.AddPass(
         RDG_EVENT_NAME("ToPerspective-Dispatch"),
@@ -383,8 +383,8 @@ static void ToPerspective(
     Parameters->Destination = GraphBuilder.CreateUAV(Destination);
     Parameters->Source = GraphBuilder.CreateSRV(FRDGTextureSRVDesc::Create(Source));
     Parameters->SourceSampler = Sampler;
-    Parameters->SourceCameraParams = FVector4(SourceFocalDistance, SourceFocalDistance, Center.X, Center.Y);
-    Parameters->DestinationCameraParams = FVector4(DestinationFocalDistance, DestinationFocalDistance, Center.X, Center.Y);
+    Parameters->SourceCameraParams = FVector4f(SourceFocalDistance, SourceFocalDistance, Center.X, Center.Y);
+    Parameters->DestinationCameraParams = FVector4f(DestinationFocalDistance, DestinationFocalDistance, Center.X, Center.Y);
     Parameters->Coefficients = GraphBuilder.CreateSRV(FRDGBufferSRVDesc(CoefficientBuffer, PF_R32_FLOAT));
 
     GraphBuilder.AddPass(
@@ -741,7 +741,7 @@ namespace CameraModelUtil
         FRHISamplerState* Sampler,
         const FDistortCubemapToImageOptions& Options)
     {
-        FTexture2DRHIRef TextureRHIs[6] = {};
+        FTextureRHIRef TextureRHIs[6] = {};
 
         for (uint8 i = 0; i != 6; ++i)
         {
@@ -767,16 +767,14 @@ namespace CameraModelUtil
         };
 
         auto CaptureRenderTargetTexture = GraphBuilder.RegisterExternalTexture(
-            CreateRenderTarget(DestinationRHI, TEXT("CaptureRenderTargetTexture")),
-            ERenderTargetTexture::ShaderResource);
+            CreateRenderTarget(DestinationRHI, TEXT("CaptureRenderTargetTexture")));
 
         FRDGTextureRef CubeTextures[6] = { };
 
         for (uint8 i = 0; i != 6; ++i)
         {
             CubeTextures[i] = GraphBuilder.RegisterExternalTexture(
-                PRTs[i],
-                ERenderTargetTexture::ShaderResource);
+                PRTs[i]);
         }
 
         DistortCubemapToImage(

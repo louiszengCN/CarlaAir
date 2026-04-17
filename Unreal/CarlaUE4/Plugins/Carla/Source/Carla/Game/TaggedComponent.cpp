@@ -130,25 +130,21 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UStaticMeshComponent *
     return NULL;
   }
 
-  if (StaticMesh->RenderData == NULL)
+  if (StaticMesh->GetRenderData() == NULL) // UE5: RenderData private
   {
     UE_LOG(LogCarla, Error, TEXT("Failed to create scene proxy for static mesh component (because render data is null): %s"), *StaticMeshComponent->GetReadableName());
     return NULL;
   }
 
 
-  if (StaticMesh->RenderData->LODResources.Num() == 0)
+  if (StaticMesh->GetRenderData()->LODResources.Num() == 0) // UE5: GetRenderData()
   {
     UE_LOG(LogCarla, Error, TEXT("Failed to create scene proxy for static mesh component (because num LOD resources is 0): %s"), *StaticMeshComponent->GetReadableName());
     return NULL;
   }
 
-  USplineMeshComponent* SplineMeshComponent = Cast<USplineMeshComponent>(StaticMeshComponent);
-  if (SplineMeshComponent) {
-    return new FTaggedSplineMeshSceneProxy(SplineMeshComponent, TaggedMID, TaggedMaterials);
-  } else {
-    return new FTaggedStaticMeshSceneProxy(StaticMeshComponent, true, TaggedMID, TaggedMaterials);
-  }
+  // UE5: FSplineMeshSceneProxy is final; spline meshes fall back to FTaggedStaticMeshSceneProxy
+  return new FTaggedStaticMeshSceneProxy(StaticMeshComponent, true, TaggedMID, TaggedMaterials);
 }
 
 FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(USkeletalMeshComponent * SkeletalMeshComponent)
@@ -166,10 +162,11 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(USkeletalMeshComponent
 		!SkeletalMeshComponent->bHideSkin &&
 		SkeletalMeshComponent->MeshObject)
 	{
-		// Only create a scene proxy if the bone count being used is supported, or if we don't have a skeleton (this is the case with destructibles)
+		// UE5: GetFeatureLevelMaxNumberOfBones removed; bone count check simplified
 		int32 MinLODIndex = SkeletalMeshComponent->ComputeMinLOD();
 		int32 MaxBonesPerChunk = SkelMeshRenderData->GetMaxBonesPerSection(MinLODIndex);
-		int32 MaxSupportedNumBones = SkeletalMeshComponent->MeshObject->IsCPUSkinned() ? MAX_int32 : GetFeatureLevelMaxNumberOfBones(SceneFeatureLevel);
+		const bool bCPUSkinned = SkeletalMeshComponent->MeshObject->IsCPUSkinned();
+		const int32 MaxSupportedNumBones = bCPUSkinned ? MAX_int32 : 256; // UE5: use 256 as reasonable GPU bone limit
 		if (MaxBonesPerChunk <= MaxSupportedNumBones)
 		{
 			return new FTaggedSkeletalMeshSceneProxy(SkeletalMeshComponent, SkelMeshRenderData, TaggedMID, TaggedMaterials);
@@ -182,14 +179,9 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UHierarchicalInstanced
 {
 	// Verify that the mesh is valid before using it.
 	const bool bMeshIsValid =
-		// make sure we have instances
-		(MeshComponent->PerInstanceRenderData.IsValid()) &&
 		// make sure we have an actual staticmesh
 		MeshComponent->GetStaticMesh() &&
-		MeshComponent->GetStaticMesh()->HasValidRenderData(false) &&
-		// You really can't use hardware instancing on the consoles with multiple elements because they share the same index buffer.
-		// @todo: Level error or something to let LDs know this
-		1;//GetStaticMesh()->LODModels(0).Elements.Num() == 1;
+		MeshComponent->GetStaticMesh()->HasValidRenderData(false); // UE5: PerInstanceRenderData removed from public API
 
 	if (bMeshIsValid)
 	{
@@ -203,14 +195,9 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UInstancedStaticMeshCo
 {
 	// Verify that the mesh is valid before using it.
 	const bool bMeshIsValid =
-		// make sure we have instances
-		(MeshComponent->PerInstanceRenderData.IsValid()) &&
 		// make sure we have an actual staticmesh
 		MeshComponent->GetStaticMesh() &&
-		MeshComponent->GetStaticMesh()->HasValidRenderData(false) &&
-		// You really can't use hardware instancing on the consoles with multiple elements because they share the same index buffer.
-		// @todo: Level error or something to let LDs know this
-		1;//GetStaticMesh()->LODModels(0).Elements.Num() == 1;
+		MeshComponent->GetStaticMesh()->HasValidRenderData(false); // UE5: PerInstanceRenderData removed from public API
 
 	if (bMeshIsValid)
 	{
@@ -266,44 +253,14 @@ FPrimitiveViewRelevance FTaggedStaticMeshSceneProxy::GetViewRelevance(const FSce
 {
   FPrimitiveViewRelevance ViewRelevance = FStaticMeshSceneProxy::GetViewRelevance(View);
 
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
+  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
 }
 
-//
-// FTaggedSplineMeshSceneProxy
-//
-FTaggedSplineMeshSceneProxy::FTaggedSplineMeshSceneProxy(USplineMeshComponent * Component, UMaterialInstance * MaterialInstance, TMap<UMaterialInterface*, UMaterialInstanceDynamic*> TaggedMaterials) :
-  FSplineMeshSceneProxy(Component)
-{
-  TaggedMaterialInstance = MaterialInstance;
-
-  // Replace materials with tagged material
-  bVerifyUsedMaterials = false;
-
-  for (FLODInfo& LODInfo : LODs) {
-    for (FLODInfo::FSectionInfo& SectionInfo : LODInfo.Sections) {
-      UMaterialInstanceDynamic** TaggedMaterial = TaggedMaterials.Find(SectionInfo.Material);
-      if (TaggedMaterial) {
-        SectionInfo.Material = *TaggedMaterial;
-      } else {
-        SectionInfo.Material = TaggedMaterialInstance;
-      }
-    }
-  }
-}
-
-FPrimitiveViewRelevance FTaggedSplineMeshSceneProxy::GetViewRelevance(const FSceneView * View) const
-{
-  FPrimitiveViewRelevance ViewRelevance = FSplineMeshSceneProxy::GetViewRelevance(View);
-
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
-  ViewRelevance.bShadowRelevance = false;
-
-  return ViewRelevance;
-}
+// UE5: FTaggedSplineMeshSceneProxy removed — FSplineMeshSceneProxy is final in UE5.7
+// Spline meshes use FTaggedStaticMeshSceneProxy instead.
 
 //
 // FTaggedSkeletalMeshSceneProxy
@@ -314,7 +271,7 @@ FTaggedSkeletalMeshSceneProxy::FTaggedSkeletalMeshSceneProxy(const USkinnedMeshC
   TaggedMaterialInstance = MaterialInstance;
 
   // Replace materials with tagged material
-  bVerifyUsedMaterials = false;
+  // UE5: bVerifyUsedMaterials not in FSkeletalMeshSceneProxy
 
   for (FLODSectionElements& LODSection : LODSections) {
     for (FSectionElementInfo& ElementInfo : LODSection.SectionElements) {
@@ -332,7 +289,7 @@ FPrimitiveViewRelevance FTaggedSkeletalMeshSceneProxy::GetViewRelevance(const FS
 {
   FPrimitiveViewRelevance ViewRelevance = FSkeletalMeshSceneProxy::GetViewRelevance(View);
 
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
+  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -363,7 +320,7 @@ FPrimitiveViewRelevance FTaggedInstancedStaticMeshSceneProxy::GetViewRelevance(c
 {
   FPrimitiveViewRelevance ViewRelevance = FInstancedStaticMeshSceneProxy::GetViewRelevance(View);
 
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
+  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -372,7 +329,7 @@ FPrimitiveViewRelevance FTaggedInstancedStaticMeshSceneProxy::GetViewRelevance(c
 
 FTaggedHierarchicalStaticMeshSceneProxy::FTaggedHierarchicalStaticMeshSceneProxy(
     UHierarchicalInstancedStaticMeshComponent * Component, bool bInIsGrass, ERHIFeatureLevel::Type InFeatureLevel, UMaterialInstance * MaterialInstance, TMap<UMaterialInterface*, UMaterialInstanceDynamic*> TaggedMaterials)
-  : FHierarchicalStaticMeshSceneProxy(bInIsGrass, Component, InFeatureLevel)
+  : FInstancedStaticMeshSceneProxy(Component, InFeatureLevel) // UE5: FHierarchicalStaticMeshSceneProxy is final; fall back to instanced proxy
 {
   TaggedMaterialInstance = MaterialInstance;
 
@@ -393,9 +350,9 @@ FTaggedHierarchicalStaticMeshSceneProxy::FTaggedHierarchicalStaticMeshSceneProxy
 
 FPrimitiveViewRelevance FTaggedHierarchicalStaticMeshSceneProxy::GetViewRelevance(const FSceneView * View) const
 {
-  FPrimitiveViewRelevance ViewRelevance = FHierarchicalStaticMeshSceneProxy::GetViewRelevance(View);
+  FPrimitiveViewRelevance ViewRelevance = FInstancedStaticMeshSceneProxy::GetViewRelevance(View); // UE5: base changed to FInstancedStaticMeshSceneProxy
 
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
+  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -511,7 +468,7 @@ FTaggedLandscapeComponentSceneProxy::FTaggedLandscapeComponentSceneProxy(ULandsc
   bVerifyUsedMaterials = false;
   for (int32 i = 0; i < AvailableMaterials.Num(); ++i)
   {
-    AvailableMaterials[i] = TaggedLandscapeMaterialInstance;
+    AvailableMaterials[i] = TaggedLandscapeMaterialInstance->GetRenderProxy(); // UE5: AvailableMaterials is TArray<FMaterialRenderProxy*>
   }
 }
 
@@ -519,7 +476,7 @@ FPrimitiveViewRelevance FTaggedLandscapeComponentSceneProxy::GetViewRelevance(co
 {
   FPrimitiveViewRelevance ViewRelevance = FLandscapeComponentSceneProxy::GetViewRelevance(View);
 
-  ViewRelevance.bDrawRelevance = ViewRelevance.bDrawRelevance && !View->Family->EngineShowFlags.NotDrawTaggedComponents;
+  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;

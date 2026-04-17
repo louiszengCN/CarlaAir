@@ -7,10 +7,10 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "Exporters/Exporter.h"
-#include "TextureExporterDDS.generated.h"
+#include "MDLTextureExporterDDS.generated.h"
 
 UCLASS()
-class UTextureExporterDDS : public UExporter
+class UMDLTextureExporterDDS : public UExporter
 {
     GENERATED_UCLASS_BODY()
 

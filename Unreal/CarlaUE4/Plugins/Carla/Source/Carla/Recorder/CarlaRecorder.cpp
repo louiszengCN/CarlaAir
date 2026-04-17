@@ -18,7 +18,7 @@
 #include "Carla/Walker/WalkerController.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "ChaosVehicleAnimationInstance.h"
+#include "VehicleAnimationInstance.h" // UE5: renamed from ChaosVehicleAnimationInstance.h
 
 #include <compiler/disable-ue4-macros.h>
 #include "carla/rpc/VehicleLightState.h"
@@ -108,7 +108,7 @@ void ACarlaRecorder::Ticking(float DeltaSeconds)
     // through all actors in registry
     for (auto It = Registry.begin(); It != Registry.end(); ++It)
     {
-      FCarlaActor* View = It.Value.Get();
+      FCarlaActor* View = It->Value.Get(); // UE5: It is TSet::TBaseIterator, use -> to access pair members
 
       switch (View->GetActorType())
       {
@@ -194,7 +194,7 @@ void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (IsGarbage(CarlaActor))
+  if (!CarlaActor)
   {
     return;
   }
@@ -222,7 +222,7 @@ void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (IsValid(CarlaActor))
+  if (CarlaActor != nullptr)
   {
     FWalkerControl Control;
     CarlaActor->GetWalkerControl(Control);

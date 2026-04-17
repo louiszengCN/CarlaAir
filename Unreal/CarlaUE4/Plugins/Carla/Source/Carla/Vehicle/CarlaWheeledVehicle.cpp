@@ -190,7 +190,7 @@ void ACarlaWheeledVehicle::BeginPlay()
     TArray<FChaosWheelSetup> NewWheelSetups = MovementComponent->WheelSetups;
     for (const auto &WheelSetup : NewWheelSetups)
     {
-      UChaosVehicleWheel *Wheel = WheelSetup.WheelClass.GetDefaultObject<UChaosVehicleWheel>();
+      UChaosVehicleWheel *Wheel = WheelSetup.WheelClass.GetDefaultObject(); // UE5: TSubclassOf::GetDefaultObject() is not a template
       check(Wheel != nullptr);
     }
 
@@ -327,7 +327,7 @@ float ACarlaWheeledVehicle::GetMaximumSteerAngle() const
   check(VehicleChaos != nullptr);
   const auto &Wheels = VehicleChaos->Wheels;
   check(Wheels.Num() > 0);
-  const auto *FrontWheel = Wheels[0];
+  const UChaosVehicleWheel *FrontWheel = Wheels[0].Get(); // UE5: Wheels is TArray<TObjectPtr<UChaosVehicleWheel>>
   check(FrontWheel != nullptr);
   // UE5: SteerAngle renamed to MaxSteerAngle in UChaosVehicleWheel
   return FrontWheel->MaxSteerAngle;
@@ -431,12 +431,11 @@ FVehiclePhysicsControl ACarlaWheeledVehicle::GetVehiclePhysicsControl() const
   // Engine Setup
   PhysicsControl.TorqueCurve = VehicleChaos->EngineSetup.TorqueCurve.EditorCurveData;
   PhysicsControl.MaxRPM = VehicleChaos->EngineSetup.MaxRPM;
-  PhysicsControl.MOI = VehicleChaos->EngineSetup.MOI;
-  PhysicsControl.DampingRateFullThrottle = VehicleChaos->EngineSetup.DampingRateFullThrottle;
-  PhysicsControl.DampingRateZeroThrottleClutchEngaged =
-      VehicleChaos->EngineSetup.DampingRateZeroThrottleClutchEngaged;
-  PhysicsControl.DampingRateZeroThrottleClutchDisengaged =
-      VehicleChaos->EngineSetup.DampingRateZeroThrottleClutchDisengaged;
+  // UE5: MOI → EngineRevUpMOI; DampingRate* fields removed from FChaosEngineConfig
+  PhysicsControl.MOI = VehicleChaos->EngineSetup.EngineRevUpMOI;
+  PhysicsControl.DampingRateFullThrottle = 0.0f;
+  PhysicsControl.DampingRateZeroThrottleClutchEngaged = 0.0f;
+  PhysicsControl.DampingRateZeroThrottleClutchDisengaged = 0.0f;
 
   // Transmission Setup
   PhysicsControl.bUseGearAutoBox = VehicleChaos->TransmissionSetup.bUseAutomaticGears;
@@ -487,7 +486,7 @@ FVehiclePhysicsControl ACarlaWheeledVehicle::GetVehiclePhysicsControl() const
       UChaosVehicleWheel* ChaosWheel = VehicleChaos->Wheels.IsValidIndex(i) ? VehicleChaos->Wheels[i] : nullptr;
       if (ChaosWheel)
       {
-        PhysicsWheel.DampingRate = ChaosWheel->WheelDampingRate;
+        PhysicsWheel.DampingRate = 0.0f; // UE5: WheelDampingRate removed from UChaosVehicleWheel
         PhysicsWheel.MaxSteerAngle = ChaosWheel->MaxSteerAngle;
         PhysicsWheel.Radius = ChaosWheel->WheelRadius;
         PhysicsWheel.MaxBrakeTorque = ChaosWheel->MaxBrakeTorque;
@@ -534,13 +533,9 @@ void ACarlaWheeledVehicle::ApplyVehiclePhysicsControl(const FVehiclePhysicsContr
   VehicleChaos->EngineSetup.TorqueCurve.EditorCurveData = PhysicsControl.TorqueCurve;
   VehicleChaos->EngineSetup.MaxRPM = PhysicsControl.MaxRPM;
 
-  VehicleChaos->EngineSetup.MOI = PhysicsControl.MOI;
-
-  VehicleChaos->EngineSetup.DampingRateFullThrottle = PhysicsControl.DampingRateFullThrottle;
-  VehicleChaos->EngineSetup.DampingRateZeroThrottleClutchEngaged =
-      PhysicsControl.DampingRateZeroThrottleClutchEngaged;
-  VehicleChaos->EngineSetup.DampingRateZeroThrottleClutchDisengaged =
-      PhysicsControl.DampingRateZeroThrottleClutchDisengaged;
+  // UE5: MOI → EngineRevUpMOI; DampingRate* fields removed from FChaosEngineConfig
+  VehicleChaos->EngineSetup.EngineRevUpMOI = PhysicsControl.MOI;
+  // DampingRateFullThrottle/ZeroThrottleClutch* removed in UE5 ChaosVehicles
 
   // Transmission Setup
   VehicleChaos->TransmissionSetup.bUseAutomaticGears = PhysicsControl.bUseGearAutoBox;
@@ -582,7 +577,7 @@ void ACarlaWheeledVehicle::ApplyVehiclePhysicsControl(const FVehiclePhysicsContr
 
   for (int32 i = 0; i < PhysicsWheelsNum; ++i)
   {
-    UChaosVehicleWheel *Wheel = NewWheelSetups[i].WheelClass.GetDefaultObject<UChaosVehicleWheel>();
+    UChaosVehicleWheel *Wheel = NewWheelSetups[i].WheelClass.GetDefaultObject(); // UE5: TSubclassOf::GetDefaultObject() not a template
     check(Wheel != nullptr);
 
     // UE5: TireConfig replaced by FrictionForceMultiplier on UChaosVehicleWheel
@@ -683,7 +678,7 @@ void ACarlaWheeledVehicle::ShowDebugTelemetry(bool Enabled)
       else{
         if (hud->DebugVehicle == GetVehicleMovementComponent()) {
           hud->AddDebugVehicleForTelemetry(nullptr);
-          GetVehicleMovementComponent()->StopTelemetry();
+          // UE5: StopTelemetry() removed from UChaosVehicleMovementComponent
         }
       }
 
@@ -963,7 +958,7 @@ void ACarlaWheeledVehicle::CheckRollover(const float roll, const std::pair<float
   if (threshold_roll.first < roll && roll < threshold_roll.second){
     auto RootComponent = Cast<UPrimitiveComponent>(GetRootComponent());
     auto angular_velocity = RootComponent->GetPhysicsAngularVelocityInDegrees();
-    RootComponent->SetPhysicsAngularVelocity((1 - RolloverBehaviorForce) * angular_velocity);
+    RootComponent->SetPhysicsAngularVelocityInDegrees((1 - RolloverBehaviorForce) * angular_velocity);
     RolloverBehaviorTracker += 1;
   }
 }

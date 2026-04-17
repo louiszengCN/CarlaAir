@@ -7,6 +7,7 @@
 #pragma once
 
 #include "CoreGlobals.h"
+// UE5: IsGarbage() removed; use IsValid() instead (via CoreMinimal)
 #include "Engine/TextureRenderTarget2D.h"
 #include "Runtime/ImageWriteQueue/Public/ImagePixelData.h"
 
@@ -96,7 +97,7 @@ void FPixelReader::SendPixelsInRenderThread(TSensor &Sensor, bool use16BitFormat
   TRACE_CPUPROFILER_EVENT_SCOPE(FPixelReader::SendPixelsInRenderThread);
   check(Sensor.CaptureRenderTarget != nullptr);
 
-  if (!Sensor.HasActorBegunPlay() || IsGarbage(&Sensor))
+  if (!Sensor.HasActorBegunPlay() || !IsValid(&Sensor))
   {
     return;
   }
@@ -111,18 +112,18 @@ void FPixelReader::SendPixelsInRenderThread(TSensor &Sensor, bool use16BitFormat
   ENQUEUE_RENDER_COMMAND(FWritePixels_SendPixelsInRenderThread)
   (
     [&Sensor, use16BitFormat, Conversor = std::move(Conversor), Frame = FCarlaEngine::GetFrameCounter(),
-     Timestamp = Sensor.GetEpisode().GetElapsedGameTime(), Transform = Sensor.GetActorTransform()](auto &InRHICmdList) mutable
+     Timestamp = Sensor.GetEpisode().GetElapsedGameTime(), Transform = Sensor.GetActorTransform()](FRHICommandListImmediate &InRHICmdList) mutable
     {
       TRACE_CPUPROFILER_EVENT_SCOPE_STR("FWritePixels_SendPixelsInRenderThread");
 
       /// @todo Can we make sure the sensor is not going to be destroyed?
-      if (!IsGarbage(&Sensor))
+      if (IsValid(&Sensor))
       {
         FPixelReader::Payload FuncForSending =
           [&Sensor, Frame, Timestamp, Transform, Conversor = std::move(Conversor)]
           (void *LockedData, uint32 Size, uint32 Offset, uint32 ExpectedRowBytes)
           {
-            if (IsGarbage(&Sensor)) return;
+            if (!IsValid(&Sensor)) return;
 
             TArray<TPixel> Converted;
 

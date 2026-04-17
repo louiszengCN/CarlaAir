@@ -4,13 +4,13 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-#include <PxScene.h>
+// #include <PxScene.h> // UE5: PhysX removed, using Chaos
 
 #include "Carla.h"
 #include "Carla/Sensor/Radar.h"
 #include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "Async/ParallelFor.h" // UE5: drop Runtime/Core/Public/ prefix
 
 #include <compiler/disable-ue4-macros.h>
 #include "carla/geom/Math.h"
@@ -131,7 +131,7 @@ void ARadar::SendLineTraces(float DeltaTime)
   }
 
   FCriticalSection Mutex;
-  GetWorld()->GetPhysicsScene()->GetPxScene()->lockRead();
+  // UE5: GetPxScene()->lockRead()/unlockRead() removed; Chaos physics does not need scene lock
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(ParallelFor);
     ParallelFor(NumPoints, [&](int32 idx) {
@@ -149,7 +149,7 @@ void ARadar::SendLineTraces(float DeltaTime)
         MaxRy * Radius * Sin
       });
 
-      const bool Hitted = GetWorld()->ParallelLineTraceSingleByChannel(
+      const bool Hitted = GetWorld()->LineTraceSingleByChannel( // UE5: ParallelLineTraceSingleByChannel removed; LineTraceSingleByChannel is thread-safe in Chaos
         OutHit,
         RadarLocation,
         EndLocation,
@@ -158,8 +158,8 @@ void ARadar::SendLineTraces(float DeltaTime)
         FCollisionResponseParams::DefaultResponseParam
       );
 
-      const TWeakObjectPtr<AActor> HittedActor = OutHit.Actor;
-      if (Hitted && HittedActor.Get()) {
+      AActor* HittedActor = OutHit.GetActor(); // UE5: FHitResult::Actor → GetActor()
+      if (Hitted && HittedActor) {
         Rays[idx].Hitted = true;
 
         Rays[idx].RelativeVelocity = CalculateRelativeVelocity(OutHit, RadarLocation);
@@ -175,7 +175,7 @@ void ARadar::SendLineTraces(float DeltaTime)
       }
     });
   }
-  GetWorld()->GetPhysicsScene()->GetPxScene()->unlockRead();
+  // (PhysX unlockRead removed in UE5)
 
   // Write the detections in the output structure
   for (auto& ray : Rays) {
@@ -195,8 +195,8 @@ float ARadar::CalculateRelativeVelocity(const FHitResult& OutHit, const FVector&
 {
   constexpr float TO_METERS = 1e-2;
 
-  const TWeakObjectPtr<AActor> HittedActor = OutHit.Actor;
-  const FVector TargetVelocity = HittedActor->GetVelocity();
+  AActor* HittedActor = OutHit.GetActor(); // UE5: FHitResult::Actor → GetActor()
+  const FVector TargetVelocity = HittedActor ? HittedActor->GetVelocity() : FVector::ZeroVector;
   const FVector TargetLocation = OutHit.ImpactPoint;
   const FVector Direction = (TargetLocation - RadarLocation).GetSafeNormal();
   const FVector DeltaVelocity = (TargetVelocity - CurrentVelocity);

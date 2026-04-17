@@ -7,7 +7,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object.h"
+#include "UObject/Object.h" // UE5: moved to UObject/
 #include "TrafficLightState.h"
 #include "TrafficLightComponent.h"
 #include "Containers/Map.h"

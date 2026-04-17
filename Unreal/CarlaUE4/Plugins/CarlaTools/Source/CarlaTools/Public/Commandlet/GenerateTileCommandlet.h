@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Runtime/Engine/Classes/Engine/ObjectLibrary.h"
+#include "Engine/ObjectLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
 #include "Commandlets/Commandlet.h"
 
 #include <compiler/disable-ue4-macros.h>

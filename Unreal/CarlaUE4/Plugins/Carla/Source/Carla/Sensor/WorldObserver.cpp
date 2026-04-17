@@ -298,7 +298,7 @@ static carla::Buffer FWorldObserver_Serialize(
   auto total_size = sizeof(Serializer::Header) + sizeof(ActorDynamicState) * Registry.Num();
   auto current_size = 0;
   // Set up buffer for writing.
-  buffer.reset(total_size);
+  buffer.reset(static_cast<uint64_t>(total_size)); // UE5: disambiguate reset(uint32_t) vs reset(uint64_t)
   auto write_data = [&current_size, &buffer](const auto &data)
   {
     auto begin = buffer.begin() + current_size;

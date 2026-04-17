@@ -39,6 +39,9 @@ namespace rpc {
   class Server {
   public:
 
+    // UE5: rpclib 2.2.1 does not expose connection callbacks; use std::function
+    using callback_type = std::function<void(::rpc::session_id_t)>;
+
     template <typename... Args>
     explicit Server(Args &&... args);
 
@@ -58,7 +61,7 @@ namespace rpc {
       TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);
       #include <compiler/disable-ue4-macros.h>
       #endif // LIBCARLA_INCLUDED_FROM_UE4
-      _sync_io_context.reset();
+      _sync_io_context.restart(); // UE5: Boost.Asio reset() renamed to restart()
       _sync_io_context.run_for(duration.to_chrono());
     }
 
@@ -68,13 +71,9 @@ namespace rpc {
       _server.stop();
     }
 
-    void BindOnClientConnected(::rpc::server::callback_type callback) {
-      _server.set_on_connection(callback);
-    }
-
-    void BindOnClientDisconnected(::rpc::server::callback_type callback) {
-      _server.set_on_disconnection(callback);
-    }
+    // UE5: rpclib 2.2.1 does not support connection/disconnection callbacks; accept any callable, ignore it
+    template <typename F> void BindOnClientConnected(F &&) {}
+    template <typename F> void BindOnClientDisconnected(F &&) {}
 
   private:
 
@@ -122,7 +121,8 @@ namespace detail {
       return [&shutdown_in_progress, &io, functor=std::forward<FuncT>(functor)](Metadata metadata, Args... args) -> R {
         auto const session_id = ::rpc::this_session().id();
         auto task = std::packaged_task<R()>([session_id, functor=std::move(functor), args...]() {
-          ::rpc::this_session().set_id(session_id);
+          // UE5: rpclib 2.2.1 this_session().set_id() is private; skip session restore
+          (void)session_id;
           return functor(args...);
         });
         if (metadata.IsResponseIgnored()) {

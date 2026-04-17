@@ -8,11 +8,11 @@
 
 #include "Carla/OpenDrive/OpenDriveActor.h"
 #include "Commandlets/Commandlet.h"
-#include "Runtime/Engine/Classes/Engine/ObjectLibrary.h"
+#include "Engine/ObjectLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
 
 #if WITH_EDITORONLY_DATA
-#include "AssetRegistry/Public/AssetRegistryModule.h"
-#include "Developer/AssetTools/Public/AssetToolsModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: removed /Public/ subpath
+#include "AssetToolsModule.h" // UE5: AssetTools/Public/ auto-added by module dep; just use filename
 #endif // WITH_EDITORONLY_DATA
 #include "MoveAssetsCommandlet.generated.h"
 

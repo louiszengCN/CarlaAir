@@ -21,7 +21,7 @@
 // #include "WheeledVehicleMovementComponent4W.h" // UE5: removed, use ChaosWheeledVehicleMovementComponent
 // #include "WheeledVehicleMovementComponentNW.h" // UE5: removed
 #include "ChaosWheeledVehicleMovementComponent.h"
-#include "ChaosVehicleAnimationInstance.h"
+#include "VehicleAnimationInstance.h" // UE5: renamed from ChaosVehicleAnimationInstance.h
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "MovementComponents/BaseCarlaMovementComponent.h"
 

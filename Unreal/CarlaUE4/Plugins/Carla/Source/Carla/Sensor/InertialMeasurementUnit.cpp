@@ -191,7 +191,7 @@ float AInertialMeasurementUnit::ComputeCompass()
 void AInertialMeasurementUnit::PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaTime)
 {
   // Safety: skip tick if owner (parent vehicle) has been destroyed
-  if (GetOwner() == nullptr || IsGarbage(this))
+  if (GetOwner() == nullptr || !IsValid(this))
   {
     return;
   }

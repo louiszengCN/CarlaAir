@@ -28,8 +28,8 @@ namespace ImageUtil
     case PF_G16:
     case PF_R16_UINT:
     case PF_R16_SINT:
-      // Shadow maps
-      ConvertRawR16DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
+      // Shadow maps — UE5: ConvertRawR16DataToFLinearColor renamed to ConvertRawR16UDataToFLinearColor
+      ConvertRawR16UDataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
       break;
     case PF_R8G8B8A8:
       ConvertRawR8G8B8A8DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
@@ -46,7 +46,8 @@ namespace ImageUtil
       ConvertRawR16G16B16A16FDataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
       break;
     case PF_FloatR11G11B10:
-      ConvertRawRR11G11B10DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
+      // UE5: ConvertRawRR11G11B10DataToFLinearColor renamed to ConvertRawR11G11B10FDataToFLinearColor
+      ConvertRawR11G11B10FDataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
       break;
     case PF_A32B32G32R32F:
       ConvertRawR32G32B32A32DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
@@ -58,13 +59,27 @@ namespace ImageUtil
       ConvertRawR16G16DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData());
       break;
     case PF_DepthStencil: // Depth / Stencil
-      ConvertRawD32S8DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
+      // UE5: ConvertRawD32S8DataToFLinearColor renamed to ConvertRawDepthStencil64DataToFLinearColor
+      ConvertRawDepthStencil64DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
       break;
     case PF_X24_G8: // Depth Stencil
       ConvertRawR24G8DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
       break;
-    case PF_R32_FLOAT: // Depth Stencil
-      ConvertRawR32DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
+    case PF_R32_FLOAT: // Depth — single-channel float; no UE5 built-in, implement inline
+      {
+        float* SrcRow = (float*)PixelData;
+        FLinearColor* DstRow = Out.GetData();
+        for (int32 Y = 0; Y < DestinationExtent.Y; ++Y)
+        {
+          for (int32 X = 0; X < DestinationExtent.X; ++X)
+          {
+            float D = SrcRow[X];
+            DstRow[X] = FLinearColor(D, D, D, 1.0f);
+          }
+          SrcRow = (float*)((uint8*)SrcRow + SourcePitch);
+          DstRow += DestinationExtent.X;
+        }
+      }
       break;
     case PF_R16G16B16A16_UINT:
     case PF_R16G16B16A16_SINT:
@@ -128,8 +143,21 @@ namespace ImageUtil
     case PF_X24_G8: // Depth / Stencil
       ConvertRawR24G8DataToFColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
       break;
-    case PF_R32_FLOAT: // Depth
-      ConvertRawR32DataToFColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
+    case PF_R32_FLOAT: // Depth — single-channel float; no UE5 built-in, implement inline
+      {
+        float* SrcRow = (float*)PixelData;
+        FColor* DstRow = Out.GetData();
+        for (int32 Y = 0; Y < DestinationExtent.Y; ++Y)
+        {
+          for (int32 X = 0; X < DestinationExtent.X; ++X)
+          {
+            uint8 C = (uint8)(FMath::Clamp(SrcRow[X], 0.0f, 1.0f) * 255.0f);
+            DstRow[X] = FColor(C, C, C, 255);
+          }
+          SrcRow = (float*)((uint8*)SrcRow + SourcePitch);
+          DstRow += DestinationExtent.X;
+        }
+      }
       break;
     case PF_R16G16B16A16_UINT:
     case PF_R16G16B16A16_SINT:

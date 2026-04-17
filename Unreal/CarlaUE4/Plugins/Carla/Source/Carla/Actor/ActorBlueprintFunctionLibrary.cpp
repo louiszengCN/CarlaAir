@@ -62,7 +62,11 @@ private:
         Message += String;
       }
       Message += TEXT(" ");
-      Message += FString::Printf(Format, std::forward<ARGS>(Args) ...);
+      // UE5.7: FString::Printf uses consteval format validation which fails for
+      // non-constexpr template parameters. Use FCString::Sprintf to bypass.
+      TCHAR TmpBuf[2048];
+      FCString::Sprintf(TmpBuf, Format, std::forward<ARGS>(Args)...);
+      Message += TmpBuf;
 
       UE_LOG(LogCarla, Error, TEXT("%s"), *Message);
 #if WITH_EDITOR

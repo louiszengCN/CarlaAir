@@ -43,7 +43,8 @@ void AInstanceSegmentationCamera::PostPhysTick(UWorld *World, ELevelTick TickTyp
 }
 
 void AInstanceSegmentationCamera::SetUpSceneCaptureComponentForTagging(USceneCaptureComponent2D &SceneCapture) {
-  SceneCapture.ShowFlags.SetNotDrawTaggedComponents(false); // TaggedComponent detects this and sets view relevance for proxy material
+  // UE5: NotDrawTaggedComponents was a patched engine flag; not available in stock UE5.7
+  // SceneCapture.ShowFlags.SetNotDrawTaggedComponents(false);
   SceneCapture.ShowFlags.SetAtmosphere(false);
   SceneCapture.PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
   AddTaggedComponentsToSceneCapture(SceneCapture);
@@ -56,8 +57,8 @@ void AInstanceSegmentationCamera::PostPhysTickForTagging(USceneCaptureComponent2
 
 void AInstanceSegmentationCamera::AddTaggedComponentsToSceneCapture(USceneCaptureComponent2D &SceneCapture) {
   TArray<UObject*> TaggedComponents;
-  GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
-  GetObjectsOfClass(UTaggedLandscapeComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
+  GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None);
+  GetObjectsOfClass(UTaggedLandscapeComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None);
 
   for (UObject* Object : TaggedComponents) {
     UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Object);

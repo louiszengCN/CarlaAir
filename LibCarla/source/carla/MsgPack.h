@@ -8,7 +8,11 @@
 
 #include "carla/Buffer.h"
 
+// macOS defines nil as nullptr which conflicts with msgpack's typedef nil_t nil
+#pragma push_macro("nil")
+#undef nil
 #include <rpc/msgpack.hpp>
+#pragma pop_macro("nil")
 
 namespace carla {
 
@@ -20,7 +24,7 @@ namespace carla {
       namespace mp = ::clmdep_msgpack;
       mp::sbuffer sbuf;
       mp::pack(sbuf, obj);
-      return Buffer(reinterpret_cast<const unsigned char *>(sbuf.data()), sbuf.size());
+      return Buffer(reinterpret_cast<const unsigned char *>(sbuf.data()), static_cast<uint64_t>(sbuf.size()));
     }
 
     template <typename T>

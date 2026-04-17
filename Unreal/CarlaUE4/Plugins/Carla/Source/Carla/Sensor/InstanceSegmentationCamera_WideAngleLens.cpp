@@ -38,14 +38,15 @@ void AInstanceSegmentationCamera_WideAngleLens::SetUpSceneCaptureComponents(TArr
   {
     ApplyViewMode(VMI_Unlit, true, SceneCapture->ShowFlags);
 
-    SceneCapture->ShowFlags.SetNotDrawTaggedComponents(false); // TaggedComponent detects this and sets view relevance for proxy material
+    // UE5: NotDrawTaggedComponents was a patched engine flag; not available in stock UE5.7
+    // SceneCapture->ShowFlags.SetNotDrawTaggedComponents(false);
 
     SceneCapture->ShowFlags.SetAtmosphere(false);
 
     SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 
     TArray<UObject *> TaggedComponents;
-    GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
+    GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None);
 
     TArray<UPrimitiveComponent *> ShowOnlyComponents;
     for (UObject *Object : TaggedComponents) {
@@ -60,7 +61,7 @@ void AInstanceSegmentationCamera_WideAngleLens::PostPhysTick(UWorld *World, ELev
   TRACE_CPUPROFILER_EVENT_SCOPE(AInstanceSegmentationCamera_WideAngleLens::PostPhysTick);
 
   TArray<UObject*> TaggedComponents;
-  GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::AllFlags);
+  GetObjectsOfClass(UTaggedComponent::StaticClass(), TaggedComponents, false, EObjectFlags::RF_ClassDefaultObject, EInternalObjectFlags::None);
 
   for (auto SceneCapture : Super::GetCaptureComponents2D())
   {

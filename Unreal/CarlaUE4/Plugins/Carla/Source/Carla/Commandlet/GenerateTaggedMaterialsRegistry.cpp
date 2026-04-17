@@ -1,7 +1,9 @@
 #include "GenerateTaggedMaterialsRegistry.h"
 #include "PrepareAssetsForCookingCommandlet.h"
+#include "Carla.h" // UE5: provides LogCarla log category
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "UObject/SavePackage.h" // UE5: FSavePackageArgs
 
 #if WITH_EDITOR
 #include "FileHelpers.h"

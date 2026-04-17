@@ -7,6 +7,7 @@
 #include "Carla.h"
 #include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
 #include "Carla/Game/CarlaEpisode.h"
+#include "Carla/Game/CarlaStatics.h" // UE5: UCarlaStatics declaration needed
 #include "Carla/Vehicle/CarlaWheeledVehicle.h"
 #include <string>
 #include <cstring>

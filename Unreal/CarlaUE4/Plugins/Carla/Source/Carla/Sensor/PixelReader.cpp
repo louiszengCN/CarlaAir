@@ -11,6 +11,7 @@
 #include "Async/Async.h"
 #include "HighResScreenshot.h"
 #include "Runtime/ImageWriteQueue/Public/ImageWriteQueue.h"
+#include "RHIGPUReadback.h" // UE5: FRHIGPUTextureReadback
 
 #include <thread>
 #include <chrono>
@@ -47,7 +48,7 @@ void FPixelReader::WritePixelsToBuffer(
   // UE5: UTexture::Resource field removed; use GetResource() instead
   auto RenderResource =
       static_cast<const FTextureRenderTarget2DResource *>(RenderTarget.GetResource());
-  FTexture2DRHIRef Texture = RenderResource->GetRenderTargetTexture();
+  FTextureRHIRef Texture = RenderResource->GetRenderTargetTexture(); // UE5: FTexture2DRHIRef → FTextureRHIRef
   if (!Texture)
   {
     return;
@@ -74,7 +75,7 @@ void FPixelReader::WritePixelsToBuffer(
     RHICmdList.ImmediateFlush(EImmediateFlushType::FlushRHIThread);
     TRACE_CPUPROFILER_EVENT_SCOPE_STR("query result");
     uint64 OldAbsTime = 0;
-    RHICmdList.GetRenderQueryResult(Query, OldAbsTime, true);
+    RHIGetRenderQueryResult(Query, OldAbsTime, true); // UE5: GetRenderQueryResult moved from RHICmdList to global RHIGetRenderQueryResult
   }
 
   AsyncTask(ENamedThreads::HighTaskPriority, [=, Readback=std::move(BackBufferReadback)]() mutable {
@@ -154,6 +155,7 @@ TFuture<bool> FPixelReader::SavePixelsToDisk(
   ImageTask->bOverwriteFile = true;
   ImageTask->PixelPreProcessors.Add(TAsyncAlphaWrite<FColor>(255));
 
-  FHighResScreenshotConfig &HighResScreenshotConfig = GetHighResScreenshotConfig();
-  return HighResScreenshotConfig.ImageWriteQueue->Enqueue(MoveTemp(ImageTask));
+  // Use local scope alias to avoid potential macro collision with LibCarla/Boost headers
+  auto& ScrConfig = GetHighResScreenshotConfig();
+  return ScrConfig.ImageWriteQueue->Enqueue(MoveTemp(ImageTask));
 }

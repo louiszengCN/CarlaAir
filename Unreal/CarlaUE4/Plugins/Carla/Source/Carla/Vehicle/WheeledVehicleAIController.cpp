@@ -15,7 +15,7 @@
 
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
-#include "WheeledVehicleMovementComponent.h"
+#include "ChaosWheeledVehicleMovementComponent.h" // UE5: WheeledVehicleMovementComponent.h → ChaosWheeledVehicleMovementComponent.h
 
 // =============================================================================
 // -- Static local methods -----------------------------------------------------

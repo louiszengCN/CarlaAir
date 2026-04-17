@@ -8,7 +8,7 @@
 
 #include "PrepareAssetsForCookingCommandlet.h"
 #include "Util/RoadPainterWrapper.h"
-#include "Runtime/Engine/Classes/Engine/ObjectLibrary.h"
+#include "Engine/ObjectLibrary.h" // UE5: drop Runtime/Engine/Classes/ prefix
 #include "Carla/OpenDrive/OpenDrive.h"
 #include <carla/opendrive/OpenDriveParser.h>
 

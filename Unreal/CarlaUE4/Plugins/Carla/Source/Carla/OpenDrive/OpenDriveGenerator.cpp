@@ -15,8 +15,8 @@
 #include <carla/rpc/String.h>
 #include <compiler/enable-ue4-macros.h>
 
-#include "Engine/Classes/Interfaces/Interface_CollisionDataProvider.h"
-#include "PhysicsCore/Public/BodySetupEnums.h"
+#include "Interfaces/Interface_CollisionDataProvider.h" // UE5: drop Engine/Classes/ prefix
+#include "BodySetupEnums.h" // UE5: drop PhysicsCore/Public/ prefix
 
 AProceduralMeshActor::AProceduralMeshActor()
 {

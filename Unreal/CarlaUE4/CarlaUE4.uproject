@@ -18,6 +18,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+		{
 			"Name": "Carla",
 			"Enabled": true
 		},
@@ -128,6 +132,14 @@
 		{
 			"Name": "HairStrands",
 			"Enabled": true
+		},
+		{
+			"Name": "MDL",
+			"Enabled": false
+		},
+		{
+			"Name": "CarlaExporter",
+			"Enabled": false
 		}
 	]
 }

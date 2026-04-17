@@ -17,6 +17,7 @@
 #include "CarlaRecorderLightScene.h"
 #include "CarlaRecorderDoorVehicle.h"	
 #include "CarlaRecorderWalkerBones.h"
+#include "CarlaRecorderWeather.h"
 
 #include <unordered_map>
 

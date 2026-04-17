@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma de Barcelona (UAB). This work is licensed under the terms of the MIT license. For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "USDImporterWidget.h"
+#include "CarlaTools.h" // UE5: provides LogCarlaTools log category
 #ifdef WITH_SIMREADY
   #include "USDCARLAInterface.h"
 #include "SimReadyPathHelper.h"
@@ -24,10 +25,15 @@
 #include "Components/PointLightComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/BoxComponent.h"
-#include "VehicleWheel.h"
+#include "ChaosVehicleWheel.h" // UE5: VehicleWheel.h removed, replaced by ChaosVehicleWheel.h
+#include "ChaosWheeledVehicleMovementComponent.h" // UE5: FChaosWheelSetup, UChaosWheeledVehicleMovementComponent
+#include "StaticMeshEditorSubsystem.h" // UE5: UEditorStaticMeshLibrary → UStaticMeshEditorSubsystem
+#include "PhysicsEngine/BodySetup.h" // UE5: UBodySetup complete type
+#include "PhysicsEngine/SkeletalBodySetup.h" // UE5: USkeletalBodySetup complete type for Cast
+#include "UObject/SavePackage.h" // UE5: FSavePackageArgs
 #include "IAssetTools.h"
 #include "AssetToolsModule.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h" // UE5: bare AssetRegistryModule.h removed
 #include "Factories/BlueprintFactory.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "BlueprintEditor.h"
@@ -745,31 +751,31 @@ AActor* UUSDImporterWidget::GenerateNewVehicleBlueprint(
 	  }
   }
 
-  // set the wheel radius
-  UVehicleWheel* WheelDefault;
-  WheelDefault = WheelTemplates.WheelFL->GetDefaultObject<UVehicleWheel>();
+  // set the wheel radius (UE5 ChaosVehicles: UVehicleWheel→UChaosVehicleWheel, ShapeRadius→WheelRadius)
+  UChaosVehicleWheel* WheelDefault;
+  WheelDefault = WheelTemplates.WheelFL->GetDefaultObject<UChaosVehicleWheel>();
   if (VehicleMeshes.WheelFL)
   {
-    WheelDefault->ShapeRadius = VehicleMeshes.WheelFL->GetBounds().SphereRadius;
+    WheelDefault->WheelRadius = VehicleMeshes.WheelFL->GetBounds().SphereRadius;
   }
-  WheelDefault = WheelTemplates.WheelFR->GetDefaultObject<UVehicleWheel>();
+  WheelDefault = WheelTemplates.WheelFR->GetDefaultObject<UChaosVehicleWheel>();
   if (VehicleMeshes.WheelFR)
   {
-    WheelDefault->ShapeRadius = VehicleMeshes.WheelFR->GetBounds().SphereRadius;
+    WheelDefault->WheelRadius = VehicleMeshes.WheelFR->GetBounds().SphereRadius;
   }
-  WheelDefault = WheelTemplates.WheelRL->GetDefaultObject<UVehicleWheel>();
+  WheelDefault = WheelTemplates.WheelRL->GetDefaultObject<UChaosVehicleWheel>();
   if (VehicleMeshes.WheelRL)
   {
-    WheelDefault->ShapeRadius = VehicleMeshes.WheelRL->GetBounds().SphereRadius;
+    WheelDefault->WheelRadius = VehicleMeshes.WheelRL->GetBounds().SphereRadius;
   }
-  WheelDefault = WheelTemplates.WheelRR->GetDefaultObject<UVehicleWheel>();
+  WheelDefault = WheelTemplates.WheelRR->GetDefaultObject<UChaosVehicleWheel>();
   if (VehicleMeshes.WheelRR)
   {
-    WheelDefault->ShapeRadius = VehicleMeshes.WheelRR->GetBounds().SphereRadius;
+    WheelDefault->WheelRadius = VehicleMeshes.WheelRR->GetBounds().SphereRadius;
   }
-  // assign generated wheel types
-  TArray<FWheelSetup> WheelSetups;
-  FWheelSetup Setup;
+  // assign generated wheel types (UE5 ChaosVehicles: FWheelSetup→FChaosWheelSetup)
+  TArray<FChaosWheelSetup> WheelSetups;
+  FChaosWheelSetup Setup;
   Setup.WheelClass = WheelTemplates.WheelFL;
   Setup.BoneName = "Wheel_Front_Left";
   WheelSetups.Add(Setup);
@@ -786,10 +792,11 @@ AActor* UUSDImporterWidget::GenerateNewVehicleBlueprint(
       Cast<ACarlaWheeledVehicle>(TemplateActor);
   if(CarlaVehicle)
   {
-    UWheeledVehicleMovementComponent4W* MovementComponent =
-        Cast<UWheeledVehicleMovementComponent4W>(
+    // UE5 ChaosVehicles: UWheeledVehicleMovementComponent4W→UChaosWheeledVehicleMovementComponent
+    UChaosWheeledVehicleMovementComponent* MovementComponent =
+        Cast<UChaosWheeledVehicleMovementComponent>(
             CarlaVehicle->GetVehicleMovementComponent());
-    MovementComponent->WheelSetups = WheelSetups;
+    if (MovementComponent) MovementComponent->WheelSetups = WheelSetups;
   }
   else
   {
@@ -823,11 +830,14 @@ AActor* UUSDImporterWidget::GenerateNewVehicleBlueprint(
   }
 
   // Set the vehicle collision in the new physicsasset object
-  UEditorStaticMeshLibrary::AddSimpleCollisions(
-      VehicleMeshes.Body, EScriptingCollisionShapeType::NDOP26);
+  // UE5: UEditorStaticMeshLibrary → UStaticMeshEditorSubsystem; EScriptingCollisionShapeType → EScriptCollisionShapeType
+  if (UStaticMeshEditorSubsystem* MeshEditorSubsystem = GEditor->GetEditorSubsystem<UStaticMeshEditorSubsystem>())
+  {
+    MeshEditorSubsystem->AddSimpleCollisions(VehicleMeshes.Body, EScriptCollisionShapeType::NDOP26);
+  }
   CopyCollisionToPhysicsAsset(NewPhysicsAsset, VehicleMeshes.Body);
-  // assign the physics asset to the skeletal mesh
-  NewSkeletalMesh->PhysicsAsset = NewPhysicsAsset;
+  // assign the physics asset to the skeletal mesh (UE5: use setter)
+  NewSkeletalMesh->SetPhysicsAsset(NewPhysicsAsset);
   // Create the new blueprint vehicle
   FKismetEditorUtilities::FCreateBlueprintFromActorParams Params;
   Params.bReplaceActor = false;
@@ -873,27 +883,23 @@ bool UUSDImporterWidget::EditSkeletalMeshBones(
 
   UE_LOG(LogCarlaTools, Log, TEXT("Saving vehicle skeletal mesh to: %s "), *PackageFileName);
 
-  return UPackage::SavePackage(
-    Package, 
-    NewSkeletalMesh, 
-    EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, 
-    *PackageFileName, 
-    GError, 
-    nullptr, 
-    true, 
-    true, 
-    SAVE_NoError
-    );
+  // UE5: UPackage::SavePackage API changed; use FSavePackageArgs
+  FSavePackageArgs SaveArgs;
+  SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+  SaveArgs.SaveFlags = SAVE_NoError;
+  return UPackage::SavePackage(Package, NewSkeletalMesh, *PackageFileName, SaveArgs);
 }
 
 void UUSDImporterWidget::CopyCollisionToPhysicsAsset(
     UPhysicsAsset* PhysicsAssetToEdit, UStaticMesh* StaticMesh)
 {
   UE_LOG(LogCarlaTools, Log, TEXT("Num bodysetups %d"), PhysicsAssetToEdit->SkeletalBodySetups.Num());
-  UBodySetup* BodySetupPhysicsAsset = 
+  // UE5: SkeletalBodySetups holds TObjectPtr<USkeletalBodySetup>; upcast to UBodySetup* (requires complete type)
+  UBodySetup* BodySetupPhysicsAsset =
       PhysicsAssetToEdit->SkeletalBodySetups[
-          PhysicsAssetToEdit->FindBodyIndex(FName("Vehicle_Base"))];
-  UBodySetup* BodySetupStaticMesh = StaticMesh->BodySetup;
+          PhysicsAssetToEdit->FindBodyIndex(FName("Vehicle_Base"))].Get();
+  // UE5: StaticMesh->BodySetup is private; use GetBodySetup()
+  UBodySetup* BodySetupStaticMesh = StaticMesh->GetBodySetup();
   // MUST clear existing simple collision, or bCreatedPhysicsMeshes is still enabled and won't get the valid ConvexMesh
   BodySetupPhysicsAsset->RemoveSimpleCollision();
   BodySetupPhysicsAsset->AggGeom = BodySetupStaticMesh->AggGeom;

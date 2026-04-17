@@ -168,13 +168,13 @@ public:
   template<typename T>
   T* GetActorData()
   {
-    return dynamic_cast<T*>(ActorData.Get());
+    return static_cast<T*>(ActorData.Get()); // UE5: dynamic_cast disabled (no RTTI); caller must ensure correct type
   }
 
   template<typename T>
   const T* GetActorData() const
   {
-    return dynamic_cast<T*>(ActorData.Get());
+    return static_cast<const T*>(ActorData.Get()); // UE5: dynamic_cast disabled (no RTTI)
   }
 
   FActorAttribute GetAttribute(const FString Name) const { return Info->Description.GetAttribute(Name); }

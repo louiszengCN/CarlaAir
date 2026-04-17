@@ -86,7 +86,8 @@ void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FStri
       std::size_t BytesReceived =
         Asio::read(*SocketPtr, Buffer, Asio::transfer_at_least(2));
       TArray<uint8_t> ThisReceivedData;
-      const char* DataPtr = Asio::buffer_cast<const char*>(Buffer.data());
+      // UE5/Boost1.90: buffer_cast removed; access streambuf data directly
+      const char* DataPtr = static_cast<const char*>(Buffer.data().data());
       for (std::size_t i = 0; i < Buffer.size(); ++i)
       {
         ThisReceivedData.Add(DataPtr[i]);
@@ -111,7 +112,7 @@ void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FStri
           Region.Width = Texture->GetSizeX();
           Region.Height = Texture->GetSizeY();
 
-          FTexture2DResource* Resource = (FTexture2DResource*)Texture->Resource;
+          FTexture2DResource* Resource = (FTexture2DResource*)Texture->GetResource(); // UE5: UTexture::Resource removed
           RHIUpdateTexture2D(Resource->GetTexture2DRHI(), 0, Region, Region.Width * sizeof(uint8_t) * 4, &NewData[0]);
         }
       );
@@ -129,7 +130,8 @@ FString UMapPreviewUserWidget::RecvCornersLatLonCoords()
   AsioStreamBuf Buffer;
   std::size_t BytesReceived =
       Asio::read(*SocketPtr, Buffer, Asio::transfer_at_least(2));
-  std::string BytesStr = Asio::buffer_cast<const char*>(Buffer.data());
+  // UE5/Boost1.90: buffer_cast removed; construct std::string from raw buffer pointer + size
+  std::string BytesStr(static_cast<const char*>(Buffer.data().data()), Buffer.size());
 
   FString CoordStr = FString(BytesStr.size(), UTF8_TO_TCHAR(BytesStr.c_str()));
   UE_LOG(LogTemp, Log, TEXT("Received Coords %s"), *CoordStr);

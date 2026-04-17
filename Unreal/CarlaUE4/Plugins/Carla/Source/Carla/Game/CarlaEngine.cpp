@@ -15,7 +15,7 @@
 #include "Carla/Settings/CarlaSettings.h"
 #include "Carla/Settings/EpisodeSettings.h"
 
-#include "Runtime/Core/Public/Misc/App.h"
+#include "Misc/App.h" // UE5: drop Runtime/Core/Public/ prefix
 #include "PhysicsEngine/PhysicsSettings.h"
 #include "Carla/MapGen/LargeMapManager.h"
 
@@ -108,7 +108,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
       bIsPrimaryServer = false;
 
       // define the commands executor (when a command comes from the primary server)
-      auto CommandExecutor = [=](carla::multigpu::MultiGPUCommand Id, carla::Buffer Data) {
+      auto CommandExecutor = [=, this](carla::multigpu::MultiGPUCommand Id, carla::Buffer Data) { // C++20: explicit this capture
         struct CarlaStreamBuffer : public std::streambuf
         {
             CarlaStreamBuffer(char *buf, std::size_t size) { setg(buf, buf, buf + size); }
@@ -149,7 +149,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
             auto sensor_id = *(reinterpret_cast<carla::streaming::detail::stream_id_type *>(Data.data()));
             // query dispatcher
             carla::streaming::detail::token_type token(Server.GetStreamingServer().GetToken(sensor_id));
-            carla::Buffer buf(reinterpret_cast<unsigned char *>(&token), (size_t) sizeof(token));
+            carla::Buffer buf(reinterpret_cast<unsigned char *>(&token), (uint64_t) sizeof(token));
             carla::log_info("responding with a token for port ", token.get_port());
             Secondary->Write(std::move(buf));
             break;
@@ -157,7 +157,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
           case carla::multigpu::MultiGPUCommand::YOU_ALIVE:
           {
             std::string msg("Yes, I'm alive");
-            carla::Buffer buf((unsigned char *) msg.c_str(), (size_t) msg.size());
+            carla::Buffer buf((unsigned char *) msg.c_str(), (uint64_t) msg.size());
             carla::log_info("responding is alive command");
             Secondary->Write(std::move(buf));
             break;
@@ -169,7 +169,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
             Server.GetStreamingServer().EnableForROS(stream_actor_id);
             // return a 'true'
             bool res = true;
-            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (size_t) sizeof(bool));
+            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (uint64_t) sizeof(bool));
             carla::log_info("responding ENABLE_ROS with a true");
             Secondary->Write(std::move(buf));
             break;
@@ -181,7 +181,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
             Server.GetStreamingServer().DisableForROS(stream_actor_id);
             // return a 'true'
             bool res = true;
-            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (size_t) sizeof(bool));
+            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (uint64_t) sizeof(bool));
             carla::log_info("responding DISABLE_ROS with a true");
             Secondary->Write(std::move(buf));
             break;
@@ -191,7 +191,7 @@ void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
             auto stream_actor_id = *(reinterpret_cast<carla::streaming::detail::stream_actor_id_type *>(Data.data()));
             // query dispatcher
             bool res = Server.GetStreamingServer().IsEnabledForROS(stream_actor_id);
-            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (size_t) sizeof(bool));
+            carla::Buffer buf(reinterpret_cast<unsigned char *>(&res), (uint64_t) sizeof(bool));
             carla::log_info("responding IS_ENABLED_ROS with: ", res);
             Secondary->Write(std::move(buf));
             break;
@@ -348,7 +348,7 @@ void FCarlaEngine::OnPostTick(UWorld *World, ELevelTick TickType, float DeltaSec
 
         // send frame data to secondary
         std::string Tmp(OutStream.str());
-        SecondaryServer->GetCommander().SendFrameData(carla::Buffer(std::move((unsigned char *) Tmp.c_str()), (size_t) Tmp.size()));
+        SecondaryServer->GetCommander().SendFrameData(carla::Buffer(std::move((unsigned char *) Tmp.c_str()), (uint64_t) Tmp.size()));
 
         GetCurrentEpisode()->GetFrameData().Clear();
       }

@@ -11,7 +11,8 @@
 
 void AEditorCameraUtils::Get()
 {
-    auto ViewportClient = dynamic_cast<FEditorViewportClient*>(GEditor->GetActiveViewport()->GetClient());
+    // UE5: FEditorViewportClient is not a UObject; Cast<> requires UObject. Use static_cast instead.
+    auto ViewportClient = static_cast<FEditorViewportClient*>(GEditor->GetActiveViewport()->GetClient());
     CameraTransform = FTransform();
     CameraTransform.SetLocation(ViewportClient->GetViewLocation());
     CameraTransform.SetRotation(FQuat(ViewportClient->GetViewRotation()));
@@ -19,7 +20,7 @@ void AEditorCameraUtils::Get()
 
 void AEditorCameraUtils::Set()
 {
-    auto ViewportClient = dynamic_cast<FEditorViewportClient*>(GEditor->GetActiveViewport()->GetClient());
+    auto ViewportClient = static_cast<FEditorViewportClient*>(GEditor->GetActiveViewport()->GetClient()); // UE5: FEditorViewportClient is not UObject
     ViewportClient->SetViewLocation(CameraTransform.GetLocation());
     ViewportClient->SetViewRotation(FRotator(CameraTransform.GetRotation()));
 }

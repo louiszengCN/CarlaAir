@@ -98,6 +98,30 @@ namespace adaptor {
   template<typename... Ts>
   struct convert<boost::variant2::variant<Ts...>> {
 
+  private:
+
+    template <std::size_t I> // UE5/macOS: size_t not uint64_t to match std::make_index_sequence
+    static void copy_to_variant_impl(
+        const clmdep_msgpack::object &o,
+        boost::variant2::variant<Ts...> &v) {
+      /// @todo Workaround for finding the type.
+      auto dummy = std::get<I>(std::tuple<Ts...>{});
+      using T = decltype(dummy);
+      v = o.via.array.ptr[1].as<T>();
+    }
+
+    template <std::size_t... Is> // UE5/macOS: size_t not uint64_t to match std::index_sequence from make_index_sequence
+    static void copy_to_variant(
+        const uint64_t index,
+        const clmdep_msgpack::object &o,
+        boost::variant2::variant<Ts...> &v,
+        std::index_sequence<Is...>) {
+      // C++17 fold expression replacing the C++11 initializer_list trick
+      ((index == Is ? (copy_to_variant_impl<Is>(o, v), 0) : 0), ...);
+    }
+
+  public:
+
     const clmdep_msgpack::object &operator()(
         const clmdep_msgpack::object &o,
         boost::variant2::variant<Ts...> &v) const {
@@ -110,29 +134,6 @@ namespace adaptor {
       const auto index = o.via.array.ptr[0].as<uint64_t>();
       copy_to_variant(index, o, v, std::make_index_sequence<sizeof...(Ts)>());
       return o;
-    }
-
-  private:
-
-    template <uint64_t I>
-    static void copy_to_variant_impl(
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v) {
-      /// @todo Workaround for finding the type.
-      auto dummy = std::get<I>(std::tuple<Ts...>{});
-      using T = decltype(dummy);
-      v = o.via.array.ptr[1].as<T>();
-    }
-
-    template <uint64_t... Is>
-    static void copy_to_variant(
-        const uint64_t index,
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v,
-        std::index_sequence<Is...>) {
-      std::initializer_list<int> ({
-        (index == Is ? copy_to_variant_impl<Is>(o, v), 0 : 0)...
-      });
     }
   };
 

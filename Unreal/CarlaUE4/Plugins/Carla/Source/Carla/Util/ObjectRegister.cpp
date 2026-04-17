@@ -139,11 +139,11 @@ void UObjectRegister::RegisterEnvironmentObject(
     uint8 Tag)
 {
   const FString ActorName = Actor->GetName();
-  const char* ActorNameChar = TCHAR_TO_ANSI(*ActorName);
+  const auto ActorNameAnsi = StringCast<ANSICHAR>(*ActorName); // UE5: FTCHARToANSI removed; use StringCast<ANSICHAR>
 
   FEnvironmentObject EnvironmentObject;
   EnvironmentObject.Transform = Actor->GetActorTransform();
-  EnvironmentObject.Id = CityHash64(ActorNameChar, ActorName.Len());
+  EnvironmentObject.Id = CityHash64(ActorNameAnsi.Get(), ActorName.Len());
   EnvironmentObject.Name = ActorName;
   EnvironmentObject.Actor = Actor;
   EnvironmentObject.CanTick = Actor->IsActorTickEnabled();

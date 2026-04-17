@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: MIT
 //
 
-#include "TextureExporterDDS.h"
+#include "MDLTextureExporterDDS.h"
 #include "DDSUtils.h"
 #include "Engine/Texture.h"
 #include "Engine/Texture2D.h"
 #include "Engine/TextureCube.h"
 #include "Engine/Texture2DDynamic.h"
 
-UTextureExporterDDS::UTextureExporterDDS(const FObjectInitializer& ObjectInitializer)
+UMDLTextureExporterDDS::UMDLTextureExporterDDS(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     SupportedClass = UTexture::StaticClass();
@@ -18,7 +18,7 @@ UTextureExporterDDS::UTextureExporterDDS(const FObjectInitializer& ObjectInitial
     FormatDescription.Add(TEXT("DirectDraw Surface"));
 }
 
-bool UTextureExporterDDS::SupportsObject(UObject* Object) const
+bool UMDLTextureExporterDDS::SupportsObject(UObject* Object) const
 {
 #if PLATFORM_WINDOWS
     bool bSupportsObject = false;
@@ -59,7 +59,7 @@ bool UTextureExporterDDS::SupportsObject(UObject* Object) const
 #endif
 }
 
-bool UTextureExporterDDS::ExportBinary( UObject* Object, const TCHAR* Type, FArchive& Ar, FFeedbackContext* Warn, int32 FileIndex, uint32 PortFlags )
+bool UMDLTextureExporterDDS::ExportBinary( UObject* Object, const TCHAR* Type, FArchive& Ar, FFeedbackContext* Warn, int32 FileIndex, uint32 PortFlags )
 {
 #if PLATFORM_WINDOWS	
     UTexture* Texture = CastChecked<UTexture>( Object );

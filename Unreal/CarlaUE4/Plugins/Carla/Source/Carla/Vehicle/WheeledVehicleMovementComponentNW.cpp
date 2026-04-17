@@ -5,15 +5,17 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "WheeledVehicleMovementComponentNW.h"
-#include "PhysicsPublic.h"
-#include "PhysXPublic.h"
-#include "PhysXVehicleManager.h"
-#include "Components/PrimitiveComponent.h"
-#include "Logging/MessageLog.h"
+// UE5: PhysX includes removed - NW component stubbed out
 
-#if 0 // UE5: WheeledVehicleMovementComponentNW not available in ChaosVehicles
+// Stub constructor for UE5 compatibility
+UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FObjectInitializer& ObjectInitializer)
+  : Super(ObjectInitializer)
+{
+}
 
-UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+#if 0 // UE5: WheeledVehicleMovementComponentNW original implementation disabled
+
+UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW_DISABLED(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// grab default values from physx
 	PxVehicleEngineData DefEngineData;

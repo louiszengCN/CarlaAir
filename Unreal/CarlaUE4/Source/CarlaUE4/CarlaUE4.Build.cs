@@ -7,6 +7,7 @@ public class CarlaUE4 : ModuleRules
 	public CarlaUE4(ReadOnlyTargetRules Target) : base(Target)
 	{
     PrivatePCHHeaderFile = "CarlaUE4.h";
+    bLegacyPublicIncludePaths = true;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 

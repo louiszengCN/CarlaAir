@@ -173,7 +173,7 @@ ASceneCaptureSensor_WideAngleLens::ASceneCaptureSensor_WideAngleLens(const FObje
         check(FaceCapture != nullptr);
         FaceCapture->SetupAttachment(RootComponent);
         FaceCapture->SetRelativeRotation(FRotationMatrix::MakeFromXY(Forward[i], Right[i]).ToQuat());
-        FaceCapture->ViewActor = this;
+        // FaceCapture->ViewActor = this; // UE5.7: ViewActor removed from USceneCaptureComponent2D
         FaceCapture->ProjectionType = ECameraProjectionMode::Perspective;
         FaceCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
         FaceCapture->bCaptureOnMovement = false;
@@ -468,7 +468,7 @@ void ASceneCaptureSensor_WideAngleLens::CaptureSceneExtended()
     {
         TRACE_CPUPROFILER_EVENT_SCOPE(WideAngleLensCommand);
 
-        if (IsGarbage(this))
+        if (!IsValid(this)) // UE5: IsGarbage removed
             return;
 
         FRDGBuilder GraphBuilder(RHICmdList);
@@ -748,7 +748,7 @@ namespace SceneCaptureSensorWideAngleLens_local_ns {
         // ShowFlags.SetLandscape(false);
         // ShowFlags.SetLargeVertices(false);
         ShowFlags.SetLensFlares(false);
-        ShowFlags.SetLevelColoration(false);
+        // ShowFlags.SetLevelColoration(false); // UE5.7: LevelColoration ShowFlag removed
         ShowFlags.SetLightComplexity(false);
         ShowFlags.SetLightFunctions(false);
         ShowFlags.SetLightInfluences(false);
@@ -778,7 +778,7 @@ namespace SceneCaptureSensorWideAngleLens_local_ns {
         // ShowFlags.SetPrecomputedVisibilityCells(false);
         // ShowFlags.SetPreviewShadowsIndicator(false);
         // ShowFlags.SetPrimitiveDistanceAccuracy(false);
-        ShowFlags.SetPropertyColoration(false);
+        // ShowFlags.SetPropertyColoration(false); // UE5.7: PropertyColoration ShowFlag removed
         // ShowFlags.SetQuadOverdraw(false);
         // ShowFlags.SetReflectionEnvironment(false);
         // ShowFlags.SetReflectionOverride(false);
@@ -824,7 +824,7 @@ namespace SceneCaptureSensorWideAngleLens_local_ns {
         ShowFlags.SetVisualizeDOF(false);
         ShowFlags.SetVisualizeHDR(false);
         ShowFlags.SetVisualizeLightCulling(false);
-        ShowFlags.SetVisualizeLPV(false);
+        // ShowFlags.SetVisualizeLPV(false); // UE5.7: VisualizeLPV ShowFlag removed (LPV removed)
         ShowFlags.SetVisualizeMeshDistanceFields(false);
         ShowFlags.SetVisualizeMotionBlur(false);
         ShowFlags.SetVisualizeOutOfBoundsPixels(false);

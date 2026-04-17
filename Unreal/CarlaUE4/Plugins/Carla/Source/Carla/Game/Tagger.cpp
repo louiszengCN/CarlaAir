@@ -123,7 +123,7 @@ void ATagger::TagActor(const AActor &Actor, bool bTagForSemanticSegmentation, ui
   TArray<UStaticMeshComponent *> StaticMeshComponents;
   Actor.GetComponents<UStaticMeshComponent>(StaticMeshComponents);
   for (UStaticMeshComponent *Component : StaticMeshComponents) {
-    auto Label = GetLabelByPath(Component->GetStaticMesh());
+    auto Label = GetLabelByPath(Component->GetStaticMesh().Get()); // UE5: GetStaticMesh() returns TObjectPtr<UStaticMesh>, need .Get() for template match
     if (Label == crp::CityObjectLabel::Pedestrians &&
         Cast<ACarlaWheeledVehicle>(&Actor))
     {
