@@ -42,7 +42,7 @@ void UCarlaSettingsDelegate::RegisterSpawnHandler(UWorld *InWorld)
 
 void UCarlaSettingsDelegate::OnActorSpawned(AActor *InActor)
 {
-  check(CarlaSettings != nullptr);
+  if (!CarlaSettings) { return; }
   if (IsValid(InActor) &&
       !InActor->IsA<AInstancedFoliageActor>() && // foliage culling is
                                                  // controlled per instance
@@ -159,11 +159,10 @@ void UCarlaSettingsDelegate::CheckCarlaSettings(UWorld *world)
   {
     world = GetLocalWorld();
   }
-  check(world != nullptr);
+  if (!world) { return; }
   auto GameInstance  = Cast<UCarlaGameInstance>(world->GetGameInstance());
-  check(GameInstance != nullptr);
+  if (!GameInstance) { return; }
   CarlaSettings = &GameInstance->GetCarlaSettings();
-  check(CarlaSettings != nullptr);
 }
 
 void UCarlaSettingsDelegate::LaunchLowQualityCommands(UWorld *world) const
