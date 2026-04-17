@@ -251,7 +251,7 @@ static void ApplyDistortion(
         [Parameters, Size](FRHICommandListImmediate& RHICmdList)
         {
             TShaderMapRef<FShaderType> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-            check(ComputeShader.IsValid());
+            if (!ComputeShader.IsValid()) { return; }
 
             FComputeShaderUtils::Dispatch(
                 RHICmdList,
@@ -310,7 +310,7 @@ static void ApplyDistortion(
         [Parameters, Size](FRHICommandListImmediate& RHICmdList)
         {
             TShaderMapRef<FShaderType> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-            check(ComputeShader.IsValid());
+            if (!ComputeShader.IsValid()) { return; }
 
             FComputeShaderUtils::Dispatch(RHICmdList, ComputeShader, *Parameters,
                 FComputeShaderUtils::GetGroupCount(
@@ -346,7 +346,7 @@ static void ToPerspective(
         [Parameters, Size](FRHICommandListImmediate& RHICmdList)
         {
             TShaderMapRef<FShaderType> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-            check(ComputeShader.IsValid());
+            if (!ComputeShader.IsValid()) { return; }
 
             FComputeShaderUtils::Dispatch(RHICmdList, ComputeShader, *Parameters,
                 FComputeShaderUtils::GetGroupCount(
@@ -394,7 +394,7 @@ static void ToPerspective(
         [Parameters, Size](FRHICommandListImmediate& RHICmdList)
         {
             TShaderMapRef<FShaderType> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-            check(ComputeShader.IsValid());
+            if (!ComputeShader.IsValid()) { return; }
 
             FComputeShaderUtils::Dispatch(RHICmdList, ComputeShader, *Parameters,
                 FComputeShaderUtils::GetGroupCount(
@@ -476,7 +476,7 @@ namespace CameraModelUtil
             return Theta;
         }
         default:
-            check(false);
+            ensureAlwaysMsgf(false, TEXT("Unhandled ECameraModel in ComputeAngle"));
             return 0.0F;
         }
     }
@@ -513,7 +513,7 @@ namespace CameraModelUtil
             F = R / KannalaBrandt::ComputeCameraPolynomial(Angle, Coefficients);
             break;
         default:
-            check(false);
+            ensureAlwaysMsgf(false, TEXT("Unhandled ECameraModel in ComputeDistance"));
             break;
         }
         return F;
@@ -627,7 +627,7 @@ namespace CameraModelUtil
                 Options.KannalaBrandtCoefficients);
             break;
         default:
-            check(false);
+            ensureAlwaysMsgf(false, TEXT("Unhandled ECameraModel in DistortCubemapToImage"));
         }
 
         if (Options.bRenderPerspective && !Options.bRenderEquirectangular)
@@ -717,7 +717,7 @@ namespace CameraModelUtil
                     Options.KannalaBrandtCoefficients);
                 break;
             default:
-                check(false);
+                ensureAlwaysMsgf(false, TEXT("Unhandled ECameraModel in ToPerspectivePass"));
             }
 
             AddCopyTexturePass(
@@ -801,7 +801,7 @@ namespace CameraModelUtil
             case SF_AnisotropicLinear:
                 return TStaticSamplerState<	SF_AnisotropicLinear>::GetRHI();
             default:
-                check(false);
+                ensureAlwaysMsgf(false, TEXT("Unhandled ESamplerFilter in GetSamplerState"));
                 return nullptr;
         }
     }
