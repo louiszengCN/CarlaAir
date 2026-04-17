@@ -42,13 +42,13 @@ if [[ ! -d "${ADRSS_SRC_DIR}" ]]; then
   mkdir -p "${ADRSS_SRC_DIR}"
 
   # clone ad-rss with all submodules, but remove proj, as CARLA already uses it
-  pushd "${ADRSS_SRC_DIR}" >/dev/null
-  git clone -b v${ADRSS_VERSION} https://github.com/intel/ad-rss-lib.git && cd ad-rss-lib && git submodule update --init --recursive && rm -rf dependencies/map/dependencies/PROJ4 && cd ..
+  pushd "${ADRSS_SRC_DIR}" >/dev/null || exit 1
+  git clone -b "v${ADRSS_VERSION}" https://github.com/intel/ad-rss-lib.git && cd ad-rss-lib && git submodule update --init --recursive && rm -rf dependencies/map/dependencies/PROJ4 && cd ..
 
   # ADRSS_VERSION is designed for older boost, update datatype from boost::array to std::array
   grep -rl "boost::array" | xargs sed -i 's/boost::array/std::array/g'
   grep -rl "find_package(Boost" | xargs sed -i 's/find_package(Boost/find_package(Boost 1.80/g'
-  popd
+  popd >/dev/null || exit 1
 
   cat >"${ADRSS_COLCON_WORKSPACE}/colcon.meta" <<EOL
 {
@@ -98,7 +98,7 @@ CXX_TAG=c10
 # Since it it not possible with boost-python to build more than one python version at once (find_package has some bugs)
 # we have to build it for every version in a separate colcon build
 #
-for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
   ADRSS_BUILD_DIR="${CARLA_BUILD_FOLDER}/${ADRSS_BASENAME}/build-python${PY_VERSION}"
 
   if [[ -d "${ADRSS_INSTALL_DIR}" && -d "${ADRSS_BUILD_DIR}" ]]; then
@@ -106,7 +106,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
   else
     log "Building ${ADRSS_BASENAME} for python${PY_VERSION}"
 
-    pushd "${ADRSS_COLCON_WORKSPACE}" >/dev/null
+    pushd "${ADRSS_COLCON_WORKSPACE}" >/dev/null || exit 1
     if [[ "${CMAKE_PREFIX_PATH}" == "" ]]; then
       CMAKE_PREFIX_PATH="${CARLA_BUILD_FOLDER}/boost-1.84.0-$CXX_TAG-install;${CARLA_BUILD_FOLDER}/proj-install"
     else
@@ -115,13 +115,13 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
 
     # get the python version of the binding to be built, need to query the binary,
     # because might be just provided a '3' as PY_VERSION and then the symbolic linked python3 is called
-    PYTHON_VERSION=$(/usr/bin/env python${PY_VERSION} -V 2>&1)
+    PYTHON_VERSION=$(/usr/bin/env "python${PY_VERSION}" -V 2>&1)
     PYTHON_BINDING_VERSIONS=${PYTHON_VERSION:7}
     PYTHON_BINDING_VERSIONS=${PYTHON_BINDING_VERSIONS%.*}
     echo "PYTHON_BINDING_VERSIONS=${PYTHON_BINDING_VERSIONS}"
 
     # enforce sequential executor to reduce the required memory for compilation
-    colcon build --executor sequential --packages-up-to ad_rss_map_integration --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE="${CARLA_BUILD_FOLDER}/LibStdCppToolChain.cmake" -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" -DPYTHON_BINDING_VERSIONS="${PYTHON_BINDING_VERSIONS}" --build-base ${ADRSS_BUILD_DIR} --install-base ${ADRSS_INSTALL_DIR}
+    colcon build --executor sequential --packages-up-to ad_rss_map_integration --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE="${CARLA_BUILD_FOLDER}/LibStdCppToolChain.cmake" -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" -DPYTHON_BINDING_VERSIONS="${PYTHON_BINDING_VERSIONS}" --build-base "${ADRSS_BUILD_DIR}" --install-base "${ADRSS_INSTALL_DIR}"
 
     COLCON_RESULT=$?
     if (( COLCON_RESULT )); then
@@ -130,6 +130,6 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     else
       log "Success!"
     fi
-    popd >/dev/null
+    popd >/dev/null || exit 1
   fi
 done
