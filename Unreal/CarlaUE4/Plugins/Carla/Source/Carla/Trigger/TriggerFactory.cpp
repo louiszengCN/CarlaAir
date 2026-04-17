@@ -27,7 +27,7 @@ TArray<FActorDefinition> ATriggerFactory::GetDefinitions()
 
   bool Success;
   UActorBlueprintFunctionLibrary::MakeTriggerDefinition(TEXT("friction"), Success, TriggerDefinition);
-  check(Success);
+  if (!ensure(Success)) { return {}; }
   TriggerDefinitions.Add(TriggerDefinition);
 
   return TriggerDefinitions;
@@ -66,7 +66,11 @@ FActorSpawnResult ATriggerFactory::SpawnActor(
   {
     // Retrieve Episode
     auto *Episode = GameInstance->GetCarlaEpisode();
-    check(Episode != nullptr);
+    if (!Episode)
+    {
+      UE_LOG(LogCarla, Error, TEXT("ATriggerFactory:: cannot spawn trigger, no episode."));
+      return {};
+    }
     Trigger->SetEpisode(*Episode);
 
     // Retrieve Friction
