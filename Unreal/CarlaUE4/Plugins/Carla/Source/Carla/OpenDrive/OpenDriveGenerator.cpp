@@ -175,7 +175,7 @@ void AOpenDriveGenerator::BeginPlay()
   GenerateAll();
 
   auto World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
 
   // Autogenerate signals
   AActor* TrafficLightManagerActor =  UGameplayStatics::GetActorOfClass(World, ATrafficLightManager::StaticClass());

@@ -140,7 +140,7 @@ ATrafficLightManager::ATrafficLightManager()
 void ATrafficLightManager::RegisterLightComponentFromOpenDRIVE(UTrafficLightComponent * TrafficLightComponent)
 {
   ACarlaGameModeBase *GM = UCarlaStatics::GetGameMode(GetWorld());
-  check(GM);
+  if (!GM) { return; }
 
   // Cast to std::string
   carla::road::SignId SignId(TCHAR_TO_UTF8(*(TrafficLightComponent->GetSignId())));
@@ -606,7 +606,7 @@ void ATrafficLightManager::SpawnTrafficLights()
   }
 
   ACarlaGameModeBase *GM = UCarlaStatics::GetGameMode(GetWorld());
-  check(GM);
+  if (!GM) { return; }
   for(auto &SignalId : SignalsToSpawn)
   {
     // TODO: should this be an assert?
@@ -683,7 +683,7 @@ void ATrafficLightManager::SpawnTrafficLights()
 void ATrafficLightManager::SpawnSignals()
 {
   ACarlaGameModeBase *GM = UCarlaStatics::GetGameMode(GetWorld());
-  check(GM);
+  if (!GM) { return; }
 
   for (TActorIterator<AActor> It(GetWorld()); It; ++It)
   {
