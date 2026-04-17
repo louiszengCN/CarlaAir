@@ -13,6 +13,15 @@ Checks: >
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions,
+  cppcoreguidelines-avoid-c-arrays,
+  cppcoreguidelines-avoid-goto,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-no-malloc,
+  cppcoreguidelines-prefer-member-initializer,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-static-downcast,
+  cppcoreguidelines-slicing,
   misc-*,
   -misc-non-private-member-variables-in-classes,
   -misc-no-recursion,
@@ -20,13 +29,24 @@ Checks: >
   modernize-use-nullptr,
   modernize-use-override,
   modernize-use-using,
+  modernize-use-default-member-init,
   modernize-redundant-void-arg,
+  modernize-use-nodiscard,
   performance-*,
   readability-braces-around-statements,
+  readability-container-size-empty,
   readability-else-after-return,
   readability-redundant-smartptr-get,
+  readability-simplify-boolean-expr,
+  readability-use-anyofallof,
 
-WarningsAsErrors: ''
+# Treat the highest-impact safety checks as errors so they block CI.
+WarningsAsErrors: >
+  bugprone-use-after-move,
+  bugprone-dangling-handle,
+  bugprone-infinite-loop,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-pro-type-reinterpret-cast,
 
 CheckOptions:
   # UE naming conventions (PascalCase everywhere)
@@ -52,3 +72,6 @@ CheckOptions:
     value: lower_case
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
+  # performance tuning
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: ''
