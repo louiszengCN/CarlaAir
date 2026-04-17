@@ -44,8 +44,8 @@ static float GetRotatedAzimuthAngle(const FVector &Direction)
 uint16 FRoadMapPixelData::Encode(bool IsRoad, bool HasDirection, const FVector &Direction)
 {
   const uint16 AngleAsUInt = MaximumEncodedAngle * GetRotatedAzimuthAngle(Direction) / (2.0f * PI);
-  check(!(AngleAsUInt & (1 << IsRoadRow)));
-  check(!(AngleAsUInt & (1 << HasDirectionRow)));
+  ensure(!(AngleAsUInt & (1 << IsRoadRow)));
+  ensure(!(AngleAsUInt & (1 << HasDirectionRow)));
   return (IsRoad << IsRoadRow) | (HasDirection << HasDirectionRow) | (AngleAsUInt);
 }
 
@@ -209,7 +209,10 @@ FVector URoadMap::GetWorldLocation(uint32 PixelX, uint32 PixelY) const
 
 FRoadMapPixelData URoadMap::GetDataAt(const FVector &WorldLocation) const
 {
-  check(IsValid());
+  if (!ensureAlwaysMsgf(IsValid(), TEXT("URoadMap::GetDataAt called on invalid road map")))
+  {
+    return FRoadMapPixelData(0u);
+  }
   const FVector Location = WorldToMap.TransformPosition(WorldLocation) - MapOffset;
   uint32 X = ClampFloatToUInt(PixelsPerCentimeter * Location.X, 0, Width - 1);
   uint32 Y = ClampFloatToUInt(PixelsPerCentimeter * Location.Y, 0, Height - 1);
