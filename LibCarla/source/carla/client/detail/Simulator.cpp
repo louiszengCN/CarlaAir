@@ -91,7 +91,7 @@ namespace detail {
 
     // delete the pointer to _episode so that the Navigation information
     // will be loaded for the correct map
-    assert(_episode.use_count() == 1);
+    DEBUG_ASSERT(_episode.use_count() == 1);
     _episode.reset();
     GetReadyCurrentEpisode();
 
