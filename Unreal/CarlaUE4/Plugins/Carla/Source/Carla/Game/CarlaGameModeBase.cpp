@@ -350,7 +350,7 @@ void ACarlaGameModeBase::ApplyTextureToActor(
       UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(OriginalMaterial);
       if(!DynamicMaterial)
       {
-        DynamicMaterial = UMaterialInstanceDynamic::Create(OriginalMaterial, NULL);
+        DynamicMaterial = UMaterialInstanceDynamic::Create(OriginalMaterial, nullptr);
         Mesh->SetMaterial(i, DynamicMaterial);
       }
 
@@ -649,7 +649,7 @@ void ACarlaGameModeBase::CheckForEmptyMeshes()
   for (AActor *Actor : WorldActors)
   {
     AStaticMeshActor *MeshActor = CastChecked<AStaticMeshActor>(Actor);
-    if (MeshActor->GetStaticMeshComponent()->GetStaticMesh() == NULL)
+    if (MeshActor->GetStaticMeshComponent()->GetStaticMesh() == nullptr)
     {
       UE_LOG(LogTemp, Error, TEXT("The object : %s has no mesh"), *MeshActor->GetFullName());
     }
@@ -664,7 +664,7 @@ void ACarlaGameModeBase::EnableOverlapEvents()
   for(AActor *Actor : WorldActors)
   {
     AStaticMeshActor *MeshActor = CastChecked<AStaticMeshActor>(Actor);
-    if(MeshActor->GetStaticMeshComponent()->GetStaticMesh() != NULL)
+    if(MeshActor->GetStaticMeshComponent()->GetStaticMesh() != nullptr)
     {
       auto MeshTag = ATagger::GetTagOfTaggedComponent(*MeshActor->GetStaticMeshComponent());
       namespace crp = carla::rpc;

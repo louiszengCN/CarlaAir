@@ -78,7 +78,7 @@ void AOpenDriveActor::PostEditChangeProperty(struct FPropertyChangedEvent &Event
 {
   Super::PostEditChangeProperty(Event);
 
-  const FName PropertyName = (Event.Property != NULL ? Event.Property->GetFName() : NAME_None);
+  const FName PropertyName = (Event.Property != nullptr ? Event.Property->GetFName() : NAME_None);
   if (PropertyName == GET_MEMBER_NAME_CHECKED(AOpenDriveActor, bGenerateRoutes))
   {
     if (bGenerateRoutes)
