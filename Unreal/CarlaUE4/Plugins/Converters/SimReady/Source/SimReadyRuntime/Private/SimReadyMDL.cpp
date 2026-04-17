@@ -53,10 +53,10 @@ TMap<FString, FMDLParametersList> USimReadyMDL::ImportedParametersSheet;
 template <typename ReturnType, typename MDLType>
 static ReturnType GetExpressionConstant(mi::base::Handle<mi::neuraylib::IExpression const> const& Expression)
 {
-    check(Expression->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT);
+    ensure(Expression->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT);
 
     mi::base::Handle<mi::neuraylib::IValue const> const& Value = mi::base::make_handle(Expression.get_interface<mi::neuraylib::IExpression_constant const>()->get_value());
-    check(Value.get_interface<MDLType const>());
+    ensure(Value.get_interface<MDLType const>());
 
     return Value.get_interface<MDLType const>()->get_value();
 }
@@ -465,7 +465,7 @@ UMaterialInterface* USimReadyMDL::ImportMDL(UObject* InPackage, const FString& I
                     else
                     {
                         Material->ClearFlags(RF_Standalone);
-                        Material->Rename(NULL, GetTransientPackage(), REN_DontCreateRedirectors);
+                        Material->Rename(nullptr, GetTransientPackage(), REN_DontCreateRedirectors);
                     }
                     break;
                 }
