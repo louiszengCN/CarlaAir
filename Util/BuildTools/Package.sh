@@ -139,13 +139,14 @@ function cook_tagged_materials {
   else
     TARGET_ARCHIVE_OPTION=
   fi
-  ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
+  # shellcheck disable=SC2086  # TARGET_ARCHIVE_OPTION is empty or a single token; splitting OK
+  "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
   -run=GenerateTaggedMaterialsRegistry -PackageNames="${CUR_PACKAGES_UE}" ${TARGET_ARCHIVE_OPTION} \
   -NoShaderCompile
 
   # Construct string for all maps to cook all at once
   if ${SINGLE_PACKAGE} ; then
-    MAPS_COOKING_STR=/Carla/PostProcessingMaterials/TaggedMaterials/TaggedMaterials_${TARGET_ARCHIVE}_Map
+    MAPS_COOKING_STR="/Carla/PostProcessingMaterials/TaggedMaterials/TaggedMaterials_${TARGET_ARCHIVE}_Map"
   else
     for CUR_PACKAGE in "${CUR_PACKAGES[@]}" ; do
       MAP_PATH=/Carla/PostProcessingMaterials/TaggedMaterials/TaggedMaterials_${CUR_PACKAGE}_Map
@@ -159,7 +160,7 @@ function cook_tagged_materials {
 
   # Cook the temporary map(s).
   log "Cook TaggedMaterialsRegistries"
-  ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
+  "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
   -run=cook -map="${MAPS_COOKING_STR}" \
   -targetplatform="LinuxNoEditor" -OutputDir="${TEMP_BUILD_DIR}" -iterate -cooksinglepackage
 
@@ -243,22 +244,22 @@ if ${DO_CARLA_RELEASE} ; then
   pushd "${CARLAUE4_ROOT_FOLDER}" >/dev/null || exit 1
 
   if ${USE_CARSIM} ; then
-    python3 ${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py -f="CarlaUE4.uproject" -e
-    echo "CarSim ON" > ${PWD}/Config/CarSimConfig.ini
+    python3 "${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py" -f="CarlaUE4.uproject" -e
+    echo "CarSim ON" > "${PWD}/Config/CarSimConfig.ini"
   else
-    python3 ${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py -f="CarlaUE4.uproject"
-    echo "CarSim OFF" > ${PWD}/Config/CarSimConfig.ini
+    python3 "${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py" -f="CarlaUE4.uproject"
+    echo "CarSim OFF" > "${PWD}/Config/CarSimConfig.ini"
   fi
 
   log "Cooking CARLA project."
 
-  rm -Rf ${RELEASE_BUILD_FOLDER}
-  mkdir -p ${RELEASE_BUILD_FOLDER}
+  rm -Rf "${RELEASE_BUILD_FOLDER}"
+  mkdir -p "${RELEASE_BUILD_FOLDER}"
 
-  ${UE4_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
+  "${UE4_ROOT}/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \
       -project="${PWD}/CarlaUE4.uproject" \
       -nocompileeditor -nop4 -cook -stage -archive -package -iterate \
-      -clientconfig=${PACKAGE_CONFIG} -ue4exe=UE4Editor \
+      -clientconfig="${PACKAGE_CONFIG}" -ue4exe=UE4Editor \
       -prereqs -targetplatform=Linux -build -utf8output \
       -archivedirectory="${RELEASE_BUILD_FOLDER}"
 
@@ -266,7 +267,7 @@ if ${DO_CARLA_RELEASE} ; then
 
   popd >/dev/null || exit 1
 
-  if [[ ! -d ${RELEASE_BUILD_FOLDER}/LinuxNoEditor ]] ; then
+  if [[ ! -d "${RELEASE_BUILD_FOLDER}/LinuxNoEditor" ]] ; then
     fatal_error "Failed to cook the project!"
   fi
 
@@ -290,7 +291,7 @@ if ${DO_CARLA_RELEASE} ; then
 
   mkdir -p "${DESTINATION}/Import"
 
-  echo "${REPOSITORY_TAG}" > ${DESTINATION}/VERSION
+  echo "${REPOSITORY_TAG}" > "${DESTINATION}/VERSION"
 
   copy_if_changed "./LICENSE" "${DESTINATION}/LICENSE"
   copy_if_changed "./CHANGELOG.md" "${DESTINATION}/CHANGELOG"
@@ -354,7 +355,7 @@ if ${DO_CARLA_RELEASE} && ${DO_TARBALL} ; then
   rm -Rf ./CarlaUE4/Saved
   rm -Rf ./Engine/Saved
 
-  tar -czf ${DESTINATION} *
+  tar -czf "${DESTINATION}" ./*
 
   popd >/dev/null || exit 1
 
@@ -372,7 +373,7 @@ if ${DO_CARLA_RELEASE} && ${DO_CLEAN_INTERMEDIATE} ; then
 
   log "Removing intermediate build."
 
-  rm -Rf ${RELEASE_BUILD_FOLDER}
+  rm -Rf "${RELEASE_BUILD_FOLDER}"
 
 fi
 T_END_DO_CLEAN=$(date +%s)
@@ -412,29 +413,29 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
   DESTINATION=${BUILD_FOLDER_TARGET}.tar
   PACKAGE_PATH=${CARLAUE4_ROOT_FOLDER}/Content/${PACKAGE_NAME}
 
-  mkdir -p ${BUILD_FOLDER}
+  mkdir -p "${BUILD_FOLDER}"
 
   log "Cooking package '${PACKAGE_NAME}'..."
 
   pushd "${CARLAUE4_ROOT_FOLDER}" > /dev/null || exit 1
 
   # Prepare cooking of package
-  ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
-      -run=PrepareAssetsForCooking -PackageName=${PACKAGE_NAME} -OnlyPrepareMaps=false
+  "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
+      -run=PrepareAssetsForCooking -PackageName="${PACKAGE_NAME}" -OnlyPrepareMaps=false
 
-  PACKAGE_FILE=$(<${PACKAGE_PATH_FILE})
-  MAPS_TO_COOK=$(<${MAP_LIST_FILE})
+  PACKAGE_FILE=$(<"${PACKAGE_PATH_FILE}")
+  MAPS_TO_COOK=$(<"${MAP_LIST_FILE}")
 
 
   # Cook maps in batches
   MAX_STRINGLENGTH=1000
-  IFS="+" read -ra MAP_LIST <<< $MAPS_TO_COOK
+  IFS="+" read -ra MAP_LIST <<< "$MAPS_TO_COOK"
   TOTAL=0
   MAP_STRING=""
   for MAP in "${MAP_LIST[@]}"; do
     if (( (TOTAL + ${#MAP}) > MAX_STRINGLENGTH )); then
-      echo "Cooking $MAP_STRING"
-      ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
+      echo "Cooking ${MAP_STRING}"
+      "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
           -run=cook -map="${MAP_STRING}" -cooksinglepackage -targetplatform="LinuxNoEditor" \
           -OutputDir="${BUILD_FOLDER}" -iterate
       MAP_STRING=""
@@ -444,15 +445,15 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
     TOTAL=$((TOTAL + ${#MAP}))
   done
   if ((TOTAL > 0)); then
-    ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
+    "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
         -run=cook -map="${MAP_STRING}" -cooksinglepackage -targetplatform="LinuxNoEditor" \
         -OutputDir="${BUILD_FOLDER}" -iterate
   fi
 
   PROP_MAP_FOLDER="${PACKAGE_PATH}/Maps/${PROPS_MAP_NAME}"
 
-  if [ -d ${PROP_MAP_FOLDER} ] ; then
-    rm -Rf ${PROP_MAP_FOLDER}
+  if [ -d "${PROP_MAP_FOLDER}" ] ; then
+    rm -Rf "${PROP_MAP_FOLDER}"
   fi
 
   popd >/dev/null || exit 1
@@ -463,7 +464,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
   SUBST_FILE="${PACKAGE_FILE/${CARLAUE4_ROOT_FOLDER}/${SUBST_PATH}}"
 
   # Copy the package config file to package
-  mkdir -p "$(dirname ${SUBST_FILE})" && cp "${PACKAGE_FILE}" "$_"
+  mkdir -p "$(dirname "${SUBST_FILE}")" && cp "${PACKAGE_FILE}" "$_"
 
   # Copy the OpenDRIVE .xodr files to package
   IFS='+' # set delimiter
@@ -480,7 +481,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
       SUBST_FILE="${XODR_FILE/${CARLAUE4_ROOT_FOLDER}/${SUBST_PATH}}"
 
       # Copy the package config file to package
-      mkdir -p "$(dirname ${SUBST_FILE})" && cp "${XODR_FILE}" "$_"
+      mkdir -p "$(dirname "${SUBST_FILE}")" && cp "${XODR_FILE}" "$_"
 
     fi
 
@@ -494,7 +495,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
         SUBST_FILE="${BIN_FILE/${CARLAUE4_ROOT_FOLDER}/${SUBST_PATH}}"
 
         # Copy the package config file to package
-        mkdir -p "$(dirname ${SUBST_FILE})" && cp "${BIN_FILE}" "$_"
+        mkdir -p "$(dirname "${SUBST_FILE}")" && cp "${BIN_FILE}" "$_"
     fi
     done
   done
@@ -509,7 +510,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
     copy_dir_fast "${BUILD_FOLDER}" "${BUILD_FOLDER_TARGET}"
   fi
   if ${DO_TARBALL} ; then
-    tar -rf ${DESTINATION} *
+    tar -rf "${DESTINATION}" ./*
   fi
 
   popd >/dev/null || exit 1
@@ -518,7 +519,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
 
     log "Removing intermediate build."
 
-    rm -Rf ${BUILD_FOLDER}
+    rm -Rf "${BUILD_FOLDER}"
 
   fi
   T_END_PACKAGE=$(date +%s)
@@ -535,13 +536,13 @@ fi
 # Compress the TAR balls
 if ${DO_TARBALL} ; then
   if ${SINGLE_PACKAGE} ; then
-    gzip -f ${DESTINATION}
+    gzip -f "${DESTINATION}"
   else
     for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; then
       BUILD_FOLDER_TARGET=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}
       if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then BUILD_FOLDER_TARGET=${BUILD_FOLDER_TARGET}_${ARCHIVE_SUFIX} ; fi
       DESTINATION=${BUILD_FOLDER_TARGET}.tar
-      gzip -f ${DESTINATION}
+      gzip -f "${DESTINATION}"
     fi ; done
   fi
 fi
