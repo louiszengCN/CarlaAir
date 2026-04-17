@@ -136,7 +136,7 @@ namespace multigpu {
           // Move the buffer to the callback function and start reading the next
           // piece of data.
           self->_on_response(self, message->pop());
-          std::cout << "Getting data on listener\n";
+          log_debug("Getting data on listener");
           self->ReadData();
         } else {
           // As usual, if anything fails start over from the very top.

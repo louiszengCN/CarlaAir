@@ -6,6 +6,7 @@
 
 #include "carla/multigpu/router.h"
 
+#include "carla/Logging.h"
 #include "carla/multigpu/listener.h"
 #include "carla/streaming/EndPoint.h"
 
@@ -154,7 +155,7 @@ namespace carla {
         auto s = _sessions[_next];
         if (s != nullptr) {
           _promises[s.get()] = response;
-          std::cout << "Updated promise into map: " << _promises.size() << std::endl;
+          log_debug("Updated promise into map:", _promises.size());
           s->Write(message);
         }
       }
