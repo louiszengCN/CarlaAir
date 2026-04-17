@@ -88,9 +88,11 @@ void ACarlaGameModeBase::InitGame(
   if (!World) { return; }
   FString InMapName(MapName);
 
-  checkf(
-      Episode != nullptr,
-      TEXT("Missing episode, can't continue without an episode!"));
+  if (!Episode)
+  {
+    UE_LOG(LogCarla, Error, TEXT("Missing episode, can't continue without an episode!"));
+    return;
+  }
 
   AActor* LMManagerActor =
       UGameplayStatics::GetActorOfClass(GetWorld(), ALargeMapManager::StaticClass());
@@ -118,10 +120,11 @@ void ACarlaGameModeBase::InitGame(
 #endif // WITH_EDITOR
 
   GameInstance = Cast<UCarlaGameInstance>(GetGameInstance());
-  checkf(
-      GameInstance != nullptr,
-      TEXT("GameInstance is not a UCarlaGameInstance, did you forget to set "
-           "it in the project settings?"));
+  if (!GameInstance)
+  {
+    UE_LOG(LogCarla, Error, TEXT("GameInstance is not a UCarlaGameInstance, did you forget to set it in the project settings?"));
+    return;
+  }
 
   if (TaggerDelegate != nullptr) {
     TaggerDelegate->RegisterSpawnHandler(World);
