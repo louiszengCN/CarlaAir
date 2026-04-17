@@ -75,7 +75,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
             cmake ninja-build clang \
             libboost-all-dev libxerces-c-dev libproj-dev libsqlite3-dev
 
