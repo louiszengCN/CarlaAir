@@ -714,38 +714,38 @@ PROJ_INSTALL_SERVER_DIR_FULL=${PWD}/${PROJ_INSTALL_SERVER_DIR}
 PROJ_LIB=${PROJ_INSTALL_DIR_FULL}/lib/libproj.a
 PROJ_SERVER_LIB=${PROJ_INSTALL_SERVER_DIR_FULL}/lib/libproj.a
 
-if [[ -d ${PROJ_INSTALL_DIR} && -d ${PROJ_INSTALL_SERVER_DIR_FULL} ]] ; then
+if [[ -d "${PROJ_INSTALL_DIR}" && -d "${PROJ_INSTALL_SERVER_DIR_FULL}" ]] ; then
   log "PROJ already installed."
 else
   log "Retrieving PROJ"
 
   start=$(date +%s)
-  wget ${PROJ_REPO}
+  wget "${PROJ_REPO}"
   end=$(date +%s)
   echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting PROJ"
   start=$(date +%s)
-  tar -xzf ${PROJ_TAR}
+  tar -xzf "${PROJ_TAR}"
   end=$(date +%s)
   echo "Elapsed Time Extracting for PROJ: $((end-start)) seconds"
 
-  mv ${PROJ_VERSION} ${PROJ_SRC_DIR}
+  mv "${PROJ_VERSION}" "${PROJ_SRC_DIR}"
 
-  mkdir -p ${PROJ_SRC_DIR}/build
-  mkdir -p ${PROJ_INSTALL_DIR}
+  mkdir -p "${PROJ_SRC_DIR}/build"
+  mkdir -p "${PROJ_INSTALL_DIR}"
 
-  pushd ${PROJ_SRC_DIR}/build >/dev/null || exit 1
+  pushd "${PROJ_SRC_DIR}/build" >/dev/null || exit 1
 
   cmake -G "Ninja" .. \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC" \
-      -DSQLITE3_INCLUDE_DIR=${SQLITE_INCLUDE_DIR} -DSQLITE3_LIBRARY=${SQLITE_LIB} \
-      -DEXE_SQLITE3=${SQLITE_EXE} \
+      -DSQLITE3_INCLUDE_DIR="${SQLITE_INCLUDE_DIR}" -DSQLITE3_LIBRARY="${SQLITE_LIB}" \
+      -DEXE_SQLITE3="${SQLITE_EXE}" \
       -DENABLE_TIFF=OFF -DENABLE_CURL=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_PROJSYNC=OFF \
       -DCMAKE_BUILD_TYPE=Release -DBUILD_PROJINFO=OFF \
       -DBUILD_CCT=OFF -DBUILD_CS2CS=OFF -DBUILD_GEOD=OFF -DBUILD_GIE=OFF \
       -DBUILD_PROJ=OFF -DBUILD_TESTING=OFF \
-      -DCMAKE_INSTALL_PREFIX=${PROJ_INSTALL_DIR_FULL}
+      -DCMAKE_INSTALL_PREFIX="${PROJ_INSTALL_DIR_FULL}"
   ninja
   ninja install
 
@@ -753,31 +753,31 @@ else
 
   mkdir -p ${PROJ_INSTALL_SERVER_DIR}
 
-  pushd ${PROJ_SRC_DIR}/build >/dev/null || exit 1
+  pushd "${PROJ_SRC_DIR}/build" >/dev/null || exit 1
 
   cmake -G "Ninja" .. \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH}"  \
-      -DSQLITE3_INCLUDE_DIR=${SQLITE_INCLUDE_DIR} -DSQLITE3_LIBRARY=${SQLITE_LIB} \
-      -DEXE_SQLITE3=${SQLITE_EXE} \
+      -DSQLITE3_INCLUDE_DIR="${SQLITE_INCLUDE_DIR}" -DSQLITE3_LIBRARY="${SQLITE_LIB}" \
+      -DEXE_SQLITE3="${SQLITE_EXE}" \
       -DENABLE_TIFF=OFF -DENABLE_CURL=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_PROJSYNC=OFF \
       -DCMAKE_BUILD_TYPE=Release -DBUILD_PROJINFO=OFF \
       -DBUILD_CCT=OFF -DBUILD_CS2CS=OFF -DBUILD_GEOD=OFF -DBUILD_GIE=OFF \
       -DBUILD_PROJ=OFF -DBUILD_TESTING=OFF \
-      -DCMAKE_INSTALL_PREFIX=${PROJ_INSTALL_SERVER_DIR_FULL}
+      -DCMAKE_INSTALL_PREFIX="${PROJ_INSTALL_SERVER_DIR_FULL}"
   ninja
   ninja install
 
   popd >/dev/null
 
-  rm -Rf ${PROJ_TAR}
-  rm -Rf ${PROJ_SRC_DIR}
+  rm -Rf "${PROJ_TAR}"
+  rm -Rf "${PROJ_SRC_DIR}"
 
 fi
 
-cp ${PROJ_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+cp "${PROJ_LIB}" "${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/"
 
 mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
-cp -p ${PROJ_SERVER_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+cp -p "${PROJ_SERVER_LIB}" "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
 
 # ==============================================================================
 # -- Get and compile patchelf --------------------------------------------------
