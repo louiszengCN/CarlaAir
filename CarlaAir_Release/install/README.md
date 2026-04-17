@@ -65,7 +65,7 @@ settings.json 内容（多旋翼无人机模式）:
 
 ```bash
 # 进入安装目录（Shipping 构建）
-cd /mnt/data1/tianle/carla_source/Dist/CARLA_Shipping_1ae5356-dirty/LinuxNoEditor
+cd <path_to_carlaair>/LinuxNoEditor   # 解压后的 CarlaAir 发行包目录
 
 # 一键启动（默认 Town10HD 地图）
 ./carla_air.sh

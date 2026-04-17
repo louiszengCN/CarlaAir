@@ -27,8 +27,8 @@ pip install carla==0.9.16 airsim numpy opencv-python pygame
 
 | 组件 | 路径 |
 |------|------|
-| UE4 4.26 (CARLA fork) | `/mnt/data1/tianle/carla_ue4/` |
-| CARLA 源码 | `/mnt/data1/tianle/carla_source/` |
+| UE4 4.26 (CARLA fork) | `$UE4_ROOT` (用户自行设置) |
+| CARLA 源码 | `$CARLA_SOURCE` (本仓库根目录) |
 | AirSim 插件 | `Unreal/CarlaUE4/Plugins/AirSim/` |
 | CarlaAir 核心文件 | `Plugins/AirSim/Source/SimWorldGameMode.h/.cpp` |
 
@@ -37,8 +37,8 @@ pip install carla==0.9.16 airsim numpy opencv-python pygame
 ### 1. 设置环境变量
 
 ```bash
-export UE4_ROOT=/mnt/data1/tianle/carla_ue4
-cd /mnt/data1/tianle/carla_source
+export UE4_ROOT=<path_to_your_ue4_4.26>   # 例如 /opt/carla_ue4
+cd <path_to_carla_source>                   # 本仓库根目录
 ```
 
 ### 2. 编译 AirSim 模块（~100 秒）
