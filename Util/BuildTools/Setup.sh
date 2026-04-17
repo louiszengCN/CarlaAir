@@ -240,7 +240,7 @@ else
 
   start_download_time=$(date +%s)
 
-  git clone -b ${RPCLIB_PATCH} https://github.com/carla-simulator/rpclib.git ${RPCLIB_BASENAME}-source
+  git clone -b "${RPCLIB_PATCH}" https://github.com/carla-simulator/rpclib.git "${RPCLIB_BASENAME}-source"
 
   end_download_time=$(date +%s)
 
@@ -249,16 +249,16 @@ else
 
   # rpclib does not use any cmake 3.9 feature.
   # As cmake 3.9 is not standard in Ubuntu 16.04, change cmake version to 3.5
-  sed -i s/"3.9.0"/"3.5.0"/g ${RPCLIB_BASENAME}-source/CMakeLists.txt
+  sed -i s/"3.9.0"/"3.5.0"/g "${RPCLIB_BASENAME}-source/CMakeLists.txt"
 
-  mkdir -p ${RPCLIB_BASENAME}-libcxx-build
+  mkdir -p "${RPCLIB_BASENAME}-libcxx-build"
 
-  pushd ${RPCLIB_BASENAME}-libcxx-build >/dev/null || exit 1
+  pushd "${RPCLIB_BASENAME}-libcxx-build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -DASIO_NO_EXCEPTIONS ${UNREAL_HOSTED_CFLAGS}" \
       -DCMAKE_INSTALL_PREFIX="../${RPCLIB_BASENAME}-libcxx-install" \
-      ../${RPCLIB_BASENAME}-source
+      "../${RPCLIB_BASENAME}-source"
 
   ninja
 
@@ -268,14 +268,14 @@ else
 
   log "Building rpclib with libstdc++."
 
-  mkdir -p ${RPCLIB_BASENAME}-libstdcxx-build
+  mkdir -p "${RPCLIB_BASENAME}-libstdcxx-build"
 
-  pushd ${RPCLIB_BASENAME}-libstdcxx-build >/dev/null || exit 1
+  pushd "${RPCLIB_BASENAME}-libstdcxx-build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14" \
       -DCMAKE_INSTALL_PREFIX="../${RPCLIB_BASENAME}-libstdcxx-install" \
-      ../${RPCLIB_BASENAME}-source
+      "../${RPCLIB_BASENAME}-source"
 
   ninja
 
@@ -283,7 +283,7 @@ else
 
   popd >/dev/null
 
-  rm -Rf ${RPCLIB_BASENAME}-source ${RPCLIB_BASENAME}-libcxx-build ${RPCLIB_BASENAME}-libstdcxx-build
+  rm -Rf "${RPCLIB_BASENAME}-source" "${RPCLIB_BASENAME}-libcxx-build" "${RPCLIB_BASENAME}-libstdcxx-build"
 
 fi
 
@@ -313,21 +313,21 @@ else
 
   start_download_time=$(date +%s)
 
-  git clone --depth=1 -b release-${GTEST_VERSION} https://github.com/google/googletest.git ${GTEST_BASENAME}-source
+  git clone --depth=1 -b "release-${GTEST_VERSION}" https://github.com/google/googletest.git "${GTEST_BASENAME}-source"
 
   end_download_time=$(date +%s)
   echo "Elapsed Time downloading rpclib: $((end_download_time-start_download_time)) seconds"
 
   log "Building Google Test with libc++."
 
-  mkdir -p ${GTEST_BASENAME}-libcxx-build
+  mkdir -p "${GTEST_BASENAME}-libcxx-build"
 
-  pushd ${GTEST_BASENAME}-libcxx-build >/dev/null || exit 1
+  pushd "${GTEST_BASENAME}-libcxx-build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -fno-exceptions ${UNREAL_HOSTED_CFLAGS}" \
       -DCMAKE_INSTALL_PREFIX="../${GTEST_BASENAME}-libcxx-install" \
-      ../${GTEST_BASENAME}-source
+      "../${GTEST_BASENAME}-source"
 
   ninja
 
@@ -337,14 +337,14 @@ else
 
   log "Building Google Test with libstdc++."
 
-  mkdir -p ${GTEST_BASENAME}-libstdcxx-build
+  mkdir -p "${GTEST_BASENAME}-libstdcxx-build"
 
-  pushd ${GTEST_BASENAME}-libstdcxx-build >/dev/null || exit 1
+  pushd "${GTEST_BASENAME}-libstdcxx-build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14" \
       -DCMAKE_INSTALL_PREFIX="../${GTEST_BASENAME}-libstdcxx-install" \
-      ../${GTEST_BASENAME}-source
+      "../${GTEST_BASENAME}-source"
 
   ninja
 
@@ -352,7 +352,7 @@ else
 
   popd >/dev/null
 
-  rm -Rf ${GTEST_BASENAME}-source ${GTEST_BASENAME}-libcxx-build ${GTEST_BASENAME}-libstdcxx-build
+  rm -Rf "${GTEST_BASENAME}-source" "${GTEST_BASENAME}-libcxx-build" "${GTEST_BASENAME}-libstdcxx-build"
 
 fi
 
@@ -380,7 +380,7 @@ else
 
   start=$(date +%s)
 
-  git clone --depth 1 -b carla https://github.com/carla-simulator/recastnavigation.git ${RECAST_BASENAME}-source
+  git clone --depth 1 -b carla https://github.com/carla-simulator/recastnavigation.git "${RECAST_BASENAME}-source"
 
   end=$(date +%s)
   echo "Elapsed Time downloading: $((end-start)) seconds"
@@ -391,7 +391,7 @@ else
 
   log "Building Recast & Detour with libc++."
 
-  mkdir -p ${RECAST_BASENAME}-build
+  mkdir -p "${RECAST_BASENAME}-build"
 
   pushd ${RECAST_BASENAME}-build >/dev/null || exit 1
 
@@ -408,7 +408,7 @@ else
 
   popd >/dev/null
 
-  rm -Rf ${RECAST_BASENAME}-source ${RECAST_BASENAME}-build
+  rm -Rf "${RECAST_BASENAME}-source" "${RECAST_BASENAME}-build"
 
 fi
 
