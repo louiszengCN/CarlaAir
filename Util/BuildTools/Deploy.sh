@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Set up environment --------------------------------------------------------
@@ -21,7 +21,7 @@ DOC_STRING="Upload latest build to S3."
 
 USAGE_STRING="Usage: $0 [-h|--help] [--replace-latest] [--docker-push] [--dry-run] [--github-output GITHUB_OUTPUT]"
 
-OPTS=`getopt -o h --long help,replace-latest,docker-push,dry-run,summary-output: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,replace-latest,docker-push,dry-run,summary-output: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -34,9 +34,9 @@ while [[ $# -gt 0 ]]; do
       DOCKER_PUSH=true;
       shift ;;
     --dry-run )
-      AWS_COPY="echo ${AWS_COPY}";
-      DOCKER="echo ${DOCKER}";
-      UNTAR="echo ${UNTAR}";
+      AWS_COPY="echo ${AWS_COPY}"
+      DOCKER="echo ${DOCKER}"
+      UNTAR="echo ${UNTAR}"
       shift ;;
     --summary-output )
       SUMMARY_OUTPUT_PATH="$2";
@@ -51,7 +51,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 REPOSITORY_TAG=$(get_git_repository_version)
 
@@ -87,7 +88,7 @@ fi
 log "Using package ${LATEST_PACKAGE} as ${DEPLOY_NAME}."
 log "Using package ${LATEST_PACKAGE2} as ${DEPLOY_NAME2}."
 
-if [ ! -f ${LATEST_PACKAGE_PATH} ]; then
+if [ ! -f "${LATEST_PACKAGE_PATH}" ]; then
   fatal_error "Latest package not found, please run 'make package'."
 fi
 
@@ -98,10 +99,10 @@ fi
 DEPLOY_URI=${S3_PREFIX}/${DEPLOY_NAME}
 DEPLOY_URI2=${S3_PREFIX}/${DEPLOY_NAME2}
 
-${AWS_COPY} ${LATEST_PACKAGE_PATH} ${DEPLOY_URI} --endpoint-url ${ENDPOINT}
+${AWS_COPY} "${LATEST_PACKAGE_PATH}" "${DEPLOY_URI}" --endpoint-url "${ENDPOINT}"
 log "Latest build uploaded to ${DEPLOY_URI}."
 
-${AWS_COPY} ${LATEST_PACKAGE_PATH2} ${DEPLOY_URI2} --endpoint-url ${ENDPOINT}
+${AWS_COPY} "${LATEST_PACKAGE_PATH2}" "${DEPLOY_URI2}" --endpoint-url "${ENDPOINT}"
 log "Latest build uploaded to ${DEPLOY_URI2}."
 
 # ==============================================================================
@@ -110,10 +111,10 @@ log "Latest build uploaded to ${DEPLOY_URI2}."
 
 if ${REPLACE_LATEST} ; then
 
-  ${AWS_COPY} ${DEPLOY_URI} ${LATEST_DEPLOY_URI} --endpoint-url ${ENDPOINT}
+  ${AWS_COPY} "${DEPLOY_URI}" "${LATEST_DEPLOY_URI}" --endpoint-url "${ENDPOINT}"
   log "Latest build uploaded to ${LATEST_DEPLOY_URI}."
-  
-  ${AWS_COPY} ${DEPLOY_URI2} ${LATEST_DEPLOY_URI2} --endpoint-url ${ENDPOINT}
+
+  ${AWS_COPY} "${DEPLOY_URI2}" "${LATEST_DEPLOY_URI2}" --endpoint-url "${ENDPOINT}"
   log "Latest build uploaded to ${LATEST_DEPLOY_URI2}."
 
 fi
@@ -124,22 +125,22 @@ fi
 
 if ${DOCKER_PUSH} ; then
 
-  DOCKER_BUILD_FOLDER=${CARLA_BUILD_FOLDER}/${REPOSITORY_TAG}.Docker
-  DOCKER_NAME=carlasim/carla:${DOCKER_TAG}
+  DOCKER_BUILD_FOLDER="${CARLA_BUILD_FOLDER}/${REPOSITORY_TAG}.Docker"
+  DOCKER_NAME="carlasim/carla:${DOCKER_TAG}"
 
-  mkdir -p ${DOCKER_BUILD_FOLDER}
+  mkdir -p "${DOCKER_BUILD_FOLDER}"
 
-  ${UNTAR} ${LATEST_PACKAGE_PATH} -C ${DOCKER_BUILD_FOLDER}/
+  ${UNTAR} "${LATEST_PACKAGE_PATH}" -C "${DOCKER_BUILD_FOLDER}/"
 
   pushd "${DOCKER_BUILD_FOLDER}" >/dev/null
 
   log "Building Docker image ${DOCKER_NAME}."
 
-  ${DOCKER} build -t ${DOCKER_NAME} -f Dockerfile .
+  ${DOCKER} build -t "${DOCKER_NAME}" -f Dockerfile .
 
   log "Pushing Docker image."
 
-  ${DOCKER} push ${DOCKER_NAME}
+  ${DOCKER} push "${DOCKER_NAME}"
 
   popd >/dev/null
 
