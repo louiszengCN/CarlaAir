@@ -70,7 +70,7 @@ namespace
         std::string const& file_path,
         char              sep)
     {
-        check(!file_path.empty());
+        ensure(!file_path.empty());
 
         TArray<std::string> directory_names;
 
@@ -603,7 +603,7 @@ IMdl_resolved_resource* FMDLEntityResolver::resolve_resource(
     std::string owner_filename_str;
     if (owner_file_path != nullptr)
     {
-        check(is_path_absolute(owner_file_path));
+        ensure(is_path_absolute(owner_file_path));
         owner_filename_str = owner_file_path;
     }
 
@@ -830,12 +830,12 @@ std::string FMDLEntityResolver::resolve_filename(
         if (is_mdle)
         {
             std::string absolute_name = to_module_name(canonical_file_path.c_str());
-            check(absolute_name.substr(absolute_name.size() - 5) == ".mdle");
+            ensure(absolute_name.substr(absolute_name.size() - 5) == ".mdle");
             return absolute_name;
         }
 
         std::string absolute_name = to_module_name(canonical_file_path.c_str());
-        check(absolute_name.substr(absolute_name.size() - 4) == ".mdl");
+        ensure(absolute_name.substr(absolute_name.size() - 4) == ".mdl");
         return absolute_name.substr(0, absolute_name.size() - 4);
     }
 }
@@ -906,7 +906,7 @@ IMdl_resolved_module* FMDLEntityResolver::resolve_module(
             uvtile_mode,
             pos_line,
             pos_column);
-        check(uvtile_mode == UVTILE_MODE_NONE);
+        ensure(uvtile_mode == UVTILE_MODE_NONE);
 
         if (result.empty())
         {
@@ -978,7 +978,7 @@ bool FMDLEntityResolver::check_consistency(
     if (csp_is_archive)
     {
         // construct an "archive path"
-        check(canonical_file_path_os[0] == os_separator());
+        ensure(canonical_file_path_os[0] == os_separator());
         file = current_search_path + ':' + canonical_file_path_os.substr(1);
         if (!file_exists(file.c_str()))
         {
@@ -1058,7 +1058,7 @@ void FMDLEntityResolver::split_module_file_system_path(
         // remove last "::" and remainder, replace "::" by "/"
         size_t pos = module_name.rfind("::");
         current_module_path = to_url(module_name.substr(0, pos).c_str());
-        check(current_module_path.empty() || current_module_path[0] == '/');
+        ensure(current_module_path.empty() || current_module_path[0] == '/');
         return;
     }
 
@@ -1109,7 +1109,7 @@ void FMDLEntityResolver::split_module_file_system_path(
     else
     {
         size_t last_sep = module_file_system_path.find_last_of(sep);
-        check(last_sep != std::string::npos);
+        ensure(last_sep != std::string::npos);
         current_working_directory = module_file_system_path.substr(0, last_sep);
 
         container_pos = 0;
@@ -1120,13 +1120,13 @@ void FMDLEntityResolver::split_module_file_system_path(
     while (module_nesting_level-- > 0)
     {
         size_t last_sep = current_search_path.find_last_of(sep);
-        check(last_sep != std::string::npos);
+        ensure(last_sep != std::string::npos);
         if (last_sep < container_pos)
         {
             // do NOT remove the archive name, thread its ':' like '/'
             last_sep = container_pos - 1;
             // should never try to go out!
-            check(module_nesting_level == 0);
+            ensure(module_nesting_level == 0);
             container_pos = 0;
             strip_dotdot = 1;
         }
@@ -1144,7 +1144,7 @@ void FMDLEntityResolver::split_module_file_system_path(
     {
         current_module_path = '/' + current_module_path;
     }
-    check(current_module_path.empty() || current_module_path[0] == '/');
+    ensure(current_module_path.empty() || current_module_path[0] == '/');
 }
 
 // Converts OS-specific directory separators into slashes.
@@ -1172,7 +1172,7 @@ std::string FMDLEntityResolver::convert_os_separators_to_slashes(std::string con
 // fully-qualified module name minus 1.
 size_t FMDLEntityResolver::get_module_nesting_level(char const* module_name)
 {
-    check(module_name[0] == ':' && module_name[1] == ':');
+    ensure(module_name[0] == ':' && module_name[1] == ':');
 
     char const* p = module_name;
     size_t     level = 0;
@@ -1182,7 +1182,7 @@ size_t FMDLEntityResolver::get_module_nesting_level(char const* module_name)
         p = strstr(p + 2, "::");
     } while (p != nullptr);
 
-    check(level > 0);
+    ensure(level > 0);
     return level - 1;
 }
 
@@ -1232,7 +1232,7 @@ bool FMDLEntityResolver::check_no_dots_strict_relative(
     char const* s,
     size_t     nesting_level)
 {
-    check(s[0] == '.');
+    ensure(s[0] == '.');
     char const* b = s;
 
     bool leading = true;
@@ -1494,7 +1494,7 @@ std::string FMDLEntityResolver::consider_search_paths(
     char const* file_path,
     Uvtile_mode uvtile_mode)
 {
-    check(canonical_file_mask[0] == '/');
+    ensure(canonical_file_mask[0] == '/');
 
     std::string canonical_file_mask_os = convert_slashes_to_os_separators(canonical_file_mask);
 

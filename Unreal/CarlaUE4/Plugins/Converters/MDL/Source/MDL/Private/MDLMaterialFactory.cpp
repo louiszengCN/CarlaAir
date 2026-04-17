@@ -173,7 +173,7 @@ UObject* UMDLMaterialFactory::FactoryCreateFile(UClass* InClass, UObject* InPare
             }
 
             UMaterial* Material = (UMaterial*)MaterialImporter->CreateMaterial(CreatePackage(*(Package->GetName() / MaterialName)), *MaterialName, Flags, Warn);
-            check(Material != nullptr);
+            ensure(Material != nullptr);
             Material->bTangentSpaceNormal = true;
             Material->bUseMaterialAttributes = true;
 
@@ -192,7 +192,7 @@ UObject* UMDLMaterialFactory::FactoryCreateFile(UClass* InClass, UObject* InPare
                     Warn->Logf(ELogVerbosity::Error, TEXT("Failed to distill MDL material '%s' to target '%s', error code is %d"), *MaterialName, *Target, ErrorCode);
                     continue;
                 }
-                check(DistilledMaterial);
+                ensure(DistilledMaterial);
                 bImportSuccess = MaterialImporter->ImportDistilledMaterial(Material, MaterialDefinition, DistilledMaterial, ClearcoatNormal);
             }
             else
@@ -292,7 +292,7 @@ static bool CheckStandardType(mi::base::Handle<const mi::neuraylib::IType> Type)
     case mi::neuraylib::IType::Kind::TK_VECTOR:
         return false;
     default:
-        check(false);
+        ensure(false);
         return false;
     }
 }
@@ -307,7 +307,7 @@ FString GammaText(mi::Float32 gamma)
     {
         return "::tex::gamma_linear";
     }
-    check(gamma == 2.2f);
+    ensure(gamma == 2.2f);
     return "::tex::gamma_srgb";
 }
 
@@ -322,7 +322,7 @@ static FString ModifierText(mi::Uint32 modifier)
     case mi::neuraylib::IType::Modifier::MK_VARYING:
         return "varying ";
     default:
-        check(false);
+        ensure(false);
         return "";
     }
 }
@@ -359,7 +359,7 @@ static FString TypeText(mi::base::Handle<const mi::neuraylib::IType> Type)
         return TypeText(mi::base::make_handle(VectorType->get_element_type())) + FString::FromInt(VectorType->get_size());
     }
     default:
-        check(false);
+        ensure(false);
         return "";
     }
 }
@@ -400,13 +400,13 @@ FString UMDLMaterialFactory::ExpressionText(mi::base::Handle<const mi::neuraylib
         {
             mi::base::Handle<const mi::neuraylib::IExpression_call> Call = Expression.get_interface<const mi::neuraylib::IExpression_call>();
             FString CallString(Call->get_call());
-            check(CallString.StartsWith("mdl::") && CallString.Contains("()"));
+            ensure(CallString.StartsWith("mdl::") && CallString.Contains("()"));
             return CallString.RightChop(5).Left(CallString.Find("()") - 3);
         }
         case mi::neuraylib::IExpression::Kind::EK_CONSTANT:
             return ValueText(mi::base::make_handle(Expression.get_interface<const mi::neuraylib::IExpression_constant>()->get_value()), NameSpace);
         default:
-            check(false);
+            ensure(false);
             return "";
     }
 }
@@ -415,7 +415,7 @@ MaterialData UMDLMaterialFactory::GetMaterialData(const FString& MaterialName, m
 {
     MaterialData Data;
 
-    check(MaterialName.Left(5) == "mdl::");
+    ensure(MaterialName.Left(5) == "mdl::");
     Data.MaterialName = MaterialName.RightChop(MaterialName.Find(":", ESearchCase::IgnoreCase, ESearchDir::FromEnd) + 1);
 
     // Access material
@@ -427,14 +427,14 @@ MaterialData UMDLMaterialFactory::GetMaterialData(const FString& MaterialName, m
     mi::base::Handle<mi::neuraylib::IFunction_call> MaterialInstance(MaterialDefinition->create_function_call(nullptr, &ErrorCode));	verify(ErrorCode == 0);
 
     const mi::base::Handle<const mi::neuraylib::IType_list> ParameterTypes(MaterialInstance->get_parameter_types());
-    check(ParameterCount == ParameterTypes->get_size());
+    ensure(ParameterCount == ParameterTypes->get_size());
 
     if (StartIndex != 0)
     {
         mi::base::Handle<const mi::neuraylib::IType> ParameterType(ParameterTypes->get_type(mi::Size(0)));
-        check(ParameterType->get_kind() == mi::neuraylib::IType::TK_STRUCT);
+        ensure(ParameterType->get_kind() == mi::neuraylib::IType::TK_STRUCT);
         const mi::base::Handle<const mi::neuraylib::IType_struct> StructType(ParameterType.get_interface<const mi::neuraylib::IType_struct>());
-        check(strcmp(StructType->get_symbol(), "::material") == 0);
+        ensure(strcmp(StructType->get_symbol(), "::material") == 0);
     }
 
     const mi::base::Handle<const mi::neuraylib::IExpression_list> Defaults(MaterialDefinition->get_defaults());
@@ -547,7 +547,7 @@ const mi::base::Handle<const mi::neuraylib::IModule> UMDLMaterialFactory::Prepar
             // fall-through !!
         case 0:
             Module = MDLModule->GetLoadedMdlModule(ModuleName);
-            check(Module.is_valid_interface());
+            ensure(Module.is_valid_interface());
             break;
         case -1:
             Warn->Logf(ELogVerbosity::Error, TEXT("Failed to load MDL module '%s': the module name is invalid"), *ModuleName, ErrorCode);
@@ -676,7 +676,7 @@ FString UMDLMaterialFactory::ValueText(const mi::base::Handle<const mi::neurayli
             if (Texture.is_valid_interface())
             {
                 FString FileName = Texture->get_image();
-                check(FileName.StartsWith("MI_default_image_"));
+                ensure(FileName.StartsWith("MI_default_image_"));
                 return FString("\"") + FileName.RightChop(17).Replace(TEXT("\\"), TEXT("/")) + "\", " + GammaText(Texture->get_gamma());
             }
             else
@@ -685,7 +685,7 @@ FString UMDLMaterialFactory::ValueText(const mi::base::Handle<const mi::neurayli
             }
         }
         default:
-            check(false);
+            ensure(false);
             return "";
     }
 }
