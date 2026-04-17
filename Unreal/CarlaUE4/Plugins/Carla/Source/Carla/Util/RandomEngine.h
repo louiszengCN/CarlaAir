@@ -141,7 +141,7 @@ public:
   template <typename T>
   auto &PickOne(const TArray<T> &Array)
   {
-    check(Array.Num() > 0);
+    ensure(Array.Num() > 0);
     return Array[GetUniformIntInRange(0, Array.Num() - 1)];
   }
 

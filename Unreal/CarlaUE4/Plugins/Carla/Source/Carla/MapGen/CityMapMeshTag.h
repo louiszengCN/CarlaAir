@@ -99,7 +99,7 @@ public:
 
   /// Convert an unsigned integer to a ECityMapMeshTag.
   static ECityMapMeshTag FromUInt(uint8 Value) {
-    check(Value < GetNumberOfTags());
+    ensure(Value < GetNumberOfTags());
     return static_cast<ECityMapMeshTag>(Value);
   }
 

@@ -117,7 +117,7 @@ public:
   UFUNCTION(Category = "Random Engine", BlueprintCallable)
   URandomEngine *GetRandomEngine()
   {
-    check(RandomEngine != nullptr);
+    ensure(RandomEngine != nullptr);
     return RandomEngine;
   }
 
