@@ -9,7 +9,7 @@ DOCKER_PUSH=false
 AWS_COPY="aws s3 cp"
 DOCKER="docker"
 UNTAR="tar -xvzf"
-UPLOAD_MAPS=true
+export UPLOAD_MAPS=true
 ENDPOINT="https://s3.us-east-005.backblazeb2.com"
 SUMMARY_OUTPUT_PATH=
 
@@ -132,7 +132,7 @@ if ${DOCKER_PUSH} ; then
 
   ${UNTAR} "${LATEST_PACKAGE_PATH}" -C "${DOCKER_BUILD_FOLDER}/"
 
-  pushd "${DOCKER_BUILD_FOLDER}" >/dev/null
+  pushd "${DOCKER_BUILD_FOLDER}" >/dev/null || exit 1
 
   log "Building Docker image ${DOCKER_NAME}."
 
@@ -142,7 +142,7 @@ if ${DOCKER_PUSH} ; then
 
   ${DOCKER} push "${DOCKER_NAME}"
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi;
 
