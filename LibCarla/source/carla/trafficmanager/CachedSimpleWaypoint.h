@@ -5,6 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #pragma once
+#include <cstring>
 
 #include <fstream>
 
@@ -49,7 +50,7 @@ namespace traffic_manager {
     }
     template <typename T>
     void ReadValue(const std::vector<uint8_t>& content, unsigned long& start, T &out_obj) {
-      memcpy(&out_obj, &content[start], sizeof(T));
+      std::memcpy(&out_obj, &content[start], sizeof(T));
       start += sizeof(T);
     }
   };

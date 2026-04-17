@@ -122,7 +122,7 @@ namespace nav {
 
     // read the file header
     unsigned long pos = 0;
-    memcpy(&header, &content[pos], sizeof(header));
+    std::memcpy(&header, &content[pos], sizeof(header));
     pos += sizeof(header);
 
     // check file magic and version
@@ -147,7 +147,7 @@ namespace nav {
       NavMeshTileHeader tile_header;
 
       // read the tile header
-      memcpy(&tile_header, &content[pos], sizeof(tile_header));
+      std::memcpy(&tile_header, &content[pos], sizeof(tile_header));
       pos += sizeof(tile_header);
       if (pos >= content.size()) {
         dtFreeNavMesh(mesh);
@@ -166,7 +166,7 @@ namespace nav {
       }
 
       // read the tile
-      memcpy(data, &content[pos], static_cast<size_t>(tile_header.data_size));
+      std::memcpy(data, &content[pos], static_cast<size_t>(tile_header.data_size));
       pos += static_cast<unsigned long>(tile_header.data_size);
       if (pos > content.size()) {
         dtFree(data);
@@ -231,7 +231,7 @@ namespace nav {
     // Setup local avoidance params to different qualities.
     dtObstacleAvoidanceParams params;
     // Use mostly default settings, copy from dtCrowd.
-    memcpy(&params, _crowd->getObstacleAvoidanceParams(0), sizeof(dtObstacleAvoidanceParams));
+    std::memcpy(&params, _crowd->getObstacleAvoidanceParams(0), sizeof(dtObstacleAvoidanceParams));
 
     // Low (11)
     params.velBias = 0.5f;
@@ -481,7 +481,7 @@ namespace nav {
     DEBUG_ASSERT(_crowd != nullptr);
 
     // set parameters
-    memset(&params, 0, sizeof(params));
+    std::memset(&params, 0, sizeof(params));
     params.radius = AGENT_RADIUS;
     params.height = AGENT_HEIGHT;
     params.maxAcceleration = 160.0f;
@@ -600,7 +600,7 @@ namespace nav {
     }
 
     // set parameters
-    memset(&params, 0, sizeof(params));
+    std::memset(&params, 0, sizeof(params));
     params.radius = 2;
     params.height = AGENT_HEIGHT;
     params.maxAcceleration = 0.0f;

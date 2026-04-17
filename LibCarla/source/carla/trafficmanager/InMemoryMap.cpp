@@ -117,7 +117,7 @@ namespace traffic_manager {
 
     // read total records
     uint32_t total;
-    memcpy(&total, &content[pos], sizeof(total));
+    std::memcpy(&total, &content[pos], sizeof(total));
     pos += sizeof(total);
 
     // read simple waypoints
