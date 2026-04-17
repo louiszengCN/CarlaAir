@@ -327,11 +327,10 @@ void CarlaReplayerHelper::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWhee
     return;
   if (CarlaActor->GetActorType() != FCarlaActor::ActorType::Vehicle)
     return;
-  ACarlaWheeledVehicle* CarlaVehicle = Cast<ACarlaWheeledVehicle>(CarlaActor->GetActor());
-  check(CarlaVehicle != nullptr)
   // UE5: UVehicleAnimInstance wheel animation API removed in ChaosVehicles.
   // Wheel replay animation disabled for UE5.7 compatibility.
-  // TODO: restore using ChaosVehicles per-wheel rotation state when API is available.
+  // TODO(#UE5-WHEEL-ANIM): restore using ChaosVehicles per-wheel rotation state.
+  (void)CarlaActor;
 }
 
 // reposition the camera
@@ -494,7 +493,7 @@ void CarlaReplayerHelper::ProcessReplayerAnimBiker(CarlaRecorderAnimBiker Biker)
   if (CarlaActor == nullptr)
     return;
   ACarlaWheeledVehicle* CarlaVehicle = Cast<ACarlaWheeledVehicle>(CarlaActor->GetActor());
-  check(CarlaVehicle != nullptr)
+  if (!CarlaVehicle) return;
   CarlaVehicle->SetSpeedAnim(Biker.ForwardSpeed);
   CarlaVehicle->SetRotationAnim(Biker.EngineRotation);
 }
