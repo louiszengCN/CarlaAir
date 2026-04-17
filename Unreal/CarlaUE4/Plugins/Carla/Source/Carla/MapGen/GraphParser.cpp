@@ -63,7 +63,7 @@ namespace MapGen {
         angles.emplace_back(edge->Angle);
         edge = &Graph::GetNextInNode(*edge);
       } while (edge != &firstEdge);
-      check(!angles.empty());
+      ensure(!angles.empty());
       node.EdgeCount = angles.size();
       node.bIsIntersection = true;
       switch (node.EdgeCount) {
@@ -139,9 +139,9 @@ namespace MapGen {
   // ===========================================================================
 
   GraphParser::GraphParser(DoublyConnectedEdgeList &graph) {
-    check(graph.CountNodes() >= 4u);
-    check(graph.CountHalfEdges() >= 8u);
-    check(graph.CountFaces() >= 2u);
+    ensure(graph.CountNodes() >= 4u);
+    ensure(graph.CountHalfEdges() >= 8u);
+    ensure(graph.CountFaces() >= 2u);
 
     fixGraphData(graph);
 
