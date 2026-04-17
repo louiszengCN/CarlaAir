@@ -169,7 +169,7 @@ function build_libcarla {
   log "Building LibCarla \"$1.$2\" configuration."
 
   mkdir -p "${M_BUILD_FOLDER}"
-  pushd "${M_BUILD_FOLDER}" >/dev/null
+  pushd "${M_BUILD_FOLDER}" >/dev/null || exit 1
 
   CHECKSUM_FILE=checksum.txt
 
@@ -186,14 +186,14 @@ function build_libcarla {
 
     cmake \
         -G "Eclipse CDT4 - Ninja" \
-        -DCMAKE_BUILD_TYPE=${BUILD_TYPE:-$1} \
-        -DLIBCARLA_BUILD_DEBUG=${M_DEBUG} \
-        -DLIBCARLA_BUILD_RELEASE=${M_RELEASE} \
+        -DCMAKE_BUILD_TYPE="${BUILD_TYPE:-$1}" \
+        -DLIBCARLA_BUILD_DEBUG="${M_DEBUG}" \
+        -DLIBCARLA_BUILD_RELEASE="${M_RELEASE}" \
         -DCMAKE_TOOLCHAIN_FILE="${M_TOOLCHAIN}" \
         -DCMAKE_INSTALL_PREFIX="${M_INSTALL_FOLDER}" \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
         ${CMAKE_EXTRA_OPTIONS} \
-        ${CARLA_ROOT_FOLDER}
+        "${CARLA_ROOT_FOLDER}"
 
     get_source_code_checksum > "${CHECKSUM_FILE}"
 
@@ -203,7 +203,7 @@ function build_libcarla {
 
   ninja install | grep -v "Up-to-date:"
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 }
 
 # ==============================================================================
