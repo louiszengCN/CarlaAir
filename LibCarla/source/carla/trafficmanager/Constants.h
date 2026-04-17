@@ -6,7 +6,7 @@
 #pragma once
 
 #include <limits>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #define SQUARE(a) ((a) * (a))
