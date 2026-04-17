@@ -49,4 +49,5 @@ done
 # Convert comma-separated string to array of unique elements.
 IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"
 
+# shellcheck disable=SC2086  # ARGS is a word list of CLI arguments, splitting is intentional
 /usr/bin/env "python${PY_VERSION_LIST[0]}" "${CARLA_BUILD_TOOLS_FOLDER}/Import.py" ${ARGS}

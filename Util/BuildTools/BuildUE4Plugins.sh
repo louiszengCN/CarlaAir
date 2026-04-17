@@ -68,11 +68,12 @@ if ${REMOVE_INTERMEDIATE} ; then
 
   UE4_INTERMEDIATE_FOLDERS="Binaries Build Intermediate DerivedDataCache"
 
-  pushd "${CARLAUE4_STREETMAP_FOLDER}" >/dev/null
+  pushd "${CARLAUE4_STREETMAP_FOLDER}" >/dev/null || exit 1
 
+  # shellcheck disable=SC2086  # UE4_INTERMEDIATE_FOLDERS is a space-separated list
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi
 
@@ -83,12 +84,12 @@ fi
 if ${BUILD_STREETMAP} ; then
   log "Downloading STREETMAP plugin."
   if ${GIT_PULL} ; then
-    if [ ! -d ${CARLAUE4_STREETMAP_FOLDER} ] ; then
-      git clone -b ${STREETMAP_BRANCH} ${STREETMAP_REPO} ${CARLAUE4_STREETMAP_FOLDER}
+    if [ ! -d "${CARLAUE4_STREETMAP_FOLDER}" ] ; then
+      git clone -b "${STREETMAP_BRANCH}" "${STREETMAP_REPO}" "${CARLAUE4_STREETMAP_FOLDER}"
     fi
-    cd ${CARLAUE4_STREETMAP_FOLDER}
+    cd "${CARLAUE4_STREETMAP_FOLDER}" || exit 1
     git fetch
-    git checkout ${CURRENT_STREETMAP_COMMIT}
+    git checkout "${CURRENT_STREETMAP_COMMIT}"
   fi
 fi
 
