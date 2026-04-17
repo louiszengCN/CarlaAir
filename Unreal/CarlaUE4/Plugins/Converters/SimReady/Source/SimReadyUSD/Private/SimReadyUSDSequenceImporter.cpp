@@ -341,7 +341,7 @@ void FSimReadyUSDSequenceImporter::BuildActorSequence(UBlueprint* Blueprint, con
         for ( TActorIterator<AActor> It(World); It; ++It )
         {
             AActor* Actor = *It;
-            if (!Actor->IsPendingKillPending()
+            if (IsValid(Actor)
                 && Actor->GetClass()->ClassGeneratedBy == Blueprint)
             {
                 BlueprintActor = Actor;

@@ -284,7 +284,7 @@ void ASimReadyStageActor::ResyncUSD(const pxr::SdfPath& Path)
             // Remove from world
             if(OwnerActor && SceneComp && OwnerActor->GetRootComponent() == SceneComp)
             {
-                if(!OwnerActor->IsPendingKillPending() && !OwnerActor->HasAllFlags(EObjectFlags::RF_BeingRegenerated))
+                if(IsValid(OwnerActor) && !OwnerActor->HasAllFlags(EObjectFlags::RF_BeingRegenerated))
                 {
                     ReserveObject(*OwnerActor, FSimReadyPathHelper::KeyToPrimPath(Key));
 
