@@ -2962,8 +2962,8 @@ int32 FillVertexData(const UParticleModuleRequired* RequiredModule,
         float CurrTileU;
         /*FEmitterDynamicParameterPayload* CurrDynPayload = NULL;
         FEmitterDynamicParameterPayload* PrevDynPayload = NULL;*/
-        FBaseParticle* PrevParticle = NULL;
-        FRibbonTypeDataPayload* PrevTrailPayload = NULL;
+        FBaseParticle* PrevParticle = nullptr;
+        FRibbonTypeDataPayload* PrevTrailPayload = nullptr;
 
         FVector WorkingUp = TrailPayload->Up;
         if (SourcePointer->TrailTypeData->RenderAxis == Trails_CameraUp)
@@ -3124,7 +3124,7 @@ int32 FillVertexData(const UParticleModuleRequired* RequiredModule,
                 /*if (bUseDynamic)
                 {
                     DynParamVertex = (FParticleBeamTrailVertexDynamicParameter*)(TempDynamicParamData);
-                    if (CurrDynPayload != NULL)
+                    if (CurrDynPayload != nullptr)
                     {
                         DynParamVertex->DynamicValue[0] = CurrDynPayload->DynamicParameterValue[0];
                         DynParamVertex->DynamicValue[1] = CurrDynPayload->DynamicParameterValue[1];
@@ -3158,7 +3158,7 @@ int32 FillVertexData(const UParticleModuleRequired* RequiredModule,
                 /*if (bUseDynamic)
                 {
                     DynParamVertex = (FParticleBeamTrailVertexDynamicParameter*)(TempDynamicParamData);
-                    if (CurrDynPayload != NULL)
+                    if (CurrDynPayload != nullptr)
                     {
                         DynParamVertex->DynamicValue[0] = CurrDynPayload->DynamicParameterValue[0];
                         DynParamVertex->DynamicValue[1] = CurrDynPayload->DynamicParameterValue[1];
@@ -3187,8 +3187,8 @@ int32 FillVertexData(const UParticleModuleRequired* RequiredModule,
             int32	NextIdx = TRAIL_EMITTER_GET_NEXT(TrailPayload->Flags);
             if (NextIdx == TRAIL_EMITTER_NULL_NEXT)
             {
-                TrailPayload = NULL;
-                PackingParticle = NULL;
+                TrailPayload = nullptr;
+                PackingParticle = nullptr;
             }
             else
             {
