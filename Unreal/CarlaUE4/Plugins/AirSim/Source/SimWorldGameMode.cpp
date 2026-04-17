@@ -60,13 +60,13 @@ public:
         }
 
         if (level == msr::airlib::Utils::kLogLevelError) {
-            UE_LOG(LogAirSim, Error, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Error, TEXT("%s"), UTF8_TO_TCHAR(message.c_str()));
         }
         else if (level == msr::airlib::Utils::kLogLevelWarn) {
-            UE_LOG(LogAirSim, Warning, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Warning, TEXT("%s"), UTF8_TO_TCHAR(message.c_str()));
         }
         else {
-            UE_LOG(LogAirSim, Log, TEXT("%s"), *FString(message.c_str()));
+            UE_LOG(LogAirSim, Log, TEXT("%s"), UTF8_TO_TCHAR(message.c_str()));
         }
 
         msr::airlib::Utils::Logger::log(level, message);
