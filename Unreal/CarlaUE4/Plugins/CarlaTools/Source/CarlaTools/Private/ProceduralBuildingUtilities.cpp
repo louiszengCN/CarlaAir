@@ -74,7 +74,7 @@ UProceduralMeshComponent* AProceduralBuildingUtilities::GenerateImpostorGeometry
   Mesh->OnComponentCreated();
   Mesh->RegisterComponent();
 
-  if (!IsValid(Mesh)) { return; }
+  if (!IsValid(Mesh)) { return nullptr; }
 
   // FRONT View
   CreateBuildingImpostorGeometryForView(Mesh, BuildingSize, EBuildingCameraView::FRONT);
@@ -220,7 +220,7 @@ UMaterialInstanceConstant* AProceduralBuildingUtilities::GenerateBuildingMateria
 
   UMaterialInstanceConstant* ParentMaterial = LoadObject<UMaterialInstanceConstant>(nullptr, *BaseMaterialSearchPath);
 
-  if (!IsValid(ParentMaterial)) { return; }
+  if (!IsValid(ParentMaterial)) { return nullptr; }
 
   UPackage* NewPackage = CreatePackage(*PackageName);
   FObjectDuplicationParameters Parameters(ParentMaterial, NewPackage);

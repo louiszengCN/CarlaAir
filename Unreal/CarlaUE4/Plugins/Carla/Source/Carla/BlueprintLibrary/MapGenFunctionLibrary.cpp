@@ -166,7 +166,7 @@ UStaticMesh* UMapGenFunctionLibrary::CreateMesh(
   if (Description.Polygons().Num() > 0)
   {
     UPackage* Package = CreatePackage(*PackageName);
-    if (!Package) { return; }
+    if (!Package) { return nullptr; }
     UStaticMesh* Mesh = NewObject<UStaticMesh>( Package, MeshName, RF_Public | RF_Standalone);
 
     Mesh->InitResources();

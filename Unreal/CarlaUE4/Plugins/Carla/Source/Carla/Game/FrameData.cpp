@@ -1040,7 +1040,7 @@ void FFrameData::ProcessReplayerAnimWalker(CarlaRecorderAnimWalker Walker)
 
 void FFrameData::ProcessReplayerAnimBiker(CarlaRecorderAnimBiker Biker)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(Biker.DatabaseId);
   if (CarlaActor == nullptr)
     return;
@@ -1107,7 +1107,7 @@ void FFrameData::SetActorVelocity(FCarlaActor *CarlaActor, FVector Velocity)
 // set the animation speed for walkers
 void FFrameData::SetWalkerSpeed(uint32_t ActorId, float Speed)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(ActorId);
   if (!CarlaActor)
   {
