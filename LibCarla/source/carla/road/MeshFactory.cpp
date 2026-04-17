@@ -1066,7 +1066,7 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
     if(distance3D > road_param.max_weight_distance) {
       return {neighbor_info.vertex, 0};
     }
-    if(abs(distance3D) < EPSILON) {
+    if(std::abs(distance3D) < EPSILON) {
       return {neighbor_info.vertex, 0};
     }
     float weight = geom::Math::Clamp<float>(1.0f / distance3D, 0.0f, 100000.0f);

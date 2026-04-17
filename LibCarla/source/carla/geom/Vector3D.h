@@ -64,7 +64,7 @@ namespace geom {
     }
 
     Vector3D Abs() const {
-       return Vector3D(abs(x), abs(y), abs(z));
+       return Vector3D(std::abs(x), std::abs(y), std::abs(z));
     }
 
     Vector3D MakeUnitVectorLengthInput(const double length, const float epsilon = 2.0f * std::numeric_limits<float>::epsilon()) const {

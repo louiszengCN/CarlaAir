@@ -1659,7 +1659,7 @@ namespace road {
         if ( pos.z < 0.2) {
           return 0.0;
         } else {
-          return -abs(pos.z);
+          return -std::abs(pos.z);
         }
       }
       boost::optional<element::Waypoint> InRoadWaypoint = GetClosestWaypointOnRoad(geom::Location(worldloc), 0x1 << 1);

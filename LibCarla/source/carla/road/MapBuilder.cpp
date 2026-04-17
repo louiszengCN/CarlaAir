@@ -1208,7 +1208,7 @@ void MapBuilder::CreateController(
           }
 
           geom::Vector3D displacement = 1.f*(road_transform.GetRightVector()) *
-              static_cast<float>(abs(lane_width))*0.2f;
+              static_cast<float>(std::abs(lane_width))*0.2f;
           signal_position += (displacement * displacement_direction);
           signal_rotation = road_transform.rotation;
           closest_waypoint_to_signal =

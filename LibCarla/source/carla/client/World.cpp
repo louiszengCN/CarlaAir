@@ -68,7 +68,7 @@ namespace client {
       for (auto i = 0u; i < number_of_attemps; i++) {
         const auto curr_snapshot = GetSnapshot();
 
-        const double error = abs(new_settings.fixed_delta_seconds.get() - curr_snapshot.GetTimestamp().delta_seconds);
+        const double error = std::abs(new_settings.fixed_delta_seconds.get() - curr_snapshot.GetTimestamp().delta_seconds);
         if (error < std::numeric_limits<float>::epsilon())
           tics_correct++;
 
