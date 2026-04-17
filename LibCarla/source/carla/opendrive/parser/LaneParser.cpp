@@ -6,6 +6,7 @@
 
 #include "carla/opendrive/parser/LaneParser.h"
 
+#include "carla/Logging.h"
 #include "carla/road/MapBuilder.h"
 
 #include <pugixml/pugixml.hpp>
@@ -41,8 +42,8 @@ namespace parser {
       if (width_count == 0) {
         map_builder.CreateLaneWidth(lane, s, 0.0, 0.0, 0.0, 0.0);
         if (lane->GetId() != 0) {
-          std::cout << "WARNING: In road " << lane->GetRoad()->GetId() << " lane " << lane->GetId() <<
-          " no \"<width>\" parameter found under \"<lane>\" tag. Using default values." << std::endl;
+          log_warning("In road", lane->GetRoad()->GetId(), "lane", lane->GetId(),
+            "no <width> parameter found under <lane> tag. Using default values.");
         }
       }
 

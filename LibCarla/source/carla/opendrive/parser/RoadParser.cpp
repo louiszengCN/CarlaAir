@@ -131,7 +131,7 @@ namespace parser {
       } else if (rule == "LHT") {
         road.is_rht = false;
       } else {
-        std::cout << "Detected rule '" << rule << "' for road '" << road.id << "'. Defaulting to RHT." << std::endl;
+        log_warning("Detected rule '", rule, "' for road '", road.id, "'. Defaulting to RHT.");
         road.is_rht = true;
       }
       // link
