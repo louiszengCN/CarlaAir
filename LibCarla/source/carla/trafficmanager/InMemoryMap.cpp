@@ -5,6 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "carla/Logging.h"
+#include "carla/Debug.h"
 
 #include "carla/trafficmanager/Constants.h"
 #include "carla/trafficmanager/InMemoryMap.h"
@@ -166,7 +167,7 @@ namespace traffic_manager {
   void InMemoryMap::SetUp() {
 
     // 1. Building segment topology (i.e., defining set of segment predecessors and successors)
-    assert(_world_map != nullptr && "No map reference found.");
+    DEBUG_ASSERT(_world_map != nullptr);
     auto waypoint_topology = _world_map->GetTopology();
 
     SegmentTopology segment_topology;
@@ -228,7 +229,7 @@ namespace traffic_manager {
 
     // 2. Consuming the raw dense topology from cc::Map into SimpleWaypoints.
     SegmentMap segment_map;
-    assert(_world_map != nullptr && "No map reference found.");
+    DEBUG_ASSERT(_world_map != nullptr);
     auto raw_dense_topology = _world_map->GenerateWaypoints(MAP_RESOLUTION);
     for (auto &waypoint_ptr: raw_dense_topology) {
       if (waypoint_ptr->GetLaneWidth() > MIN_LANE_WIDTH){
@@ -576,7 +577,7 @@ namespace traffic_manager {
   }
 
   std::string InMemoryMap::GetMapName() {
-    assert(_world_map != nullptr && "No map reference found.");
+    DEBUG_ASSERT(_world_map != nullptr);
     return _world_map->GetName();
   }
 
