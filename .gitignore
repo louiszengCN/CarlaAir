@@ -34,5 +34,47 @@ Thumbs.db
 # Compiled objects
 *.o
 *.a
+*.lib
+*.dylib
+*.so
+*.so.*
 *.debug
 *.sym
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+*.cmake
+!CMakeLists.txt
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Python packaging
+.venv/
+venv/
+*.whl
+pip-wheel-metadata/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Node (for any frontend tooling)
+node_modules/
+
+# Temporary / editor backup
+*.bak
+*.tmp
+*.orig
