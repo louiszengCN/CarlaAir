@@ -249,7 +249,7 @@ public:
   virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
   virtual void TickComponent(float DeltaTime,
-      ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
+      ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
   // UFUNCTION(BlueprintCallable)
   // TArray<FHitResult> SampleTerrainRayCast(const TArray<FVector> &Locations);

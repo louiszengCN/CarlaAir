@@ -311,7 +311,7 @@ protected:
 
   virtual void BeginPlay() override;
   virtual void TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
-  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
   UFUNCTION(BlueprintImplementableEvent)
   void RefreshLightState(const FVehicleLightState &VehicleLightState);

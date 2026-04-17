@@ -33,11 +33,11 @@ public:
     Episode = &InEpisode;
   }
 
-  virtual void Set(const FActorDescription &Description);
+  virtual void Set(const FActorDescription &Description) override;
 
   boost::optional<FActorAttribute> GetAttribute(const FString Name);
 
-  virtual void BeginPlay();
+  virtual void BeginPlay() override;
 
   /// Replace the FDataStream associated with this sensor.
   ///
