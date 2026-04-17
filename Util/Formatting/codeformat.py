@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #
 # Copyright (c) 2017-2020 Intel Corporation
 #
-# Helper script for code formatting using clang-format-3.9 and autopep
+# Helper script for code formatting using clang-format and autopep8
 
 from __future__ import annotations
 
@@ -14,8 +14,7 @@ import re
 import subprocess
 import sys
 
-import sets
-from termcolor import cprint
+from termcolor import cprint  # pip install termcolor
 
 SCRIPT_VERSION = "1.3"
 
@@ -158,7 +157,7 @@ class CodeFormatterClang(CodeFormatter):
 
     def verify_clang_format_file_exists_and_matches_checked_in(self) -> None:
         self.verify_checked_in_clang_format_file_exists()
-        found_clang_format_files = sets.Set()
+        found_clang_format_files = set()
         for file_name in self.input_files:
             dir_name = os.path.dirname(os.path.abspath(file_name))
             if not self.find_clang_format_file_starting_from(dir_name, file_name, found_clang_format_files):
@@ -168,7 +167,7 @@ class CodeFormatterClang(CodeFormatter):
         self,
         dir_name: str,
         file_name: str,
-        found_clang_format_files: sets.Set,
+        found_clang_format_files: set,
     ) -> bool:
         clang_format_file = os.path.join(dir_name, CodeFormatterClang.CLANG_FORMAT_FILE)
         if os.path.exists(clang_format_file):
@@ -295,7 +294,7 @@ class CodeFormat:
     def check_input_files_are_in_clean_git_repos_and_are_tracked(self) -> None:
         if self.args.verify or self.args.yes:
             return
-        git_repos = sets.Set()
+        git_repos = set()
         for formatter_instance in self.code_formatter_instances:
             for file_name in formatter_instance.input_files:
                 git_repo = self.get_git_repo_for_file(file_name)
