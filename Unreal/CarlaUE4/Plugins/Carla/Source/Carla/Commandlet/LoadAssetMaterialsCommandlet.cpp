@@ -159,7 +159,7 @@ void ULoadAssetMaterialsCommandlet::ApplyRoadPainterMaterials(const FString &Loa
         TileData.Size = (float) FCString::Atoi(*Out[2]);
       }
       else {
-        UE_LOG(LogTemp, Warning, TEXT("Could not read TilesInfo.txt file"));
+        UE_LOG(LogCarla, Warning, TEXT("Could not read TilesInfo.txt file"));
         return;
       }
 
@@ -322,7 +322,7 @@ FString ULoadAssetMaterialsCommandlet::GetFirstPackagePath(const FString &Packag
 
   if (PackageList.Num() == 0)
   {
-    UE_LOG(LogTemp, Error, TEXT("Package json file not found."));
+    UE_LOG(LogCarla, Error, TEXT("Package json file not found."));
     return {};
   }
 
