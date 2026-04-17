@@ -378,7 +378,7 @@ void FFrameData::CreateRecorderEventAdd(
 
 void FFrameData::AddActorPosition(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FTransform Transform = CarlaActor->GetActorGlobalTransform();
   // get position of the vehicle
@@ -392,7 +392,7 @@ void FFrameData::AddActorPosition(FCarlaActor *CarlaActor)
 
 void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   if (!CarlaActor->GetActor() || !::IsValid(CarlaActor->GetActor())) // UE5: IsGarbage takes UObject*; check underlying actor
   {
@@ -415,7 +415,7 @@ void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 
 void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr)
+  if (!CarlaActor) { return; }
   if (!CarlaActor->GetActor() || !::IsValid(CarlaActor->GetActor())) // UE5: IsGarbage not for non-UObject
     return;
   if (CarlaActor->GetActorType() != FCarlaActor::ActorType::Vehicle)
@@ -432,7 +432,7 @@ void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 
 void FFrameData::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   if (CarlaActor->GetActor() && ::IsValid(CarlaActor->GetActor())) // UE5: IsValid takes UObject*
   {
@@ -448,7 +448,7 @@ void FFrameData::AddWalkerAnimation(FCarlaActor *CarlaActor)
 
 void FFrameData::AddTrafficLightState(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   ETrafficLightState LightState = CarlaActor->GetTrafficLightState();
   UTrafficLightController* Controller = CarlaActor->GetTrafficLightController();
@@ -470,7 +470,7 @@ void FFrameData::AddTrafficLightState(FCarlaActor *CarlaActor)
 
 void FFrameData::AddVehicleLight(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FVehicleLightState LightState;
   CarlaActor->GetVehicleLightState(LightState);
@@ -482,7 +482,7 @@ void FFrameData::AddVehicleLight(FCarlaActor *CarlaActor)
 
 void FFrameData::AddActorKinematics(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   FVector Velocity, AngularVelocity;
   constexpr float TO_METERS = 1e-2;
@@ -499,7 +499,7 @@ void FFrameData::AddActorKinematics(FCarlaActor *CarlaActor)
 
 void FFrameData::AddActorBoundingBox(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr);
+  if (!CarlaActor) { return; }
 
   const auto &Box = CarlaActor->GetActorInfo()->BoundingBox;
   CarlaRecorderActorBoundingBox BoundingBox =
@@ -693,7 +693,7 @@ std::pair<int, FCarlaActor*> FFrameData::CreateOrReuseActor(
     bool SpawnSensors,
     std::unordered_map<uint32_t, uint32_t>& MappedId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return {0, nullptr}; }
 
   // check type of actor we need
   if (ActorDesc.Id.StartsWith("traffic."))
@@ -784,7 +784,7 @@ std::pair<int, uint32_t> FFrameData::ProcessReplayerEventAdd(
     bool ReplaySensors,
     std::unordered_map<uint32_t, uint32_t>& MappedId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return {0, 0}; }
   FActorDescription ActorDesc;
   bool IsHero = false;
 
@@ -838,7 +838,7 @@ std::pair<int, uint32_t> FFrameData::ProcessReplayerEventAdd(
 // replay event for removing actor
 bool FFrameData::ProcessReplayerEventDel(uint32_t DatabaseId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(DatabaseId);
   if (CarlaActor == nullptr)
   {
@@ -852,7 +852,7 @@ bool FFrameData::ProcessReplayerEventDel(uint32_t DatabaseId)
 // replay event for parenting actors
 bool FFrameData::ProcessReplayerEventParent(uint32_t ChildId, uint32_t ParentId)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor * Child = Episode->FindCarlaActor(ChildId);
   FCarlaActor * Parent = Episode->FindCarlaActor(ParentId);
   if(!Child)
@@ -888,7 +888,7 @@ bool FFrameData::ProcessReplayerEventParent(uint32_t ChildId, uint32_t ParentId)
 // reposition actors
 bool FFrameData::ProcessReplayerPosition(CarlaRecorderPosition Pos1, CarlaRecorderPosition Pos2, double Per, double DeltaTime)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(Pos1.DatabaseId);
   FVector Location;
   FRotator Rotation;
@@ -918,7 +918,7 @@ bool FFrameData::ProcessReplayerPosition(CarlaRecorderPosition Pos1, CarlaRecord
 // reposition the camera
 bool FFrameData::SetCameraPosition(uint32_t Id, FVector Offset, FQuat Rotation)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
 
   // get the actor to follow
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(Id);
@@ -944,7 +944,7 @@ bool FFrameData::SetCameraPosition(uint32_t Id, FVector Offset, FQuat Rotation)
 
 bool FFrameData::ProcessReplayerStateTrafficLight(CarlaRecorderStateTrafficLight State)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor* CarlaActor = Episode->FindCarlaActor(State.DatabaseId);
   if(CarlaActor)
   {
@@ -967,7 +967,7 @@ bool FFrameData::ProcessReplayerStateTrafficLight(CarlaRecorderStateTrafficLight
 // set the animation for Vehicles
 void FFrameData::ProcessReplayerAnimVehicle(CarlaRecorderAnimVehicle Vehicle)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor *CarlaActor = Episode->FindCarlaActor(Vehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -1001,7 +1001,7 @@ void FFrameData::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWheels Vehicl
 // set the lights for vehicles
 void FFrameData::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle LightVehicle)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(LightVehicle.DatabaseId);
   if (CarlaActor)
   {
@@ -1012,7 +1012,7 @@ void FFrameData::ProcessReplayerLightVehicle(CarlaRecorderLightVehicle LightVehi
 
 void FFrameData::ProcessReplayerLightScene(CarlaRecorderLightScene LightScene)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   UWorld* World = Episode->GetWorld();
   if(World)
   {
@@ -1040,7 +1040,7 @@ void FFrameData::ProcessReplayerAnimWalker(CarlaRecorderAnimWalker Walker)
 
 void FFrameData::ProcessReplayerAnimBiker(CarlaRecorderAnimBiker Biker)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(Biker.DatabaseId);
   if (CarlaActor == nullptr)
     return;
@@ -1107,7 +1107,7 @@ void FFrameData::SetActorVelocity(FCarlaActor *CarlaActor, FVector Velocity)
 // set the animation speed for walkers
 void FFrameData::SetWalkerSpeed(uint32_t ActorId, float Speed)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   FCarlaActor * CarlaActor = Episode->FindCarlaActor(ActorId);
   if (!CarlaActor)
   {
@@ -1141,7 +1141,7 @@ void FFrameData::SetFrameCounter()
 
 FCarlaActor *FFrameData::FindTrafficSignAt(FVector Location)
 {
-  check(Episode != nullptr);
+  if (!Episode) { return false; }
   auto World = Episode->GetWorld();
   check(World != nullptr);
 
