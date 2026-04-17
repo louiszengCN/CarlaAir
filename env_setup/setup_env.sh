@@ -3,10 +3,10 @@
 #  CarlaAir v0.1.7 — One-click Environment Setup
 #  Usage: bash setup_env.sh
 # ============================================================
-set -e
+set -euo pipefail
 
 ENV_NAME="carlaAir"
-PYTHON_VER="3.10"
+PYTHON_VER="3.12"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TARBALL="$SCRIPT_DIR/carla_python_module.tar.gz"
 
@@ -57,7 +57,7 @@ ok "activated env: $ENV_NAME ($(python3 --version))"
 
 # ---------- 4. Install pip packages ----------
 echo "Installing pip dependencies..."
-pip install -q pygame airsim numpy Pillow
+pip install -q "pygame>=2.6" "airsim>=1.8" "numpy>=1.24,<2.0" "Pillow>=10.0"
 ok "pip packages installed"
 
 # ---------- 5. Remove official carla if present ----------
