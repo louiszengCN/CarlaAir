@@ -472,8 +472,8 @@ namespace road {
         hdg,
         location);
 
-    _temp_road_info_container[road].emplace_back(std::unique_ptr<RoadInfo>(new RoadInfoGeometry(s,
-        std::move(line_geometry))));
+    _temp_road_info_container[road].emplace_back(std::make_unique<RoadInfoGeometry>(s,
+        std::move(line_geometry)));
   }
 
   void MapBuilder::CreateRoadSpeed(
@@ -514,8 +514,8 @@ namespace road {
         location,
         curvature);
 
-    _temp_road_info_container[road].emplace_back(std::unique_ptr<RoadInfo>(new RoadInfoGeometry(s,
-        std::move(arc_geometry))));
+    _temp_road_info_container[road].emplace_back(std::make_unique<RoadInfoGeometry>(s,
+        std::move(arc_geometry)));
   }
 
   void MapBuilder::AddRoadGeometrySpiral(
@@ -538,8 +538,8 @@ namespace road {
         curvStart,
         curvEnd);
 
-      _temp_road_info_container[road].emplace_back(std::unique_ptr<RoadInfo>(new RoadInfoGeometry(s,
-        std::move(spiral_geometry))));
+      _temp_road_info_container[road].emplace_back(std::make_unique<RoadInfoGeometry>(s,
+        std::move(spiral_geometry)));
   }
 
   void MapBuilder::AddRoadGeometryPoly3(
@@ -565,8 +565,8 @@ namespace road {
         b,
         c,
         d);
-    _temp_road_info_container[road].emplace_back(std::unique_ptr<RoadInfo>(new RoadInfoGeometry(s,
-        std::move(poly3_geometry))));
+    _temp_road_info_container[road].emplace_back(std::make_unique<RoadInfoGeometry>(s,
+        std::move(poly3_geometry)));
   }
 
   void MapBuilder::AddRoadGeometryParamPoly3(
@@ -608,8 +608,8 @@ namespace road {
         cV,
         dV,
         arcLength);
-    _temp_road_info_container[road].emplace_back(std::unique_ptr<RoadInfo>(new RoadInfoGeometry(s,
-        std::move(parampoly3_geometry))));
+    _temp_road_info_container[road].emplace_back(std::make_unique<RoadInfoGeometry>(s,
+        std::move(parampoly3_geometry)));
   }
 
   void MapBuilder::AddJunction(const int32_t id, const std::string name) {
