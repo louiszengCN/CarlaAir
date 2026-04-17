@@ -12,7 +12,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> ObstacleDetectionEventSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return SharedPtr<SensorData>(new data::ObstacleDetectionEvent(DESERIALIZE_MOVE_DATA(data)));
+    return MakeShared<data::ObstacleDetectionEvent>(DESERIALIZE_MOVE_DATA(data));
   }
 
 } // namespace s11n

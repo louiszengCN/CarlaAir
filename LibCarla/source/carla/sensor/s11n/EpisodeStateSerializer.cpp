@@ -13,7 +13,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> EpisodeStateSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return SharedPtr<data::RawEpisodeState>(new data::RawEpisodeState{DESERIALIZE_MOVE_DATA(data)});
+    return MakeShared<data::RawEpisodeState>(DESERIALIZE_MOVE_DATA(data));
   }
 
 } // namespace s11n

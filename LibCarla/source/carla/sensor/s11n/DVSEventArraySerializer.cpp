@@ -13,7 +13,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> DVSEventArraySerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return SharedPtr<data::DVSEventArray>(new data::DVSEventArray{DESERIALIZE_MOVE_DATA(data)});
+    return MakeShared<data::DVSEventArray>(DESERIALIZE_MOVE_DATA(data));
   }
 
 } // namespace s11n

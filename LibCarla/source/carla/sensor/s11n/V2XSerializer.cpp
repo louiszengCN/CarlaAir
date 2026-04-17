@@ -17,12 +17,12 @@ namespace carla
 
       SharedPtr<SensorData> CAMDataSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data))
       {
-        return SharedPtr<data::CAMEvent>(new data::CAMEvent(DESERIALIZE_MOVE_DATA(data)));
+        return MakeShared<data::CAMEvent>(DESERIALIZE_MOVE_DATA(data));
       }
 
       SharedPtr<SensorData> CustomV2XDataSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data))
       {
-        return SharedPtr<data::CustomV2XEvent>(new data::CustomV2XEvent(DESERIALIZE_MOVE_DATA(data)));
+        return MakeShared<data::CustomV2XEvent>(DESERIALIZE_MOVE_DATA(data));
       }
 
     } // namespace s11n

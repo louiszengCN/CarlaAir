@@ -12,7 +12,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> CollisionEventSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return SharedPtr<SensorData>(new data::CollisionEvent(DESERIALIZE_MOVE_DATA(data)));
+    return MakeShared<data::CollisionEvent>(DESERIALIZE_MOVE_DATA(data));
   }
 
 } // namespace s11n
