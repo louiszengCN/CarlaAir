@@ -61,7 +61,7 @@ public:
         FName name_n = FName(*name);
         for (TActorIterator<AActor> It(context->GetWorld(), T::StaticClass()); It; ++It) {
             AActor* Actor = *It;
-            if (!Actor->IsPendingKill() && (Actor->ActorHasTag(name_n) || Actor->GetName().Compare(name) == 0)) {
+            if (IsValid(Actor) && (Actor->ActorHasTag(name_n) || Actor->GetName().Compare(name) == 0)) { // UE5: IsPendingKill() → IsValid()
                 return static_cast<T*>(Actor);
             }
         }
