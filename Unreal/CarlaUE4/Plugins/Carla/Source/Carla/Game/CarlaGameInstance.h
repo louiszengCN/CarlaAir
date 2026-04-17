@@ -36,13 +36,13 @@ public:
 
   UCarlaSettings &GetCarlaSettings()
   {
-    check(CarlaSettings != nullptr);
+    ensure(CarlaSettings != nullptr);
     return *CarlaSettings;
   }
 
   const UCarlaSettings &GetCarlaSettings() const
   {
-    check(CarlaSettings != nullptr);
+    ensure(CarlaSettings != nullptr);
     return *CarlaSettings;
   }
 

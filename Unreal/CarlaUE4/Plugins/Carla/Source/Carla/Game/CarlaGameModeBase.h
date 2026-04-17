@@ -42,7 +42,7 @@ public:
 
   const UCarlaEpisode &GetCarlaEpisode() const
   {
-    check(Episode != nullptr);
+    ensure(Episode != nullptr);
     return *Episode;
   }
 
