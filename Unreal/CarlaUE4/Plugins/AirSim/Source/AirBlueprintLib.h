@@ -4,7 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"           // UE5: drop Runtime/AssetRegistry/Public/ prefix
 #include "GameFramework/Actor.h"
 #include "Components/InputComponent.h"
 #include "EngineUtils.h"
@@ -17,10 +17,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Engine/World.h"
-#include "Runtime/Landscape/Classes/LandscapeComponent.h"
-#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "LandscapeComponent.h"                         // UE5: drop Runtime/Landscape/Classes/ prefix
+// Runtime/Engine/Classes/Kismet/GameplayStatics.h — duplicate of Kismet/GameplayStatics.h above; removed
 #include "AirsimLevelStreaming.h"
-#include "Runtime/Core/Public/HAL/FileManager.h"
+#include "HAL/FileManager.h"                            // UE5: drop Runtime/Core/Public/ prefix
 #include "common/AirSimSettings.hpp"
 #include <string>
 #include <regex>
