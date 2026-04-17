@@ -143,7 +143,7 @@ msr::airlib::ProjectionMatrix APIPCamera::getProjectionMatrix(const APIPCamera::
         }
 
         if (capture->ProjectionType == ECameraProjectionMode::Orthographic) {
-            check((int32)ERHIZBuffer::IsInverted);
+            ensure((int32)ERHIZBuffer::IsInverted);
             const float OrthoWidth = capture->OrthoWidth / 2.0f;
             const float OrthoHeight = capture->OrthoWidth / 2.0f * x_axis_multiplier / y_axis_multiplier;
 

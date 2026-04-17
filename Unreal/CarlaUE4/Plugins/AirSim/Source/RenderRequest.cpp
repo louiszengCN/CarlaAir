@@ -59,12 +59,12 @@ void RenderRequest::getScreenshot(std::shared_ptr<RenderParams> params[], std::v
 
         // Queue up the task of querying camera pose in the game thread and synchronizing render thread with camera pose
         AsyncTask(ENamedThreads::GameThread, [this]() {
-            check(IsInGameThread());
+            ensureAlwaysMsgf(IsInGameThread(), TEXT("Expected game thread"));
 
             saved_DisableWorldRendering_ = game_viewport_->bDisableWorldRendering;
             game_viewport_->bDisableWorldRendering = 0;
             end_draw_handle_ = game_viewport_->OnEndDraw().AddLambda([this] {
-                check(IsInGameThread());
+                ensureAlwaysMsgf(IsInGameThread(), TEXT("Expected game thread"));
 
                 // capture CameraPose for this frame
                 query_camera_pose_cb_();
