@@ -46,13 +46,13 @@ namespace actors {
   template<>
   int ActorAttributeValueAccess::As<int>() const {
     LIBCARLA_THROW_BAD_VALUE_CAST(Int);
-    return std::atoi(GetValue().c_str());
+    return std::stoi(GetValue());
   }
 
   template<>
   float ActorAttributeValueAccess::As<float>() const {
     LIBCARLA_THROW_BAD_VALUE_CAST(Float);
-    double x = std::atof(GetValue().c_str());
+    double x = std::stod(GetValue());
     if ((x > std::numeric_limits<float>::max()) ||
         (x < std::numeric_limits<float>::lowest())) {
       LIBCARLA_THROW_INVALID_VALUE("float overflow");
@@ -78,7 +78,7 @@ namespace actors {
     }
 
     auto to_int = [this](const std::string &str) {
-      int i = std::atoi(str.c_str());
+      int i = std::stoi(str);
       if (i > std::numeric_limits<uint8_t>::max()) {
         LIBCARLA_THROW_INVALID_VALUE("integer overflow in color channel");
       }
