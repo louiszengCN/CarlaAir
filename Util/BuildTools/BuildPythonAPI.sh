@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -13,7 +13,7 @@ BUILD_RSS_VARIANT=false
 BUILD_PYTHONAPI=true
 INSTALL_PYTHONAPI=true
 
-OPTS=`getopt -o h --long help,config:,rebuild,clean,rss,carsim,python-version:,build-wheel,target-wheel-platform:,packages:,clean-intermediate,all,xml,target-archive:, -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,config:,rebuild,clean,rss,carsim,python-version:,build-wheel,target-wheel-platform:,packages:,clean-intermediate,all,xml,target-archive:, -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -60,7 +60,8 @@ export CC="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_
 export CXX="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang++"
 export PATH="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin:$PATH"
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 if ! { ${REMOVE_INTERMEDIATE} || ${BUILD_PYTHONAPI} || ${BUILD_PYTHONAPI_WHEEL} ; }; then
   fatal_error "Nothing selected to be done."
@@ -99,7 +100,7 @@ if ${BUILD_PYTHONAPI} ; then
   # Add patchelf to the path. Auditwheel relies on patchelf to repair ELF files.
   export PATH="${LIBCARLA_INSTALL_CLIENT_FOLDER}/bin:${PATH}"
   
-  for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+  for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
     log "Building Python API wheel for Python ${PY_VERSION}."
     
     # Building the RSS variant adds files to SOURCES.txt we do not want included in a normal build
@@ -109,15 +110,17 @@ if ${BUILD_PYTHONAPI} ; then
 
     if ${INSTALL_PYTHONAPI} ; then
       log "Installing Python API for Python ${PY_VERSION}."
-      /usr/bin/env python${PY_VERSION} -m pip install --force-reinstall dist/.tmp/$(ls dist/.tmp | grep .whl)
+      wheel_file=$(echo dist/.tmp/*.whl)
+      /usr/bin/env "python${PY_VERSION}" -m pip install --force-reinstall "${wheel_file}"
     fi
 
     if [[ -z ${TARGET_WHEEL_PLATFORM} ]] ; then
-      cp dist/.tmp/$(ls dist/.tmp | grep .whl) dist
+      cp dist/.tmp/*.whl dist/
     else
       log "Tagging Python API wheel to ${TARGET_WHEEL_PLATFORM} for Python ${PY_VERSION}."
-      /usr/bin/env python${PY_VERSION} -m wheel tags --platform-tag ${TARGET_WHEEL_PLATFORM} dist/.tmp/$(ls dist/.tmp | grep .whl)
-      /usr/bin/env python${PY_VERSION} -m auditwheel repair --plat ${TARGET_WHEEL_PLATFORM} --wheel-dir dist dist/.tmp/$(ls dist/.tmp | grep ${TARGET_WHEEL_PLATFORM}.whl)
+      tagged_whl=$(echo "dist/.tmp/*${TARGET_WHEEL_PLATFORM}.whl")
+      /usr/bin/env "python${PY_VERSION}" -m wheel tags --platform-tag "${TARGET_WHEEL_PLATFORM}" dist/.tmp/*.whl
+      /usr/bin/env "python${PY_VERSION}" -m auditwheel repair --plat "${TARGET_WHEEL_PLATFORM}" --wheel-dir dist "${tagged_whl}"
     fi
     rm -rf dist/.tmp
   done
