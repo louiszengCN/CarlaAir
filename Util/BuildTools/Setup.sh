@@ -127,7 +127,7 @@ BOOST_SHA256SUM="a5800f405508f5df8114558ca9855d2640a2de8f0445f051fa1c7c338304572
 BOOST_INCLUDE=${PWD}/${BOOST_BASENAME}-install/include
 BOOST_LIBPATH=${PWD}/${BOOST_BASENAME}-install/lib
 
-for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+for PY_VERSION in "${PY_VERSION_LIST[@]}" ; do
   SHOULD_BUILD_BOOST=true
   PYTHON_VERSION=$(/usr/bin/env python${PY_VERSION} -V 2>&1)
   LIB_NAME=$(cut -d . -f 1,2 <<< "$PYTHON_VERSION" | tr -d .)
@@ -178,10 +178,10 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
 
     py3="/usr/bin/env python${PY_VERSION}"
-    py3_root=`${py3} -c "import sysconfig; print(sysconfig.get_config_var('prefix'))"`
+    py3_root=$(${py3} -c "import sysconfig; print(sysconfig.get_config_var('prefix'))")
     py3_include=$(${py3} -c "from sysconfig import get_paths as gp; print(gp()['include'])")
     py3_lib=$(${py3} -c "from sysconfig import get_paths as gp; print(gp()['stdlib'])")
-    pyv=`$py3 -c "import sys;x='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(x)";`
+    pyv=$($py3 -c "import sys;x='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(x)";)
     ./bootstrap.sh \
         --with-toolset=clang \
         --prefix=../boost-install \
