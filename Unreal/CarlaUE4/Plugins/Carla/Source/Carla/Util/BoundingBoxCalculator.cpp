@@ -114,7 +114,7 @@ FBoundingBox UBoundingBoxCalculator::GetVehicleBoundingBox(
     const ACarlaWheeledVehicle* Vehicle,
     uint8 InTagQueried)
 {
-  check(Vehicle);
+  if (!IsValid(Vehicle)) { return {}; }
 
   crp::CityObjectLabel TagQueried = (crp::CityObjectLabel)InTagQueried;
   bool FilterByTagEnabled = (TagQueried != crp::CityObjectLabel::Any);
@@ -192,7 +192,7 @@ FBoundingBox UBoundingBoxCalculator::GetCharacterBoundingBox(
     const ACharacter* Character,
     uint8 InTagQueried)
 {
-  check(Character);
+  if (!IsValid(Character)) { return {}; }
 
   crp::CityObjectLabel TagQueried = (crp::CityObjectLabel)InTagQueried;
   bool FilterByTag = TagQueried == crp::CityObjectLabel::Any ||
@@ -221,7 +221,7 @@ void UBoundingBoxCalculator::GetTrafficLightBoundingBox(
     TArray<uint8>& OutTag,
     uint8 InTagQueried)
 {
-  check(TrafficLight);
+  if (!IsValid(TrafficLight)) { return; }
 
   TArray<FBoundingBox> BBsOfTL;
   TArray<uint8> TagsOfTL;
@@ -234,7 +234,7 @@ void UBoundingBoxCalculator::GetTrafficLightBoundingBox(
   uint8 TLTag = static_cast<uint8>(crp::CityObjectLabel::TrafficLight);
 
   CombineBBsOfActor(TrafficLight, BBsOfTL, TagsOfTL, DistanceThreshold, TLTag);
-  check(BBsOfTL.Num() == TagsOfTL.Num());
+  ensure(BBsOfTL.Num() == TagsOfTL.Num());
 
   bool FilterByTagEnabled = (InTagQueried != static_cast<uint8>(crp::CityObjectLabel::Any));
 
@@ -556,7 +556,7 @@ void UBoundingBoxCalculator::CombineBBsOfActor(
     const float DistanceThreshold,
     uint8 TagToCombine)
 {
-  check(Actor);
+  if (!IsValid(Actor)) { return; }
 
   TArray<FBoundingBox> BBsOfTL;
   TArray<uint8> InternalOutTags;
@@ -673,8 +673,7 @@ void UBoundingBoxCalculator::GetMeshCompsFromActorBoundingBox(
   const FBoundingBox& InBB,
   TArray<UStaticMeshComponent*>& OutStaticMeshComps)
 {
-  check(Actor);
-
+  if (!IsValid(Actor)) { return; }
 
   const float DistanceThreshold = 100.0f * 100.0f;
 
