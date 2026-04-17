@@ -33,7 +33,7 @@ bool UTrafficLightController::AdvanceTimeAndCycleFinished(float DeltaTime)
 {
   ElapsedTime += DeltaTime;
 
-  if(ElapsedTime > GetCurrentState().Time)
+  if (ElapsedTime > GetCurrentState().Time)
   {
     ElapsedTime = 0;
     if (IsCycleFinished())
@@ -102,11 +102,11 @@ bool UTrafficLightController::IsCycleFinished() const
 void UTrafficLightController::SetTrafficLightsState(ETrafficLightState NewState)
 {
   SetCurrentLightState(NewState);
-  for(auto *Light : TrafficLights)
+  for (auto *Light : TrafficLights)
   {
     Light->SetLightState(NewState);
   }
-  for(FCarlaActor* Light : TrafficLightCarlaActors)
+  for (FCarlaActor* Light : TrafficLightCarlaActors)
   {
     Light->SetTrafficLightState(NewState);
   }
@@ -161,9 +161,9 @@ float UTrafficLightController::GetRedTime() const
 
 void UTrafficLightController::SetStateTime(const ETrafficLightState State, float NewTime)
 {
-  for(auto& LightState : LightStates)
+  for (auto& LightState : LightStates)
   {
-    if(LightState.State == State)
+    if (LightState.State == State)
     {
       LightState.Time = NewTime;
     }
@@ -172,9 +172,9 @@ void UTrafficLightController::SetStateTime(const ETrafficLightState State, float
 
 float UTrafficLightController::GetStateTime(const ETrafficLightState State) const
 {
-  for(auto& LightState : LightStates)
+  for (auto& LightState : LightStates)
   {
-    if(LightState.State == State)
+    if (LightState.State == State)
     {
       return LightState.Time;
     }

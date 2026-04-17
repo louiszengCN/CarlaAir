@@ -34,17 +34,17 @@ void UTrafficLightComponent::InitializeSign(const carla::road::Map &Map)
   {
     auto RoadId = Reference.first;
     const auto* SignalReference = Reference.second;
-    for(auto &validity : SignalReference->GetValidities())
+    for (auto &validity : SignalReference->GetValidities())
     {
-      for(auto lane : carla::geom::Math::GenerateRange(validity._from_lane, validity._to_lane))
+      for (auto lane : carla::geom::Math::GenerateRange(validity._from_lane, validity._to_lane))
       {
-        if(lane == 0)
+        if (lane == 0)
           continue;
 
         carla::road::element::Waypoint signal_waypoint;
         boost::optional<carla::road::element::Waypoint> opt_signal_waypoint = Map.GetWaypoint(
             RoadId, lane, SignalReference->GetS());
-        if(opt_signal_waypoint){
+        if (opt_signal_waypoint){
           signal_waypoint = opt_signal_waypoint.get();
         }else{
           UE_LOG(LogCarla, Error, TEXT("signal_waypoint is not valid") );
@@ -61,7 +61,7 @@ void UTrafficLightComponent::InitializeSign(const carla::road::Map &Map)
           }
         }
 
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if (Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
           continue;
 
         // Get 50% of the half size of the width of the lane
@@ -78,7 +78,7 @@ void UTrafficLightComponent::InitializeSign(const carla::road::Map &Map)
         double LaneDistance = Map.GetLane(signal_waypoint).GetDistance();
         // Safe distance to avoid overlapping the bounding box with the intersection
         float AdditionalDistance = 1.5f;
-        if(lane < 0)
+        if (lane < 0)
         {
           signal_waypoint.s = FMath::Clamp(signal_waypoint.s - (BoxLength + AdditionalDistance),
               LaneDistance + epsilon, LaneDistance + LaneLength - epsilon);

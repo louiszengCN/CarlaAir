@@ -37,17 +37,17 @@ void USpeedLimitComponent::InitializeSign(const carla::road::Map &Map)
   {
     auto RoadId = Reference.first;
     const auto* SignalReference = Reference.second;
-    for(auto &val : SignalReference->GetValidities())
+    for (auto &val : SignalReference->GetValidities())
     {
-      for(auto lane : carla::geom::Math::GenerateRange(val._from_lane, val._to_lane))
+      for (auto lane : carla::geom::Math::GenerateRange(val._from_lane, val._to_lane))
       {
-        if(lane == 0)
+        if (lane == 0)
           continue;
 
         auto signal_waypoint = Map.GetWaypoint(
             RoadId, lane, SignalReference->GetS()).get();
 
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if (Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
           continue;
 
         // Get 90% of the half size of the width of the lane
@@ -59,7 +59,7 @@ void USpeedLimitComponent::InitializeSign(const carla::road::Map &Map)
         // Get min and max
         double LaneLength = Map.GetLane(signal_waypoint).GetLength();
         double LaneDistance = Map.GetLane(signal_waypoint).GetDistance();
-        if(lane < 0)
+        if (lane < 0)
         {
           signal_waypoint.s = FMath::Clamp(signal_waypoint.s - BoxSize,
               LaneDistance + epsilon, LaneDistance + LaneLength - epsilon);

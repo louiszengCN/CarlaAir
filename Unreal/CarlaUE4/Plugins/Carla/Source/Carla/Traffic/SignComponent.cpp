@@ -67,7 +67,7 @@ TArray<std::pair<cr::RoadId, const cre::RoadInfoSignal*>>
     for (auto *SignalReference : SignalReferences)
     {
       FString SignalId(SignalReference->GetSignalId().c_str());
-      if(SignalId == GetSignId())
+      if (SignalId == GetSignId())
       {
         Result.Add({waypoint.road_id, SignalReference});
       }

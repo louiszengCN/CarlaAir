@@ -30,17 +30,17 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
     const auto* SignalReference = Reference.second;
     TSet<carla::road::RoadId> SignalPredecessors;
     // Stop box
-    for(auto &validity : SignalReference->GetValidities())
+    for (auto &validity : SignalReference->GetValidities())
     {
-      for(auto lane : carla::geom::Math::GenerateRange(validity._from_lane, validity._to_lane))
+      for (auto lane : carla::geom::Math::GenerateRange(validity._from_lane, validity._to_lane))
       {
-        if(lane == 0)
+        if (lane == 0)
           continue;
 
         auto signal_waypoint = Map.GetWaypoint(
             RoadId, lane, SignalReference->GetS()).get();
 
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if (Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
           continue;
 
         auto box_waypoint = signal_waypoint;
@@ -68,7 +68,7 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
         double LaneDistance = Map.GetLane(box_waypoint).GetDistance();
         // Safe distance to avoid overlapping the bounding box with the intersection
         float AdditionalDistance = 1.5f;
-        if(lane < 0)
+        if (lane < 0)
         {
           box_waypoint.s = FMath::Clamp(box_waypoint.s - (BoxLength + AdditionalDistance),
               LaneDistance + epsilon, LaneDistance + LaneLength - epsilon);
@@ -87,9 +87,9 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
         GenerateStopBox(BoxTransform, FVector(100*BoxLength, 100*BoxWidth, 100*BoxHeight));
 
         auto Predecessors = Map.GetPredecessors(signal_waypoint);
-        for(auto &Prev : Predecessors)
+        for (auto &Prev : Predecessors)
         {
-          if(!SignalPredecessors.Contains(Prev.road_id))
+          if (!SignalPredecessors.Contains(Prev.road_id))
           {
             SignalPredecessors.Add(Prev.road_id);
           }
@@ -98,33 +98,33 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
     }
 
     //Check boxes
-    if(Map.IsJunction(RoadId))
+    if (Map.IsJunction(RoadId))
     {
       auto JuncId = Map.GetJunctionId(RoadId);
       const auto * Junction = Map.GetJunction(JuncId);
-      if(Junction->RoadHasConflicts(RoadId))
+      if (Junction->RoadHasConflicts(RoadId))
       {
         const auto &ConflictingRoads = Junction->GetConflictsOfRoad(RoadId);
-        for(const auto &Conflict : ConflictingRoads)
+        for (const auto &Conflict : ConflictingRoads)
         {
           auto Waypoints = Map.GenerateWaypointsInRoad(Conflict);
-          for(auto& Waypoint : Waypoints)
+          for (auto& Waypoint : Waypoints)
           {
             // Skip roads that share the same previous road
             bool bHasSamePredecessor = false;
             auto Predecessors = Map.GetPredecessors(Waypoint);
-            for(auto &Prev : Predecessors)
+            for (auto &Prev : Predecessors)
             {
-              if(SignalPredecessors.Contains(Prev.road_id))
+              if (SignalPredecessors.Contains(Prev.road_id))
               {
                 bHasSamePredecessor = true;
               }
             }
-            if(bHasSamePredecessor)
+            if (bHasSamePredecessor)
             {
               continue;
             }
-            if(Map.GetLane(Waypoint).GetType() != cr::Lane::LaneType::Driving)
+            if (Map.GetLane(Waypoint).GetType() != cr::Lane::LaneType::Driving)
               continue;
 
             // Cover the road within the junction
@@ -152,7 +152,7 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
                 break;
               }
               NextWaypoint = Next.front();
-              if(NextWaypoint.road_id != Waypoint.road_id)
+              if (NextWaypoint.road_id != Waypoint.road_id)
               {
                 break;
               }
@@ -181,12 +181,12 @@ void UStopSignComponent::InitializeSign(const carla::road::Map &Map)
 
               float Speed = 40;
               auto* InfoSpeed = Map.GetLane(CurrentElement.second).GetRoad()->GetInfo<carla::road::element::RoadInfoSpeed>(CurrentElement.second.s);
-              if(InfoSpeed)
+              if (InfoSpeed)
               {
                 Speed = InfoSpeed->GetSpeed();
               }
               float RemainingTime = CurrentElement.first - BoxSize/Speed;
-              if(RemainingTime > 0)
+              if (RemainingTime > 0)
               {
                 Previous = Map.GetPrevious(CurrentElement.second, 2*BoxSize);
                 for (auto & Prev : Previous)
@@ -232,7 +232,7 @@ void UStopSignComponent::GiveWayIfPossible()
   }
   else
   {
-    if(VehiclesInStop.Num())
+    if (VehiclesInStop.Num())
     {
       for (auto Vehicle : VehiclesInStop)
       {
@@ -299,7 +299,7 @@ void UStopSignComponent::OnOverlapBeginStopCheckBox(UPrimitiveComponent *Overlap
   ACarlaWheeledVehicle * Vehicle = Cast<ACarlaWheeledVehicle>(OtherActor);
   if (Vehicle)
   {
-    if(!VehiclesInStop.Contains(Vehicle))
+    if (!VehiclesInStop.Contains(Vehicle))
     {
       if (!VehiclesToCheck.Contains(Vehicle))
       {
@@ -319,10 +319,10 @@ void UStopSignComponent::OnOverlapEndStopCheckBox(UPrimitiveComponent *Overlappe
   ACarlaWheeledVehicle * Vehicle = Cast<ACarlaWheeledVehicle>(OtherActor);
   if (Vehicle)
   {
-    if(VehiclesToCheck.Contains(Vehicle))
+    if (VehiclesToCheck.Contains(Vehicle))
     {
       VehiclesToCheck[Vehicle]--;
-      if(VehiclesToCheck[Vehicle] <= 0)
+      if (VehiclesToCheck[Vehicle] <= 0)
       {
         VehiclesToCheck.Remove(Vehicle);
       }
@@ -333,9 +333,9 @@ void UStopSignComponent::OnOverlapEndStopCheckBox(UPrimitiveComponent *Overlappe
 }
 void UStopSignComponent::RemoveSameVehicleInBothLists()
 {
-  for(auto* Vehicle : VehiclesInStop)
+  for (auto* Vehicle : VehiclesInStop)
   {
-    if(VehiclesToCheck.Contains(Vehicle))
+    if (VehiclesToCheck.Contains(Vehicle))
     {
       VehiclesToCheck.Remove(Vehicle);
     }

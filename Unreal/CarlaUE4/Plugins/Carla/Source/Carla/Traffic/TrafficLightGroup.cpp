@@ -30,7 +30,7 @@ bool ATrafficLightGroup::IsFrozen() const
 
 void ATrafficLightGroup::ResetGroup()
 {
-  for(auto * Controller : Controllers)
+  for (auto * Controller : Controllers)
   {
     Controller->ResetState();
   }
@@ -52,7 +52,7 @@ void ATrafficLightGroup::Tick(float DeltaTime)
     auto* Replayer = Episode->GetReplayer();
     if (Replayer)
     {
-      if(Replayer->IsEnabled())
+      if (Replayer->IsEnabled())
       {
         return;
       }

@@ -149,14 +149,14 @@ void ATrafficLightManager::RegisterLightComponentFromOpenDRIVE(UTrafficLightComp
   UTrafficLightController* TrafficLightController;
 
   const auto &Signal = GetMap()->GetSignals().at(SignId);
-  if(Signal->GetControllers().size())
+  if (Signal->GetControllers().size())
   {
     // Only one controller per signal
     auto ControllerId = *(Signal->GetControllers().begin());
 
     // Get controller
     const auto &Controller = GetMap()->GetControllers().at(ControllerId);
-    if(Controller->GetJunctions().empty())
+    if (Controller->GetJunctions().empty())
     {
       UE_LOG(LogCarla, Error, TEXT("No junctions in controller %d"), *(ControllerId.c_str()) );
       return;
@@ -165,7 +165,7 @@ void ATrafficLightManager::RegisterLightComponentFromOpenDRIVE(UTrafficLightComp
     auto JunctionId = *(Controller->GetJunctions().begin());
 
     // Search/create TrafficGroup (junction traffic light manager)
-    if(!TrafficGroups.Contains(JunctionId))
+    if (!TrafficGroups.Contains(JunctionId))
     {
       FActorSpawnParameters SpawnParams;
       SpawnParams.OverrideLevel = GM->GetULevelFromName("TrafficLights");
@@ -177,7 +177,7 @@ void ATrafficLightManager::RegisterLightComponentFromOpenDRIVE(UTrafficLightComp
     TrafficLightGroup = TrafficGroups[JunctionId];
 
     // Search/create controller in the junction
-    if(!TrafficControllers.Contains(ControllerId.c_str()))
+    if (!TrafficControllers.Contains(ControllerId.c_str()))
     {
       auto *NewTrafficLightController = NewObject<UTrafficLightController>();
       NewTrafficLightController->SetControllerId(ControllerId.c_str());
@@ -273,7 +273,7 @@ void ATrafficLightManager::AdjustAllSignsToHeightGround()
 
   UCarlaEpisode* CarlaEpisode = UCarlaStatics::GetCurrentEpisode(World);
 
-  for(ATrafficSignBase* TS : TrafficSigns)
+  for (ATrafficSignBase* TS : TrafficSigns)
   {
     if (!IsValid(TS))
       continue;
@@ -313,9 +313,9 @@ void ATrafficLightManager::AdjustAllSignsToHeightGround()
 
 void ATrafficLightManager::GenerateSignalsAndTrafficLights()
 {
-  if(!TrafficLightsGenerated)
+  if (!TrafficLightsGenerated)
   {
-    if(!TrafficLightModel_RHT || !TrafficLightModel_LHT )
+    if (!TrafficLightModel_RHT || !TrafficLightModel_LHT )
     {
       UE_LOG(LogCarla, Error, TEXT("Missing TrafficLightModel"));
       return;
@@ -348,13 +348,13 @@ void ATrafficLightManager::GenerateSignalsAndTrafficLights()
 
 void ATrafficLightManager::RemoveGeneratedSignalsAndTrafficLights()
 {
-  for(auto& Sign : TrafficSigns)
+  for (auto& Sign : TrafficSigns)
   {
     Sign->Destroy();
   }
   TrafficSigns.Empty();
 
-  for(auto& TrafficGroup : TrafficGroups)
+  for (auto& TrafficGroup : TrafficGroups)
   {
     TrafficGroup.Value->Destroy();
   }
@@ -399,7 +399,7 @@ void ATrafficLightManager::MatchTrafficLightActorsWithOpenDriveSignals()
   const auto& Signals = Map->GetSignals();
   const auto& Controllers = Map->GetControllers();
 
-  for(const auto& Signal : Signals) {
+  for (const auto& Signal : Signals) {
     const auto& ODSignal = Signal.second;
     const FTransform Transform = ODSignal->GetTransform();
     const FVector Location = Transform.GetLocation();
@@ -558,10 +558,10 @@ void ATrafficLightManager::SpawnTrafficLights()
   namespace cr = carla::road;
   const auto& Signals = GetMap()->GetSignals();
   std::unordered_set<std::string> SignalsToSpawn;
-  for(const auto& ControllerPair : GetMap()->GetControllers())
+  for (const auto& ControllerPair : GetMap()->GetControllers())
   {
     const auto& Controller = ControllerPair.second;
-    for(const auto& SignalId : Controller->GetSignals())
+    for (const auto& SignalId : Controller->GetSignals())
     {
       auto& Signal = Signals.at(SignalId);
       if (!cr::SignalType::IsTrafficLight(Signal->GetType()))
@@ -582,11 +582,11 @@ void ATrafficLightManager::SpawnTrafficLights()
     }
   }
 
-  for(const auto& SignalPair : Signals)
+  for (const auto& SignalPair : Signals)
   {
     const auto& SignalId = SignalPair.first;
     const auto& Signal = SignalPair.second;
-    if(!Signal->GetControllers().size() &&
+    if (!Signal->GetControllers().size() &&
        !GetMap()->IsJunction(Signal->GetRoadId()) &&
        carla::road::SignalType::IsTrafficLight(Signal->GetType()) &&
        !SignalsToSpawn.count(SignalId))
@@ -607,7 +607,7 @@ void ATrafficLightManager::SpawnTrafficLights()
 
   ACarlaGameModeBase *GM = UCarlaStatics::GetGameMode(GetWorld());
   if (!GM) { return; }
-  for(auto &SignalId : SignalsToSpawn)
+  for (auto &SignalId : SignalsToSpawn)
   {
     // TODO: should this be an assert?
     // RELEASE_ASSERT(
@@ -661,7 +661,7 @@ void ATrafficLightManager::SpawnTrafficLights()
           (GetMap()->ComputeTransform(ClosestWaypointToSignal.get()).location - CarlaTransform.location).Length();
       double LaneWidth = GetMap()->GetLaneWidth(ClosestWaypointToSignal.get());
 
-      if(SignalDistanceToRoad < LaneWidth * 0.5)
+      if (SignalDistanceToRoad < LaneWidth * 0.5)
       {
         carla::log_warning("Traffic light",
             TCHAR_TO_UTF8(*TrafficLightComponent->GetSignId()),
@@ -779,7 +779,7 @@ void ATrafficLightManager::SpawnSignals()
             (GetMap()->ComputeTransform(ClosestWaypointToSignal.get()).location - CarlaTransform.location).Length();
         double LaneWidth = GetMap()->GetLaneWidth(ClosestWaypointToSignal.get());
 
-        if(SignalDistanceToRoad < LaneWidth * 0.5)
+        if (SignalDistanceToRoad < LaneWidth * 0.5)
         {
           carla::log_warning("Traffic sign",
               TCHAR_TO_UTF8(*SignComponent->GetSignId()),
@@ -839,7 +839,7 @@ void ATrafficLightManager::SpawnSignals()
             (GetMap()->ComputeTransform(ClosestWaypointToSignal.get()).location - CarlaTransform.location).Length();
         double LaneWidth = GetMap()->GetLaneWidth(ClosestWaypointToSignal.get());
 
-        if(SignalDistanceToRoad < LaneWidth * 0.5)
+        if (SignalDistanceToRoad < LaneWidth * 0.5)
         {
           carla::log_warning("Traffic sign",
               TCHAR_TO_UTF8(*SignComponent->GetSignId()),
@@ -921,17 +921,17 @@ void ATrafficLightManager::RemoveRoadrunnerProps() const
 
     // Detect PropsNode Actor which is the father of all the Props imported from Roadrunner
     AActor* PropsNode = nullptr;
-    for(AActor* Actor : Actors)
+    for (AActor* Actor : Actors)
     {
       const FString Name = UKismetSystemLibrary::GetDisplayName(Actor);
-      if(Name.Equals("PropsNode"))
+      if (Name.Equals("PropsNode"))
       {
         PropsNode = Actor;
         break;
       }
     }
 
-    if(PropsNode)
+    if (PropsNode)
     {
       PropsNode->GetAttachedActors(Actors, true);
       RemoveAttachedProps(Actors);
@@ -942,7 +942,7 @@ void ATrafficLightManager::RemoveRoadrunnerProps() const
 
 void ATrafficLightManager::RemoveAttachedProps(TArray<AActor*> Actors) const
 {
-  for(AActor* Actor : Actors)
+  for (AActor* Actor : Actors)
   {
     TArray<AActor*> AttachedActors;
     Actor->GetAttachedActors(AttachedActors, true);
