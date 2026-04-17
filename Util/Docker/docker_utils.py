@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2025 Computer Vision Center (CVC) at the Universitat Autonoma
 # de Barcelona (UAB).
@@ -48,21 +48,22 @@ def exec_command(
     verbose: bool = False,
     ignore_error: bool = True,
 ) -> object:
-    command_prefix = "bash -c '"
-    if not silent:
-        pass
+    full_cmd = f"bash -c '{command}'"
+    if not silent and verbose:
+        print(f"[docker] Running: {full_cmd}")
 
-    command_result = container.exec_run(
-        command_prefix + command + "'",
-        user=user)
-    if not silent and verbose and command_result.exit_code:
-        pass
+    command_result = container.exec_run(full_cmd, user=user)
+
     if not silent:
         out = command_result.output.decode().strip()
         if out:
-            pass
+            print(out)
+        if verbose and command_result.exit_code:
+            print(f"[docker] Command exited with code {command_result.exit_code}", file=sys.stderr)
+
     if not ignore_error and command_result.exit_code:
-        sys.exit(1)
+        sys.exit(command_result.exit_code)
+
     return command_result
 
 
@@ -83,20 +84,21 @@ def get_file_paths(
     result = exec_command(container, command + path, user=user, silent=True)
     if result.exit_code:
         if verbose:
-            pass
+            print(f"[docker] get_file_paths failed for {path}", file=sys.stderr)
         return []
     file_list = [x for x in result.output.decode("utf-8").split("\n") if x]
     if verbose:
-        pass
+        print(f"[docker] Found {len(file_list)} file(s) at {path}")
     return file_list
 
 
 def extract_files(container: Container, file_list: list[str], out_path: str) -> None:
     for file in file_list:
+        tmp_tar = os.path.join(out_path, "result.tar.gz")
         strm, _ = container.get_archive(file)
-        with open(f"{out_path}/result.tar.gz", "wb") as f:
-            for d in strm:
-                f.write(d)
-        pw_tar = tarfile.TarFile(f"{out_path}/result.tar.gz")
-        pw_tar.extractall(out_path)
-        os.remove(f"{out_path}/result.tar.gz")
+        with open(tmp_tar, "wb") as f:
+            for chunk in strm:
+                f.write(chunk)
+        with tarfile.open(tmp_tar) as pw_tar:
+            pw_tar.extractall(out_path)
+        os.remove(tmp_tar)
