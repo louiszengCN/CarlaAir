@@ -292,7 +292,7 @@ private:
 // =============================================================================
 
 #if WITH_EDITOR
-#  define CARLA_ENSURE_GAME_THREAD() check(IsInGameThread());
+#  define CARLA_ENSURE_GAME_THREAD() ensureAlwaysMsgf(IsInGameThread(), TEXT("CarlaServer RPC called off game thread"));
 #else
 #  define CARLA_ENSURE_GAME_THREAD()
 #endif // WITH_EDITOR
@@ -3151,7 +3151,7 @@ BIND_SYNC(send) << [this](
   {
     REQUIRE_CARLA_EPISODE();
     auto *World = Episode->GetWorld();
-    check(World != nullptr);
+    if (!World) { RESPOND_ERROR("world is not ready"); }
     FDebugShapeDrawer Drawer(*World);
     Drawer.Draw(shape);
     return R<void>::Success();
@@ -3162,7 +3162,7 @@ BIND_SYNC(send) << [this](
   {
     REQUIRE_CARLA_EPISODE();
     auto *World = Episode->GetWorld();
-    check(World != nullptr);
+    if (!World) { RESPOND_ERROR("world is not ready"); }
     FDebugShapeDrawer Drawer(*World);
     Drawer.Clear();
     return R<void>::Success();
@@ -3829,20 +3829,20 @@ FDataMultiStream FCarlaServer::Start(uint16_t RPCPort, uint16_t StreamingPort, u
 
 void FCarlaServer::NotifyBeginEpisode(UCarlaEpisode &Episode)
 {
-  check(Pimpl != nullptr);
+  ensure(Pimpl != nullptr);
   UE_LOG(LogCarlaServer, Log, TEXT("New episode '%s' started"), *Episode.GetMapName());
   Pimpl->Episode = &Episode;
 }
 
 void FCarlaServer::NotifyEndEpisode()
 {
-  check(Pimpl != nullptr);
+  ensure(Pimpl != nullptr);
   Pimpl->NotifyEndEpisode();
 }
 
 void FCarlaServer::AsyncRun(uint32 NumberOfWorkerThreads)
 {
-  check(Pimpl != nullptr);
+  ensure(Pimpl != nullptr);
   /// @todo Define better the number of threads each server gets.
   int ThreadsPerServer = std::max(2u, NumberOfWorkerThreads / 3u);
   int32_t RPCThreads;
@@ -3922,7 +3922,7 @@ void FCarlaServer::Stop()
 
 FDataStream FCarlaServer::OpenStream() const
 {
-  check(Pimpl != nullptr);
+  ensure(Pimpl != nullptr);
   return Pimpl->StreamingServer.MakeStream();
 }
 
