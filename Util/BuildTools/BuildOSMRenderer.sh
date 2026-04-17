@@ -1,6 +1,7 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 LIBOSMSCOUT_REPO=https://github.com/Framstag/libosmscout
 LUNASVG_REPO=https://github.com/sammycage/lunasvg
@@ -23,21 +24,22 @@ INSTALLATION_PATH=${OSM_RENDERER_SOURCE}/ThirdParties
 # -- Download and build libosmscout --------------------------------------------
 # ==============================================================================
 echo "Cloning libosmscout."
-echo ${CARLA_BUILD_FOLDER}
-if [ ! -d ${LIBOSMSCOUT_SOURCE_FOLDER} ] ; then
-  git clone ${LIBOSMSCOUT_REPO} ${LIBOSMSCOUT_SOURCE_FOLDER}
+echo "${CARLA_BUILD_FOLDER}"
+if [ ! -d "${LIBOSMSCOUT_SOURCE_FOLDER}" ] ; then
+  git clone "${LIBOSMSCOUT_REPO}" "${LIBOSMSCOUT_SOURCE_FOLDER}"
 fi
 
-cd ${LIBOSMSCOUT_SOURCE_FOLDER}
-git fetch
-git checkout ${LIBOSMSCOUT_COMMIT}
-cd ..
+(
+  cd "${LIBOSMSCOUT_SOURCE_FOLDER}" || exit 1
+  git fetch
+  git checkout "${LIBOSMSCOUT_COMMIT}"
+)
 
-mkdir -p ${LIBOSMSCOUT_BUILD_FOLDER}
-cd ${LIBOSMSCOUT_BUILD_FOLDER}
+mkdir -p "${LIBOSMSCOUT_BUILD_FOLDER}"
+cd "${LIBOSMSCOUT_BUILD_FOLDER}" || exit 1
 
-cmake ${LIBOSMSCOUT_SOURCE_FOLDER} \
-    -DCMAKE_INSTALL_PREFIX=${INSTALLATION_PATH}
+cmake "${LIBOSMSCOUT_SOURCE_FOLDER}" \
+    -DCMAKE_INSTALL_PREFIX="${INSTALLATION_PATH}"
 
 make
 make install
@@ -46,15 +48,15 @@ make install
 # -- Download and build lunasvg ------------------------------------------------
 # ==============================================================================
 echo "Cloning luna-svg"
-if [ ! -d ${LUNASVG_SOURCE_FOLDER} ] ; then
-  git clone ${LUNASVG_REPO} ${LUNASVG_SOURCE_FOLDER}
+if [ ! -d "${LUNASVG_SOURCE_FOLDER}" ] ; then
+  git clone "${LUNASVG_REPO}" "${LUNASVG_SOURCE_FOLDER}"
 fi
 
-mkdir -p ${LUNASVG_BUILD_FOLDER}
-cd ${LUNASVG_BUILD_FOLDER}
+mkdir -p "${LUNASVG_BUILD_FOLDER}"
+cd "${LUNASVG_BUILD_FOLDER}" || exit 1
 
-cmake ${LUNASVG_SOURCE_FOLDER} \
-    -DCMAKE_INSTALL_PREFIX=${INSTALLATION_PATH}
+cmake "${LUNASVG_SOURCE_FOLDER}" \
+    -DCMAKE_INSTALL_PREFIX="${INSTALLATION_PATH}"
 
 make
 make install
@@ -65,11 +67,11 @@ make install
 # ==============================================================================
 echo "Building osm-map-renderer"
 
-mkdir -p ${OSM_RENDERER_BUILD}
-cd ${OSM_RENDERER_BUILD}
+mkdir -p "${OSM_RENDERER_BUILD}"
+cd "${OSM_RENDERER_BUILD}" || exit 1
 
 cmake -DCMAKE_CXX_FLAGS="-std=c++17 -g -pthread -I${CARLA_BUILD_FOLDER}/boost-1.84.0-c10-install/include" \
-    ${OSM_RENDERER_SOURCE}
+    "${OSM_RENDERER_SOURCE}"
 make
 
 echo "SUCCESS! Finishing setting up renderer."
