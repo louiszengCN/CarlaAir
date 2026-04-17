@@ -84,15 +84,15 @@ FString UOpenDrive::GetXODR(const UWorld *World)
 
   if (!Files.Num())
   {
-    UE_LOG(LogTemp, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
+    UE_LOG(LogCarla, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
   }
   else if (FFileHelper::LoadFileToString(Content, *Files[0]))
   {
-    UE_LOG(LogTemp, Log, TEXT("Loaded OpenDrive file '%s'"), *Files[0]);
+    UE_LOG(LogCarla, Log, TEXT("Loaded OpenDrive file '%s'"), *Files[0]);
   }
   else
   {
-    UE_LOG(LogTemp, Error, TEXT("Failed to load OpenDrive file '%s'"), *Files[0]);
+    UE_LOG(LogCarla, Error, TEXT("Failed to load OpenDrive file '%s'"), *Files[0]);
   }
 
   return Content;
@@ -165,11 +165,11 @@ FString UOpenDrive::GetXODRByPath(FString XODRPath, FString MapName){
 
   if (!Files.Num())
   {
-    UE_LOG(LogTemp, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
+    UE_LOG(LogCarla, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
   }
   else if (FFileHelper::LoadFileToString(Content, *Files[0]))
   {
-    UE_LOG(LogTemp, Log, TEXT("Loaded OpenDrive file '%s'"), *Files[0]);
+    UE_LOG(LogCarla, Log, TEXT("Loaded OpenDrive file '%s'"), *Files[0]);
   }
 
   return Content;
