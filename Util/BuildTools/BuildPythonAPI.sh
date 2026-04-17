@@ -70,7 +70,7 @@ fi
 # Convert comma-separated string to array of unique elements.
 IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"
 
-pushd "${CARLA_PYTHONAPI_SOURCE_FOLDER}" >/dev/null
+pushd "${CARLA_PYTHONAPI_SOURCE_FOLDER}" >/dev/null || exit 1
 
 # ==============================================================================
 # -- Clean intermediate files --------------------------------------------------
@@ -106,7 +106,7 @@ if ${BUILD_PYTHONAPI} ; then
     # Building the RSS variant adds files to SOURCES.txt we do not want included in a normal build
     rm -Rf source/carla.egg-info 
    
-   /usr/bin/env python${PY_VERSION} -m build --wheel --outdir dist/.tmp .
+   /usr/bin/env "python${PY_VERSION}" -m build --wheel --outdir dist/.tmp .
 
     if ${INSTALL_PYTHONAPI} ; then
       log "Installing Python API for Python ${PY_VERSION}."
@@ -118,7 +118,7 @@ if ${BUILD_PYTHONAPI} ; then
       cp dist/.tmp/*.whl dist/
     else
       log "Tagging Python API wheel to ${TARGET_WHEEL_PLATFORM} for Python ${PY_VERSION}."
-      tagged_whl=$(echo "dist/.tmp/*${TARGET_WHEEL_PLATFORM}.whl")
+      tagged_whl="dist/.tmp/*${TARGET_WHEEL_PLATFORM}.whl"
       /usr/bin/env "python${PY_VERSION}" -m wheel tags --platform-tag "${TARGET_WHEEL_PLATFORM}" dist/.tmp/*.whl
       /usr/bin/env "python${PY_VERSION}" -m auditwheel repair --plat "${TARGET_WHEEL_PLATFORM}" --wheel-dir dist "${tagged_whl}"
     fi
@@ -130,6 +130,6 @@ fi
 # -- ...and we are done --------------------------------------------------------
 # ==============================================================================
 
-popd >/dev/null
+popd >/dev/null || exit 1
 
 log "Success!"
