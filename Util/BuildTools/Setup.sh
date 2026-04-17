@@ -65,7 +65,7 @@ CXX_TAG=c10
 IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"
 
 mkdir -p ${CARLA_BUILD_FOLDER}
-pushd ${CARLA_BUILD_FOLDER} >/dev/null
+pushd ${CARLA_BUILD_FOLDER} >/dev/null || exit 1
 
 LLVM_INCLUDE="$UE4_ROOT/Engine/Source/ThirdParty/Linux/LibCxx/include/c++/v1"
 LLVM_LIBPATH="$UE4_ROOT/Engine/Source/ThirdParty/Linux/LibCxx/lib/Linux/x86_64-unknown-linux-gnu"
@@ -172,7 +172,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     mkdir -p ${BOOST_BASENAME}-install/include
     mv ${BOOST_PACKAGE_BASENAME} ${BOOST_BASENAME}-source
 
-    pushd ${BOOST_BASENAME}-source >/dev/null
+    pushd ${BOOST_BASENAME}-source >/dev/null || exit 1
 
     BOOST_TOOLSET="clang-10.0"
     BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
@@ -253,7 +253,7 @@ else
 
   mkdir -p ${RPCLIB_BASENAME}-libcxx-build
 
-  pushd ${RPCLIB_BASENAME}-libcxx-build >/dev/null
+  pushd ${RPCLIB_BASENAME}-libcxx-build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -DASIO_NO_EXCEPTIONS ${UNREAL_HOSTED_CFLAGS}" \
@@ -270,7 +270,7 @@ else
 
   mkdir -p ${RPCLIB_BASENAME}-libstdcxx-build
 
-  pushd ${RPCLIB_BASENAME}-libstdcxx-build >/dev/null
+  pushd ${RPCLIB_BASENAME}-libstdcxx-build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14" \
@@ -322,7 +322,7 @@ else
 
   mkdir -p ${GTEST_BASENAME}-libcxx-build
 
-  pushd ${GTEST_BASENAME}-libcxx-build >/dev/null
+  pushd ${GTEST_BASENAME}-libcxx-build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -fno-exceptions ${UNREAL_HOSTED_CFLAGS}" \
@@ -339,7 +339,7 @@ else
 
   mkdir -p ${GTEST_BASENAME}-libstdcxx-build
 
-  pushd ${GTEST_BASENAME}-libstdcxx-build >/dev/null
+  pushd ${GTEST_BASENAME}-libstdcxx-build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14" \
@@ -385,7 +385,7 @@ else
   end=$(date +%s)
   echo "Elapsed Time downloading: $(($end-$start)) seconds"
 
-  pushd ${RECAST_BASENAME}-source >/dev/null
+  pushd ${RECAST_BASENAME}-source >/dev/null || exit 1
 
   popd >/dev/null
 
@@ -393,7 +393,7 @@ else
 
   mkdir -p ${RECAST_BASENAME}-build
 
-  pushd ${RECAST_BASENAME}-build >/dev/null
+  pushd ${RECAST_BASENAME}-build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC" \
@@ -450,7 +450,7 @@ else
 
   mv ${LIBPNG_BASENAME} ${LIBPNG_BASENAME}-source
 
-  pushd ${LIBPNG_BASENAME}-source >/dev/null
+  pushd ${LIBPNG_BASENAME}-source >/dev/null || exit 1
 
   ./configure --prefix=${CARLA_BUILD_FOLDER}/${LIBPNG_INSTALL}
   make install
@@ -505,7 +505,7 @@ else
   mkdir -p ${XERCESC_INSTALL_DIR}
   mkdir -p ${XERCESC_SRC_DIR}/build
 
-  pushd ${XERCESC_SRC_DIR}/build >/dev/null
+  pushd ${XERCESC_SRC_DIR}/build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -w" \
@@ -522,7 +522,7 @@ else
 
   mkdir -p ${XERCESC_INSTALL_SERVER_DIR}
 
-  pushd ${XERCESC_SRC_DIR}/build >/dev/null
+  pushd ${XERCESC_SRC_DIR}/build >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -fPIC -w -I${LLVM_INCLUDE} -L${LLVM_LIBPATH}" \
@@ -618,7 +618,7 @@ if ${USE_CHRONO} ; then
     fi
     EIGEN_INCLUDE=$(realpath "${EIGEN_INSTALL_DIR}/include")
     mkdir -p ${CHRONO_SRC_DIR}/build
-    pushd ${CHRONO_SRC_DIR}/build >/dev/null
+    pushd ${CHRONO_SRC_DIR}/build >/dev/null || exit 1
     cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -L${LLVM_LIBPATH} -Wno-unused-command-line-argument ${UNREAL_HOSTED_CFLAGS}" \
       -DEIGEN3_INCLUDE_DIR="${EIGEN_INCLUDE}" \
@@ -679,7 +679,7 @@ else
 
   mkdir ${SQLITE_INSTALL_DIR}
 
-  pushd ${SQLITE_SOURCE_DIR} >/dev/null
+  pushd ${SQLITE_SOURCE_DIR} >/dev/null || exit 1
 
   export CFLAGS="-fPIC -w"
   ./configure --prefix=${PWD}/../sqlite-install/
@@ -735,7 +735,7 @@ else
   mkdir -p ${PROJ_SRC_DIR}/build
   mkdir -p ${PROJ_INSTALL_DIR}
 
-  pushd ${PROJ_SRC_DIR}/build >/dev/null
+  pushd ${PROJ_SRC_DIR}/build >/dev/null || exit 1
 
   cmake -G "Ninja" .. \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC" \
@@ -753,7 +753,7 @@ else
 
   mkdir -p ${PROJ_INSTALL_SERVER_DIR}
 
-  pushd ${PROJ_SRC_DIR}/build >/dev/null
+  pushd ${PROJ_SRC_DIR}/build >/dev/null || exit 1
 
   cmake -G "Ninja" .. \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH}"  \
@@ -813,7 +813,7 @@ else
 
   mkdir ${PATCHELF_INSTALL_DIR}
 
-  pushd ${PATCHELF_SOURCE_DIR} >/dev/null
+  pushd ${PATCHELF_SOURCE_DIR} >/dev/null || exit 1
 
   ./bootstrap.sh
   ./configure --prefix=${PWD}/../${PATCHELF_INSTALL_DIR}
@@ -864,7 +864,7 @@ if ${USE_PYTORCH} ; then
         git clone ${LIB_REPO} ${LIB_SOURCE}
         mkdir -p ${LIB_SOURCE}/build
       fi
-      pushd ${LIB_SOURCE}/build >/dev/null
+      pushd ${LIB_SOURCE}/build >/dev/null || exit 1
 
       cmake -DCMAKE_PREFIX_PATH="${LIBTORCH_PATH}" \
           -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" \
@@ -937,7 +937,7 @@ if ${USE_ROS2} ; then
     git clone --depth 1 --branch ${FOONATHAN_MEMORY_VENDOR_BRANCH} ${FOONATHAN_MEMORY_VENDOR_REPO} ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}
 
     mkdir -p ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build
-    pushd ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build >/dev/null
+    pushd ${FOONATHAN_MEMORY_VENDOR_SOURCE_DIR}/build >/dev/null || exit 1
     cmake -G "Ninja" \
       -DCMAKE_INSTALL_PREFIX="${FASTDDS_INSTALL_DIR}" \
       -DCMAKE_TOOLCHAIN_FILE=${LIBCPP_TOOLCHAIN_FILE} \
@@ -975,7 +975,7 @@ if ${USE_ROS2} ; then
     fi
 
     mkdir -p ${FAST_DDS_LIB_SOURCE_DIR}/build
-    pushd ${FAST_DDS_LIB_SOURCE_DIR}/build >/dev/null
+    pushd ${FAST_DDS_LIB_SOURCE_DIR}/build >/dev/null || exit 1
     # removed -DASIO_NO_EXCEPTIONS as fastdds makes usage of them.
     cmake -G "Ninja" \
       -DCMAKE_INSTALL_PREFIX="${FASTDDS_INSTALL_DIR}" \
