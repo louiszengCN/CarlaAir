@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 DOC_STRING="Build OSM2ODR."
 
 USAGE_STRING=$(cat <<- END
@@ -18,7 +18,7 @@ CURRENT_OSM2ODR_COMMIT=1da3c07e39f3e2e0d97f8f709a7255a0df8c6200
 OSM2ODR_BRANCH=aaron/defaultsidewalkwidth
 OSM2ODR_REPO=https://github.com/carla-simulator/sumo.git
 
-OPTS=`getopt -o h --long help,rebuild,build,clean,carsim,no-pull,chrono,chrono-path: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,rebuild,build,clean,carsim,no-pull,chrono,chrono-path: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -51,7 +51,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 function get_source_code_checksum {
   local EXCLUDE='*__pycache__*'

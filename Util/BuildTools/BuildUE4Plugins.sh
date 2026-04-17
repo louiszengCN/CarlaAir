@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 DOC_STRING="Download StreetMapUE4 Plugin."
 
 USAGE_STRING=$(cat <<- END
@@ -18,7 +18,7 @@ CURRENT_STREETMAP_COMMIT=260273d6b7c3f28988cda31fd33441de7e272958
 STREETMAP_BRANCH=master
 STREETMAP_REPO=https://github.com/carla-simulator/StreetMap.git
 
-OPTS=`getopt -o h --long build,rebuild,clean,chrono,chrono-path: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long build,rebuild,clean,chrono,chrono-path: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -51,7 +51,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 if ! { ${REMOVE_INTERMEDIATE} || ${BUILD_STREETMAP}; }; then
   fatal_error "Nothing selected to be done."

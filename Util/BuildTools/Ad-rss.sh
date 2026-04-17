@@ -1,7 +1,7 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 
-OPTS=`getopt -o h --long python-version: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long python-version: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -20,7 +20,8 @@ done
 # ==============================================================================
 # -- Set up environment --------------------------------------------------------
 # ==============================================================================
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 # Convert comma-separated string to array of unique elements.
 IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"

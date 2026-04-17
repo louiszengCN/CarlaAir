@@ -1,10 +1,11 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Set up environment --------------------------------------------------------
 # ==============================================================================
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -17,7 +18,7 @@ USAGE_STRING="Usage: $0 [-h|--help] [--all] [-f path|--file=path]"
 PRETTIFY_ALL=false
 PRETTIFY_FILE=false
 
-OPTS=`getopt -o hf: --long help,all,file: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o hf: --long help,all,file: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
