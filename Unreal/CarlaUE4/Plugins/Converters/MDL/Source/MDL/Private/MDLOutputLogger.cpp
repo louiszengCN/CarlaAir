@@ -22,13 +22,13 @@ void FMDLOutputLogger::message(mi::base::Message_severity level, const char* mod
     {
         case mi::base::MESSAGE_SEVERITY_FATAL:
 #if MY_LOGGING_CHECK
-            check(false);
+            ensure(false);
 #endif
             UE_LOG(LogMDLOutput, Fatal, TEXT("[%s] %s"), *CategoryString, *MessageString);
             break;
         case mi::base::MESSAGE_SEVERITY_ERROR:
 #if MY_LOGGING_CHECK
-            check(MessageString.EndsWith(TEXT("is still referenced while transaction 1 is committed.")) || MessageString.StartsWith(TEXT("Unable to resolve file path")));
+            ensure(MessageString.EndsWith(TEXT("is still referenced while transaction 1 is committed.")) || MessageString.StartsWith(TEXT("Unable to resolve file path")));
 #endif
             if (!MessageString.Contains(TEXT("No image plugin found to handle"))
             && !MessageString.Contains(TEXT("Failed to open image file")))
@@ -38,7 +38,7 @@ void FMDLOutputLogger::message(mi::base::Message_severity level, const char* mod
             break;
         case mi::base::MESSAGE_SEVERITY_WARNING:
 #if MY_LOGGING_CHECK
-            check( MessageString.EndsWith(TEXT("does not have power of two dimensions and therefore no mipmaps will be generated"))
+            ensure( MessageString.EndsWith(TEXT("does not have power of two dimensions and therefore no mipmaps will be generated"))
                 || MessageString.StartsWith(TEXT("Failed to resolve"))
                 || MessageString.Contains(TEXT("Unable to resolve file path"))
                 || MessageString.Contains(TEXT("unused parameter")));
@@ -47,7 +47,7 @@ void FMDLOutputLogger::message(mi::base::Message_severity level, const char* mod
             break;
         case mi::base::MESSAGE_SEVERITY_INFO:
 #if MY_LOGGING_CHECK
-            check( MessageString.StartsWith(TEXT("Distilling time:"))
+            ensure( MessageString.StartsWith(TEXT("Distilling time:"))
                 || MessageString.StartsWith(TEXT("Distilling to target"))
                 || MessageString.StartsWith(TEXT("Loaded"))
                 || MessageString.StartsWith(TEXT("Loading image"))
@@ -58,13 +58,13 @@ void FMDLOutputLogger::message(mi::base::Message_severity level, const char* mod
             break;
         case mi::base::MESSAGE_SEVERITY_VERBOSE:
 #if MY_LOGGING_CHECK
-            check(false);
+            ensure(false);
 #endif
             UE_LOG(LogMDLOutput, Verbose, TEXT("[%s] %s"), *CategoryString, *MessageString);
             break;
         case mi::base::MESSAGE_SEVERITY_DEBUG:
 #if MY_LOGGING_CHECK
-            check( MessageString.StartsWith(TEXT("... and mapped to texture"))
+            ensure( MessageString.StartsWith(TEXT("... and mapped to texture"))
                 || MessageString.StartsWith(TEXT("Attempting to load library"))
                 || MessageString.StartsWith(TEXT("open file"))
                 || MessageString.StartsWith(TEXT("Resolved")));

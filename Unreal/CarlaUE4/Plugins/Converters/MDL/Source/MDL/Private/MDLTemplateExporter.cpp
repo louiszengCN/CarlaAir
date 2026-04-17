@@ -381,7 +381,7 @@ void FMDLTemplateExporter::ExportAnnotation()
     Annotation += TEXT("\t") + FString(UE4Annotations[type]);
 
     const FMaterialResource* MaterialResource = OriginalMaterial->GetMaterialResource(GMaxRHIFeatureLevel);
-    check(MaterialResource);
+    ensure(MaterialResource);
     FMaterialShadingModelField MaterialShadingModels = OriginalMaterial->GetShadingModels();
 
     if(!MaterialResource->IsTangentSpaceNormal())
@@ -500,14 +500,14 @@ void FMDLTemplateExporter::RemoveUnusedVariables(FMDLTranslatorResult& Translato
         if (UsedCount == 1) // Only found Definition or nothing
         {
             // Remove the line of the local variable
-            check(VariablePosition != INDEX_NONE);
+            ensure(VariablePosition != INDEX_NONE);
             int32 LineEnd = SearchLineEnd(VariablePosition, false);
             int32 LineStart = SearchLineEnd(VariablePosition, true);
             LetExpressions.RemoveAt(LineStart, LineEnd - LineStart);
         }
     }
     
-    check(InputVariables.Num() == InputCodes.Num());
+    ensure(InputVariables.Num() == InputCodes.Num());
     // Step 2. Search unused input variable
     for (int32 Index = InputVariables.Num(); Index > 0; --Index)
     {
@@ -612,7 +612,7 @@ void FMDLTemplateExporter::ExportModuleBlock()
 {
     FMaterialShadingModelField MaterialShadingModels = OriginalMaterial->GetShadingModels(); 
     FMaterialResource* MaterialResource = OriginalMaterial->GetMaterialResource(GMaxRHIFeatureLevel);
-    check(MaterialResource);
+    ensure(MaterialResource);
     ExportedMDLString += TEXT("\t\t::") + UsedTemplate + TEXT("(") + LINE_TERMINATOR;
 
 #define VARIABLE_DEFINITION(name, ue4name) \
