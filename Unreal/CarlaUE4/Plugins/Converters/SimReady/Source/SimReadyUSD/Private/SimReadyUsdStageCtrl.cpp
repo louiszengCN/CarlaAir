@@ -211,7 +211,7 @@ pxr::SdfLayerRefPtr SimReadyUsdStageCtrl::CreateSubLayer(const pxr::SdfLayerHand
         strStream << subLayerPaths.size() + 1;
         filename += "_" + strStream.str();
 
-        std::srand((unsigned int)std::time(NULL));
+        std::srand((unsigned int)std::time(nullptr));
         auto randomString = [](int length)
         {
             static const char alphanum[] =
