@@ -58,7 +58,7 @@ DOCKER_GID=$(getent group docker | cut -d: -f3)
 
 FORCE_REBUILD=
 
-OPTS=`getopt -o h --long help,ubuntu-distro:,base,dev,monolith,ci,user:,docker-gid:,branch:,epic-user:,epic-token:,force-rebuild -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,ubuntu-distro:,base,dev,monolith,ci,user:,docker-gid:,branch:,epic-user:,epic-token:,force-rebuild -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -111,35 +111,35 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CARLA_ROOT=${SCRIPT_DIR}/../..
 
 # Copy python runtime requirements for later installation in the docker image
-rm -rf ${SCRIPT_DIR}/.tmp && mkdir ${SCRIPT_DIR}/.tmp
-cp ${CARLA_ROOT}/PythonAPI/examples/requirements.txt ${SCRIPT_DIR}/.tmp/examples_requirements.txt
-cp ${CARLA_ROOT}/PythonAPI/util/requirements.txt ${SCRIPT_DIR}/.tmp/util_requirements.txt
+rm -rf "${SCRIPT_DIR}/.tmp" && mkdir "${SCRIPT_DIR}/.tmp"
+cp "${CARLA_ROOT}/PythonAPI/examples/requirements.txt" "${SCRIPT_DIR}/.tmp/examples_requirements.txt"
+cp "${CARLA_ROOT}/PythonAPI/util/requirements.txt" "${SCRIPT_DIR}/.tmp/util_requirements.txt"
 
 if ${BUILD_BASE} || ${BUILD_DEV} || ${BUILD_MONOLITH} || ${BUILD_CI}; then
   echo "Building base image carla-base:ue4-${UBUNTU_DISTRO}"
   docker build \
-    --build-arg UBUNTU_DISTRO=${UBUNTU_DISTRO} \
-    -t carla-base:ue4-${UBUNTU_DISTRO} \
-    -f ${SCRIPT_DIR}/Base.Dockerfile ${SCRIPT_DIR}
+    --build-arg "UBUNTU_DISTRO=${UBUNTU_DISTRO}" \
+    -t "carla-base:ue4-${UBUNTU_DISTRO}" \
+    -f "${SCRIPT_DIR}/Base.Dockerfile" "${SCRIPT_DIR}"
 fi
 
 if ${BUILD_DEV}; then
   if [ "$FORCE_REBUILD" = true ]; then
     echo "Removing existing volume carla-development-ue4-${UBUNTU_DISTRO}"
-    docker volume rm -f carla-development-ue4-${UBUNTU_DISTRO} 2>/dev/null || true
+    docker volume rm -f "carla-development-ue4-${UBUNTU_DISTRO}" 2>/dev/null || true
   fi
   echo "Ensuring volume carla-development-ue4-${UBUNTU_DISTRO} exists"
-  docker volume create carla-development-ue4-${UBUNTU_DISTRO}
+  docker volume create "carla-development-ue4-${UBUNTU_DISTRO}"
 
   echo "Building development image carla-development:ue4-${UBUNTU_DISTRO} with user ${HOST_UID}:${HOST_GID}"
   docker build ${FORCE_REBUILD:+--no-cache} \
-    --build-arg UBUNTU_DISTRO=${UBUNTU_DISTRO} \
-    --build-arg UID=${HOST_UID} \
-    --build-arg GID=${HOST_GID} \
-    --build-arg DOCKER_GID=${DOCKER_GID} \
+    --build-arg "UBUNTU_DISTRO=${UBUNTU_DISTRO}" \
+    --build-arg "UID=${HOST_UID}" \
+    --build-arg "GID=${HOST_GID}" \
+    --build-arg "DOCKER_GID=${DOCKER_GID}" \
     --target development \
-    -t carla-development:ue4-${UBUNTU_DISTRO} \
-    -f ${SCRIPT_DIR}/Development.Dockerfile ${SCRIPT_DIR}
+    -t "carla-development:ue4-${UBUNTU_DISTRO}" \
+    -f "${SCRIPT_DIR}/Development.Dockerfile" "${SCRIPT_DIR}"
 fi
 
 if ${BUILD_MONOLITH}; then
@@ -158,26 +158,26 @@ if ${BUILD_MONOLITH}; then
 
   echo "Building development image carla-monolith:${BRANCH} with user ${HOST_UID}:${HOST_GID}"
   docker build ${FORCE_REBUILD:+--no-cache} \
-    --build-arg UBUNTU_DISTRO=${UBUNTU_DISTRO} \
-    --build-arg BRANCH=${BRANCH} \
-    --build-arg UID=${HOST_UID} \
-    --build-arg GID=${HOST_GID} \
-    --build-arg DOCKER_GID=${DOCKER_GID} \
+    --build-arg "UBUNTU_DISTRO=${UBUNTU_DISTRO}" \
+    --build-arg "BRANCH=${BRANCH}" \
+    --build-arg "UID=${HOST_UID}" \
+    --build-arg "GID=${HOST_GID}" \
+    --build-arg "DOCKER_GID=${DOCKER_GID}" \
     --secret id=epic_user,env=EPIC_USER \
     --secret id=epic_token,env=EPIC_TOKEN \
     --target monolith \
-    -t carla-monolith:${BRANCH} \
-    -f ${SCRIPT_DIR}/Development.Dockerfile ${SCRIPT_DIR}
+    -t "carla-monolith:${BRANCH}" \
+    -f "${SCRIPT_DIR}/Development.Dockerfile" "${SCRIPT_DIR}"
 fi
 
 if  ${BUILD_CI} ; then
   echo "Building CI/CD image carla-builder:ue4-${UBUNTU_DISTRO} with user ${HOST_UID}:${HOST_GID}"
   docker build ${FORCE_REBUILD:+--no-cache} \
-    --build-arg UBUNTU_DISTRO=${UBUNTU_DISTRO} \
-    --build-arg UID=${HOST_UID} \
-    --build-arg GID=${HOST_GID} \
-    --build-arg DOCKER_GID=${DOCKER_GID} \
-    -t carla-builder:ue4-${UBUNTU_DISTRO} \
-    -f ${SCRIPT_DIR}/CI.Dockerfile ${SCRIPT_DIR}
+    --build-arg "UBUNTU_DISTRO=${UBUNTU_DISTRO}" \
+    --build-arg "UID=${HOST_UID}" \
+    --build-arg "GID=${HOST_GID}" \
+    --build-arg "DOCKER_GID=${DOCKER_GID}" \
+    -t "carla-builder:ue4-${UBUNTU_DISTRO}" \
+    -f "${SCRIPT_DIR}/CI.Dockerfile" "${SCRIPT_DIR}"
 fi
 
