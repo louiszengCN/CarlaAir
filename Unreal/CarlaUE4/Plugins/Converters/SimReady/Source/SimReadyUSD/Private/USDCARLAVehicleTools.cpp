@@ -153,7 +153,7 @@ namespace USDCARLAVehicleToolsInternal
         auto JointWeights = GetUSDValue<pxr::VtArray<float>>(SkelBindingAPI.GetJointWeightsAttr());
         auto JointIndices = GetUSDValue<pxr::VtArray<int>>(SkelBindingAPI.GetJointIndicesAttr());
 
-        check(JointWeights.size() == JointIndices.size());
+        ensure(JointWeights.size() == JointIndices.size());
         int32 ElementSize = SkelBindingAPI.GetJointIndicesPrimvar().GetElementSize();
         auto NumVertices = JointWeights.size() / ElementSize;
 
@@ -663,7 +663,7 @@ void FUSDCARLAVehicleTools::SplitVehicleLightByTexcoords(const pxr::UsdStageRefP
         .Add(TEXT("High_Beam"))
         .Add(TEXT("Low_Beam"));
 
-    check(LightNames.Num() == ELightType::LightCount);
+    ensure(LightNames.Num() == ELightType::LightCount);
 
     TArray<pxr::UsdPrim> USDMeshPrims;
     auto USDMesh = pxr::UsdGeomMesh(MeshPrim);
@@ -703,7 +703,7 @@ void FUSDCARLAVehicleTools::SplitVehicleLightByTexcoords(const pxr::UsdStageRefP
             TArray<TArray<int32>> SubmeshIndices;
 
             SubmeshIndices.AddZeroed(LightCount);
-            check(UVArray.size() == FaceVertexIndices.size());
+            ensure(UVArray.size() == FaceVertexIndices.size());
 
             for (int32 Index = 0; Index < FaceVertexIndices.size(); ++Index)
             {
@@ -927,10 +927,10 @@ void FUSDCARLAVehicleTools::BindMaterialsToSplitVehicleLight(const pxr::UsdStage
         500,
     };
 
-    check(MeshPrims.Num() <= LightNames.Num());
-    check(MeshPrims.Num() <= SimReadyLights.Num());
-    check(MeshPrims.Num() <= EmissiveColorNames.Num());
-    check(MeshPrims.Num() <= ELightType::LightCount);
+    ensure(MeshPrims.Num() <= LightNames.Num());
+    ensure(MeshPrims.Num() <= SimReadyLights.Num());
+    ensure(MeshPrims.Num() <= EmissiveColorNames.Num());
+    ensure(MeshPrims.Num() <= ELightType::LightCount);
 
     pxr::SdfPath ScopePrimPath = pxr::SdfPath::AbsoluteRootPath().AppendElementString(TCHAR_TO_UTF8(*SimReadyRootPrim));
     ScopePrimPath = ScopePrimPath.AppendElementString(pxr::UsdUtilsGetMaterialsScopeName().GetString());

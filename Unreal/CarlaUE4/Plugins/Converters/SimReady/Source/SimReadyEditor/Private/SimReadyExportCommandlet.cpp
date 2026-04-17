@@ -178,12 +178,12 @@ void USimReadyExportCommandlet::InitializeExportParameters()
                     FString MapFile;
                     if (FPackageName::IsShortPackageName(NextMap))
                     {
-                        if (FPackageName::SearchForPackageOnDisk(FPaths::GetBaseFilename(NextMap), NULL, &MapFile))
+                        if (FPackageName::SearchForPackageOnDisk(FPaths::GetBaseFilename(NextMap), nullptr, &MapFile))
                         {
                             MapNames.AddUnique(MapFile);
                         }
                     }
-                    else if (FPackageName::DoesPackageExist(NextMap, NULL, &MapFile))
+                    else if (FPackageName::DoesPackageExist(NextMap, nullptr, &MapFile))
                     {
                         MapNames.AddUnique(MapFile);
                     }
@@ -198,12 +198,12 @@ void USimReadyExportCommandlet::InitializeExportParameters()
             FString MapFile;
             if (FPackageName::IsShortPackageName(MapList))
             {
-                if (FPackageName::SearchForPackageOnDisk(FPaths::GetBaseFilename(MapList), NULL, &MapFile))
+                if (FPackageName::SearchForPackageOnDisk(FPaths::GetBaseFilename(MapList), nullptr, &MapFile))
                 {
                     MapNames.AddUnique(MapFile);
                 }
             }
-            else if (FPackageName::DoesPackageExist(MapList, NULL, &MapFile))
+            else if (FPackageName::DoesPackageExist(MapList, nullptr, &MapFile))
             {
                 MapNames.AddUnique(MapFile);
             }
@@ -419,7 +419,7 @@ int32 USimReadyExportCommandlet::Main(const FString& Params)
         }
 
         FString LoadCommand = FString::Printf(TEXT("MAP LOAD FILE=\"%s\" TEMPLATE=%d SHOWPROGRESS=%d FEATURELEVEL=%d"), *Map, false, false, (int32)GEditor->DefaultWorldFeatureLevel);
-        const bool bResult = GEditor->Exec( NULL, *LoadCommand );
+        const bool bResult = GEditor->Exec( nullptr, *LoadCommand );
 
         UWorld* World = GWorld;
         if (World)

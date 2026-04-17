@@ -535,7 +535,7 @@ bool FSimReadyAssetExportHelper::ExportTextureToPath(UTexture* InTexture, const 
                     if (Texture->MaxTextureSize != 0 && Texture->MaxTextureSize < MaxSourceSize)
                     {
                         int32 MipDepth = FMath::CeilLogTwo(MaxSourceSize / Texture->MaxTextureSize);
-                        check(MipDepth != 0);
+                        ensure(MipDepth != 0);
 
                         ITextureCompressorModule::GenerateMipChain(TextureBuildSettings, SourceImage, OutMipChain, MipDepth);
                         OutMipDepth = MipDepth - 1;
