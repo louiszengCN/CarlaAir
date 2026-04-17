@@ -9,12 +9,25 @@ PLUGIN_ROOT="$UE4_ROOT/Plugins/Carla"
 CARLA_DEPS="$PLUGIN_ROOT/CarlaDependencies"
 BUILD_DIR="$CARLA_ROOT/Build/macos"
 
-BOOST_INCLUDE="/opt/homebrew/include"
-SQLITE_PREFIX="/opt/homebrew/opt/sqlite"
-XERCES_LIB="/opt/homebrew/lib/libxerces-c.a"
-XERCES_INCLUDE="/opt/homebrew/include"
-PROJ_LIB="/opt/homebrew/lib/libproj.a"
-PROJ_INCLUDE="/opt/homebrew/include"
+# Allow callers to override Homebrew prefix (e.g. Intel Mac: /usr/local)
+HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
+
+BOOST_INCLUDE="$HOMEBREW_PREFIX/include"
+SQLITE_PREFIX="$HOMEBREW_PREFIX/opt/sqlite"
+XERCES_LIB="$HOMEBREW_PREFIX/lib/libxerces-c.a"
+XERCES_INCLUDE="$HOMEBREW_PREFIX/include"
+PROJ_LIB="$HOMEBREW_PREFIX/lib/libproj.a"
+PROJ_INCLUDE="$HOMEBREW_PREFIX/include"
+
+# Validate required Homebrew packages are installed
+for req_path in "$BOOST_INCLUDE/boost/version.hpp" "$SQLITE_PREFIX/lib/libsqlite3.a" \
+                "$XERCES_LIB" "$PROJ_LIB"; do
+    if [ ! -e "$req_path" ]; then
+        echo "ERROR: Missing dependency: $req_path"
+        echo "Run: brew install boost sqlite xerces-c proj"
+        exit 1
+    fi
+done
 
 JOBS=$(sysctl -n hw.logicalcpu)
 
