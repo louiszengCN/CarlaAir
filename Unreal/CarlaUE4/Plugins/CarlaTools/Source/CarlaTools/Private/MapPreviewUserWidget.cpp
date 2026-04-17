@@ -2,6 +2,7 @@
 
 
 #include "MapPreviewUserWidget.h"
+#include "CarlaTools.h"
 
 #if PLATFORM_WINDOWS
   #include "AllowWindowsPlatformTypes.h"
@@ -55,7 +56,7 @@ void UMapPreviewUserWidget::ConnectToSocket(FString DatabasePath, FString Styles
   SocketPtr->connect(AsioEndpoint(AsioTCP::v4(), PORT));
   if(!SocketPtr->is_open())
   {
-    UE_LOG(LogTemp, Error, TEXT("Error connecting to remote server"));
+    UE_LOG(LogCarlaTools, Error, TEXT("Error connecting to remote server"));
     return;
   }
 
@@ -64,14 +65,14 @@ void UMapPreviewUserWidget::ConnectToSocket(FString DatabasePath, FString Styles
   if( !SendStr(Message) ){
     return;
   }
-  UE_LOG(LogTemp, Log, TEXT("Configuration Completed"));
+  UE_LOG(LogCarlaTools, Log, TEXT("Configuration Completed"));
 }
 
 void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FString Zoom)
 {
   FString Message = "-R " + Latitude + " " + Longitude + " " + Zoom;
   if( !SendStr(Message) ){
-    UE_LOG(LogTemp, Log, TEXT("Send Str failed"));
+    UE_LOG(LogCarlaTools, Log, TEXT("Send Str failed"));
     return;
   }
 
@@ -94,7 +95,7 @@ void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FStri
       }
       ReceivedData.Append(ThisReceivedData);
     }
-    UE_LOG(LogTemp, Log, TEXT("Size of Data: %d"), ReceivedData.Num());
+    UE_LOG(LogCarlaTools, Log, TEXT("Size of Data: %d"), ReceivedData.Num());
 
     // TODO: Move to function
     if(ReceivedData.Num() > 0)
@@ -103,7 +104,7 @@ void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FStri
       (
         [NewData=ReceivedData, Texture=MapTexture](auto &InRHICmdList) mutable
         {
-          UE_LOG(LogTemp, Log, TEXT("RHI: Updating texture"));
+          UE_LOG(LogCarlaTools, Log, TEXT("RHI: Updating texture"));
           FUpdateTextureRegion2D Region;
           Region.SrcX = 0;
           Region.SrcY = 0;
@@ -123,7 +124,7 @@ void UMapPreviewUserWidget::RenderMap(FString Latitude, FString Longitude, FStri
 FString UMapPreviewUserWidget::RecvCornersLatLonCoords()
 {
   if( !SendStr("-L") ){
-    UE_LOG(LogTemp, Error, TEXT("Error sending message: num bytes mismatch"));
+    UE_LOG(LogCarlaTools, Error, TEXT("Error sending message: num bytes mismatch"));
     return FString();
   }
 
@@ -134,7 +135,7 @@ FString UMapPreviewUserWidget::RecvCornersLatLonCoords()
   std::string BytesStr(static_cast<const char*>(Buffer.data().data()), Buffer.size());
 
   FString CoordStr = FString(BytesStr.size(), UTF8_TO_TCHAR(BytesStr.c_str()));
-  UE_LOG(LogTemp, Log, TEXT("Received Coords %s"), *CoordStr);
+  UE_LOG(LogCarlaTools, Log, TEXT("Received Coords %s"), *CoordStr);
   return CoordStr;
 }
 
@@ -152,7 +153,7 @@ void UMapPreviewUserWidget::OpenServer()
 void UMapPreviewUserWidget::CloseServer()
 {
   if( !SendStr("-X") ){
-    UE_LOG(LogTemp, Error, TEXT("Error sending message"));
+    UE_LOG(LogCarlaTools, Error, TEXT("Error sending message"));
     return;
   }
 }
@@ -161,7 +162,7 @@ bool UMapPreviewUserWidget::SendStr(FString Msg)
 {
   if(!SocketPtr)
   {
-    UE_LOG(LogTemp, Error, TEXT("Error. No socket."));
+    UE_LOG(LogCarlaTools, Error, TEXT("Error. No socket."));
     return false;
   }
 
@@ -174,16 +175,16 @@ bool UMapPreviewUserWidget::SendStr(FString Msg)
   catch (const boost::system::system_error& e)
   {
     FString ErrorMessage = e.what();
-    UE_LOG(LogTemp, Error, TEXT("Error sending message: %s"), *ErrorMessage);
+    UE_LOG(LogCarlaTools, Error, TEXT("Error sending message: %s"), *ErrorMessage);
   }
   if (BytesSent != MessageStr.size())
   {
-    UE_LOG(LogTemp, Error, TEXT("Error sending message: num bytes mismatch"));
+    UE_LOG(LogCarlaTools, Error, TEXT("Error sending message: num bytes mismatch"));
     return false;
   }
   else
   {
-    UE_LOG(LogTemp, Log, TEXT("Sent %d bytes"), BytesSent);
+    UE_LOG(LogCarlaTools, Log, TEXT("Sent %d bytes"), BytesSent);
     return true;
   }
 }
@@ -193,10 +194,10 @@ void UMapPreviewUserWidget::UpdateLatLonCoordProperties()
   FString CoordStr = RecvCornersLatLonCoords();
   if(CoordStr.Len() == 0)
   {
-    UE_LOG(LogTemp, Error, TEXT("Error during update of lat lon coord properties. Check osm server connection or use OSMURL to generate map") );
+    UE_LOG(LogCarlaTools, Error, TEXT("Error during update of lat lon coord properties. Check osm server connection or use OSMURL to generate map") );
     return;
   }
-  UE_LOG(LogTemp, Log, TEXT("Received laton [%s] with size %d"), *CoordStr, CoordStr.Len());
+  UE_LOG(LogCarlaTools, Log, TEXT("Received laton [%s] with size %d"), *CoordStr, CoordStr.Len());
 
   TArray<FString> CoordsArray;
   CoordStr.ParseIntoArray(CoordsArray, TEXT("&"), true);
