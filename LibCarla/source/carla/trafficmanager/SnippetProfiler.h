@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "carla/Logging.h"
+
 #include <chrono>
 #include <string>
 #include <unordered_map>
@@ -62,11 +64,10 @@ public:
     chr::duration<float> print_duration = current_time - print_clock;
     if (print_duration.count() > 1.0f) {
       call_count = call_count == 0u ? 1 : call_count;
-      std::cout << "Snippet name : " << snippet_name << ", "
-                << "avg. duration : " << 1000 * snippet_duration.count() / call_count << " ms, "
-                << "total duration : " << snippet_duration.count() << " s, "
-                << "total calls : " << call_count << ", "
-                << std::endl;
+      log_debug("Snippet:", snippet_name,
+                "avg:", 1000 * snippet_duration.count() / call_count, "ms",
+                "total:", snippet_duration.count(), "s",
+                "calls:", call_count);
 
       snippet_duration = 0s;
       call_count = 0u;
