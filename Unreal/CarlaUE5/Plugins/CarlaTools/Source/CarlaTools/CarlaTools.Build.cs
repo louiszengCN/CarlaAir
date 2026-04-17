@@ -79,6 +79,7 @@ public class CarlaTools : ModuleRules
 				"Blutility",
 				"UMG",
 				"EditorScriptingUtilities",
+			"LevelEditor",          // UE5: ULevelEditorSubsystem (replaces UEditorLevelLibrary::LoadLevel)
 				"Landscape",
 				"Foliage",
 				"FoliageEdit",

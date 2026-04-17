@@ -41,9 +41,8 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "MeshDescription.h"
-#include "EditorLevelLibrary.h"
 #include "ProceduralMeshConversion.h"
-#include "EditorLevelLibrary.h"
+#include "LevelEditorSubsystem.h"  // UE5: replaces UEditorLevelLibrary::LoadLevel / SaveCurrentLevel
 
 #include "ContentBrowserModule.h"
 #include "Materials/MaterialInstanceConstant.h"
@@ -188,7 +187,7 @@ void UOpenDriveToMap::CreateMap()
 void UOpenDriveToMap::CreateTerrain( const int MeshGridSize, const float MeshGridSectionSize)
 {
   TArray<AActor*> FoundActors;
-  UGameplayStatics::GetAllActorsOfClass(UEditorLevelLibrary::GetEditorWorld(), AStaticMeshActor::StaticClass(), FoundActors);
+  UGameplayStatics::GetAllActorsOfClass(GEditor->GetEditorWorldContext().World(), AStaticMeshActor::StaticClass(), FoundActors);
   FVector BoxExtent = FVector(TileSize, TileSize,0);
   FVector MinBox = FVector(MinPosition.X, MaxPosition.Y,0);
 
@@ -211,7 +210,7 @@ void UOpenDriveToMap::CreateTerrainMesh(const int MeshIndex, const FVector2D Off
   // const float GridSectionSize = 100.0f; // In cm
   const float HeightScale = 3.0f;
 
-  UWorld* World = UEditorLevelLibrary::GetEditorWorld();
+  UWorld* World = GEditor->GetEditorWorldContext().World();
   // Creation of the procedural mesh
   AStaticMeshActor* MeshActor = World->SpawnActor<AStaticMeshActor>();
   MeshActor->SetActorLocation(FVector(Offset.X, Offset.Y, 0));
@@ -284,7 +283,7 @@ void UOpenDriveToMap::CreateTerrainMesh(const int MeshIndex, const FVector2D Off
 
 AActor* UOpenDriveToMap::SpawnActorWithCheckNoCollisions(UClass* ActorClassToSpawn, FTransform Transform)
 {
-  UWorld* World = UEditorLevelLibrary::GetEditorWorld();
+  UWorld* World = GEditor->GetEditorWorldContext().World();
   FActorSpawnParameters SpawnParameters;
   SpawnParameters.bNoFail = true;
   SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -302,7 +301,7 @@ void UOpenDriveToMap::GenerateTileStandalone(){
   ExecuteTileCommandlet();
 #endif
   UEditorLoadingAndSavingUtils::SaveDirtyPackages(true, true);
-  UEditorLevelLibrary::SaveCurrentLevel();
+  FEditorFileUtils::SaveCurrentLevel();
 }
 
 void UOpenDriveToMap::GenerateTile(){
@@ -328,7 +327,7 @@ void UOpenDriveToMap::GenerateTile(){
     MapName = FPaths::GetCleanFilename(FilePath);
     MapName.RemoveFromEnd(".xodr", ESearchCase::Type::IgnoreCase);
     UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("MapName %s"), *MapName);
-    UEditorLevelLibrary::LoadLevel(*BaseLevelName);
+    if (GEditor) { GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->LoadLevel(*BaseLevelName); }
 
     AActor* QueryActor = UGameplayStatics::GetActorOfClass(
                             GEditor->GetEditorWorldContext().World(),
@@ -341,7 +340,7 @@ void UOpenDriveToMap::GenerateTile(){
       Tile0Offset = LmManager->GetTile0Offset();
 
       FCarlaMapTile& CarlaTile =  LmManager->GetCarlaMapTile(CurrentTilesInXY);
-      UEditorLevelLibrary::SaveCurrentLevel();
+      FEditorFileUtils::SaveCurrentLevel();
 
       UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("Current Tile is %s"), *( CurrentTilesInXY.ToString() ) );
       UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("NumTilesInXY is %s"), *( NumTilesInXY.ToString() ) );
@@ -349,7 +348,7 @@ void UOpenDriveToMap::GenerateTile(){
       UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("Tile0Offset is %s"), *( Tile0Offset.ToString() ) );
       UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("Tile Name is %s"), *(CarlaTile.Name) );
 
-      UEditorLevelLibrary::LoadLevel(CarlaTile.Name);
+      if (GEditor) { GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->LoadLevel(CarlaTile.Name); }
 
       MinPosition = FVector(CurrentTilesInXY.X * TileSize, CurrentTilesInXY.Y * -TileSize, 0.0f);
       MaxPosition = FVector((CurrentTilesInXY.X + 1.0f ) * TileSize, (CurrentTilesInXY.Y + 1.0f) * -TileSize, 0.0f);
@@ -365,7 +364,7 @@ void UOpenDriveToMap::GenerateTile(){
     }
 
     UEditorLoadingAndSavingUtils::SaveDirtyPackages(true, true);
-    UEditorLevelLibrary::SaveCurrentLevel();
+    FEditorFileUtils::SaveCurrentLevel();
 #if PLATFORM_LINUX
     RemoveFromRoot();
 #endif
@@ -388,12 +387,12 @@ bool UOpenDriveToMap::GoNextTile(){
 void UOpenDriveToMap::ReturnToMainLevel(){
   Landscapes.Empty();
   FEditorFileUtils::SaveDirtyPackages(false, true, true, false, false, false, nullptr);
-  UEditorLevelLibrary::LoadLevel(*BaseLevelName);
+  if (GEditor) { GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->LoadLevel(*BaseLevelName); }
 }
 
 void UOpenDriveToMap::CorrectPositionForAllActorsInCurrentTile(){
   TArray<AActor*> FoundActors;
-  UGameplayStatics::GetAllActorsOfClass(UEditorLevelLibrary::GetEditorWorld(), AActor::StaticClass(), FoundActors);
+  UGameplayStatics::GetAllActorsOfClass(GEditor->GetEditorWorldContext().World(), AActor::StaticClass(), FoundActors);
   for( AActor* Current : FoundActors){
     Current->AddActorWorldOffset(-MinPosition, false);
     if( AStaticMeshActor* MeshActor = Cast<AStaticMeshActor>(Current) ){
@@ -411,7 +410,7 @@ FString UOpenDriveToMap::GetStringForCurrentTile(){
 }
 
 AActor* UOpenDriveToMap::SpawnActorInEditorWorld(UClass* Class, FVector Location, FRotator Rotation){
-  return UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AActor>(Class,
+  return GEditor->GetEditorWorldContext().World()->SpawnActor<AActor>(Class,
     Location, Rotation);
 }
 
@@ -455,7 +454,7 @@ void UOpenDriveToMap::LoadMap()
     UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("MapName %s"), *MapName);
 
     AActor* QueryActor = UGameplayStatics::GetActorOfClass(
-                                UEditorLevelLibrary::GetEditorWorld(),
+                                GEditor->GetEditorWorldContext().World(),
                                 ALargeMapManager::StaticClass() );
 
     if( QueryActor != nullptr )
@@ -465,7 +464,7 @@ void UOpenDriveToMap::LoadMap()
       TileSize = LargeMapManager->GetTileSize();
       Tile0Offset = LargeMapManager->GetTile0Offset();
       CurrentTilesInXY = FIntVector(0,0,0);
-      ULevel* PersistantLevel = UEditorLevelLibrary::GetEditorWorld()->PersistentLevel;
+      ULevel* PersistantLevel = GEditor->GetEditorWorldContext().World()->PersistentLevel;
       BaseLevelName = LargeMapManager->LargeMapTilePath + "/" + LargeMapManager->LargeMapName;
       do{
         GenerateTileStandalone();
@@ -492,7 +491,7 @@ TArray<AActor*> UOpenDriveToMap::GenerateMiscActors(float Offset, FVector MinLoc
 
     NewTransform = GetSnappedPosition(NewTransform);
 
-    AActor* Spawner = UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(),
+    AActor* Spawner = GEditor->GetEditorWorldContext().World()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(),
       NewTransform.GetLocation(), NewTransform.Rotator());
     Spawner->Tags.Add(FName("MiscSpawnPosition"));
     Spawner->Tags.Add(FName(cl.second.c_str()));
@@ -564,7 +563,7 @@ void UOpenDriveToMap::GenerateRoadMesh( const boost::optional<carla::road::Map>&
         }
       }
 
-      AStaticMeshActor* TempActor = UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AStaticMeshActor>();
+      AStaticMeshActor* TempActor = GEditor->GetEditorWorldContext().World()->SpawnActor<AStaticMeshActor>();
       UStaticMeshComponent* StaticMeshComponent = TempActor->GetStaticMeshComponent();
       TempActor->SetActorLabel(FString("SM_Lane_") + FString::FromInt(index));
 
@@ -692,7 +691,7 @@ void UOpenDriveToMap::GenerateLaneMarks(const boost::optional<carla::road::Map>&
       continue;
     }
 
-    AStaticMeshActor* TempActor = UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AStaticMeshActor>();
+    AStaticMeshActor* TempActor = GEditor->GetEditorWorldContext().World()->SpawnActor<AStaticMeshActor>();
     UStaticMeshComponent* StaticMeshComponent = TempActor->GetStaticMeshComponent();
     TempActor->SetActorLabel(FString("SM_LaneMark_") + FString::FromInt(meshindex));
     StaticMeshComponent->CastShadow = false;
@@ -741,7 +740,7 @@ void UOpenDriveToMap::GenerateSpawnPoints( const boost::optional<carla::road::Ma
     if( Trans.GetLocation().X >= MinLocation.X && Trans.GetLocation().Y >= MinLocation.Y &&
         Trans.GetLocation().X <= MaxLocation.X && Trans.GetLocation().Y <= MaxLocation.Y)
     {
-      AVehicleSpawnPoint *Spawner = UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AVehicleSpawnPoint>();
+      AVehicleSpawnPoint *Spawner = GEditor->GetEditorWorldContext().World()->SpawnActor<AVehicleSpawnPoint>();
       Spawner->SetActorRotation(Trans.GetRotation());
       Spawner->SetActorLocation(Trans.GetTranslation() + FVector(0.f, 0.f, SpawnersHeight));
       ActorsToMove.Add(Spawner);
@@ -764,7 +763,7 @@ void UOpenDriveToMap::GenerateTreePositions( const boost::optional<carla::road::
     FTransform NewTransform ( FRotator(cl.first.rotation), FVector(cl.first.location), scale );
     NewTransform = GetSnappedPosition(NewTransform);
 
-    AActor* Spawner = UEditorLevelLibrary::GetEditorWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(),
+    AActor* Spawner = GEditor->GetEditorWorldContext().World()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(),
       NewTransform.GetLocation(), NewTransform.Rotator());
 
     Spawner->Tags.Add(FName("TreeSpawnPosition"));
@@ -839,7 +838,7 @@ FTransform UOpenDriveToMap::GetSnappedPosition( FTransform Origin ){
   CollisionQuery.bTraceComplex = true;
   FCollisionResponseParams CollisionParams;
 
-  if( UEditorLevelLibrary::GetEditorWorld()->LineTraceSingleByChannel(
+  if( GEditor->GetEditorWorldContext().World()->LineTraceSingleByChannel(
     HitResult,
     Start,
     End,
@@ -861,7 +860,7 @@ float UOpenDriveToMap::GetHeightForLandscape( FVector Origin ){
   CollisionQuery.AddIgnoredActors(Landscapes);
   FCollisionResponseParams CollisionParams;
 
-  if( UEditorLevelLibrary::GetEditorWorld()->LineTraceSingleByChannel(
+  if( GEditor->GetEditorWorldContext().World()->LineTraceSingleByChannel(
     HitResult,
     Start,
     End,
@@ -945,13 +944,13 @@ void UOpenDriveToMap::ImportOSM(){
 void UOpenDriveToMap::MoveActorsToSubLevels(TArray<AActor*> ActorsToMove)
 {
   AActor* QueryActor = UGameplayStatics::GetActorOfClass(
-                                UEditorLevelLibrary::GetEditorWorld(),
+                                GEditor->GetEditorWorldContext().World(),
                                 ALargeMapManager::StaticClass() );
 
   if( QueryActor != nullptr ){
     ALargeMapManager* LmManager = Cast<ALargeMapManager>(QueryActor);
     if( LmManager ){
-      UEditorLevelLibrary::SaveCurrentLevel();
+      FEditorFileUtils::SaveCurrentLevel();
       UHoudiniImporterWidget::MoveActorsToSubLevelWithLargeMap(ActorsToMove, LmManager);
     }
   }
