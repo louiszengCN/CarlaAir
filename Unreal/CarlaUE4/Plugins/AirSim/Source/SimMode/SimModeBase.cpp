@@ -573,7 +573,7 @@ void ASimModeBase::setSunRotation(FRotator rotation)
             sun_->SetActorRotation(rotation);
 
             FOutputDeviceNull ar;
-            sky_sphere_->CallFunctionByNameWithArguments(TEXT("UpdateSunDirection"), ar, NULL, true);
+            sky_sphere_->CallFunctionByNameWithArguments(TEXT("UpdateSunDirection"), ar, nullptr, true);
         },
                                                  true /*wait*/);
     }

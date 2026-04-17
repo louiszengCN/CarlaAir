@@ -305,7 +305,7 @@ private:
 
         // Set the cooperative level to let DInput know how this device should
         // interact with the system and with other DInput applications.
-        if (FAILED(hr = g_pJoystick->SetCooperativeLevel(NULL, DISCL_NONEXCLUSIVE | DISCL_BACKGROUND))) {
+        if (FAILED(hr = g_pJoystick->SetCooperativeLevel(nullptr, DISCL_NONEXCLUSIVE | DISCL_BACKGROUND))) {
 
             state.message = "SetCooperativeLevel failed";
             return hr;
