@@ -35,7 +35,7 @@ void FPixelReader::WritePixelsToBuffer(
     FPixelReader::Payload FuncForSending)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE_STR("WritePixelsToBuffer");
-  check(IsInRenderingThread());
+  ensureAlwaysMsgf(IsInRenderingThread(), TEXT("WritePixelsToBuffer must be called from rendering thread"));
 
   // Backpressure: drop this frame if too many readbacks are pending.
   // This prevents unbounded accumulation of GPU readback operations
@@ -109,7 +109,7 @@ bool FPixelReader::WritePixelsToArray(
     UTextureRenderTarget2D &RenderTarget,
     TArray<FColor> &BitMap)
 {
-  check(IsInGameThread());
+  ensureAlwaysMsgf(IsInGameThread(), TEXT("ReadPixels must be called from game thread"));
   FTextureRenderTargetResource *RTResource =
       RenderTarget.GameThread_GetRenderTargetResource();
   if (RTResource == nullptr)

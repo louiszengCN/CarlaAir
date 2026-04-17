@@ -56,7 +56,7 @@ namespace SceneCaptureSensorWideAngleLens_local_ns {
     static auto GetQualitySettings(UWorld* World)
     {
         auto Settings = UCarlaStatics::GetCarlaSettings(World);
-        check(Settings != nullptr);
+        if (!Settings) { return EQualityLevel::Epic; }
         return Settings->GetQualityLevel();
     }
 
@@ -160,7 +160,7 @@ ASceneCaptureSensor_WideAngleLens::ASceneCaptureSensor_WideAngleLens(const FObje
 
         RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(
             FName(*FString::Printf(TEXT("CaptureRenderTarget2D-WideLens-Face-d%d"), AbsIndex)));
-        check(RenderTarget != nullptr);
+        ensure(RenderTarget != nullptr);
         RenderTarget->CompressionSettings = TextureCompressionSettings::TC_Default;
         RenderTarget->SRGB = false;
         RenderTarget->bAutoGenerateMips = false;
@@ -170,7 +170,7 @@ ASceneCaptureSensor_WideAngleLens::ASceneCaptureSensor_WideAngleLens(const FObje
 
         FaceCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(
             FName(*FString::Printf(TEXT("USceneCaptureComponent2D-%d"), AbsIndex)));
-        check(FaceCapture != nullptr);
+        ensure(FaceCapture != nullptr);
         FaceCapture->SetupAttachment(RootComponent);
         FaceCapture->SetRelativeRotation(FRotationMatrix::MakeFromXY(Forward[i], Right[i]).ToQuat());
         // FaceCapture->ViewActor = this; // UE5.7: ViewActor removed from USceneCaptureComponent2D
