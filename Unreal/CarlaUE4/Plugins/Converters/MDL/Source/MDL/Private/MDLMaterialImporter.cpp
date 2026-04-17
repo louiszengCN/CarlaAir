@@ -114,15 +114,15 @@ static bool CheckClearCodeCondition(const mi::base::Handle<const mi::neuraylib::
         case mi::neuraylib::IExpression::EK_TEMPORARY:
             return CheckClearCodeCondition(CompiledMaterial, Expression.get_interface<const mi::neuraylib::IExpression_temporary>(), EncounteredClearCodeLayer);
     }
-    check(false);
+    ensure(false);
     return false;
 }
 
 static bool IsTransparentMode(FMaterialExpressionConnection const& Input)
 {
     // Note: for ScalarParameter controlling transparency, we're lost. Whatever we'd do is wrong. So just take the default value as the indicator for transparency
-    check(Input.ConnectionType == EConnectionType::Expression);
-    check(!Input.ExpressionData.Expression || Input.ExpressionData.Expression->IsA<UMaterialExpressionConstant>() || Input.ExpressionData.Expression->IsA<UMaterialExpressionScalarParameter>());
+    ensure(Input.ConnectionType == EConnectionType::Expression);
+    ensure(!Input.ExpressionData.Expression || Input.ExpressionData.Expression->IsA<UMaterialExpressionConstant>() || Input.ExpressionData.Expression->IsA<UMaterialExpressionScalarParameter>());
     return Input.ExpressionData.Expression
         && ((Input.ExpressionData.Expression->IsA<UMaterialExpressionConstant>() && (Cast<UMaterialExpressionConstant>(Input.ExpressionData.Expression)->R != 0))
             || (Input.ExpressionData.Expression->IsA<UMaterialExpressionScalarParameter>() && (Cast<UMaterialExpressionScalarParameter>(Input.ExpressionData.Expression)->DefaultValue != 0)));
@@ -158,7 +158,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
 
     // Create Unreal Engine material and translate expressions
     CurrentUE4Material = Material;
-    check(CurrentUE4Material != nullptr);
+    ensure(CurrentUE4Material != nullptr);
 
     // handle MaterialDefinition->get_annotations() !
 
@@ -183,7 +183,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
     TArray<FMaterialExpressionConnection> GeometryExpression = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "geometry"), "geometry");
     CheckConnection(GeometryExpression);
     InGeometryExpression = false;
-    check(GeometryExpression.Num() == 3); // { displacement, cutout_opacity, normal }
+    ensure(GeometryExpression.Num() == 3); // { displacement, cutout_opacity, normal }
 
     if (CurrentNormalExpression != GeometryExpression[2])
     {
@@ -203,25 +203,25 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
 
     const TArray<FMaterialExpressionConnection> ThinWalled = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "thin_walled"), "thin_walled");
     CheckConnection(ThinWalled);
-    check(ThinWalled[0].ConnectionType == EConnectionType::Expression);
+    ensure(ThinWalled[0].ConnectionType == EConnectionType::Expression);
     // Hardcode TwoSided to true for now
     //CurrentUE4Material->TwoSided = EvaluateBool(ThinWalled[0]);
     CurrentUE4Material->TwoSided = true;
 
     const TArray<FMaterialExpressionConnection> SurfaceExpression = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "surface"), "surface");
     CheckConnection(SurfaceExpression);
-    check(SurfaceExpression.Num() == 4); // { scattering, { emission, intensity, mode } }
+    ensure(SurfaceExpression.Num() == 4); // { scattering, { emission, intensity, mode } }
 
     const TArray<FMaterialExpressionConnection> BackfaceExpression = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "backface"), "backface");
     CheckConnection(BackfaceExpression);
-    check(BackfaceExpression.Num() == 4); // { scattering, { emission, intensity, mode } }
+    ensure(BackfaceExpression.Num() == 4); // { scattering, { emission, intensity, mode } }
 
     const TArray<FMaterialExpressionConnection> IORExpression = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "ior"), "ior");
     CheckConnection(IORExpression);
 
     const TArray<FMaterialExpressionConnection> Volume = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "volume"), "volume");
     CheckConnection(Volume);
-    check(Volume.Num() == 4); // { scattering, absorption coefficient, scattering coefficient, emission intensity }
+    ensure(Volume.Num() == 4); // { scattering, absorption coefficient, scattering coefficient, emission intensity }
 
     const TArray<FMaterialExpressionConnection> Hair = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "hair"), "hair");
     CheckConnection(Hair);
@@ -238,7 +238,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
 
     // Connect expression trees to material node
     const FMaterialExpressionConnection& Scattering = SurfaceExpression[0];
-    check(Scattering.ConnectionType == EConnectionType::Expression);
+    ensure(Scattering.ConnectionType == EConnectionType::Expression);
     if (Scattering.ExpressionData.IsDefault)
     {
         CurrentUE4Material->MaterialAttributes.Connect(0, NewMaterialExpressionMakeMaterialAttributes(CurrentUE4Material, { 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, 0.0f));
@@ -272,7 +272,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
 
     if (!TranslucentOpacity.ExpressionData.IsDefault)
     {
-        check(TranslucentOpacity.ExpressionData.Expression);
+        ensure(TranslucentOpacity.ExpressionData.Expression);
         CurrentUE4Material->MaterialAttributes.Connect(0,
             NewMaterialExpressionFunctionCall(CurrentUE4Material, ::LoadFunction(TEXT("/Engine/Functions/MaterialLayerFunctions"), TEXT("MatLayerBlend_OverrideOpacity")),
             {
@@ -283,11 +283,11 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
     }
 
     const FMaterialExpressionConnection& Emission = SurfaceExpression[1];
-    check(Emission.ConnectionType == EConnectionType::Expression);
+    ensure(Emission.ConnectionType == EConnectionType::Expression);
     if (!Emission.ExpressionData.IsDefault)
     {
         const FMaterialExpressionConnection& Intensity = SurfaceExpression[2];
-        check(Intensity.ExpressionData.Expression);
+        ensure(Intensity.ExpressionData.Expression);
         const FMaterialExpressionConnection Emissive =
             NewMaterialExpressionMultiply(CurrentUE4Material,
                 FMaterialExpressionConnection(NewMaterialExpressionBreakMaterialAttributes(CurrentUE4Material, Emission), MAI_EmissiveColor),
@@ -303,7 +303,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
     }
 
     const FMaterialExpressionConnection& Displacement = GeometryExpression[0];
-    check(Displacement.ConnectionType == EConnectionType::Expression);
+    ensure(Displacement.ConnectionType == EConnectionType::Expression);
     if (!Displacement.ExpressionData.IsDefault)
     {
         CurrentUE4Material->MaterialAttributes.Connect(0,
@@ -316,7 +316,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
     }
 
     const FMaterialExpressionConnection& CutoutOpacity = GeometryExpression[1];
-    check(CutoutOpacity.ConnectionType == EConnectionType::Expression);
+    ensure(CutoutOpacity.ConnectionType == EConnectionType::Expression);
     if (!CutoutOpacity.ExpressionData.IsDefault && TranslucentOpacity.ExpressionData.IsDefault)
     {
         if (CurrentUE4Material->BlendMode != BLEND_Translucent) 
@@ -368,7 +368,7 @@ bool FMDLMaterialImporter::ImportMaterial(UMaterial* Material,
             }));
     }
 
-    check(IORExpression[0].ConnectionType == EConnectionType::Expression);
+    ensure(IORExpression[0].ConnectionType == EConnectionType::Expression);
     if (!IORExpression[0].ExpressionData.IsDefault &&
         !(IORExpression[0].ExpressionData.Expression->IsA<UMaterialExpressionConstant3Vector>() &&
             Cast<UMaterialExpressionConstant3Vector>(IORExpression[0].ExpressionData.Expression)->Constant == FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)))
@@ -459,7 +459,7 @@ mi::neuraylib::IFunction_definition::Semantics GetCallSemantic(mi::neuraylib::IT
     }
     mi::base::Handle<const mi::neuraylib::IFunction_definition> MdlDef(
         Transaction->access<const mi::neuraylib::IFunction_definition>(Call->get_definition()));
-    check(MdlDef.is_valid_interface());
+    ensure(MdlDef.is_valid_interface());
 
     return MdlDef->get_semantic();
 }
@@ -559,7 +559,7 @@ void SetupTargetMaterial(FMDLModule * MDLModule, const EDistillationTarget Targe
         case EDistillationTarget::Diffuse:
         {
             // The target model is supposed to be a diffuse reflection bsdf
-            check(Semantic ==
+            ensure(Semantic ==
                 mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_DIFFUSE_REFLECTION_BSDF);
 
             // Setup diffuse material parameters
@@ -637,7 +637,7 @@ void SetupTargetMaterial(FMDLModule * MDLModule, const EDistillationTarget Targe
             mi::base::Handle<const mi::neuraylib::IExpression> EmissionExpression = GetArgument(CM, LookupCall(TEXT("surface.emission"), CM).get(), TEXT("intensity"));
             if (EmissionExpression)
             {
-                check(mi::base::make_handle(EmissionExpression->get_type())->get_kind() == mi::neuraylib::IType::TK_COLOR);
+                ensure(mi::base::make_handle(EmissionExpression->get_type())->get_kind() == mi::neuraylib::IType::TK_COLOR);
                 bool isDefault = false;
                 if (EmissionExpression->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT)
                 {
@@ -801,7 +801,7 @@ void SetupTargetMaterial(FMDLModule * MDLModule, const EDistillationTarget Targe
 template <typename T>
 void Connect(T& Target, const TArray<FMaterialExpressionConnection>& SrcExpr)
 {
-    check(SrcExpr.Num() == 1);
+    ensure(SrcExpr.Num() == 1);
     Target.Connect(SrcExpr[0].ExpressionData.Index, SrcExpr[0].ExpressionData.Expression);
 }
 
@@ -815,7 +815,7 @@ bool FMDLMaterialImporter::ImportDistilledMaterial(UMaterial* Material,
 
     // Create Unreal Engine material and translate expressions
     CurrentUE4Material = Material;
-    check(CurrentUE4Material != nullptr);
+    ensure(CurrentUE4Material != nullptr);
     TranslucentOpacity = FMaterialExpressionConnection();
     EmissiveOpacity = FMaterialExpressionConnection();
     SubsurfaceColor = FMaterialExpressionConnection();
@@ -845,14 +845,14 @@ bool FMDLMaterialImporter::ImportDistilledMaterial(UMaterial* Material,
     InGeometryExpression = true;
     UMaterialExpressionClearCoatNormalCustomOutput* UnderClearcoatNormal = nullptr;
 
-    check(MaterialInfo[TEXT("normal")].Expr);
+    ensure(MaterialInfo[TEXT("normal")].Expr);
     TArray<FMaterialExpressionConnection> NormalExpression = CreateExpression(InCompiledMaterial, MaterialInfo[TEXT("normal")].Expr, MaterialInfo[TEXT("normal")].BakePath);
     CheckConnection(NormalExpression);
     TArray<FMaterialExpressionConnection> UnderClearcoatNormalExpression;
 
     const TArray<FMaterialExpressionConnection> ThinWalled = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "thin_walled"), "thin_walled");
     CheckConnection(ThinWalled);
-    check(ThinWalled[0].ConnectionType == EConnectionType::Expression);
+    ensure(ThinWalled[0].ConnectionType == EConnectionType::Expression);
     
     
     // Hardcode TwoSided to true for now
@@ -1004,7 +1004,7 @@ bool FMDLMaterialImporter::ImportDistilledMaterial(UMaterial* Material,
         // NOTE: The refraction connecting to the material attribute isn't working before 4.26
         const TArray<FMaterialExpressionConnection> IOR = CreateExpression(InCompiledMaterial, GetField(InCompiledMaterial, "ior"), "ior");
         CheckConnection(IOR);
-        check(IOR[0].ConnectionType == EConnectionType::Expression);
+        ensure(IOR[0].ConnectionType == EConnectionType::Expression);
         Refraction = NewMaterialExpressionLinearInterpolate(CurrentUE4Material, NewMaterialExpressionConstant(CurrentUE4Material, 1.0f), IOR[0], NewMaterialExpressionFresnel(CurrentUE4Material));
     }
 
@@ -1222,7 +1222,7 @@ static void CreateDirectory(const FString& DirectoryPath)
 
 TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpression(const mi::base::Handle<const mi::neuraylib::ICompiled_material>& CompiledMaterial, const mi::base::Handle<const mi::neuraylib::IExpression>& MDLExpression, const FString& CallPath)
 {
-    check(MDLExpression != nullptr);
+    ensure(MDLExpression != nullptr);
 
     TArray<FMaterialExpressionConnection> Outputs;
     mi::neuraylib::IExpression::Kind kind = MDLExpression->get_kind();
@@ -1239,7 +1239,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpression(con
                 if (Baker.is_valid_interface())
                 {
                     FString PixelType = Baker->get_pixel_type();
-                    check((PixelType == "Float32") || (PixelType == "Float32<3>") || (PixelType == "Rgb_fp"));
+                    ensure((PixelType == "Float32") || (PixelType == "Float32<3>") || (PixelType == "Rgb_fp"));
                     if (Baker->is_uniform())
                     {
                         if (PixelType == "Float32")
@@ -1258,7 +1258,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpression(con
                         }
                         else
                         {
-                            check(PixelType == "Rgb_fp");
+                            ensure(PixelType == "Rgb_fp");
                             mi::base::Handle<mi::IColor> V(MDLModule->Transaction->create<mi::IColor>());
                             mi::base::Handle<mi::IData> Data(V->get_interface<mi::IData>());
                             verify(Baker->bake_constant(Data.get()) == 0);
@@ -1467,7 +1467,7 @@ static bool IsScatterModeReflect(UMaterialExpression* Expression)
 {
     if (Expression)
     {
-        check(Expression->IsA<UMaterialExpressionConstant>());
+        ensure(Expression->IsA<UMaterialExpressionConstant>());
         UMaterialExpressionConstant* Constant = Cast<UMaterialExpressionConstant>(Expression);
         return (Constant->R == 0.0f);		// == scatter_reflect
     }
@@ -1485,9 +1485,9 @@ static bool IsOpaqueBSDF(UMaterialExpression* Expression)
         }
         else
         {
-            check(Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
+            ensure(Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
             UMaterialExpressionMaterialFunctionCall* FunctionCall = Cast<UMaterialExpressionMaterialFunctionCall>(Expression);
-            check(FunctionCall->MaterialFunction);
+            ensure(FunctionCall->MaterialFunction);
             FString Name = FunctionCall->MaterialFunction->GetName();
             if ((Name == "mdl_df_backscattering_glossy_reflection_bsdf") ||
                 (Name == "mdl_df_diffuse_reflection_bsdf"))
@@ -1524,7 +1524,7 @@ static bool IsOpaqueBSDF(UMaterialExpression* Expression)
             }
             else
             {
-                check(false);
+                ensure(false);
             }
         }
     }
@@ -1533,19 +1533,19 @@ static bool IsOpaqueBSDF(UMaterialExpression* Expression)
 
 static void RerouteNormal(const FMaterialExpressionConnection& From, UMaterialExpression* ToExpression)
 {
-    check((From.ConnectionType == EConnectionType::Expression) && From.ExpressionData.Expression && ToExpression);
+    ensure((From.ConnectionType == EConnectionType::Expression) && From.ExpressionData.Expression && ToExpression);
     if (ToExpression->IsA<UMaterialExpressionMakeMaterialAttributes>())
     {
         Cast<UMaterialExpressionMakeMaterialAttributes>(ToExpression)->Normal.Connect(From.ExpressionData.Index, From.ExpressionData.Expression);
     }
     else if (ToExpression->IsA<UMaterialExpressionMaterialFunctionCall>())
     {
-        check(Cast<UMaterialExpressionMaterialFunctionCall>(ToExpression)->FunctionInputs.Last().Input.InputName == TEXT("normal"));
+        ensure(Cast<UMaterialExpressionMaterialFunctionCall>(ToExpression)->FunctionInputs.Last().Input.InputName == TEXT("normal"));
         Cast<UMaterialExpressionMaterialFunctionCall>(ToExpression)->FunctionInputs.Last().Input.Connect(From.ExpressionData.Index, From.ExpressionData.Expression);
     }
     else
     {
-        check(ToExpression->IsA<UMaterialExpressionStaticSwitch>());
+        ensure(ToExpression->IsA<UMaterialExpressionStaticSwitch>());
         UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(ToExpression);
         RerouteNormal(From, StaticSwitch->A.Expression);
         RerouteNormal(From, StaticSwitch->B.Expression);
@@ -1560,7 +1560,7 @@ static bool IsValidUE4PathChar(TCHAR c)
 TArray<FMaterialExpressionConnection> FMDLMaterialImporter::MakeFunctionCall(const FString& CallPath, const mi::base::Handle<const mi::neuraylib::IFunction_definition>& FunctionDefinition, const TArray<int32>& ArrayInputSizes,
     const FString& AssetNamePostfix, TArray<FMaterialExpressionConnection>& Inputs)
 {
-    check(FunctionDefinition != nullptr);
+    ensure(FunctionDefinition != nullptr);
 
     FString AssetPath = FMDLImporterUtility::GetProjectMdlFunctionPath();
     const mi::IString* DecodedFunctionName = MDLModule->MDLFactory->decode_name(FunctionDefinition->get_mdl_name());
@@ -1608,7 +1608,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::MakeFunctionCall(con
     if (InGeometryExpression && (AssetName == TEXT("::base::coordinate_source(::base::texture_coordinate_system,int)")))
     {
         // in the geometry expression path, we don't support the full functionality of base::coordinate_source -> fall back to just the base::texture_coordinate_info constructor
-        check(Inputs.Num() == 2);
+        ensure(Inputs.Num() == 2);
         AssetName = TEXT("::base::texture_coordinate_info()");
         Inputs[0] = FMaterialExpressionConnection();
         Inputs[1] = FMaterialExpressionConnection();
@@ -1713,11 +1713,11 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::MakeFunctionCall(con
             FExpressionData True = Inputs[TextureSelectionIndex].TextureSelectionData[1];
             FExpressionData False = Inputs[TextureSelectionIndex].TextureSelectionData[2];
             Inputs[TextureSelectionIndex] = { True.Expression, True.Index, True.IsDefault };
-            check(Inputs.FindLastByPredicate([](FMaterialExpressionConnection const& MEC) { return MEC.ConnectionType == EConnectionType::TextureSelection; }) == INDEX_NONE);
+            ensure(Inputs.FindLastByPredicate([](FMaterialExpressionConnection const& MEC) { return MEC.ConnectionType == EConnectionType::TextureSelection; }) == INDEX_NONE);
             UMaterialExpressionMaterialFunctionCall* TrueCall = NewMaterialExpressionFunctionCall(CurrentUE4Material, Function, Inputs);
             Inputs[TextureSelectionIndex] = { False.Expression, False.Index, False.IsDefault };
             UMaterialExpressionMaterialFunctionCall* FalseCall = NewMaterialExpressionFunctionCall(CurrentUE4Material, Function, Inputs);
-            check(TrueCall->Outputs.Num() == FalseCall->Outputs.Num());
+            ensure(TrueCall->Outputs.Num() == FalseCall->Outputs.Num());
 
             FMaterialExpressionConnection ValueConnection(Value.Expression, Value.Index, Value.IsDefault);
             Outputs.Reserve(TrueCall->Outputs.Num());
@@ -1857,7 +1857,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
             if (ParameterKind == mi::neuraylib::IType::TK_ARRAY)
             {
                 int32 ArraySize = CalcArraySize(Argument);
-                check(0 < ArraySize);
+                ensure(0 < ArraySize);
                 ArrayInputSizes.Last() = ArraySize;
             }
 
@@ -1873,7 +1873,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
             {
                 for (int32 k = 0; k < ArgumentExpressions.Num(); k++)
                 {
-                    check(ArgumentExpressions[k].ConnectionType == EConnectionType::Expression);
+                    ensure(ArgumentExpressions[k].ConnectionType == EConnectionType::Expression);
                     ArgumentExpressions[k].ExpressionData.IsDefault = true;
                 }
             }
@@ -1929,7 +1929,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_LOG2:
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_LOG10:
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SIN:
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
             {
                 mi::base::Handle<const mi::neuraylib::IType> Type(ParameterTypes->get_type(mi::Size(0)));
                 mi::neuraylib::IType::Kind kind = Type->get_kind();
@@ -1944,12 +1944,12 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                     case mi::neuraylib::IType::TK_VECTOR:
                         {
                             const mi::base::Handle<const mi::neuraylib::IType_vector> VectorType(Type->get_interface<const mi::neuraylib::IType_vector>());
-                            check(mi::base::make_handle(VectorType->get_element_type())->get_kind() == mi::neuraylib::IType::TK_FLOAT);
+                            ensure(mi::base::make_handle(VectorType->get_element_type())->get_kind() == mi::neuraylib::IType::TK_FLOAT);
                             AssetNamePostfix = "_float" + FString::FromInt(VectorType->get_size());
                         }
                         break;
                     default:
-                        check(false);
+                        ensure(false);
                 }
             }
             break;
@@ -1979,7 +1979,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                         }
                         break;
                     case mi::neuraylib::IType_texture::Shape::TS_3D:
-                        check(false); // TODO??
+                        ensure(false); // TODO??
                         break;
                     case mi::neuraylib::IType_texture::Shape::TS_CUBE:
                         AssetNamePostfix = "_cube";
@@ -2015,7 +2015,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
 
         // These DFs need some special handling to determine if the CurrentNormalExpression is to be pushed!
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_CLAMPED_MIX:	// only if mixing BSDFs
-            check(false);
+            ensure(false);
             break;
     }
 
@@ -2046,12 +2046,12 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
     switch(Semantic)
     {
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_WEIGHTED_LAYER:
-            check(Inputs[1].ConnectionType == EConnectionType::Expression);
-            check(Inputs[1].ExpressionData.Expression && Inputs[3].ExpressionData.Expression);
+            ensure(Inputs[1].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[1].ExpressionData.Expression && Inputs[3].ExpressionData.Expression);
             if (Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>())
             {
                 UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Inputs[1].ExpressionData.Expression);
-                check(StaticSwitch->A.Expression && StaticSwitch->B.Expression && StaticSwitch->Value.Expression);
+                ensure(StaticSwitch->A.Expression && StaticSwitch->B.Expression && StaticSwitch->Value.Expression);
                 RerouteNormal(Inputs[3], StaticSwitch->A.Expression);
                 RerouteNormal(Inputs[3], StaticSwitch->B.Expression);
             }
@@ -2061,25 +2061,25 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
             }
             break;
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_FRESNEL_LAYER:
-            check((Inputs[2].ConnectionType == EConnectionType::Expression) && Inputs[2].ExpressionData.Expression);
-            check((Inputs[3].ConnectionType == EConnectionType::Expression) && Inputs[3].ExpressionData.Expression);
-            check((Inputs[4].ConnectionType == EConnectionType::Expression) && Inputs[4].ExpressionData.Expression);
+            ensure((Inputs[2].ConnectionType == EConnectionType::Expression) && Inputs[2].ExpressionData.Expression);
+            ensure((Inputs[3].ConnectionType == EConnectionType::Expression) && Inputs[3].ExpressionData.Expression);
+            ensure((Inputs[4].ConnectionType == EConnectionType::Expression) && Inputs[4].ExpressionData.Expression);
             RerouteNormal(Inputs[4], Inputs[2].ExpressionData.Expression);
             break;
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_CUSTOM_CURVE_LAYER:
-            check(Inputs[4].ConnectionType == EConnectionType::Expression);
-            check((Inputs[5].ConnectionType == EConnectionType::Expression) && Inputs[5].ExpressionData.Expression);
-            check((Inputs[6].ConnectionType == EConnectionType::Expression) && Inputs[6].ExpressionData.Expression);
-            check(Inputs[4].ExpressionData.Expression || (Inputs[6].ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() && Cast<UMaterialExpressionMaterialFunctionCall>(Inputs[6].ExpressionData.Expression)->MaterialFunction->GetName() == TEXT("mdl_state_normal")));
+            ensure(Inputs[4].ConnectionType == EConnectionType::Expression);
+            ensure((Inputs[5].ConnectionType == EConnectionType::Expression) && Inputs[5].ExpressionData.Expression);
+            ensure((Inputs[6].ConnectionType == EConnectionType::Expression) && Inputs[6].ExpressionData.Expression);
+            ensure(Inputs[4].ExpressionData.Expression || (Inputs[6].ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() && Cast<UMaterialExpressionMaterialFunctionCall>(Inputs[6].ExpressionData.Expression)->MaterialFunction->GetName() == TEXT("mdl_state_normal")));
             if (Inputs[4].ExpressionData.Expression)
             {
                 RerouteNormal(Inputs[6], Inputs[4].ExpressionData.Expression);
             }
             break;
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_MEASURED_CURVE_LAYER:
-            check((Inputs[2].ConnectionType == EConnectionType::Expression) && Inputs[2].ExpressionData.Expression);
-            check((Inputs[3].ConnectionType == EConnectionType::Expression) && Inputs[3].ExpressionData.Expression);
-            check((Inputs[4].ConnectionType == EConnectionType::Expression) && Inputs[4].ExpressionData.Expression);
+            ensure((Inputs[2].ConnectionType == EConnectionType::Expression) && Inputs[2].ExpressionData.Expression);
+            ensure((Inputs[3].ConnectionType == EConnectionType::Expression) && Inputs[3].ExpressionData.Expression);
+            ensure((Inputs[4].ConnectionType == EConnectionType::Expression) && Inputs[4].ExpressionData.Expression);
             RerouteNormal(Inputs[4], Inputs[2].ExpressionData.Expression);
             break;
     }
@@ -2088,11 +2088,11 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
     switch (Semantic)
     {
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_FRESNEL_LAYER:
-            check(Inputs[4].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[4].ConnectionType == EConnectionType::Expression);
             SetClearCoatNormal(Inputs[3], Inputs[4].ExpressionData.Expression);
             break;
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_DF_CUSTOM_CURVE_LAYER:
-            check(Inputs[6].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[6].ConnectionType == EConnectionType::Expression);
             SetClearCoatNormal(Inputs[5], Inputs[6].ExpressionData.Expression);
             break;
     }
@@ -2132,7 +2132,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
     {
         // very special handling for this function, which in fact is a DS_ELEM_CONSTRUCTOR
         // -> needs to add the world-aligned coordinate stuff, so handle it as if it was a general function call
-        check(Semantic == mi::neuraylib::IFunction_definition::DS_ELEM_CONSTRUCTOR);
+        ensure(Semantic == mi::neuraylib::IFunction_definition::DS_ELEM_CONSTRUCTOR);
         Semantic = mi::neuraylib::IFunction_definition::DS_UNKNOWN;
     }
 #endif
@@ -2214,15 +2214,15 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
 
 #pragma region Unary Operators
         case mi::neuraylib::IFunction_definition::DS_CONV_OPERATOR:
-            check(Inputs.Num() == 1);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
-            check(Inputs[0].ExpressionData.Expression->IsA<UMaterialExpressionScalarParameter>() && (ReturnType->get_kind() == mi::neuraylib::IType::TK_INT));
+            ensure(Inputs.Num() == 1);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[0].ExpressionData.Expression->IsA<UMaterialExpressionScalarParameter>() && (ReturnType->get_kind() == mi::neuraylib::IType::TK_INT));
             return Inputs;
 
         case mi::neuraylib::IFunction_definition::DS_LOGICAL_NOT:
         {
-            check(Inputs.Num() == 1);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs.Num() == 1);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
 
             if (IsStatic(Inputs[0]))
             {
@@ -2235,25 +2235,25 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_POSITIVE:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return Inputs;
         }
         case mi::neuraylib::IFunction_definition::DS_NEGATIVE:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return { NewMaterialExpressionNegate(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_PRE_INCREMENT:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionAdd(CurrentUE4Material, Inputs[0], 1.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_PRE_DECREMENT:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionSubtract(CurrentUE4Material, Inputs[0], 1.0f) };
         }
@@ -2278,68 +2278,68 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
             }
             else
             {
-                check(Inputs.Num() == 2);
+                ensure(Inputs.Num() == 2);
 
                 return { NewMaterialExpressionMultiply(CurrentUE4Material, Inputs[0], Inputs[1]) };
             }
         }
         case mi::neuraylib::IFunction_definition::DS_DIVIDE:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionDivide(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_MODULO:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionFmod(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_PLUS:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionAdd(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_MINUS:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionSubtract(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_LESS:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionIfLess(CurrentUE4Material, Inputs[0], Inputs[1], 1.0f, 0.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_LESS_OR_EQUAL:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionIfGreater(CurrentUE4Material, Inputs[1], Inputs[0], 1.0f, 0.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_GREATER_OR_EQUAL:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionIfLess(CurrentUE4Material, Inputs[1], Inputs[0], 1.0f, 0.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_GREATER:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return { NewMaterialExpressionIfGreater(CurrentUE4Material, Inputs[0], Inputs[1], 1.0f, 0.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_EQUAL:
         {
-            check(Inputs.Num() == 2);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
-            check(Inputs[1].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs.Num() == 2);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[1].ConnectionType == EConnectionType::Expression);
 
             if (Inputs[0].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>())
             {
-                check(!Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>());
+                ensure(!Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>());
                 return{ CompareStaticBool(CurrentUE4Material, Cast<UMaterialExpressionStaticBool>(Inputs[0].ExpressionData.Expression), Inputs[1].ExpressionData.Expression, true) };
             }
             else if (Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>())
@@ -2353,13 +2353,13 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_NOT_EQUAL:
         {
-            check(Inputs.Num() == 2);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
-            check(Inputs[1].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs.Num() == 2);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[1].ConnectionType == EConnectionType::Expression);
 
             if (Inputs[0].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>())
             {
-                check(!Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>());
+                ensure(!Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>());
                 return{ CompareStaticBool(CurrentUE4Material, Cast<UMaterialExpressionStaticBool>(Inputs[0].ExpressionData.Expression), Inputs[1].ExpressionData.Expression, false) };
             }
             else if (Inputs[1].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>())
@@ -2373,9 +2373,9 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_LOGICAL_AND:
         {
-            check(Inputs.Num() == 2);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
-            check(Inputs[1].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs.Num() == 2);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[1].ConnectionType == EConnectionType::Expression);
 
             if (IsStatic(Inputs[0]))
             {
@@ -2407,9 +2407,9 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_LOGICAL_OR:
         {
-            check(Inputs.Num() == 2);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
-            check(Inputs[1].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs.Num() == 2);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[1].ConnectionType == EConnectionType::Expression);
 
             if (IsStatic(Inputs[0]))
             {
@@ -2444,8 +2444,8 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
 #pragma region Ternary Operators
         case mi::neuraylib::IFunction_definition::DS_TERNARY:
         {
-            check((Inputs.Num() - 1) % 2 == 0 && Inputs.Num() >= 3);
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure((Inputs.Num() - 1) % 2 == 0 && Inputs.Num() >= 3);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
 
             const int32 NumOutputs = (Inputs.Num() - 1) / 2;
             TArray<FMaterialExpressionConnection> Outputs;
@@ -2456,7 +2456,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                 if (IsTexture(Inputs[i]))
                 {
                     // StaticSwitch and If on Texture would fail -> store everything for evaluating later on
-                    check((Inputs.Num() == 3)
+                    ensure((Inputs.Num() == 3)
                         && (Inputs[0].ConnectionType == EConnectionType::Expression)
                         && (Inputs[1].ConnectionType == EConnectionType::Expression)
                         && (Inputs[2].ConnectionType == EConnectionType::Expression));
@@ -2470,7 +2470,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                 {
                     // If on MaterialAttribute would fail -> use a helper function instead
                     // Note: static switch on a MaterialAttribute works! Therefore, check for MaterialAttribute after check for Static !
-                    check(IsMaterialAttribute(Inputs[i + NumOutputs]));
+                    ensure(IsMaterialAttribute(Inputs[i + NumOutputs]));
                     Outputs.Add(NewMaterialExpressionFunctionCall(CurrentUE4Material,
                         ::LoadFunction(FMDLImporterUtility::GetProjectMdlFunctionPath(), TEXT("mdlimporter_select_bsdf")), { Inputs[0], Inputs[i], Inputs[i + NumOutputs], CurrentNormalExpression }));
                 }
@@ -2487,122 +2487,122 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
 #pragma region Math Intrinsics
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SMOOTHSTEP:
         {
-            check(Inputs.Num() == 3);
+            ensure(Inputs.Num() == 3);
 
             return { NewMaterialExpressionSmoothStep(CurrentUE4Material, Inputs[0], Inputs[1], Inputs[2]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ABS:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return { NewMaterialExpressionAbs(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ACOS:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionArccosine(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ASIN:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionArcsine(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ATAN:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionArctangent(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ATAN2:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionArctangent2(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_CEIL:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionCeil(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_CLAMP:
         {
-            check(Inputs.Num() == 3);
+            ensure(Inputs.Num() == 3);
 
             return{ NewMaterialExpressionClamp(CurrentUE4Material, Inputs[0], Inputs[1], Inputs[2]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_CROSS:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionCrossProduct(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_DEGREES:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionMultiply(CurrentUE4Material, Inputs[0], 180.0f / PI) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_DISTANCE:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionDistance(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_DOT:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionDotProduct(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_EXP:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             const float e = 2.71828f;
             return{ NewMaterialExpressionPower(CurrentUE4Material, e, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_EXP2:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionPower(CurrentUE4Material, 2.0f, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_FLOOR:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionFloor(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_FMOD:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionFmod(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_FRAC:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionFrac(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_LENGTH:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionSquareRoot(CurrentUE4Material, NewMaterialExpressionDotProduct(CurrentUE4Material, Inputs[0], Inputs[0])) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_LERP:
         {
-            check(Inputs.Num() == 3);
+            ensure(Inputs.Num() == 3);
 
             return{ NewMaterialExpressionLinearInterpolate(CurrentUE4Material, Inputs[0], Inputs[1], Inputs[2]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_MAX:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             uint32 ACount = ComponentCount(Inputs[0]);
             uint32 BCount = ComponentCount(Inputs[1]);
@@ -2635,7 +2635,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_MIN:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             uint32 ACount = ComponentCount(Inputs[0]);
             uint32 BCount = ComponentCount(Inputs[1]);
@@ -2668,7 +2668,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_MODF:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             UMaterialExpressionFrac* FractionalPart = NewMaterialExpressionFrac(CurrentUE4Material, Inputs[0]);
             UMaterialExpressionSubtract* IntegralPart = NewMaterialExpressionSubtract(CurrentUE4Material, Inputs[0], FractionalPart);
@@ -2677,49 +2677,49 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_NORMALIZE:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionNormalize(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_POW:
         {
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionPower(CurrentUE4Material, Inputs[0], Inputs[1]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_RADIANS:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionMultiply(CurrentUE4Material, Inputs[0], PI / 180.0f) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_ROUND:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionFloor(CurrentUE4Material, NewMaterialExpressionAdd(CurrentUE4Material, Inputs[0], 0.5f)) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_RSQRT:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionDivide(CurrentUE4Material, 1.0f, NewMaterialExpressionSquareRoot(CurrentUE4Material, Inputs[0])) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SATURATE:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionSaturate(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SIGN:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionSign(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SINCOS:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{
                 NewMaterialExpressionSine(CurrentUE4Material, Inputs[0]),
@@ -2728,19 +2728,19 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_SQRT:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionSquareRoot(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_TAN:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return{ NewMaterialExpressionTangent(CurrentUE4Material, Inputs[0]) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_MATH_BLACKBODY:
         {
-            check(Inputs.Num() == 1);
+            ensure(Inputs.Num() == 1);
 
             return { NewMaterialExpressionBlackBody(CurrentUE4Material, Inputs[0]) };
         }
@@ -2749,13 +2749,13 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
 #pragma region State Intrinsics
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_STATE_NORMAL:
         {
-            check(Inputs.Num() == 0);
+            ensure(Inputs.Num() == 0);
 
             return { CurrentNormalExpression };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_STATE_ROUNDED_CORNER_NORMAL:		// just do something for rounded corner normal... we can't do that!
         {
-            check(Inputs.Num() == 3);
+            ensure(Inputs.Num() == 3);
             return{ CurrentNormalExpression };
         }
 #pragma endregion
@@ -2764,14 +2764,14 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_TEX_WIDTH:
         {
             // MDL 1.7 add frame
-            check(Inputs.Num() == 1 || Inputs.Num() == 2 || Inputs.Num() == 3);
+            ensure(Inputs.Num() == 1 || Inputs.Num() == 2 || Inputs.Num() == 3);
 
             return { NewMaterialExpressionComponentMask(CurrentUE4Material, NewMaterialExpressionTextureProperty(CurrentUE4Material, Inputs[0], TMTM_TextureSize), 1) };
         }
         case mi::neuraylib::IFunction_definition::DS_INTRINSIC_TEX_HEIGHT:
         {
             // MDL 1.7 add frame
-            check(Inputs.Num() >= 1 || Inputs.Num() == 2 || Inputs.Num() == 3);
+            ensure(Inputs.Num() >= 1 || Inputs.Num() == 2 || Inputs.Num() == 3);
 
             return { NewMaterialExpressionComponentMask(CurrentUE4Material, NewMaterialExpressionTextureProperty(CurrentUE4Material, Inputs[0], TMTM_TextureSize), 2) };
         }
@@ -2779,7 +2779,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         {
             // MDL 1.7 add frame
             // UE4 doesn't know about 3D textures ?? Does that mean, the depth is always 1 ?
-            check(Inputs.Num() == 2);
+            ensure(Inputs.Num() == 2);
 
             return{ NewMaterialExpressionConstant(CurrentUE4Material, 1.0f) };
         }
@@ -2790,37 +2790,37 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
         {
             if (FunctionName == "::base::anisotropy_return.roughness_u(::base::anisotropy_return)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[0] });
             }
             else if (FunctionName == "::base::anisotropy_return.roughness_v(::base::anisotropy_return)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[1] });
             }
             else if (FunctionName == "::base::anisotropy_return.tangent_u(::base::anisotropy_return)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[2] });
             }
             else if (FunctionName == "::base::texture_return.tint(::base::texture_return)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 2));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 2));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[0] });
             }
             else if (FunctionName == "::base::color_layer.layer_color(::base::color_layer)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[0] });
             }
             else if (FunctionName == "::base::color_layer.weight(::base::color_layer)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[1] });
             }
             else if (FunctionName == "::base::color_layer.mode(::base::color_layer)")
             {
-                check((Inputs.Num() == 0) || (Inputs.Num() == 3));
+                ensure((Inputs.Num() == 0) || (Inputs.Num() == 3));
                 return (Inputs.Num() == 0) ? Inputs : TArray<FMaterialExpressionConnection>({ Inputs[2] });
             }
             else
@@ -2832,28 +2832,28 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                 case  146468741: // material.thin_walled(material)
                 case 1818454712: // ::base::texture_coordinate_info.position(::base::texture_coordinate_info)
                 case 4090769780: // ::base::texture_coordinate_info.position
-                    check(1 <= Inputs.Num());
+                    ensure(1 <= Inputs.Num());
                     return{ Inputs[0] };
                 case  820916979: // ::base::texture_return.mono(::base::texture_return)
                 case 3402110799: // ::base::texture_coordinate_info.tangent_u(::base::texture_coordinate_info)
                 case 3501048615: // ::base::texture_coordinate_info.tangent_u
-                    check(2 <= Inputs.Num());
+                    ensure(2 <= Inputs.Num());
                     return{ Inputs[1] };
                 case 3256380617: // ::base::texture_coordinate_info.tangent_v
                 case 2332782529: // ::base::texture_coordinate_info.tangent_v(::base::texture_coordinate_info)
-                    check(3 <= Inputs.Num());
+                    ensure(3 <= Inputs.Num());
                     return{ Inputs[2] };
                 case 2291824070: // material_surface.emission(material_surface)
-                    check(4 <= Inputs.Num());
+                    ensure(4 <= Inputs.Num());
                     return{ Inputs[1], Inputs[2], Inputs[3] };
                 case 2487874440: // material.surface(material)
-                    check(5 <= Inputs.Num());
+                    ensure(5 <= Inputs.Num());
                     return{ Inputs[1], Inputs[2], Inputs[3], Inputs[4] };
                 case 1789602102: // material.ior(material)
-                    check(10 <= Inputs.Num());
+                    ensure(10 <= Inputs.Num());
                     return{ Inputs[9] };
                 case 2121329778: // material.volume(material)
-                    check(14 <= Inputs.Num());
+                    ensure(14 <= Inputs.Num());
                     return{ Inputs[10], Inputs[11], Inputs[12], Inputs[13] };
                 }
 
@@ -2949,19 +2949,19 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
             if (ArraySize > 0)
             {
                 // Fetch index from array
-                check(Inputs.Num() == (ArraySize + 1));
-                check(Inputs[ArraySize].ExpressionData.Expression->IsA<UMaterialExpressionConstant>());
+                ensure(Inputs.Num() == (ArraySize + 1));
+                ensure(Inputs[ArraySize].ExpressionData.Expression->IsA<UMaterialExpressionConstant>());
                 const int32 Index = (int32)Cast<UMaterialExpressionConstant>(Inputs[ArraySize].ExpressionData.Expression)->R;
                 CurrentUE4Material->Expressions.Remove(Inputs[ArraySize].ExpressionData.Expression);
                 return { Inputs[Index] };
             }
             else
             {
-                check(Inputs.Num() > 1);
+                ensure(Inputs.Num() > 1);
                 int32 IndexInput = Inputs.Num() - 1;
-                check(Inputs[IndexInput].ConnectionType == EConnectionType::Expression);
-                check(Inputs[IndexInput].ExpressionData.Expression->IsA<UMaterialExpressionConstant>());
-                check(FunctionName == "operator[](<0>[],int)");
+                ensure(Inputs[IndexInput].ConnectionType == EConnectionType::Expression);
+                ensure(Inputs[IndexInput].ExpressionData.Expression->IsA<UMaterialExpressionConstant>());
+                ensure(FunctionName == "operator[](<0>[],int)");
 
                 const int32 Index = (int32)Cast<UMaterialExpressionConstant>(Inputs[IndexInput].ExpressionData.Expression)->R;
 
@@ -2969,7 +2969,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                 if (Inputs.Num() == 2)
                 {
                     // work as mask
-                    check(Inputs[0].ConnectionType == EConnectionType::Expression);
+                    ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
 
                     // .x, .y, .z
                     if (Index < 3)
@@ -3005,7 +3005,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionFunc
                 else
                 {
                     // work as array
-                    check(Inputs[Index].ConnectionType == EConnectionType::Expression);
+                    ensure(Inputs[Index].ConnectionType == EConnectionType::Expression);
                     return { Inputs[Index] };
                 }
 
@@ -3025,7 +3025,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
         case mi::neuraylib::IType::TK_FLOAT:
         case mi::neuraylib::IType::TK_INT:
         {
-            check(Inputs[0].ConnectionType == EConnectionType::Expression);
+            ensure(Inputs[0].ConnectionType == EConnectionType::Expression);
             if (Inputs.Num() == 1)
             {
                 if ((Inputs[0].ExpressionData.Expression->IsA<UMaterialExpressionStaticBool>()
@@ -3035,7 +3035,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
                 }
                 else
                 {
-                    check(IsScalar(Inputs[0]));
+                    ensure(IsScalar(Inputs[0]));
                     return Inputs;
                 }
             }
@@ -3053,7 +3053,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
                 }
                 else
                 {
-                    check(IsScalar(Inputs[0]));
+                    ensure(IsScalar(Inputs[0]));
                     switch (Type->get_size())
                     {
                         case 2:
@@ -3063,26 +3063,26 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
                         case 4:
                             return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat4,{ Inputs[0], Inputs[0], Inputs[0], Inputs[0] }) };
                         default:
-                            check(false);
+                            ensure(false);
                     }
                 }
             }
             else
             {
-                check(Inputs.Num() == Type->get_size());
+                ensure(Inputs.Num() == Type->get_size());
                 switch (Type->get_size())
                 {
                     case 2:
-                        check(IsScalar(Inputs[0]) && IsScalar(Inputs[1]));
+                        ensure(IsScalar(Inputs[0]) && IsScalar(Inputs[1]));
                         return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat2,{ Inputs[0], Inputs[1] }) };
                     case 3:
-                        check(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]));
+                        ensure(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]));
                         return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat3,{ Inputs[0], Inputs[1], Inputs[2] }) };
                     case 4:
-                        check(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]) && IsScalar(Inputs[3]));
+                        ensure(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]) && IsScalar(Inputs[3]));
                         return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat4,{ Inputs[0], Inputs[1], Inputs[2], Inputs[3] }) };
                     default:
-                        check(false);
+                        ensure(false);
                 }
             }
             break;
@@ -3132,15 +3132,15 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
                     switch (NumRows)
                     {
                         case 2:
-                            check(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]));
+                            ensure(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]));
                             Outputs.Add(NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat2, { Inputs[i * NumColumns], Inputs[i * NumColumns + 1] }));
                             break;
                         case 3:
-                            check(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]) && IsScalar(Inputs[i*NumColumns + 2]));
+                            ensure(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]) && IsScalar(Inputs[i*NumColumns + 2]));
                             Outputs.Add(NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat3, { Inputs[i * NumColumns], Inputs[i * NumColumns + 1], Inputs[i * NumColumns + 2] }));
                             break;
                         case 4:
-                            check(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]) && IsScalar(Inputs[i*NumColumns + 2]) && IsScalar(Inputs[i*NumColumns + 3]));
+                            ensure(IsScalar(Inputs[i*NumColumns]) && IsScalar(Inputs[i*NumColumns + 1]) && IsScalar(Inputs[i*NumColumns + 2]) && IsScalar(Inputs[i*NumColumns + 3]));
                             Outputs.Add(NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat4, { Inputs[i * NumColumns], Inputs[i * NumColumns + 1], Inputs[i * NumColumns + 2], Inputs[i * NumColumns + 3] }));
                             break;
                     }
@@ -3161,11 +3161,11 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionCons
                     }
                     else
                     {
-                        check(IsScalar(Inputs[0]));
+                        ensure(IsScalar(Inputs[0]));
                         return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat3,{ Inputs[0], Inputs[0], Inputs[0] }) };
                     }
                 case 3 :
-                    check(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]));
+                    ensure(IsScalar(Inputs[0]) && IsScalar(Inputs[1]) && IsScalar(Inputs[2]));
                     return{ NewMaterialExpressionFunctionCall(CurrentUE4Material, MakeFloat3,{ Inputs[0], Inputs[1], Inputs[2] }) };
             }
             break;
@@ -3192,7 +3192,7 @@ TArray<FMaterialExpressionConnection> FMDLMaterialImporter::CreateExpressionTemp
 TArray<FMaterialExpressionConnection> FMDLMaterialImporter::GetExpressionParameter(const mi::base::Handle<const mi::neuraylib::IExpression_parameter>& MDLExpression)
 {
     const mi::Size Index = MDLExpression->get_index();
-    check(Index < Parameters.Num());
+    ensure(Index < Parameters.Num());
     return Parameters[Index];
 }
 
@@ -3229,7 +3229,7 @@ static UMaterialExpression* ImportVectorParameter(UObject* Parent, const FString
     case 4:
         return NewMaterialExpressionAppendVector(Parent, { Parameter, 0 }, { Parameter, 4 });
     default:
-        check(false);
+        ensure(false);
         return nullptr;
     }
 }
@@ -3315,7 +3315,7 @@ mi::neuraylib::IValue::Kind FMDLMaterialImporter::ImportParameter(TArray<FMateri
             break;
         case mi::neuraylib::IValue::VK_LIGHT_PROFILE:
             {
-                check(Value.get_interface<const mi::neuraylib::IValue_light_profile>()->get_value() == nullptr);		// never encountered some real light profile !
+                ensure(Value.get_interface<const mi::neuraylib::IValue_light_profile>()->get_value() == nullptr);		// never encountered some real light profile !
                 const mi::base::Handle<const mi::neuraylib::IValue_light_profile> LightValue(Value.get_interface<const mi::neuraylib::IValue_light_profile>());
                 Parameter.Add(NewMaterialExpressionTextureObjectParameter(CurrentUE4Material, Name,
                     LoadResource(LightValue->get_file_path(), LightValue->get_owner_module(), 1.0f, InCompression)));
@@ -3324,7 +3324,7 @@ mi::neuraylib::IValue::Kind FMDLMaterialImporter::ImportParameter(TArray<FMateri
 
         case mi::neuraylib::IValue::VK_BSDF_MEASUREMENT:
         default:
-            check(false);
+            ensure(false);
     }
     return Kind;
 }
@@ -3334,7 +3334,7 @@ static UMaterialExpression* GetParameterExpression(UMaterialExpression* Expressi
     if (Expression->IsA<UMaterialExpressionAppendVector>())
     {
         UMaterialExpressionAppendVector* AppendVector = Cast<UMaterialExpressionAppendVector>(Expression);
-        check(AppendVector->A.Expression == AppendVector->B.Expression);
+        ensure(AppendVector->A.Expression == AppendVector->B.Expression);
         return AppendVector->A.Expression;
     }
     else if (Expression->IsA<UMaterialExpressionComponentMask>())
@@ -3409,7 +3409,7 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
         if (Parameters[ParameterIndex].Num() == 1)
         {
             // only for single-valued parameters, we can meaningfully set any annotations
-            check(Parameters[ParameterIndex][0].ConnectionType == EConnectionType::Expression);
+            ensure(Parameters[ParameterIndex][0].ConnectionType == EConnectionType::Expression);
             UMaterialExpression* ParameterExpression = GetParameterExpression(Parameters[ParameterIndex][0].ExpressionData.Expression);
 
             if (ParameterExpression->IsA<UMaterialExpressionScalarParameter>() && (ModuleName == TEXT("::OmniGlass") || ModuleName == TEXT("::OmniGlass_Opacity")))
@@ -3431,7 +3431,7 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
                     if (AnnotationName == TEXT("::anno::description(string)"))
                     {
                         TArray<FString> Descriptions = GetExpressionConstant<FString, mi::neuraylib::IValue_string>(mi::base::make_handle(Annotation->get_arguments()));
-                        check(Descriptions.Num() == 1);
+                        ensure(Descriptions.Num() == 1);
                         ParameterExpression->Desc = Descriptions[0];
                     }
                     else if (AnnotationName == TEXT("::anno::display_name(string)"))
@@ -3440,34 +3440,34 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
                         if (Settings->bUseDisplayNameForParameter)
                         {
                             TArray<FString> DisplayNames = GetExpressionConstant<FString, mi::neuraylib::IValue_string>(mi::base::make_handle(Annotation->get_arguments()));
-                            check(DisplayNames.Num() == 1);
+                            ensure(DisplayNames.Num() == 1);
                             ParameterExpression->SetParameterName(*DisplayNames[0]);
                             NamedParameterExpressions.FindOrAdd(*DisplayNames[0]).Add(ParameterExpression);
                         }
                     }
                     else if ((AnnotationName == TEXT("::anno::hard_range(double,double)")) || (AnnotationName == TEXT("::anno::soft_range(double,double)")))
                     {
-                        check(Kind == mi::neuraylib::IValue::VK_DOUBLE);
-                        check(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
+                        ensure(Kind == mi::neuraylib::IValue::VK_DOUBLE);
+                        ensure(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
                         TArray<double> Range = GetExpressionConstant<double, mi::neuraylib::IValue_double>(mi::base::make_handle(Annotation->get_arguments()));
-                        check(Range.Num() == 2);
+                        ensure(Range.Num() == 2);
                         UMaterialExpressionScalarParameter* ScalarParameter = Cast<UMaterialExpressionScalarParameter>(ParameterExpression);
                         ScalarParameter->SliderMin = Range[0];
                         ScalarParameter->SliderMax = Range[1];
                     }
                     else if ((AnnotationName == TEXT("::anno::hard_range(float,float)")) || (AnnotationName == TEXT("::anno::soft_range(float,float)")))
                     {
-                        check(Kind == mi::neuraylib::IValue::VK_FLOAT);
-                        check(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
+                        ensure(Kind == mi::neuraylib::IValue::VK_FLOAT);
+                        ensure(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
                         TArray<float> Range = GetExpressionConstant<float, mi::neuraylib::IValue_float>(mi::base::make_handle(Annotation->get_arguments()));
-                        check(Range.Num() == 2);
+                        ensure(Range.Num() == 2);
                         UMaterialExpressionScalarParameter* ScalarParameter = Cast<UMaterialExpressionScalarParameter>(ParameterExpression);
                         ScalarParameter->SliderMin = Range[0];
                         ScalarParameter->SliderMax = Range[1];
                     }
                     else if ((AnnotationName == TEXT("::anno::hard_range(int,int)")) || (AnnotationName == TEXT("::anno::soft_range(int,int)")))
                     {
-                        check(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
+                        ensure(ParameterExpression->IsA<UMaterialExpressionScalarParameter>());
                         TArray<float> Range;
                         if (Kind == mi::neuraylib::IValue::VK_FLOAT)
                         {
@@ -3475,14 +3475,14 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
                         }
                         else
                         {
-                            check(Kind == mi::neuraylib::IValue::VK_INT);
+                            ensure(Kind == mi::neuraylib::IValue::VK_INT);
                             TArray<int> IntRange = GetExpressionConstant<int, mi::neuraylib::IValue_int>(mi::base::make_handle(Annotation->get_arguments()));
                             for (int32 I = 0; I < IntRange.Num(); I++)
                             {
                                 Range.Add(IntRange[I]);
                             }
                         }
-                        check(Range.Num() == 2);
+                        ensure(Range.Num() == 2);
                         UMaterialExpressionScalarParameter* ScalarParameter = Cast<UMaterialExpressionScalarParameter>(ParameterExpression);
                         ScalarParameter->SliderMin = Range[0];
                         ScalarParameter->SliderMax = Range[1];
@@ -3524,7 +3524,7 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
                         };
 
                         TArray<FString> InGroups = GetExpressionConstant<FString, mi::neuraylib::IValue_string>(mi::base::make_handle(Annotation->get_arguments()));
-                        check(InGroups.Num() > 0);
+                        ensure(InGroups.Num() > 0);
                         if (ParameterExpression->IsA<UMaterialExpressionParameter>())
                         {
                             Cast<UMaterialExpressionParameter>(ParameterExpression)->Group = *InGroups[0];
@@ -3537,7 +3537,7 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
                     else
                     {
                         /*
-                        check((AnnotationName == TEXT("::alg::base::annotations::gamma_type(::tex::gamma_mode)"))
+                        ensure((AnnotationName == TEXT("::alg::base::annotations::gamma_type(::tex::gamma_mode)"))
                             || (AnnotationName == TEXT("::alg::base::annotations::sampler_usage(string,string)"))
                             || (AnnotationName == TEXT("::alg::base::annotations::visible_by_default(bool)"))
                             || (AnnotationName == TEXT("::anno::author(string)"))
@@ -3592,12 +3592,12 @@ void FMDLMaterialImporter::ImportParameters(const mi::base::Handle<const mi::neu
 
 void FMDLMaterialImporter::SetClearCoatNormal(const FMaterialExpressionConnection& Base, const UMaterialExpression* Normal)
 {
-    check(Base.ConnectionType == EConnectionType::Expression);
+    ensure(Base.ConnectionType == EConnectionType::Expression);
     UMaterialExpression* BaseNormal = nullptr;
     if (Base.ExpressionData.Expression->IsA<UMaterialExpressionIf>())
     {
         UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Base.ExpressionData.Expression);
-        check(If->ALessThanB.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() &&
+        ensure(If->ALessThanB.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() &&
             If->AEqualsB.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() &&
             If->AGreaterThanB.Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
         UMaterialExpression* BaseNormalALessThanB = Cast<UMaterialExpressionMaterialFunctionCall>(If->ALessThanB.Expression)->FunctionInputs.Last().Input.Expression;
@@ -3613,7 +3613,7 @@ void FMDLMaterialImporter::SetClearCoatNormal(const FMaterialExpressionConnectio
     else if (Base.ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>())
     {
         UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Base.ExpressionData.Expression);
-        check(StaticSwitch->A.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() && StaticSwitch->B.Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
+        ensure(StaticSwitch->A.Expression->IsA<UMaterialExpressionMaterialFunctionCall>() && StaticSwitch->B.Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
         UMaterialExpression* BaseNormalA = Cast<UMaterialExpressionMaterialFunctionCall>(StaticSwitch->A.Expression)->FunctionInputs.Last().Input.Expression;
         UMaterialExpression* BaseNormalB = Cast<UMaterialExpressionMaterialFunctionCall>(StaticSwitch->B.Expression)->FunctionInputs.Last().Input.Expression;
         if ((BaseNormalA && (BaseNormalA != Normal)) || (BaseNormalB && (BaseNormalB != Normal)))
@@ -3623,7 +3623,7 @@ void FMDLMaterialImporter::SetClearCoatNormal(const FMaterialExpressionConnectio
     }
     else
     {
-        check(Base.ExpressionData.Expression->IsA<UMaterialExpressionMakeMaterialAttributes>() || Base.ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
+        ensure(Base.ExpressionData.Expression->IsA<UMaterialExpressionMakeMaterialAttributes>() || Base.ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>());
         BaseNormal = Base.ExpressionData.Expression->IsA<UMaterialExpressionMakeMaterialAttributes>()
             ? Cast<UMaterialExpressionMakeMaterialAttributes>(Base.ExpressionData.Expression)->Normal.Expression
             : Cast<UMaterialExpressionMaterialFunctionCall>(Base.ExpressionData.Expression)->FunctionInputs.Last().Input.Expression;
