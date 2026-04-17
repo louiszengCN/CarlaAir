@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -10,9 +10,9 @@ USAGE_STRING="Usage: $0 [-h|--help] [-d|--dir] <outdir>"
 
 OUTPUT_DIRECTORY=""
 
-OPTS=`getopt -o h,d:: --long help,dir:: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h,d:: --long help,dir:: -n 'parse-options' -- "$@")
 
-if [ $? != 0 ] ; then echo "$USAGE_STRING" ; exit 2; fi
+if [ $? != 0 ] ; then echo "$USAGE_STRING" ; exit 2; fi  # SC2181: getopt exit code check is intentional here
 
 eval set -- "$OPTS"
 
@@ -32,7 +32,7 @@ while true; do
 done
 
 #Tar.gz the stuff
-for filepath in `find Import/ -type f -name "*.tar.gz"`; do
-  tar --keep-newer-files -xvf ${filepath}
-done
+while IFS= read -r filepath; do
+  tar --keep-newer-files -xvf "${filepath}"
+done < <(find Import/ -type f -name "*.tar.gz")
 
