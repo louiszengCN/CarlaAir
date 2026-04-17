@@ -33,11 +33,11 @@ static void CheckedConnect(UObject* Parent, const FMaterialExpressionConnection&
             Input.Connect(0, NewMaterialExpressionConstant(Parent, Connection.Values[0], Connection.Values[1], Connection.Values[2], Connection.Values[3]));
             break;
         case EConnectionType::Texture:
-            check(Connection.Texture);
+            ensure(Connection.Texture);
             Input.Connect(0, NewMaterialExpressionTextureObject(Parent, Connection.Texture));
             break;
         default:
-            check(false);
+            ensure(false);
     }
 }
 
@@ -57,7 +57,7 @@ static void CheckedConnect(UObject* Parent, const FMaterialExpressionConnection&
 {
     if (Connection.ConnectionType == EConnectionType::Texture)
     {
-        check(TexturePtr && Connection.Texture);
+        ensure(TexturePtr && Connection.Texture);
         *TexturePtr = Connection.Texture;
     }
     else
@@ -81,7 +81,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionAdd* Add = Cast<UMaterialExpressionAdd>(Input.ExpressionData.Expression);
                 uint32 ACount = Add->A.Expression ? ComponentCount({ Add->A.Expression, Add->A.OutputIndex }) : 1;
                 uint32 BCount = Add->B.Expression ? ComponentCount({ Add->B.Expression, Add->B.OutputIndex }) : 1;
-                check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+                ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
                 return FMath::Max(ACount, BCount);
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionStep>())
@@ -89,7 +89,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionStep* Step = Cast<UMaterialExpressionStep>(Input.ExpressionData.Expression);
                 uint32 ACount = Step->X.Expression ? ComponentCount({ Step->X.Expression, Step->X.OutputIndex }) : 1;
                 uint32 BCount = Step->Y.Expression ? ComponentCount({ Step->Y.Expression, Step->Y.OutputIndex }) : 1;
-                check(ACount == BCount);
+                ensure(ACount == BCount);
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionAppendVector>())
@@ -100,27 +100,27 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionArccosine>())
             {
                 // arccosine always returns a float... check that it also just gets one!
-                check(ComponentCount({ Cast<UMaterialExpressionArccosine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
+                ensure(ComponentCount({ Cast<UMaterialExpressionArccosine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionArctangent2>())
             {
                 // arctangent2 always returns a float... check that it also just gets one!
                 UMaterialExpressionArctangent2* ArcTangent2 = Cast<UMaterialExpressionArctangent2>(Input.ExpressionData.Expression);
-                check(ComponentCount({ ArcTangent2->Y.Expression, ArcTangent2->Y.OutputIndex }) == 1);
-                check(ComponentCount({ ArcTangent2->X.Expression, ArcTangent2->X.OutputIndex }) == 1);
+                ensure(ComponentCount({ ArcTangent2->Y.Expression, ArcTangent2->Y.OutputIndex }) == 1);
+                ensure(ComponentCount({ ArcTangent2->X.Expression, ArcTangent2->X.OutputIndex }) == 1);
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionBlackBody>())
             {
                 // BlackBody always returns a color, and digests a float
                 UMaterialExpressionBlackBody* BlackBody = Cast<UMaterialExpressionBlackBody>(Input.ExpressionData.Expression);
-                check(ComponentCount({ BlackBody->Temp.Expression, BlackBody->Temp.OutputIndex }) == 1);
+                ensure(ComponentCount({ BlackBody->Temp.Expression, BlackBody->Temp.OutputIndex }) == 1);
                 return 3;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionBreakMaterialAttributes>())
             {
-                check(Input.ExpressionData.Index < Input.ExpressionData.Expression->Outputs.Num());
+                ensure(Input.ExpressionData.Index < Input.ExpressionData.Expression->Outputs.Num());
                 FExpressionOutput const& Output = Input.ExpressionData.Expression->Outputs[Input.ExpressionData.Index];
                 return Output.MaskR + Output.MaskG + Output.MaskB + Output.MaskA;
             }
@@ -158,15 +158,15 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionCosine>())
             {
                 // cosine always returns a float... check that it also just gets one!
-                check(ComponentCount({ Cast<UMaterialExpressionCosine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
+                ensure(ComponentCount({ Cast<UMaterialExpressionCosine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionCrossProduct>())
             {
                 // cross product always returns a float3... check that it also just gets such!
                 UMaterialExpressionCrossProduct* CrossProduct = Cast<UMaterialExpressionCrossProduct>(Input.ExpressionData.Expression);
-                check(ComponentCount({ CrossProduct->A.Expression, CrossProduct->A.OutputIndex }) == 3);
-                check(ComponentCount({ CrossProduct->B.Expression, CrossProduct->B.OutputIndex }) == 3);
+                ensure(ComponentCount({ CrossProduct->A.Expression, CrossProduct->A.OutputIndex }) == 3);
+                ensure(ComponentCount({ CrossProduct->B.Expression, CrossProduct->B.OutputIndex }) == 3);
                 return 3;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionCustom>())
@@ -183,7 +183,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                     case CMOT_Float4:
                         return 4;
                     default:
-                        check(false);
+                        ensure(false);
                         return 0;
                 }
             }
@@ -192,7 +192,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionDistance* Distance = Cast<UMaterialExpressionDistance>(Input.ExpressionData.Expression);
                 uint32 ACount = ComponentCount({ Distance->A.Expression, Distance->A.OutputIndex });
                 uint32 BCount = ComponentCount({ Distance->B.Expression, Distance->B.OutputIndex });
-                check((1 == ACount) || (1 == BCount) || (ACount == BCount));
+                ensure((1 == ACount) || (1 == BCount) || (ACount == BCount));
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionDivide>())
@@ -200,7 +200,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionDivide* Divide = Cast<UMaterialExpressionDivide>(Input.ExpressionData.Expression);
                 uint32 ACount = Divide->A.Expression ? ComponentCount({ Divide->A.Expression, Divide->A.OutputIndex }) : 1;
                 uint32 BCount = Divide->B.Expression ? ComponentCount({ Divide->B.Expression, Divide->B.OutputIndex }) : 1;
-                check((1 == ACount) || (1 == BCount) || (ACount == BCount));
+                ensure((1 == ACount) || (1 == BCount) || (ACount == BCount));
                 return FMath::Max(ACount, BCount);
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionDotProduct>())
@@ -216,7 +216,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionFmod* Fmod = Cast<UMaterialExpressionFmod>(Input.ExpressionData.Expression);
                 uint32 ACount = ComponentCount({ Fmod->A.Expression, Fmod->A.OutputIndex });
-                check(ACount == ComponentCount({ Fmod->B.Expression, Fmod->B.OutputIndex }));
+                ensure(ACount == ComponentCount({ Fmod->B.Expression, Fmod->B.OutputIndex }));
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionFrac>())
@@ -246,7 +246,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                     case FunctionInput_StaticBool:
                     case FunctionInput_MaterialAttributes:
                     default:
-                        check(false);
+                        ensure(false);
                         return 0;
                 }
             }
@@ -254,7 +254,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Input.ExpressionData.Expression);
                 uint32 ALessThanBCount = ComponentCount({ If->ALessThanB.Expression, If->ALessThanB.OutputIndex });
-                check((!If->AEqualsB.Expression || (ALessThanBCount == ComponentCount({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex }))) &&
+                ensure((!If->AEqualsB.Expression || (ALessThanBCount == ComponentCount({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex }))) &&
                     (ALessThanBCount == ComponentCount({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })));
                 return ALessThanBCount;
             }
@@ -262,7 +262,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionLinearInterpolate* LinearInterpolate = Cast<UMaterialExpressionLinearInterpolate>(Input.ExpressionData.Expression);
                 uint32 ACount = LinearInterpolate->A.Expression ? ComponentCount({ LinearInterpolate->A.Expression, LinearInterpolate->A.OutputIndex }) : 1;
-                check(ACount == (LinearInterpolate->B.Expression ? ComponentCount({ LinearInterpolate->B.Expression, LinearInterpolate->B.OutputIndex }) : 1));
+                ensure(ACount == (LinearInterpolate->B.Expression ? ComponentCount({ LinearInterpolate->B.Expression, LinearInterpolate->B.OutputIndex }) : 1));
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionLogarithm2>())
@@ -273,7 +273,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>())
             {
                 UMaterialExpressionMaterialFunctionCall* MaterialFunctionCall = Cast<UMaterialExpressionMaterialFunctionCall>(Input.ExpressionData.Expression);
-                check(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
+                ensure(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
                 return ComponentCount({ MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression,
                                         MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.OutputIndex });
             }
@@ -281,14 +281,14 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionMax* Max = Cast<UMaterialExpressionMax>(Input.ExpressionData.Expression);
                 uint32 ACount = Max->A.Expression ? ComponentCount({ Max->A.Expression, Max->A.OutputIndex }) : 1;
-                check(ACount == (Max->B.Expression ? ComponentCount({ Max->B.Expression, Max->B.OutputIndex }) : 1));
+                ensure(ACount == (Max->B.Expression ? ComponentCount({ Max->B.Expression, Max->B.OutputIndex }) : 1));
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionMin>())
             {
                 UMaterialExpressionMin* Min = Cast<UMaterialExpressionMin>(Input.ExpressionData.Expression);
                 uint32 ACount = Min->A.Expression ? ComponentCount({ Min->A.Expression, Min->A.OutputIndex }) : 1;
-                check(ACount == (Min->B.Expression ? ComponentCount({ Min->B.Expression, Min->B.OutputIndex }) : 1));
+                ensure(ACount == (Min->B.Expression ? ComponentCount({ Min->B.Expression, Min->B.OutputIndex }) : 1));
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionMultiply>())
@@ -296,7 +296,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionMultiply* Multiply = Cast<UMaterialExpressionMultiply>(Input.ExpressionData.Expression);
                 uint32 ACount = Multiply->A.Expression ? ComponentCount({ Multiply->A.Expression, Multiply->A.OutputIndex }) : 1;
                 uint32 BCount = Multiply->B.Expression ? ComponentCount({ Multiply->B.Expression, Multiply->B.OutputIndex }) : 1;
-                check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+                ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
                 return FMath::Max(ACount, BCount);
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionNormalize>())
@@ -321,13 +321,13 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionSine>())
             {
                 // sine always returns a float... check that it also just gets one!
-                check(ComponentCount({ Cast<UMaterialExpressionSine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
+                ensure(ComponentCount({ Cast<UMaterialExpressionSine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionSphereMask>())
             {
                 UMaterialExpressionSphereMask* SphereMask = Cast<UMaterialExpressionSphereMask>(Input.ExpressionData.Expression);
-                check(ComponentCount({ SphereMask->A.Expression, SphereMask->A.OutputIndex }) == ComponentCount({ SphereMask->B.Expression, SphereMask->B.OutputIndex }));
+                ensure(ComponentCount({ SphereMask->A.Expression, SphereMask->A.OutputIndex }) == ComponentCount({ SphereMask->B.Expression, SphereMask->B.OutputIndex }));
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionSquareRoot>())
@@ -348,7 +348,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression);
                 uint32 ACount = ComponentCount({ StaticSwitch->A.Expression, StaticSwitch->A.OutputIndex });
                 uint32 BCount = ComponentCount({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex });
-                check(ACount == BCount);
+                ensure(ACount == BCount);
                 return ACount;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionSubtract>())
@@ -356,7 +356,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
                 UMaterialExpressionSubtract* Subtract = Cast<UMaterialExpressionSubtract>(Input.ExpressionData.Expression);
                 uint32 ACount = Subtract->A.Expression ? ComponentCount({ Subtract->A.Expression, Subtract->A.OutputIndex }) : 1;
                 uint32 BCount = Subtract->B.Expression ? ComponentCount({ Subtract->B.Expression, Subtract->B.OutputIndex }) : 1;
-                check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+                ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
                 return FMath::Max(ACount, BCount);
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionTextureCoordinate>())
@@ -392,7 +392,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionArcsine>())
             {
                 // arcsine always returns a float... check that it also just gets one!
-                check(ComponentCount({ Cast<UMaterialExpressionArcsine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
+                ensure(ComponentCount({ Cast<UMaterialExpressionArcsine>(Input.ExpressionData.Expression)->Input.Expression, Input.ExpressionData.Index }) == 1);
                 return 1;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionVertexNormalWS>()
@@ -422,7 +422,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             {
                 return (Input.ExpressionData.Index == 0) ? 3 : 1;
             }
-            check(false);
+            ensure(false);
             return 0;
         case Boolean:
         case Float:
@@ -435,7 +435,7 @@ uint32 ComponentCount(FMaterialExpressionConnection const& Input)
             return 4;
         case Texture:
         default:
-            check(false);
+            ensure(false);
             return 0;
     }
 }
@@ -456,8 +456,8 @@ static int32 CountExpressions(const TArray<class UMaterialExpression*> &Expressi
 
 bool EvaluateBool(FMaterialExpressionConnection const& Connection)
 {
-    check((Connection.ConnectionType == Expression) && Connection.ExpressionData.Expression);
-    check(IsScalar(Connection));		// Note: IsBool() is too restrictive here, as constants are viewed as bool here, but not in IsBool() !
+    ensure((Connection.ConnectionType == Expression) && Connection.ExpressionData.Expression);
+    ensure(IsScalar(Connection));		// Note: IsBool() is too restrictive here, as constants are viewed as bool here, but not in IsBool() !
 
     if (Connection.ExpressionData.Expression->IsA<UMaterialExpressionConstant>())
     {
@@ -502,15 +502,15 @@ bool EvaluateBool(FMaterialExpressionConnection const& Connection)
     }
     else
     {
-        check(false);
+        ensure(false);
         return false;
     }
 }
 
 float EvaluateFloat(FMaterialExpressionConnection const& Connection)
 {
-    check((Connection.ConnectionType == Expression) && Connection.ExpressionData.Expression);
-    check(IsScalar(Connection));
+    ensure((Connection.ConnectionType == Expression) && Connection.ExpressionData.Expression);
+    ensure(IsScalar(Connection));
 
     if (Connection.ExpressionData.Expression->IsA<UMaterialExpressionConstant>())
     {
@@ -522,7 +522,7 @@ float EvaluateFloat(FMaterialExpressionConnection const& Connection)
     }
     else
     {
-        check(false);
+        ensure(false);
         return 0.0f;
     }
 }
@@ -547,7 +547,7 @@ bool IsBool(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Input.ExpressionData.Expression);
                 bool ALessThanB = IsBool({ If->ALessThanB.Expression, If->ALessThanB.OutputIndex });
-                check((ALessThanB == IsBool({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })) &&
+                ensure((ALessThanB == IsBool({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })) &&
                     (!If->AEqualsB.Expression || (ALessThanB == IsBool({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex }))));
                 return ALessThanB;
             }
@@ -558,7 +558,7 @@ bool IsBool(FMaterialExpressionConnection const& Input)
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>())
             {
                 UMaterialExpressionMaterialFunctionCall* MaterialFunctionCall = Cast<UMaterialExpressionMaterialFunctionCall>(Input.ExpressionData.Expression);
-                check(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
+                ensure(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
                 return IsBool({ MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression,
                     MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.OutputIndex });
             }
@@ -571,7 +571,7 @@ bool IsBool(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression);
                 bool A = IsBool({ StaticSwitch->A.Expression, StaticSwitch->A.OutputIndex });
-                check(A == IsBool({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
+                ensure(A == IsBool({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
                 return A;
             }
             else
@@ -588,7 +588,7 @@ bool IsBool(FMaterialExpressionConnection const& Input)
         case TextureSelection:
             return false;
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -597,7 +597,7 @@ bool IsMaterialAttribute(FMaterialExpressionConnection const& Input)
 {
     if (Input.ConnectionType == EConnectionType::Expression)
     {
-        check(Input.ExpressionData.Expression);
+        ensure(Input.ExpressionData.Expression);
         if (Input.ExpressionData.Expression->IsA<UMaterialExpressionFunctionInput>())
         {
             return (Cast<UMaterialExpressionFunctionInput>(Input.ExpressionData.Expression)->InputType == FunctionInput_MaterialAttributes);
@@ -606,7 +606,7 @@ bool IsMaterialAttribute(FMaterialExpressionConnection const& Input)
         {
             UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Input.ExpressionData.Expression);
             bool AGreaterThanB = IsMaterialAttribute({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex });
-            check((!If->AEqualsB.Expression || (AGreaterThanB == IsMaterialAttribute({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex }))) &&
+            ensure((!If->AEqualsB.Expression || (AGreaterThanB == IsMaterialAttribute({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex }))) &&
                 (AGreaterThanB == IsMaterialAttribute({ If->ALessThanB.Expression, If->ALessThanB.OutputIndex })));
             return AGreaterThanB;
         }
@@ -619,7 +619,7 @@ bool IsMaterialAttribute(FMaterialExpressionConnection const& Input)
         else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionMaterialFunctionCall>())
         {
             UMaterialExpressionMaterialFunctionCall* MaterialFunctionCall = Cast<UMaterialExpressionMaterialFunctionCall>(Input.ExpressionData.Expression);
-            check(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
+            ensure(MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression);
             return IsMaterialAttribute({ MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.Expression,
                                          MaterialFunctionCall->FunctionOutputs[Input.ExpressionData.Index].ExpressionOutput->A.OutputIndex });
         }
@@ -627,7 +627,7 @@ bool IsMaterialAttribute(FMaterialExpressionConnection const& Input)
         {
             UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression);
             bool A = IsMaterialAttribute({ StaticSwitch->A.Expression, StaticSwitch->A.OutputIndex });
-            check(A == IsMaterialAttribute({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
+            ensure(A == IsMaterialAttribute({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
             return A;
         }
         else
@@ -643,12 +643,12 @@ bool IsScalar(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case Expression:
-            check(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
+            ensure(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
             return !Input.ExpressionData.Expression || (ComponentCount(Input) == 1);
         case Float:
             return true;
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -656,7 +656,7 @@ bool IsScalar(FMaterialExpressionConnection const& Input)
 bool IsStatic(FMaterialExpressionConnection const& Input)
 {
     // check that, if Input is a StaticSwitch and Input->A is Static, then Input->B has to be Static as well
-    check(!(Input.ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>()
+    ensure(!(Input.ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>()
         && IsStatic(Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression)->A.Expression))
         || IsStatic(Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression)->B.Expression));
 
@@ -671,7 +671,7 @@ uint32 GetMaxCoordinates(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case EConnectionType::Expression:
-            check(Input.ExpressionData.Expression);
+            ensure(Input.ExpressionData.Expression);
             if (Input.ExpressionData.Expression->IsA<UMaterialExpressionFunctionInput>())
             {
                 EFunctionInputType InputType = Cast<UMaterialExpressionFunctionInput>(Input.ExpressionData.Expression)->InputType;
@@ -690,14 +690,14 @@ uint32 GetMaxCoordinates(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Input.ExpressionData.Expression);
                 uint32 A = GetMaxCoordinates({ If->ALessThanB.Expression, If->ALessThanB.OutputIndex });
-                check((A == GetMaxCoordinates({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex })) && (A == GetMaxCoordinates({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })));
+                ensure((A == GetMaxCoordinates({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex })) && (A == GetMaxCoordinates({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })));
                 return A;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>())
             {
                 UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression);
                 uint32 A = GetMaxCoordinates({ StaticSwitch->A.Expression, StaticSwitch->A.OutputIndex });
-                check(A == GetMaxCoordinates({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
+                ensure(A == GetMaxCoordinates({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
                 return A;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionTextureObject>() ||
@@ -724,7 +724,7 @@ uint32 GetMaxCoordinates(FMaterialExpressionConnection const& Input)
             }
             else
             {
-                check(Input.ExpressionData.Expression->IsA<UMaterialExpressionAbs>() ||
+                ensure(Input.ExpressionData.Expression->IsA<UMaterialExpressionAbs>() ||
                     Input.ExpressionData.Expression->IsA<UMaterialExpressionAdd>() ||
                     Input.ExpressionData.Expression->IsA<UMaterialExpressionBreakMaterialAttributes>() ||
                     Input.ExpressionData.Expression->IsA<UMaterialExpressionComponentMask>() ||
@@ -774,7 +774,7 @@ uint32 GetMaxCoordinates(FMaterialExpressionConnection const& Input)
         case EConnectionType::Float4:
             return 0;
         default:
-            check(false);
+            ensure(false);
             return 0;
     }
 }
@@ -784,7 +784,7 @@ bool IsTexture(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case EConnectionType::Expression:
-            check(Input.ExpressionData.Expression);
+            ensure(Input.ExpressionData.Expression);
             if (Input.ExpressionData.Expression->IsA<UMaterialExpressionFunctionInput>())
             {
                 EFunctionInputType InputType = Cast<UMaterialExpressionFunctionInput>(Input.ExpressionData.Expression)->InputType;
@@ -794,14 +794,14 @@ bool IsTexture(FMaterialExpressionConnection const& Input)
             {
                 UMaterialExpressionIf* If = Cast<UMaterialExpressionIf>(Input.ExpressionData.Expression);
                 bool IsTex = IsTexture({ If->ALessThanB.Expression, If->ALessThanB.OutputIndex });
-                check((IsTex == IsTexture({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex })) && (IsTex == IsTexture({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })));
+                ensure((IsTex == IsTexture({ If->AEqualsB.Expression, If->AEqualsB.OutputIndex })) && (IsTex == IsTexture({ If->AGreaterThanB.Expression, If->AGreaterThanB.OutputIndex })));
                 return IsTex;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionStaticSwitch>())
             {
                 UMaterialExpressionStaticSwitch* StaticSwitch = Cast<UMaterialExpressionStaticSwitch>(Input.ExpressionData.Expression);
                 bool A = IsTexture({ StaticSwitch->A.Expression, StaticSwitch->A.OutputIndex });
-                check(A == IsTexture({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
+                ensure(A == IsTexture({ StaticSwitch->B.Expression, StaticSwitch->B.OutputIndex }));
                 return A;
             }
             else if (Input.ExpressionData.Expression->IsA<UMaterialExpressionTextureObject>() ||
@@ -822,7 +822,7 @@ bool IsTexture(FMaterialExpressionConnection const& Input)
         case EConnectionType::Float4:
             return false;
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -850,7 +850,7 @@ bool IsType(EFunctionInputType InputType, FMaterialExpressionConnection const& I
         case EFunctionInputType::FunctionInput_Vector4:
             return IsVector4(Input);
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -860,10 +860,10 @@ bool IsVector2(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case Expression:
-            check(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
+            ensure(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
             return !Input.ExpressionData.Expression || (ComponentCount(Input) == 2);
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -873,12 +873,12 @@ bool IsVector3(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case Expression:
-            check(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
+            ensure(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
             return !Input.ExpressionData.Expression || (ComponentCount(Input) == 3);
         case Float3:
             return true;
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -888,12 +888,12 @@ bool IsVector4(FMaterialExpressionConnection const& Input)
     switch (Input.ConnectionType)
     {
         case Expression:
-            check(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
+            ensure(Input.ExpressionData.Expression || Input.ExpressionData.IsDefault);
             return !Input.ExpressionData.Expression || (ComponentCount(Input) == 4);
         case Float4:
             return true;
         default:
-            check(false);
+            ensure(false);
             return false;
     }
 }
@@ -911,7 +911,7 @@ UMaterialExpressionAdd* NewMaterialExpressionAdd(UObject* Parent, const FMateria
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionAdd* Expression = NewMaterialExpression<UMaterialExpressionAdd>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -922,7 +922,7 @@ UMaterialExpressionAdd* NewMaterialExpressionAdd(UObject* Parent, const FMateria
 static UMaterialExpressionAdd* NewMaterialExpressionAddRecursive(UObject *Parent, uint32 Begin, uint32 End, const TArray<FMaterialExpressionConnection>& Arguments)
 {
     uint32 Count = End - Begin;
-    check(1 < Count);
+    ensure(1 < Count);
     switch (Count)
     {
         case 2:
@@ -958,7 +958,7 @@ UMaterialExpressionAppendVector* NewMaterialExpressionAppendVector(UObject* Pare
 
 UMaterialExpressionArccosine* NewMaterialExpressionArccosine(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionArccosine* Expression = NewMaterialExpression<UMaterialExpressionArccosine>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     return Expression;
@@ -966,7 +966,7 @@ UMaterialExpressionArccosine* NewMaterialExpressionArccosine(UObject* Parent, co
 
 UMaterialExpressionArcsine* NewMaterialExpressionArcsine(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionArcsine* Expression = NewMaterialExpression<UMaterialExpressionArcsine>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     return Expression;
@@ -974,7 +974,7 @@ UMaterialExpressionArcsine* NewMaterialExpressionArcsine(UObject* Parent, const 
 
 UMaterialExpressionArctangent* NewMaterialExpressionArctangent(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionArctangent* Expression = NewMaterialExpression<UMaterialExpressionArctangent>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     return Expression;
@@ -982,7 +982,7 @@ UMaterialExpressionArctangent* NewMaterialExpressionArctangent(UObject* Parent, 
 
 UMaterialExpressionArctangent2* NewMaterialExpressionArctangent2(UObject* Parent, const FMaterialExpressionConnection& Y, const FMaterialExpressionConnection& X)
 {
-    check(IsScalar(Y) && IsScalar(X));
+    ensure(IsScalar(Y) && IsScalar(X));
     UMaterialExpressionArctangent2* Expression = NewMaterialExpression<UMaterialExpressionArctangent2>(Parent);
     CheckedConnect(Parent, Y, Expression->Y);
     CheckedConnect(Parent, X, Expression->X);
@@ -991,7 +991,7 @@ UMaterialExpressionArctangent2* NewMaterialExpressionArctangent2(UObject* Parent
 
 UMaterialExpressionBlackBody* NewMaterialExpressionBlackBody(UObject* Parent, const FMaterialExpressionConnection& Temp)
 {
-    check(IsScalar(Temp));		// can digest any number of components, but uses just the first
+    ensure(IsScalar(Temp));		// can digest any number of components, but uses just the first
     UMaterialExpressionBlackBody* Expression = NewMaterialExpression<UMaterialExpressionBlackBody>(Parent);
     CheckedConnect(Parent, Temp, Expression->Temp);
     return Expression;
@@ -999,7 +999,7 @@ UMaterialExpressionBlackBody* NewMaterialExpressionBlackBody(UObject* Parent, co
 
 UMaterialExpressionBreakMaterialAttributes* NewMaterialExpressionBreakMaterialAttributes(UObject* Parent, const FMaterialExpressionConnection& MaterialAttributes)
 {
-    check(IsMaterialAttribute(MaterialAttributes));
+    ensure(IsMaterialAttribute(MaterialAttributes));
     UMaterialExpressionBreakMaterialAttributes* Expression = NewMaterialExpression<UMaterialExpressionBreakMaterialAttributes>(Parent);
     CheckedConnect(Parent, MaterialAttributes, Expression->MaterialAttributes);
     return Expression;
@@ -1023,7 +1023,7 @@ UMaterialExpressionClamp* NewMaterialExpressionClamp(UObject* Parent, const FMat
     uint32 InputCount = ComponentCount(Input);
     uint32 MinCount = ComponentCount(Min);
     uint32 MaxCount = ComponentCount(Max);
-    check(((InputCount == 2) && (MinCount == 2) && (MaxCount == 2)) || ((InputCount != 2) && (MinCount != 2) && (MaxCount != 2)));
+    ensure(((InputCount == 2) && (MinCount == 2) && (MaxCount == 2)) || ((InputCount != 2) && (MinCount != 2) && (MaxCount != 2)));
 
     UMaterialExpressionClamp* Expression = NewMaterialExpression<UMaterialExpressionClamp>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
@@ -1083,7 +1083,7 @@ UMaterialExpressionConstant4Vector* NewMaterialExpressionConstant(UObject* Paren
 
 UMaterialExpressionCosine* NewMaterialExpressionCosine(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionCosine* Expression = NewMaterialExpression<UMaterialExpressionCosine>(Parent);
     Expression->Period = 2 * PI;
     CheckedConnect(Parent, Input, Expression->Input);
@@ -1092,7 +1092,7 @@ UMaterialExpressionCosine* NewMaterialExpressionCosine(UObject* Parent, const FM
 
 UMaterialExpressionCrossProduct* NewMaterialExpressionCrossProduct(UObject* Parent, const FMaterialExpressionConnection& A, const FMaterialExpressionConnection& B)
 {
-    check(IsVector3(A) && IsVector3(B));		// can consume scalar as well, but only vector3 are meaningfull !
+    ensure(IsVector3(A) && IsVector3(B));		// can consume scalar as well, but only vector3 are meaningfull !
     UMaterialExpressionCrossProduct* Expression = NewMaterialExpression<UMaterialExpressionCrossProduct>(Parent);
     CheckedConnect(Parent, A, Expression->A);
     CheckedConnect(Parent, B, Expression->B);
@@ -1101,7 +1101,7 @@ UMaterialExpressionCrossProduct* NewMaterialExpressionCrossProduct(UObject* Pare
 
 UMaterialExpressionDistance* NewMaterialExpressionDistance(UObject* Parent, const FMaterialExpressionConnection& A, const FMaterialExpressionConnection& B)
 {
-    check(ComponentCount(A) == ComponentCount(B));
+    ensure(ComponentCount(A) == ComponentCount(B));
     UMaterialExpressionDistance* Expression = NewMaterialExpression<UMaterialExpressionDistance>(Parent);
     CheckedConnect(Parent, A, Expression->A);
     CheckedConnect(Parent, B, Expression->B);
@@ -1112,7 +1112,7 @@ UMaterialExpressionDivide* NewMaterialExpressionDivide(UObject* Parent, const FM
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionDivide* Expression = NewMaterialExpression<UMaterialExpressionDivide>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1122,7 +1122,7 @@ UMaterialExpressionDivide* NewMaterialExpressionDivide(UObject* Parent, const FM
 
 UMaterialExpressionDotProduct* NewMaterialExpressionDotProduct(UObject* Parent, const FMaterialExpressionConnection& A, const FMaterialExpressionConnection& B)
 {
-    check(ComponentCount(A) == ComponentCount(B));
+    ensure(ComponentCount(A) == ComponentCount(B));
     UMaterialExpressionDotProduct* Expression = NewMaterialExpression<UMaterialExpressionDotProduct>(Parent);
     CheckedConnect(Parent, A, Expression->A);
     CheckedConnect(Parent, B, Expression->B);
@@ -1139,7 +1139,7 @@ UMaterialExpressionFloor* NewMaterialExpressionFloor(UObject* Parent, const FMat
 
 UMaterialExpressionFmod* NewMaterialExpressionFmod(UObject* Parent, const FMaterialExpressionConnection& A, const FMaterialExpressionConnection& B)
 {
-    check(ComponentCount(A) == ComponentCount(B));
+    ensure(ComponentCount(A) == ComponentCount(B));
     UMaterialExpressionFmod* Expression = NewMaterialExpression<UMaterialExpressionFmod>(Parent);
     CheckedConnect(Parent, A, Expression->A);
     CheckedConnect(Parent, B, Expression->B);
@@ -1156,7 +1156,7 @@ UMaterialExpressionFrac* NewMaterialExpressionFrac(UObject* Parent, const FMater
 
 UMaterialExpressionFresnel* NewMaterialExpressionFresnel(UObject* Parent, const FMaterialExpressionConnection& Exponent, const FMaterialExpressionConnection& BaseReflectFraction, const FMaterialExpressionConnection& Normal)
 {
-    check(IsScalar(Exponent) && IsScalar(BaseReflectFraction) && IsVector3(Normal));
+    ensure(IsScalar(Exponent) && IsScalar(BaseReflectFraction) && IsVector3(Normal));
     UMaterialExpressionFresnel* Expression = NewMaterialExpression<UMaterialExpressionFresnel>(Parent);
     CheckedConnect(Parent, Exponent, Expression->ExponentIn, Expression->Exponent);
     CheckedConnect(Parent, BaseReflectFraction, Expression->BaseReflectFractionIn, Expression->BaseReflectFraction);
@@ -1166,7 +1166,7 @@ UMaterialExpressionFresnel* NewMaterialExpressionFresnel(UObject* Parent, const 
 
 UMaterialExpressionFunctionInput* NewMaterialExpressionFunctionInput(UObject* Parent, const FName& Name, EFunctionInputType Type)
 {
-    check(Parent->IsA<UMaterialFunction>());
+    ensure(Parent->IsA<UMaterialFunction>());
 
     UMaterialExpressionFunctionInput* Expression = NewMaterialExpression<UMaterialExpressionFunctionInput>(Parent);
     Expression->Id = FGuid::NewGuid();
@@ -1187,7 +1187,7 @@ UMaterialExpressionFunctionInput* NewMaterialExpressionFunctionInput(UObject* Pa
 
 UMaterialExpressionFunctionOutput* NewMaterialExpressionFunctionOutput(UObject* Parent, const FName& Name, const FMaterialExpressionConnection& Output)
 {
-    check(Parent->IsA<UMaterialFunction>());
+    ensure(Parent->IsA<UMaterialFunction>());
 
     UMaterialExpressionFunctionOutput* Expression = NewMaterialExpression<UMaterialExpressionFunctionOutput>(Parent);
     Expression->Id = FGuid::NewGuid();
@@ -1202,7 +1202,7 @@ UMaterialExpressionIf* NewMaterialExpressionIf(UObject* Parent, const FMaterialE
 {
     if (!bCheckSkip)
     {
-        check(IsScalar(A) && IsScalar(B) && (((ComponentCount(Less) == ComponentCount(Greater)) && (!Equal.ExpressionData.Expression || (ComponentCount(Less) == ComponentCount(Equal))))));
+        ensure(IsScalar(A) && IsScalar(B) && (((ComponentCount(Less) == ComponentCount(Greater)) && (!Equal.ExpressionData.Expression || (ComponentCount(Less) == ComponentCount(Equal))))));
     }
     UMaterialExpressionIf* Expression = NewMaterialExpression<UMaterialExpressionIf>(Parent);
     CheckedConnect(Parent, A, Expression->A);
@@ -1267,7 +1267,7 @@ UMaterialExpressionIf* NewMaterialExpressionIfLess(UObject* Parent, const FMater
 static UMaterialExpressionIf* NewMaterialExpressionSwitchRecursive(UObject *Parent, const FMaterialExpressionConnection& Switch, uint32 Begin, uint32 End, const TArray<FMaterialExpressionConnection>& Cases, bool bCheckSkip)
 {
     uint32 Count = End - Begin;
-    check(1 < Count);
+    ensure(1 < Count);
     switch (Count)
     {
         case 2:
@@ -1295,7 +1295,7 @@ UMaterialExpressionLinearInterpolate* NewMaterialExpressionLinearInterpolate(UOb
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
     uint32 AlphaCount = ComponentCount(Alpha);
-    check(((ACount == 1) || (BCount == 1) || (ACount == BCount)) && ((AlphaCount == 1) || ((AlphaCount == ACount) && (AlphaCount == BCount))));
+    ensure(((ACount == 1) || (BCount == 1) || (ACount == BCount)) && ((AlphaCount == 1) || ((AlphaCount == ACount) && (AlphaCount == BCount))));
 
     UMaterialExpressionLinearInterpolate* Expression = NewMaterialExpression<UMaterialExpressionLinearInterpolate>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1306,11 +1306,11 @@ UMaterialExpressionLinearInterpolate* NewMaterialExpressionLinearInterpolate(UOb
 
 UMaterialExpression* NewMaterialExpressionLinearInterpolateRecursive(UObject* Function, const FMaterialExpressionConnection& Alpha, int32 Begin, int32 End, const TArray<FMaterialExpressionConnection>& Values, const FMaterialExpressionConnection& Weight)
 {
-    check(Begin < End);
+    ensure(Begin < End);
 
     int32 Center = (Begin + End) / 2;
     int32 Count = End - Begin;
-    check(1 < Count);
+    ensure(1 < Count);
     switch (Count)
     {
     case 2:
@@ -1330,13 +1330,13 @@ UMaterialExpression* NewMaterialExpressionLinearInterpolateRecursive(UObject* Fu
 
 UMaterialExpression* NewMaterialExpressionLinearInterpolate(UObject* Function, const TArray<FMaterialExpressionConnection>& Values, const FMaterialExpressionConnection& Alpha)
 {
-    check(1 < Values.Num());
+    ensure(1 < Values.Num());
     return NewMaterialExpressionLinearInterpolateRecursive(Function, Alpha, 0, Values.Num(), Values, NewMaterialExpressionFrac(Function, Alpha));
 }
 
 UMaterialExpressionLogarithm2* NewMaterialExpressionLogarithm2(UObject* Parent, const FMaterialExpressionConnection& X)
 {
-    check(IsScalar(X));
+    ensure(IsScalar(X));
     UMaterialExpressionLogarithm2* Expression = NewMaterialExpression<UMaterialExpressionLogarithm2>(Parent);
     CheckedConnect(Parent, X, Expression->X);
     return Expression;
@@ -1344,7 +1344,7 @@ UMaterialExpressionLogarithm2* NewMaterialExpressionLogarithm2(UObject* Parent, 
 
 UMaterialExpressionMaterialFunctionCall* NewMaterialExpressionFunctionCall(UObject* Parent, UMaterialFunction* Function, TArray<FMaterialExpressionConnection> const& Inputs)
 {
-    check(Parent && Function);
+    ensure(Parent && Function);
 
     UMaterialExpressionMaterialFunctionCall* Expression = NewMaterialExpression<UMaterialExpressionMaterialFunctionCall>(Parent);
     Expression->SetMaterialFunction(Function);
@@ -1353,7 +1353,7 @@ UMaterialExpressionMaterialFunctionCall* NewMaterialExpressionFunctionCall(UObje
     {
         if (i < Inputs.Num())
         {
-            check(IsType(Expression->FunctionInputs[i].ExpressionInput->InputType, Inputs[i]));
+            ensure(IsType(Expression->FunctionInputs[i].ExpressionInput->InputType, Inputs[i]));
             if ((Inputs[i].ConnectionType != EConnectionType::Expression) || !Inputs[i].ExpressionData.IsDefault)
             {
                 CheckedConnect(Parent, Inputs[i], Expression->FunctionInputs[i].Input);
@@ -1379,7 +1379,7 @@ UMaterialExpressionMakeMaterialAttributes* NewMaterialExpressionMakeMaterialAttr
     const FMaterialExpressionConnection& CustomizedUVs5, const FMaterialExpressionConnection& CustomizedUVs6, const FMaterialExpressionConnection& CustomizedUVs7,
     const FMaterialExpressionConnection& PixelDepthOffset)
 {
-    check(IsScalar(Metallic) && IsScalar(Specular) && IsScalar(Roughness) && IsScalar(Opacity) && IsScalar(OpacityMask) && IsScalar(TessellationMultiplier) && IsScalar(ClearCoat)
+    ensure(IsScalar(Metallic) && IsScalar(Specular) && IsScalar(Roughness) && IsScalar(Opacity) && IsScalar(OpacityMask) && IsScalar(TessellationMultiplier) && IsScalar(ClearCoat)
         && IsScalar(ClearCoatRoughness) && IsScalar(AmbientOcclusion) && IsScalar(PixelDepthOffset));
 
     UMaterialExpressionMakeMaterialAttributes* Expression = NewMaterialExpression<UMaterialExpressionMakeMaterialAttributes>(Parent);
@@ -1416,7 +1416,7 @@ UMaterialExpressionMax* NewMaterialExpressionMax(UObject* Parent, const FMateria
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionMax* Expression = NewMaterialExpression<UMaterialExpressionMax>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1438,7 +1438,7 @@ UMaterialExpressionMin* NewMaterialExpressionMin(UObject* Parent, const FMateria
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionMin* Expression = NewMaterialExpression<UMaterialExpressionMin>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1460,7 +1460,7 @@ UMaterialExpressionMultiply* NewMaterialExpressionMultiply(UObject* Parent, cons
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionMultiply* Expression = NewMaterialExpression<UMaterialExpressionMultiply>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1471,7 +1471,7 @@ UMaterialExpressionMultiply* NewMaterialExpressionMultiply(UObject* Parent, cons
 static UMaterialExpressionMultiply* NewMaterialExpressionMultiplyRecursive(UObject *Parent, uint32 Begin, uint32 End, const TArray<FMaterialExpressionConnection>& Arguments)
 {
     uint32 Count = End - Begin;
-    check(1 < Count);
+    ensure(1 < Count);
     switch (Count)
     {
         case 2:
@@ -1499,7 +1499,7 @@ UMaterialExpressionMultiply* NewMaterialExpressionSquare(UObject* Parent, const 
 UMaterialExpressionNoise* NewMaterialExpressionNoise(UObject* Parent, const FMaterialExpressionConnection& Position, const FMaterialExpressionConnection& FilterWidth, int32 Quality)
 {
     uint32 Count = ComponentCount(Position);
-    check((Count == 1) || (Count == 3));
+    ensure((Count == 1) || (Count == 3));
     UMaterialExpressionNoise* Expression = NewMaterialExpression<UMaterialExpressionNoise>(Parent);
     CheckedConnect(Parent, Position, Expression->Position);
     CheckedConnect(Parent, FilterWidth, Expression->FilterWidth);
@@ -1535,7 +1535,7 @@ UMaterialExpressionPower* NewMaterialExpressionPower(UObject* Parent, const FMat
 {
     uint32 BaseCount = ComponentCount(Base);
     uint32 ExponentCount = ComponentCount(Exponent);
-    check((BaseCount == 1) || (ExponentCount == 1) || (BaseCount == ExponentCount));
+    ensure((BaseCount == 1) || (ExponentCount == 1) || (BaseCount == ExponentCount));
 
     UMaterialExpressionPower* Expression = NewMaterialExpression<UMaterialExpressionPower>(Parent);
     CheckedConnect(Parent, Base, Expression->Base);
@@ -1545,7 +1545,7 @@ UMaterialExpressionPower* NewMaterialExpressionPower(UObject* Parent, const FMat
 
 UMaterialExpressionReflectionVectorWS* NewMaterialExpressionReflectionVectorWS(UObject* Parent, const FMaterialExpressionConnection& CustomWorldNormal)
 {
-    check(ComponentCount(CustomWorldNormal) != 2);
+    ensure(ComponentCount(CustomWorldNormal) != 2);
     UMaterialExpressionReflectionVectorWS* Expression = NewMaterialExpression<UMaterialExpressionReflectionVectorWS>(Parent);
     CheckedConnect(Parent, CustomWorldNormal, Expression->CustomWorldNormal);
     return Expression;
@@ -1574,7 +1574,7 @@ UMaterialExpressionScalarParameter* NewMaterialExpressionScalarParameter(UObject
 
 UMaterialExpressionSine* NewMaterialExpressionSine(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionSine* Expression = NewMaterialExpression<UMaterialExpressionSine>(Parent);
     Expression->Period = 2 * PI;
     CheckedConnect(Parent, Input, Expression->Input);
@@ -1607,7 +1607,7 @@ UMaterialExpressionStaticBoolParameter* NewMaterialExpressionStaticBoolParameter
 
 UMaterialExpressionStaticSwitch* NewMaterialExpressionStaticSwitch(UObject* Parent, const FMaterialExpressionConnection& Value, const FMaterialExpressionConnection& A, const FMaterialExpressionConnection& B)
 {
-    check(IsBool(Value) && ((IsBool(A) && IsBool(B)) || (IsMaterialAttribute(A) && IsMaterialAttribute(B)) || (ComponentCount(A) == ComponentCount(B))));
+    ensure(IsBool(Value) && ((IsBool(A) && IsBool(B)) || (IsMaterialAttribute(A) && IsMaterialAttribute(B)) || (ComponentCount(A) == ComponentCount(B))));
     UMaterialExpressionStaticSwitch* Expression = NewMaterialExpression<UMaterialExpressionStaticSwitch>(Parent);
     CheckedConnect(Parent, A, Expression->A);
     CheckedConnect(Parent, B, Expression->B);
@@ -1619,7 +1619,7 @@ UMaterialExpressionStaticSwitch* NewMaterialExpressionStaticSwitch(UObject* Pare
     }
     else
     {
-        check(Value.ConnectionType == EConnectionType::Float);
+        ensure(Value.ConnectionType == EConnectionType::Float);
         Expression->DefaultValue = !!Value.Values[0];
     }
     return Expression;
@@ -1655,7 +1655,7 @@ UMaterialExpressionSubtract* NewMaterialExpressionSubtract(UObject* Parent, cons
 {
     uint32 ACount = ComponentCount(A);
     uint32 BCount = ComponentCount(B);
-    check((ACount == 1) || (BCount == 1) || (ACount == BCount));
+    ensure((ACount == 1) || (BCount == 1) || (ACount == BCount));
 
     UMaterialExpressionSubtract* Expression = NewMaterialExpression<UMaterialExpressionSubtract>(Parent);
     CheckedConnect(Parent, A, Expression->A, Expression->ConstA);
@@ -1688,7 +1688,7 @@ static T* NewMaterialExpressionTextureType(UObject* Parent, UTexture* Texture)
 
 UMaterialExpressionTangent* NewMaterialExpressionTangent(UObject* Parent, const FMaterialExpressionConnection& Input)
 {
-    check(IsScalar(Input));
+    ensure(IsScalar(Input));
     UMaterialExpressionTangent* Expression = NewMaterialExpression<UMaterialExpressionTangent>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     return Expression;
@@ -1715,7 +1715,7 @@ UMaterialExpressionTextureObjectParameter* NewMaterialExpressionTextureObjectPar
 
 UMaterialExpressionTextureProperty* NewMaterialExpressionTextureProperty(UObject* Parent, const FMaterialExpressionConnection& TextureObject, EMaterialExposedTextureProperty Property)
 {
-    check(IsTexture(TextureObject));
+    ensure(IsTexture(TextureObject));
     UMaterialExpressionTextureProperty* Expression = NewMaterialExpression<UMaterialExpressionTextureProperty>(Parent);
     CheckedConnect(Parent, TextureObject, Expression->TextureObject);
     Expression->Property = Property;
@@ -1724,7 +1724,7 @@ UMaterialExpressionTextureProperty* NewMaterialExpressionTextureProperty(UObject
 
 UMaterialExpressionTextureSample* NewMaterialExpressionTextureSample(UObject* Parent, const FMaterialExpressionConnection& TextureObject, const FMaterialExpressionConnection& Coordinates, ESamplerSourceMode SamplerSource)
 {
-    check(IsTexture(TextureObject) && ((!Coordinates.ExpressionData.Expression || ComponentCount(Coordinates) <= GetMaxCoordinates(TextureObject))));
+    ensure(IsTexture(TextureObject) && ((!Coordinates.ExpressionData.Expression || ComponentCount(Coordinates) <= GetMaxCoordinates(TextureObject))));
     UMaterialExpressionTextureSample* Expression = NewMaterialExpression<UMaterialExpressionTextureSample>(Parent);
     CheckedConnect(Parent, TextureObject, Expression->TextureObject, &Expression->Texture);
     CheckedConnect(Parent, Coordinates, Expression->Coordinates);
@@ -1734,7 +1734,7 @@ UMaterialExpressionTextureSample* NewMaterialExpressionTextureSample(UObject* Pa
 
 UMaterialExpressionTransform* NewMaterialExpressionTransform(UObject* Parent, const FMaterialExpressionConnection& Input, EMaterialVectorCoordTransformSource SourceType, EMaterialVectorCoordTransform DestinationType)
 {
-    check(2 < ComponentCount(Input));
+    ensure(2 < ComponentCount(Input));
     UMaterialExpressionTransform* Expression = NewMaterialExpression<UMaterialExpressionTransform>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     Expression->TransformSourceType = SourceType;
@@ -1744,7 +1744,7 @@ UMaterialExpressionTransform* NewMaterialExpressionTransform(UObject* Parent, co
 
 UMaterialExpressionTransformPosition* NewMaterialExpressionTransformPosition(UObject* Parent, const FMaterialExpressionConnection& Input, EMaterialPositionTransformSource SourceType, EMaterialPositionTransformSource DestinationType)
 {
-    check(2 < ComponentCount(Input));
+    ensure(2 < ComponentCount(Input));
     UMaterialExpressionTransformPosition* Expression = NewMaterialExpression<UMaterialExpressionTransformPosition>(Parent);
     CheckedConnect(Parent, Input, Expression->Input);
     Expression->TransformSourceType = SourceType;
@@ -1759,7 +1759,7 @@ UMaterialExpressionTwoSidedSign* NewMaterialExpressionTwoSidedSign(UObject* Pare
 
 UMaterialExpressionVectorNoise* NewMaterialExpressionVectorNoise(UObject* Parent, const FMaterialExpressionConnection& Position, EVectorNoiseFunction NoiseFunction, int32 Quality)
 {
-    check(ComponentCount(Position) != 2);
+    ensure(ComponentCount(Position) != 2);
     UMaterialExpressionVectorNoise* Expression = NewMaterialExpression<UMaterialExpressionVectorNoise>(Parent);
     CheckedConnect(Parent, Position, Expression->Position);
     Expression->NoiseFunction = NoiseFunction;
@@ -1779,7 +1779,7 @@ UMaterialExpressionCustom* NewMaterialExpressionSmoothStep(UObject* Parent, cons
     uint32 InputCount = ComponentCount(Input);
     uint32 MinCount = ComponentCount(Min);
     uint32 MaxCount = ComponentCount(Max);
-    check(MinCount == MaxCount);
+    ensure(MinCount == MaxCount);
 
     UMaterialExpressionCustom* Expression = NewMaterialExpression<UMaterialExpressionCustom>(Parent);
     Expression->Description = TEXT("Smoothstep");
