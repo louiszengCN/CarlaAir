@@ -31,7 +31,7 @@ TArray<uint8> FNavigationMesh::Load(FString MapName)
 
   if (!Files.Num())
   {
-    UE_LOG(LogTemp, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
+    UE_LOG(LogCarla, Error, TEXT("Failed to find OpenDrive file for map '%s'"), *MapName);
   }
   else if (FFileHelper::LoadFileToArray(Content, *Files[0], 0))
   {
@@ -39,7 +39,7 @@ TArray<uint8> FNavigationMesh::Load(FString MapName)
   }
   else
   {
-    UE_LOG(LogTemp, Error, TEXT("Failed to load Navigation Mesh file '%s'"), *Files[0]);
+    UE_LOG(LogCarla, Error, TEXT("Failed to load Navigation Mesh file '%s'"), *Files[0]);
   }
 
   return Content;

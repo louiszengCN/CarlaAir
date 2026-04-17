@@ -651,7 +651,7 @@ void ACarlaGameModeBase::CheckForEmptyMeshes()
     AStaticMeshActor *MeshActor = CastChecked<AStaticMeshActor>(Actor);
     if (MeshActor->GetStaticMeshComponent()->GetStaticMesh() == nullptr)
     {
-      UE_LOG(LogTemp, Error, TEXT("The object : %s has no mesh"), *MeshActor->GetFullName());
+      UE_LOG(LogCarla, Error, TEXT("The object : %s has no mesh"), *MeshActor->GetFullName());
     }
   }
 }
