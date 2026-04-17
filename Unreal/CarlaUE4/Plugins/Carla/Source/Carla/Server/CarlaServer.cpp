@@ -2787,7 +2787,7 @@ BIND_SYNC(send) << [this](
     auto It = Episode->GetActorRegistry().begin();
     for (; It != Episode->GetActorRegistry().end(); ++It)
     {
-      const FCarlaActor& View = *((*It).Value.Get()); // UE5: TPair=TTuple, use (*It).Value
+      const FCarlaActor& View = *It->Value.Get(); // UE5: TMap iterator uses ->Key / ->Value (TTuple)
       if (View.GetActorType() == FCarlaActor::ActorType::Vehicle)
       {
         if(View.IsDormant())

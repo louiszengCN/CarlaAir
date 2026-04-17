@@ -98,7 +98,7 @@ void FLineBatcherSceneProxy_CARLA::GetDynamicMeshElements(const TArray<const FSc
 				for (int32 VertIdx = 0; VertIdx < M.MeshVerts.Num(); ++VertIdx)
 				{
 					// UE5: AddVertex now takes FVector3f/FVector2f; cast MeshVerts element (FVector→FVector3f)
-				MeshBuilder.AddVertex(FVector3f(M.MeshVerts[VertIdx]), FVector2f::ZeroVector, PosX, PosY, PosZ, FColor::White);
+					MeshBuilder.AddVertex(FVector3f(M.MeshVerts[VertIdx]), FVector2f::ZeroVector, PosX, PosY, PosZ, FColor::White);
 				}
 				//MeshBuilder.AddTriangles(M.MeshIndices);
 				for (int32 Idx = 0; Idx < M.MeshIndices.Num(); Idx += 3)

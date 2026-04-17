@@ -329,11 +329,9 @@ void CarlaReplayerHelper::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWhee
     return;
   ACarlaWheeledVehicle* CarlaVehicle = Cast<ACarlaWheeledVehicle>(CarlaActor->GetActor());
   check(CarlaVehicle != nullptr)
-  USkeletalMeshComponent* SkeletalMesh = CarlaVehicle->GetMesh();
-  check(SkeletalMesh != nullptr)
-  // UE5: UVehicleAnimInstance wheel animation API removed in ChaosVehicles
-  // Wheel replay animation disabled for UE5.7 compatibility
-  (void)SkeletalMesh;
+  // UE5: UVehicleAnimInstance wheel animation API removed in ChaosVehicles.
+  // Wheel replay animation disabled for UE5.7 compatibility.
+  // TODO: restore using ChaosVehicles per-wheel rotation state when API is available.
 }
 
 // reposition the camera

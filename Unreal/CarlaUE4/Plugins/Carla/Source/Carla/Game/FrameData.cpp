@@ -425,12 +425,9 @@ void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
   if (CarlaVehicle == nullptr)
     return;
 
-  USkeletalMeshComponent* SkeletalMesh = CarlaVehicle->GetMesh();
-  if (SkeletalMesh == nullptr)
-    return;
-
-  // UE5: UVehicleAnimInstance / UWheeledVehicleMovementComponent wheel animation API removed in ChaosVehicles
-  // Wheel animation recording disabled for UE5.7 compatibility
+  // UE5: UVehicleAnimInstance / UWheeledVehicleMovementComponent wheel animation API removed in ChaosVehicles.
+  // Wheel animation recording disabled for UE5.7 compatibility.
+  // TODO: restore using ChaosVehicles per-wheel rotation state when API is available.
 }
 
 void FFrameData::AddWalkerAnimation(FCarlaActor *CarlaActor)

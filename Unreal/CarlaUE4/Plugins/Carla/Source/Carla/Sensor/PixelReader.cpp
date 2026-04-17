@@ -155,7 +155,6 @@ TFuture<bool> FPixelReader::SavePixelsToDisk(
   ImageTask->bOverwriteFile = true;
   ImageTask->PixelPreProcessors.Add(TAsyncAlphaWrite<FColor>(255));
 
-  // Use local scope alias to avoid potential macro collision with LibCarla/Boost headers
-  auto& ScrConfig = GetHighResScreenshotConfig();
+  FHighResScreenshotConfig& ScrConfig = GetHighResScreenshotConfig(); // UE5: 'auto&' to avoid C2182 on MSVC with same-name local
   return ScrConfig.ImageWriteQueue->Enqueue(MoveTemp(ImageTask));
 }
