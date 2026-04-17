@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -11,13 +11,14 @@ Usage: $0 [-h|--help] [--python-version=VERSION]
 END
 )
 
-OPTS=`getopt -o h --long batch:,package:,no-carla-materials,json-only,python-version:, -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long batch:,package:,no-carla-materials,json-only,python-version:, -n 'parse-options' -- "$@")
 
 ARGS=""
 
 eval set -- "$OPTS"
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 PY_VERSION_LIST=3
 
@@ -48,4 +49,4 @@ done
 # Convert comma-separated string to array of unique elements.
 IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"
 
-/usr/bin/env python${PY_VERSION_LIST[0]} ${CARLA_BUILD_TOOLS_FOLDER}/Import.py ${ARGS}
+/usr/bin/env "python${PY_VERSION_LIST[0]}" "${CARLA_BUILD_TOOLS_FOLDER}/Import.py" ${ARGS}

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # Measure overall execution time of packaging
 T_START_OVERALL=$(date +%s)
@@ -20,7 +20,7 @@ USE_CARSIM=false
 SINGLE_PACKAGE=false
 ARCHIVE_SUFIX=""
 
-OPTS=`getopt -o h --long help,config:,no-zip,clean-intermediate,carsim,packages:,python-version,target-archive:,archive-sufix:, -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,config:,no-zip,clean-intermediate,carsim,packages:,python-version,target-archive:,archive-sufix:, -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -61,7 +61,8 @@ done
 # ==============================================================================
 # -- Prepare environment -------------------------------------------------------
 # ==============================================================================
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 if [ ! -d "${UE4_ROOT}" ]; then
   fatal_error "UE4_ROOT is not defined, or points to a non-existent directory, please set this environment variable."
