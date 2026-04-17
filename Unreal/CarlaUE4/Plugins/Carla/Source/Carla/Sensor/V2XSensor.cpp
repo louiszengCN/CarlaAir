@@ -10,7 +10,7 @@
 #include "Carla/Game/CarlaEpisode.h"
 #include "Carla/Game/CarlaStatics.h"
 #include "Carla/Vehicle/CarlaWheeledVehicle.h"
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include "V2X/CaService.h"
 #include "V2XSensor.h"
