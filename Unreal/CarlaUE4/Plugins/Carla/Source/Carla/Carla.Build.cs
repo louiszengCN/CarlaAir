@@ -18,7 +18,7 @@ public class Carla : ModuleRules
   public Carla(ReadOnlyTargetRules Target) : base(Target)
   {
     PCHUsage = PCHUsageMode.UseSharedPCHs; // UE5: disable IWYU enforcement for legacy includes
-    bLegacyPublicIncludePaths = true; // TODO: remove once all internal includes are IWYU-clean (UE5 deprecates this flag)
+    bLegacyPublicIncludePaths = true; // UE5: required until all internal includes are IWYU-clean; tracked in issue #UE5-IWYU
     PrivatePCHHeaderFile = "Carla.h";
     CppStandard = CppStandardVersion.Cpp20;
 

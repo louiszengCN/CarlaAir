@@ -218,6 +218,10 @@ void ACarlaRecorder::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
+  if (!CarlaActor->GetActor() || !IsValid(CarlaActor->GetActor()))
+  {
+    return;
+  }
 
   FWalkerControl Control;
   CarlaActor->GetWalkerControl(Control);

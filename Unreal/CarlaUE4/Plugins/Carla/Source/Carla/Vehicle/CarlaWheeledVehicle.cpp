@@ -164,8 +164,6 @@ void ACarlaWheeledVehicle::BeginPlay()
 
   if (MovementComponent)
   {
-    check(MovementComponent != nullptr);
-
     // Setup Tire Configs with default value. This is needed to avoid getting
     // friction values of previously created TireConfigs for the same vehicle
     // blueprint.
@@ -392,8 +390,6 @@ TArray<float> ACarlaWheeledVehicle::GetWheelsFrictionScale()
   TArray<float> WheelsFrictionScale;
   if (Movement)
   {
-    check(Movement != nullptr);
-
     for (auto &Wheel : Movement->Wheels)
     {
       // UE5: TireConfig->GetFrictionScale() replaced by FrictionForceMultiplier.
@@ -411,7 +407,6 @@ void ACarlaWheeledVehicle::SetWheelsFrictionScale(TArray<float> &WheelsFrictionS
   UChaosWheeledVehicleMovementComponent* Movement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
   if (Movement)
   {
-    check(Movement != nullptr);
     check(Movement->Wheels.Num() == WheelsFrictionScale.Num());
 
     for (int32 i = 0; i < Movement->Wheels.Num(); ++i)
@@ -624,6 +619,10 @@ FVehicleTelemetryData ACarlaWheeledVehicle::GetVehicleTelemetryData() const
   FVehicleTelemetryData TelemetryData;
 
   UChaosWheeledVehicleMovementComponent *MovementComponent = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
+  if (!MovementComponent)
+  {
+    return TelemetryData;
+  }
 
   // Vehicle telemetry data
   TelemetryData.Speed = GetVehicleForwardSpeed() / 100.0f;  // From cm/s to m/s
@@ -789,8 +788,6 @@ void ACarlaWheeledVehicle::SetSimulatePhysics(bool enabled) {
   UChaosWheeledVehicleMovementComponent* Movement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
   if (Movement)
   {
-    check(Movement != nullptr);
-
     if(bPhysicsEnabled == enabled)
       return;
 

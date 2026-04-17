@@ -58,8 +58,10 @@ ASceneCaptureSensor::ASceneCaptureSensor(const FObjectInitializer &ObjectInitial
   CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>(
       FName(*FString::Printf(TEXT("USceneCaptureComponent2D_%d"), SCENE_CAPTURE_COUNTER)));
   check(CaptureComponent2D != nullptr);
-  // UE5.7: ViewActor removed from USceneCaptureComponent2D.
-  // Equivalent: add the sensor actor itself to HiddenActors so it does not appear in its own capture.
+  // UE5.7: ViewActor removed from USceneCaptureComponent2D. Add the sensor actor to HiddenActors
+  // so it does not appear in its own capture. (ViewActor-based relevance filtering in
+  // LineBatchComponent_CARLA::GetViewRelevance still works via the engine's auto-populated
+  // FSceneView::ViewActor from the capture component's owner.)
   CaptureComponent2D->HiddenActors.Add(this);
   CaptureComponent2D->SetupAttachment(RootComponent);
   CaptureComponent2D->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
