@@ -98,7 +98,7 @@ void FSimReadyUSDSequenceImporter::CreateLevelSequence(const TOptional<double>& 
         LevelSequence->Initialize();
 
         UMovieScene* MovieScene = LevelSequence->GetMovieScene();
-        check(MovieScene);
+        ensure(MovieScene);
         double StartTimeCode = InStartTimeCode.IsSet() ? InStartTimeCode.GetValue() : DEFAULT_STARTTIMECODE;
         double TimeCodesPerSecond = InTimeCodesPerSecond.IsSet() ? InTimeCodesPerSecond.GetValue() : DEFAULT_TIMECODESPERSECOND;
         MovieScene->SetDisplayRate(FFrameRate(TimeCodesPerSecond, 1));
@@ -360,7 +360,7 @@ void FSimReadyUSDSequenceImporter::BuildActorSequence(UBlueprint* Blueprint, con
                     if (VariableName != NAME_None)
                     {
                         FObjectPropertyBase* Property = FindFProperty<FObjectPropertyBase>(BlueprintActor->GetClass(), VariableName);
-                        if (Property != NULL)
+                        if (Property != nullptr)
                         {
                             // Return the component instance that's stored in the property with the given variable name
                             auto ComponentInstance = Cast<UActorComponent>(Property->GetObjectPropertyValue_InContainer(BlueprintActor));

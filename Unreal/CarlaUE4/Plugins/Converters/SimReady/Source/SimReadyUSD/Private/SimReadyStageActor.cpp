@@ -2001,7 +2001,7 @@ UStaticMeshComponent* ASimReadyStageActor::LoadBasicShape(const pxr::SdfPath& Pa
         // MeshPath = FPaths::Combine(SavePackagePath, TEXT("Meshes"), "Cube.Cube");		
         //
         // MeshComp->SetStaticMesh(DuplicateObject<UStaticMesh>(StaticMesh, nullptr));
-        auto StaticMesh = LoadObject<UStaticMesh>(NULL, *MeshPath);
+        auto StaticMesh = LoadObject<UStaticMesh>(nullptr, *MeshPath);
         MeshComp->SetStaticMesh(StaticMesh);
     }
 
