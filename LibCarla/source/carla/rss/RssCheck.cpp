@@ -31,6 +31,10 @@
 #include "carla/client/Vehicle.h"
 #include "carla/client/Walker.h"
 #include "carla/client/Waypoint.h"
+#include "carla/Logging.h"
+
+#include <iomanip>
+#include <sstream>
 
 #define DEBUG_TIMING 0
 
@@ -38,14 +42,16 @@ namespace carla {
 namespace rss {
 
 void printRoute(std::string const &route_descr, ::ad::map::route::FullRoute const &route) {
-  std::cout << route_descr << std::endl;
+  log_debug(route_descr);
   for (auto road_segment : route.roadSegments) {
+    std::ostringstream lane_line;
     for (auto lane_segment : road_segment.drivableLaneSegments) {
-      std::cout << "(" << static_cast<uint64_t>(lane_segment.laneInterval.laneId) << " | " << std::setprecision(2)
+      lane_line << "(" << static_cast<uint64_t>(lane_segment.laneInterval.laneId) << " | "
+                << std::setprecision(2)
                 << static_cast<double>(lane_segment.laneInterval.start) << ":"
                 << static_cast<double>(lane_segment.laneInterval.end) << ")    ";
     }
-    std::cout << std::endl;
+    log_debug(lane_line.str());
   }
 }
 
