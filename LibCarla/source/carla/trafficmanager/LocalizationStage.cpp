@@ -1,4 +1,5 @@
 
+#include "carla/Logging.h"
 #include "carla/trafficmanager/Constants.h"
 
 #include "carla/trafficmanager/LocalizationStage.h"
@@ -202,7 +203,7 @@ void LocalizationStage::Update(const unsigned long index) {
         selection_index = random_device.next<uint64_t>(0, next_waypoints.size() - 1);
       } else if (next_waypoints.size() == 0) {
         if (!parameters.GetOSMMode()) {
-          std::cout << "This map has dead-end roads, please change the set_open_street_map parameter to true" << std::endl;
+          log_warning("This map has dead-end roads, please change the set_open_street_map parameter to true");
         }
         marked_for_removal.push_back(actor_id);
         break;
@@ -637,7 +638,7 @@ void LocalizationStage::ImportPath(Path &imported_path, Buffer &waypoint_buffer,
         }
       } else if (next_waypoints.size() == 0) {
         if (!parameters.GetOSMMode()) {
-          std::cout << "This map has dead-end roads, please change the set_open_street_map parameter to true" << std::endl;
+          log_warning("This map has dead-end roads, please change the set_open_street_map parameter to true");
         }
         marked_for_removal.push_back(actor_id);
         break;
@@ -694,13 +695,13 @@ void LocalizationStage::ImportRoute(Route &imported_actions, Buffer &waypoint_bu
             break;
           } else {
             if (i == next_waypoints.size() - 1) {
-              std::cout << "We couldn't find the RoadOption you were looking for. This route might diverge from the one expected." << std::endl;
+              log_warning("We couldn't find the RoadOption you were looking for. This route might diverge from the one expected.");
             }
           }
         }
       } else if (next_waypoints.size() == 0) {
         if (!parameters.GetOSMMode()) {
-          std::cout << "This map has dead-end roads, please change the set_open_street_map parameter to true" << std::endl;
+          log_warning("This map has dead-end roads, please change the set_open_street_map parameter to true");
         }
         marked_for_removal.push_back(actor_id);
         break;
