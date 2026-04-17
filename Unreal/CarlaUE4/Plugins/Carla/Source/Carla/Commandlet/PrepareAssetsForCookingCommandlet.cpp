@@ -392,7 +392,7 @@ FString UPrepareAssetsForCookingCommandlet::GetFirstPackagePath(const FString &P
 
   if (PackageList.Num() == 0)
   {
-    UE_LOG(LogTemp, Error, TEXT("Package json file not found."));
+    UE_LOG(LogCarla, Error, TEXT("Package json file not found."));
     return {};
   }
 
@@ -517,7 +517,7 @@ void UPrepareAssetsForCookingCommandlet::GenerateMapPathsFile(
         NumTiles++;
       }
     }
-    UE_LOG(LogTemp, Warning, TEXT("Found %d tiles"), NumTiles);
+    UE_LOG(LogCarla, Warning, TEXT("Found %d tiles"), NumTiles);
   }
 
   if (!PropsMapPath.IsEmpty())
@@ -567,7 +567,7 @@ void UPrepareAssetsForCookingCommandlet::PrepareMapsForCooking(
     // check whether we have a single map or a map in tiles
     if (!IsMapInTiles(DataPath))
     {
-      UE_LOG(LogTemp, Log, TEXT("Cooking map"));
+      UE_LOG(LogCarla, Log, TEXT("Cooking map"));
       // Load World
       FAssetData AssetData;
       LoadWorld(AssetData);
@@ -593,7 +593,7 @@ void UPrepareAssetsForCookingCommandlet::PrepareMapsForCooking(
       float TileSize = 200000.f;
       FString TxtFile;
       FString TilesInfoPath = FPaths::ProjectContentDir() + PackageName + TEXT("/Maps/") + Map.Name + "/TilesInfo.txt";
-      UE_LOG(LogTemp, Warning, TEXT("Loading %s ..."), *TilesInfoPath);
+      UE_LOG(LogCarla, Warning, TEXT("Loading %s ..."), *TilesInfoPath);
       if (FFileHelper::LoadFileToString(TxtFile, *(TilesInfoPath)) == true) {
 
         TArray<FString> Out;
@@ -607,14 +607,14 @@ void UPrepareAssetsForCookingCommandlet::PrepareMapsForCooking(
         }
         else
         {
-          UE_LOG(LogTemp, Warning, TEXT("TilesInfo.txt format is invalid file"));
+          UE_LOG(LogCarla, Warning, TEXT("TilesInfo.txt format is invalid file"));
         }
       }
       else {
-        UE_LOG(LogTemp, Warning, TEXT("Could not find TilesInfo.txt file"));
+        UE_LOG(LogCarla, Warning, TEXT("Could not find TilesInfo.txt file"));
       }
 
-      UE_LOG(LogTemp, Log, TEXT("Cooking tiles:"));
+      UE_LOG(LogCarla, Log, TEXT("Cooking tiles:"));
       // Load World
       FAssetData AssetData;
       LoadWorldTile(AssetData);
@@ -639,11 +639,11 @@ void UPrepareAssetsForCookingCommandlet::PrepareMapsForCooking(
           Res = SpawnedActors.Num() > 0;
           if (Res)
           {
-            UE_LOG(LogTemp, Log, TEXT(" Tile %d,%d found"), i, j);
+            UE_LOG(LogCarla, Log, TEXT(" Tile %d,%d found"), i, j);
             FString TileName;
             TileName = FString::Printf(TEXT("%s_Tile_%d_%d"), *Map.Name, i, j);
             // Save the World in specified path
-            // UE_LOG(LogTemp, Log, TEXT("Saving as %s to %s"), *TileName, *Map.Path);
+            // UE_LOG(LogCarla, Log, TEXT("Saving as %s to %s"), *TileName, *Map.Path);
             SaveWorld(AssetData, PackageName, Map.Path, TileName);
             MapPathsIds.Add(
                 TPair<FString, FIntVector>(
@@ -682,7 +682,7 @@ void UPrepareAssetsForCookingCommandlet::PrepareMapsForCooking(
 
       SaveWorld(AssetData, PackageName, Map.Path, Map.Name, false);
 
-      UE_LOG(LogTemp, Log, TEXT("End cooking tiles"));
+      UE_LOG(LogCarla, Log, TEXT("End cooking tiles"));
     }
   }
 }
