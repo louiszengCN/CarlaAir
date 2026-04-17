@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.20)
 project(libcarla-server)
+
+cmake_policy(SET CMP0091 NEW) # MSVC runtime library via MSVC_RUNTIME_LIBRARY
+cmake_policy(SET CMP0077 NEW) # option() honours variables already set by parent
+cmake_policy(SET CMP0063 NEW) # visibility properties honoured for all targets
 
 # Install libc++ shared libraries.
 file(GLOB LibCXX_Libraries "${LLVM_LIB_PATH}/libc++*")
