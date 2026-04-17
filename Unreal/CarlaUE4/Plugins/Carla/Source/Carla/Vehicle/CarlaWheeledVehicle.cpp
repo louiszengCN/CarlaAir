@@ -171,7 +171,7 @@ void ACarlaWheeledVehicle::BeginPlay()
     for (const auto &WheelSetup : NewWheelSetups)
     {
       UChaosVehicleWheel *Wheel = WheelSetup.WheelClass.GetDefaultObject(); // UE5: TSubclassOf::GetDefaultObject() is not a template
-      check(Wheel != nullptr);
+      if (!IsValid(Wheel)) { continue; }
     }
 
     MovementComponent->WheelSetups = NewWheelSetups;
