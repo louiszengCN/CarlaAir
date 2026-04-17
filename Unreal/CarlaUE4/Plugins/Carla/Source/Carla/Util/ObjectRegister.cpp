@@ -155,7 +155,7 @@ void UObjectRegister::RegisterEnvironmentObject(
 
 void UObjectRegister::RegisterVehicle(ACarlaWheeledVehicle* Vehicle)
 {
-  check(Vehicle);
+  if (!IsValid(Vehicle)) { return; }
   FBoundingBox BB = UBoundingBoxCalculator::GetVehicleBoundingBox(Vehicle);
   auto Tag = ATagger::GetTagOfTaggedComponent(*Vehicle->GetMesh());
   RegisterEnvironmentObject(Vehicle, BB, EnvironmentObjectType::Vehicle, static_cast<uint8>(Tag));
@@ -163,20 +163,20 @@ void UObjectRegister::RegisterVehicle(ACarlaWheeledVehicle* Vehicle)
 
 void UObjectRegister::RegisterCharacter(ACharacter* Character)
 {
-  check(Character);
+  if (!IsValid(Character)) { return; }
   FBoundingBox BB = UBoundingBoxCalculator::GetCharacterBoundingBox(Character);
   RegisterEnvironmentObject(Character, BB, EnvironmentObjectType::Character, static_cast<uint8>(crp::CityObjectLabel::Pedestrians));
 }
 
 void UObjectRegister::RegisterTrafficLight(ATrafficLightBase* TrafficLight)
 {
-  check(TrafficLight);
+  if (!IsValid(TrafficLight)) { return; }
 
   TArray<FBoundingBox> BBs;
   TArray<uint8> Tags;
 
   UBoundingBoxCalculator::GetTrafficLightBoundingBox(TrafficLight, BBs, Tags);
-  check(BBs.Num() == Tags.Num());
+  ensure(BBs.Num() == Tags.Num());
 
   const FTransform Transform = TrafficLight->GetTransform();
   const FString ActorName = TrafficLight->GetName();
@@ -216,7 +216,7 @@ void UObjectRegister::RegisterTrafficLight(ATrafficLightBase* TrafficLight)
 
 void UObjectRegister::RegisterISMComponents(AActor* Actor)
 {
-  check(Actor);
+  if (!IsValid(Actor)) { return; }
 
   TArray<UInstancedStaticMeshComponent*> ISMComps;
   Actor->GetComponents<UInstancedStaticMeshComponent>(ISMComps);
@@ -286,7 +286,7 @@ void UObjectRegister::RegisterISMComponents(AActor* Actor)
 
 void UObjectRegister::RegisterSMComponents(AActor* Actor)
 {
-  check(Actor);
+  if (!IsValid(Actor)) { return; }
 
   TArray<UStaticMeshComponent*> StaticMeshComps;
   Actor->GetComponents<UStaticMeshComponent>(StaticMeshComps);
@@ -294,7 +294,7 @@ void UObjectRegister::RegisterSMComponents(AActor* Actor)
   TArray<FBoundingBox> BBs;
   TArray<uint8> Tags;
   UBoundingBoxCalculator::GetBBsOfStaticMeshComponents(StaticMeshComps, BBs, Tags);
-  check(BBs.Num() == Tags.Num());
+  ensure(BBs.Num() == Tags.Num());
 
   const FTransform Transform = Actor->GetTransform();
   const FString ActorName = Actor->GetName();
@@ -335,7 +335,7 @@ void UObjectRegister::RegisterSMComponents(AActor* Actor)
 
 void UObjectRegister::RegisterSKMComponents(AActor* Actor)
 {
-  check(Actor);
+  if (!IsValid(Actor)) { return; }
 
   TArray<USkeletalMeshComponent*> SkeletalMeshComps;
   Actor->GetComponents<USkeletalMeshComponent>(SkeletalMeshComps);
@@ -343,7 +343,7 @@ void UObjectRegister::RegisterSKMComponents(AActor* Actor)
   TArray<FBoundingBox> BBs;
   TArray<uint8> Tags;
   UBoundingBoxCalculator::GetBBsOfSkeletalMeshComponents(SkeletalMeshComps, BBs, Tags);
-  check(BBs.Num() == Tags.Num());
+  ensure(BBs.Num() == Tags.Num());
 
   const FTransform Transform = Actor->GetTransform();
   const FString ActorName = Actor->GetName();
@@ -387,7 +387,7 @@ void UObjectRegister::EnableEnvironmentObject(
     EnableISMComp(EnvironmentObject, Enable);
     break;
   default:
-    check(false);
+    ensureAlwaysMsgf(false, TEXT("Unhandled EnvironmentObjectType in EnableEnvironmentObject"));
     break;
   }
 
