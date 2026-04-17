@@ -1,8 +1,7 @@
-numpy<2.0.0
-psutil
-py-cpuinfo
-GPUtil
-pygame
+numpy>=1.24.0,<2.0.0
+psutil>=5.9.0
+py-cpuinfo>=9.0.0
+GPUtil>=1.4.0
+pygame>=2.5.0
 python-tr
-imageio
-
+imageio>=2.31.0

@@ -1,9 +1,9 @@
 invertedai@git+https://github.com/inverted-ai/invertedai.git@develop ; python_version >= "3.10"
 future
-numpy<2.0.0
-networkx
-Shapely
-pygame
-matplotlib
-open3d
-Pillow
+numpy>=1.24.0,<2.0.0
+networkx>=3.0
+Shapely>=2.0
+pygame>=2.5.0
+matplotlib>=3.7.0
+open3d>=0.18.0
+Pillow>=10.0.0
