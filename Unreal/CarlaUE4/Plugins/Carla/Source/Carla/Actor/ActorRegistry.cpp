@@ -112,7 +112,7 @@ FCarlaActor* FActorRegistry::Register(AActor &Actor, FActorDescription Descripti
 
   TSharedPtr<FCarlaActor>& Result = ActorDatabase.Emplace(Id, MoveTemp(View));
 
-  check(static_cast<size_t>(Actors.Num()) == ActorDatabase.Num());
+  ensure(static_cast<size_t>(Actors.Num()) == ActorDatabase.Num());
   return Result.Get();
 }
 
@@ -130,14 +130,14 @@ void FActorRegistry::Deregister(IdType Id)
 
   CarlaActor->TheActor = nullptr;
 
-  check(static_cast<size_t>(Actors.Num()) == ActorDatabase.Num());
+  ensure(static_cast<size_t>(Actors.Num()) == ActorDatabase.Num());
 }
 
 void FActorRegistry::Deregister(AActor *Actor)
 {
-  check(Actor != nullptr);
+  if (!Actor) { return; }
   FCarlaActor* CarlaActor = FindCarlaActor(Actor);
-  check(CarlaActor->GetActor() == Actor);
+  ensure(CarlaActor && CarlaActor->GetActor() == Actor);
   Deregister(CarlaActor->GetActorId());
 }
 

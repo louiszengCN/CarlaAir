@@ -80,7 +80,7 @@ TPair<EActorSpawnResultStatus, FCarlaActor*> UActorDispatcher::SpawnActor(
   if (!View)
   {
     UE_LOG(LogCarla, Warning, TEXT("Failed to spawn actor '%s'"), *Description.Id);
-    check(Result.Status != EActorSpawnResultStatus::Success);
+    ensure(Result.Status != EActorSpawnResultStatus::Success);
   }
   else
   {
