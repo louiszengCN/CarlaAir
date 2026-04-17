@@ -4,6 +4,7 @@
 
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "SkeletalRenderPublic.h"
+#include "GPUSkinVertexFactory.h" // UE5: FGPUBaseSkinVertexFactory::GetMaxGPUSkinBones()
 
 //
 // UTaggedComponent
@@ -162,11 +163,11 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(USkeletalMeshComponent
 		!SkeletalMeshComponent->bHideSkin &&
 		SkeletalMeshComponent->MeshObject)
 	{
-		// UE5: GetFeatureLevelMaxNumberOfBones removed; bone count check simplified
+		// UE5: GetFeatureLevelMaxNumberOfBones() removed; use FGPUBaseSkinVertexFactory::GetMaxGPUSkinBones()
 		int32 MinLODIndex = SkeletalMeshComponent->ComputeMinLOD();
 		int32 MaxBonesPerChunk = SkelMeshRenderData->GetMaxBonesPerSection(MinLODIndex);
 		const bool bCPUSkinned = SkeletalMeshComponent->MeshObject->IsCPUSkinned();
-		const int32 MaxSupportedNumBones = bCPUSkinned ? MAX_int32 : 256; // UE5: use 256 as reasonable GPU bone limit
+		const int32 MaxSupportedNumBones = bCPUSkinned ? MAX_int32 : FGPUBaseSkinVertexFactory::GetMaxGPUSkinBones();
 		if (MaxBonesPerChunk <= MaxSupportedNumBones)
 		{
 			return new FTaggedSkeletalMeshSceneProxy(SkeletalMeshComponent, SkelMeshRenderData, TaggedMID, TaggedMaterials);

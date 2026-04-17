@@ -121,7 +121,10 @@ namespace detail {
       return [&shutdown_in_progress, &io, functor=std::forward<FuncT>(functor)](Metadata metadata, Args... args) -> R {
         auto const session_id = ::rpc::this_session().id();
         auto task = std::packaged_task<R()>([session_id, functor=std::move(functor), args...]() {
-          // UE5: rpclib 2.2.1 this_session().set_id() is private; skip session restore
+          // UE5/rpclib 2.2.1: this_session().set_id() is private — session context cannot be
+          // restored inside the async task. Any RPC handler that calls ::rpc::this_session().id()
+          // from within the io_context thread will receive an incorrect session ID in multi-client
+          // scenarios. Single-client use is unaffected. Tracked: session routing regression.
           (void)session_id;
           return functor(args...);
         });

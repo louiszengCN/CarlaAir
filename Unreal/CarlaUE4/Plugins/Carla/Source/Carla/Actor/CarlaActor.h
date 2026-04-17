@@ -168,13 +168,19 @@ public:
   template<typename T>
   T* GetActorData()
   {
-    return static_cast<T*>(ActorData.Get()); // UE5: dynamic_cast disabled (no RTTI); caller must ensure correct type
+    // UE5: RTTI globally disabled — replaced dynamic_cast with static_cast.
+    // SAFETY CONTRACT: caller must verify GetActorType() matches the expected subtype
+    // (FVehicleData→Vehicle, FWalkerData→Walker, FActorSensorData→Sensor, etc.)
+    // before calling this template. A wrong T silently reinterprets memory.
+    return static_cast<T*>(ActorData.Get());
   }
 
   template<typename T>
   const T* GetActorData() const
   {
-    return static_cast<const T*>(ActorData.Get()); // UE5: dynamic_cast disabled (no RTTI)
+    // UE5: RTTI globally disabled — replaced dynamic_cast with static_cast.
+    // See non-const overload for safety contract.
+    return static_cast<const T*>(ActorData.Get());
   }
 
   FActorAttribute GetAttribute(const FString Name) const { return Info->Description.GetAttribute(Name); }

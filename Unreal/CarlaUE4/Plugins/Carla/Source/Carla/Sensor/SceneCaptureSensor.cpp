@@ -58,7 +58,9 @@ ASceneCaptureSensor::ASceneCaptureSensor(const FObjectInitializer &ObjectInitial
   CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>(
       FName(*FString::Printf(TEXT("USceneCaptureComponent2D_%d"), SCENE_CAPTURE_COUNTER)));
   check(CaptureComponent2D != nullptr);
-  // CaptureComponent2D->ViewActor = this; // UE5.7: ViewActor removed from USceneCaptureComponent2D
+  // UE5.7: ViewActor removed from USceneCaptureComponent2D.
+  // Equivalent: add the sensor actor itself to HiddenActors so it does not appear in its own capture.
+  CaptureComponent2D->HiddenActors.Add(this);
   CaptureComponent2D->SetupAttachment(RootComponent);
   CaptureComponent2D->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
   CaptureComponent2D->bCaptureOnMovement = false;
