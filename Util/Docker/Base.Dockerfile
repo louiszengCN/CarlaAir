@@ -38,7 +38,7 @@ USER root
 # - libpng-dev, libtiff5-dev, libjpeg-dev: CARLA's Python API links to these system libraries
 RUN packages='build-essential ninja-build libvulkan1 python3 python3-dev python3-pip autoconf wget curl rsync unzip git git-lfs libpng-dev libtiff5-dev libjpeg-dev' && \
   apt-get update && \
-  apt-get install -y $packages && \
+  apt-get install -y --no-install-recommends $packages && \
   if [ "$UBUNTU_DISTRO" = "22.04" ]; then \
     packages="python-is-python3" && \
     apt-get install -y $packages; \
@@ -56,11 +56,11 @@ RUN git lfs install
 
 # Minimum required version is 3.14.2.
 # Install a newer version manually, as older Ubuntu versions include outdated CMake versions from the upstream repository
-RUN curl -L -O https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.tar.gz \
+RUN curl -L -O https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.tar.gz \
     && mkdir -p /opt \
-    && tar -xzf cmake-3.28.3-linux-x86_64.tar.gz -C /opt \
-    && rm -rf cmake-3.28.3-linux-x86_64.tar.gz
-ENV PATH=/opt/cmake-3.28.3-linux-x86_64/bin:$PATH
+    && tar -xzf cmake-3.31.6-linux-x86_64.tar.gz -C /opt \
+    && rm -rf cmake-3.31.6-linux-x86_64.tar.gz
+ENV PATH=/opt/cmake-3.31.6-linux-x86_64/bin:$PATH
 
 # SDL2 libraries:
 # Required for Unreal Engine to interact with the display.
@@ -82,9 +82,9 @@ RUN packages='build-essential gdb lcov pkg-config libbz2-dev libffi-dev libgdbm-
     apt-get install -y $packages; \
     rm -rf /var/lib/apt/lists/*
 
-RUN bash build_scripts/build_cpython.sh --python-version 3.8.19
-RUN bash build_scripts/build_cpython.sh --python-version 3.9.19
-RUN bash build_scripts/build_cpython.sh --python-version 3.10.14
+RUN bash build_scripts/build_cpython.sh --python-version 3.8.20
+RUN bash build_scripts/build_cpython.sh --python-version 3.9.21
+RUN bash build_scripts/build_cpython.sh --python-version 3.10.17
 RUN bash build_scripts/build_cpython.sh --python-version 3.11.12
 RUN bash build_scripts/build_cpython.sh --python-version 3.12.9
 
