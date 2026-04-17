@@ -109,11 +109,11 @@ void ASensor::PostActorCreated()
   if (StaticMeshComponent && !IsRunningCommandlet() && !StaticMeshComponent->GetStaticMesh())
   {
     UStaticMesh *CamMesh = LoadObject<UStaticMesh>(
-        NULL,
+        nullptr,
         TEXT("/Engine/EditorMeshes/MatineeCam_SM.MatineeCam_SM"),
-        NULL,
+        nullptr,
         LOAD_None,
-        NULL);
+        nullptr);
     StaticMeshComponent->SetStaticMesh(CamMesh);
   }
 #endif // WITH_EDITOR

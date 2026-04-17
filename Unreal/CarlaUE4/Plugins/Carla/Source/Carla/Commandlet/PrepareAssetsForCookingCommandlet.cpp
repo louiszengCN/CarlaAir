@@ -363,7 +363,7 @@ bool UPrepareAssetsForCookingCommandlet::SaveWorld(
     AOpenDriveActor *OpenWorldActor = CastChecked<AOpenDriveActor>(
         World->SpawnActor(AOpenDriveActor::StaticClass(),
         new FVector(),
-        NULL));
+        nullptr));
 
     OpenWorldActor->BuildRoutes(WorldName);
     OpenWorldActor->AddSpawners();
