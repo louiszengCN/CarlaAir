@@ -130,12 +130,14 @@ if ${REMOVE_INTERMEDIATE} ; then
 
   UE4_INTERMEDIATE_FOLDERS="Binaries Build Intermediate DerivedDataCache"
 
+  # shellcheck disable=SC2086  # word-splitting intentional: space-separated folder list
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
   rm -f Makefile
 
   pushd "${CARLAUE4_PLUGIN_ROOT_FOLDER}" >/dev/null || exit 1
 
+  # shellcheck disable=SC2086  # word-splitting intentional: space-separated folder list
   rm -Rf ${UE4_INTERMEDIATE_FOLDERS}
 
   rm -Rf Plugins/HoudiniEngine
@@ -199,7 +201,7 @@ if ${BUILD_CARLAUE4} ; then
     # This command fails sometimes but normally we can continue anyway.
     set +e
     log "Generate Unreal project files."
-    ${UE4_ROOT}/GenerateProjectFiles.sh -project="${PWD}/CarlaUE4.uproject" -game -engine -makefiles
+    "${UE4_ROOT}/GenerateProjectFiles.sh" -project="${PWD}/CarlaUE4.uproject" -game -engine -makefiles
     set -e
 
   fi
@@ -221,6 +223,7 @@ fi
 if ${LAUNCH_UE4_EDITOR} ; then
 
   log "Launching UE4Editor..."
+  # shellcheck disable=SC2086  # GDB may be empty; RHI and EDITOR_FLAGS are option words
   ${GDB} "${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor" "${PWD}/CarlaUE4.uproject" ${RHI} ${EDITOR_FLAGS}
 
 else
