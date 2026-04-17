@@ -1695,7 +1695,7 @@ public:
         {
         case MCB_Tangent:
         {
-            check(AWComponent == 0);
+            ensure(AWComponent == 0);
             if (DestCoordBasis == MCB_World)
             {
                 CodeStr = TEXT("::transform_vector_from_tangent_to_world(float3(<A>.x,<A>.y,<A>.z), <UP_Z>)");
@@ -1814,15 +1814,15 @@ public:
             break;
         }
         default:
-            check(0);
+            ensure(0);
             break;
         }
 
         if (CodeStr.IsEmpty())
         {
             // check intermediary basis so we don't have infinite recursion
-            check(IntermediaryBasis != SourceCoordBasis);
-            check(IntermediaryBasis != DestCoordBasis);
+            ensure(IntermediaryBasis != SourceCoordBasis);
+            ensure(IntermediaryBasis != DestCoordBasis);
 
             // use intermediary basis
             const int32 IntermediaryA = TransformBase(SourceCoordBasis, IntermediaryBasis, A, AWComponent);
@@ -2216,7 +2216,7 @@ public:
 
     FString CoerceUVParameter(int32 Index, EMaterialValueType DestType)
     {
-        check(Index >= 0 && Index < CurrentScopeChunks->Num());
+        ensure(Index >= 0 && Index < CurrentScopeChunks->Num());
         const FShaderCodeChunk&	CodeChunk = (*CurrentScopeChunks)[Index];
         if (CodeChunk.Type == DestType)
         {
@@ -2264,7 +2264,7 @@ public:
 
     virtual FString CoerceParameter(int32 Index, EMaterialValueType DestType) override
     {
-        check(Index >= 0 && Index < CurrentScopeChunks->Num());
+        ensure(Index >= 0 && Index < CurrentScopeChunks->Num());
         const FShaderCodeChunk&	CodeChunk = (*CurrentScopeChunks)[Index];
         if (CodeChunk.Type == DestType)
         {
@@ -2645,7 +2645,7 @@ public:
         }
         else
         {
-            check(0);
+            ensure(0);
         }
 
         switch( SamplerType )
@@ -3041,18 +3041,18 @@ public:
 
     virtual int32 AccessUniformExpression(int32 Index) override
     {
-        check(Index >= 0 && Index < CurrentScopeChunks->Num());
+        ensure(Index >= 0 && Index < CurrentScopeChunks->Num());
         const FShaderCodeChunk&	CodeChunk = (*CurrentScopeChunks)[Index];
-        check(CodeChunk.UniformExpression && !CodeChunk.UniformExpression->IsConstant());
+        ensure(CodeChunk.UniformExpression && !CodeChunk.UniformExpression->IsConstant());
 
         FMaterialUniformExpressionTexture* TextureUniformExpression = CodeChunk.UniformExpression->GetTextureUniformExpression();
         FMaterialUniformExpressionExternalTexture* ExternalTextureUniformExpression = CodeChunk.UniformExpression->GetExternalTextureUniformExpression();
 
         // Any code chunk can have a texture uniform expression (eg FMaterialUniformExpressionFlipBookTextureParameter),
         // But a texture code chunk must have a texture uniform expression
-        check(!(CodeChunk.Type & MCT_Texture) || TextureUniformExpression || ExternalTextureUniformExpression);
+        ensure(!(CodeChunk.Type & MCT_Texture) || TextureUniformExpression || ExternalTextureUniformExpression);
         // External texture samples must have a corresponding uniform expression
-        check(!(CodeChunk.Type & MCT_TextureExternal) || ExternalTextureUniformExpression);
+        ensure(!(CodeChunk.Type & MCT_TextureExternal) || ExternalTextureUniformExpression);
 
         TCHAR FormattedCode[MAX_SPRINTF] = TEXT("");
         if (CodeChunk.Type == MCT_Float)
@@ -3574,7 +3574,7 @@ public:
 
         // Declare implementation function
         FString InputParamDecl;
-        check(Custom->Inputs.Num() == CompiledInputs.Num());
+        ensure(Custom->Inputs.Num() == CompiledInputs.Num());
         TMap<FString, FString> ChangedInputs;
         for (int32 i = 0; i < Custom->Inputs.Num(); i++)
         {
@@ -4041,8 +4041,8 @@ public:
         }
 
         UMaterialExpressionVertexInterpolator* Interpolator = *InterpolatorPtr;
-        check(Interpolator->InterpolatorIndex == InterpolatorIndex);
-        check(Interpolator->InterpolatedType & MCT_Float);
+        ensure(Interpolator->InterpolatorIndex == InterpolatorIndex);
+        ensure(Interpolator->InterpolatedType & MCT_Float);
 
         // Assign interpolator offset and accumulate size
         int32 InterpolatorSize = 0;
@@ -4059,7 +4059,7 @@ public:
             Interpolator->InterpolatorOffset = CurrentCustomVertexInterpolatorOffset;
             CurrentCustomVertexInterpolatorOffset += InterpolatorSize;
         }
-        check(CurrentCustomVertexInterpolatorOffset != INDEX_NONE && Interpolator->InterpolatorOffset < CurrentCustomVertexInterpolatorOffset);
+        ensure(CurrentCustomVertexInterpolatorOffset != INDEX_NONE && Interpolator->InterpolatorOffset < CurrentCustomVertexInterpolatorOffset);
 
         // Copy interpolated data from pixel parameters to local
         const TCHAR* TypeName = HLSLTypeString(Interpolator->InterpolatedType);
@@ -4082,7 +4082,7 @@ public:
 
                 if (InterpolatorSize >= 4)
                 {
-                    check(InterpolatorSize == 4);
+                    ensure(InterpolatorSize == 4);
                     GetValueCode += FString::Printf(TEXT(", VertexInterpolator%i_mdl.%s"), InterpolatorIndex, Swizzle[(Offset+3)%2]);
                 }
             }
@@ -4226,7 +4226,7 @@ public:
 
     int32 FresnelFunction(class UMaterialExpressionMaterialFunctionCall* FresnelFunc, FMaterialCompiler* Compiler, int32 OutputIndex)
     {
-        check(FresnelFunc->FunctionInputs.Num() == 8);
+        ensure(FresnelFunc->FunctionInputs.Num() == 8);
         int32 NormalArg = FresnelFunc->FunctionInputs[0].Input.Expression ? 
                             FresnelFunc->FunctionInputs[0].Input.Compile(Compiler) :
                             FresnelFunc->FunctionInputs[0].ExpressionInput->Compile(Compiler, OutputIndex);
@@ -4270,7 +4270,7 @@ public:
 
     int32 DitherTemporalAA(class UMaterialExpressionMaterialFunctionCall* TemporalAAFunc, FMaterialCompiler* Compiler, int32 OutputIndex)
     {
-        check(TemporalAAFunc->FunctionInputs.Num() == 2);
+        ensure(TemporalAAFunc->FunctionInputs.Num() == 2);
         int32 AlphaThresholdArg = TemporalAAFunc->FunctionInputs[0].Input.Expression ? 
                             TemporalAAFunc->FunctionInputs[0].Input.Compile(Compiler) :
                             TemporalAAFunc->FunctionInputs[0].ExpressionInput->Compile(Compiler, OutputIndex);
@@ -4288,7 +4288,7 @@ public:
 
     int32 ParallaxOcclusionMapping(class UMaterialExpressionMaterialFunctionCall* POMFunc, FMaterialCompiler* Compiler, int32 OutputIndex)
     {
-        check(POMFunc->FunctionOutputs.Num() == 7);
+        ensure(POMFunc->FunctionOutputs.Num() == 7);
 
         if (OutputIndex == 0) // Parallax UVs
         {
@@ -4396,7 +4396,7 @@ public:
         }
 
         // Check if this expression has already been translated.
-        check(ShaderFrequency < SF_NumFrequencies);
+        ensure(ShaderFrequency < SF_NumFrequencies);
         auto& CurrentFunctionStack = FunctionStacks[ShaderFrequency];
         FMaterialFunctionCompileState* CurrentFunctionState = CurrentFunctionStack.Last();
 
@@ -4526,8 +4526,8 @@ public:
             FMaterialExpressionKey PoppedExpressionKey = CurrentFunctionState->ExpressionStack.Pop();
 
             // Verify state integrity
-            check(PoppedExpressionKey == ExpressionKey);
-            check(FunctionDepth == CurrentFunctionStack.Num());
+            ensure(PoppedExpressionKey == ExpressionKey);
+            ensure(FunctionDepth == CurrentFunctionStack.Num());
 
             // Cache the translation.
             CurrentFunctionStack.Last()->ExpressionCodeMap.Add(ExpressionKey,Result);
@@ -6566,10 +6566,10 @@ public:
                     continue;
                 }
 
-                check(FMaterialAttributeDefinitionMap::GetShaderFrequency(Property) == SF_Pixel);
+                ensure(FMaterialAttributeDefinitionMap::GetShaderFrequency(Property) == SF_Pixel);
                 // Special case MP_SubsurfaceColor as the actual property is a combination of the color and the profile but we don't want to expose the profile
                 FString PropertyName = FMaterialAttributeDefinitionMap_GetDisplayName(Property);
-                check(PropertyName.Len() > 0);
+                ensure(PropertyName.Len() > 0);
                 PropertyName += TEXT("_mdl");
                 const EMaterialValueType Type = FMaterialAttributeDefinitionMap::GetValueType(Property);
 
@@ -6585,7 +6585,7 @@ public:
                         if (LastProperty >= 0)
                         {
                             // Verify that all code chunks have the same contents
-                            check(TranslatedCodeChunkDefinitions[Property].Len() == TranslatedCodeChunkDefinitions[LastProperty].Len());
+                            ensure(TranslatedCodeChunkDefinitions[Property].Len() == TranslatedCodeChunkDefinitions[LastProperty].Len());
                         }
 
                         LastProperty = Property;
@@ -6713,7 +6713,7 @@ public:
                 }
 
                 FString PropertyName = FMaterialAttributeDefinitionMap_GetDisplayName(Property);
-                check(PropertyName.Len() > 0);
+                ensure(PropertyName.Len() > 0);
                 PropertyName += TEXT("_mdl");
                 const EMaterialValueType Type = FMaterialAttributeDefinitionMap::GetValueType(Property);
 
@@ -6722,7 +6722,7 @@ public:
                     if (LastProperty >= 0)
                     {
                         // Verify that all code chunks have the same contents
-                        check(TranslatedCodeChunkDefinitions[Property].Len() == TranslatedCodeChunkDefinitions[LastProperty].Len());
+                        ensure(TranslatedCodeChunkDefinitions[Property].Len() == TranslatedCodeChunkDefinitions[LastProperty].Len());
                     }
 
                     LastProperty = Property;
@@ -6764,7 +6764,7 @@ public:
     FString GetErrorMessage(const TCHAR* Text)
     {
         FString ErrorString;
-        check(ShaderFrequency < SF_NumFrequencies);
+        ensure(ShaderFrequency < SF_NumFrequencies);
         auto& CurrentFunctionStack = FunctionStacks[ShaderFrequency];
         if (CurrentFunctionStack.Num() > 1)
         {
@@ -6778,7 +6778,7 @@ public:
         if (CurrentFunctionStack.Last()->ExpressionStack.Num() > 0)
         {
             UMaterialExpression* ErrorExpression = CurrentFunctionStack.Last()->ExpressionStack.Last().Expression;
-            check(ErrorExpression);
+            ensure(ErrorExpression);
 
             if (ErrorExpression->GetClass() != UMaterialExpressionMaterialFunctionCall::StaticClass()
                 && ErrorExpression->GetClass() != UMaterialExpressionFunctionInput::StaticClass()
