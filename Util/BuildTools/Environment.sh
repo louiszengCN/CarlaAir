@@ -4,6 +4,7 @@
 
 set -euo pipefail
 
+# shellcheck disable=SC2034  # CURDIR is used to set working dir then unset
 CURDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 # shellcheck source=/dev/null
 source "$(dirname "$0")/Vars.mk"
@@ -55,4 +56,5 @@ function move_if_changed {
   rm -f "$1"
 }
 
+export CARLA_BUILD_CONCURRENCY
 CARLA_BUILD_CONCURRENCY=$(nproc --all)
