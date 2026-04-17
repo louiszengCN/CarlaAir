@@ -1551,7 +1551,7 @@ USceneComponent* ASimReadyStageActor::CreateActorAndComponent(UClass& SceneCompC
             }
             else
             {
-                ExistingObject->MarkPendingKill();
+                ExistingObject->MarkAsGarbage();
             }
         }
 
@@ -1686,7 +1686,7 @@ void ASimReadyStageActor::ReserveObject(UObject& Object, const FString& USDPath)
                 }
             }
 
-            Material->MarkPendingKill();
+            Material->MarkAsGarbage();
         }
     }
 }
@@ -3360,7 +3360,7 @@ void ASimReadyStageActor::ImportUSD(const FString& UsdPath, const FString& Packa
                 if (Blueprint)
                 {
                     Blueprint->Rename(nullptr, GetTransientPackage(), REN_DoNotDirty | REN_DontCreateRedirectors | REN_NonTransactional);
-                    Blueprint->MarkPendingKill();
+                    Blueprint->MarkAsGarbage();
                 }
             }
             Blueprint = FKismetEditorUtilities::HarvestBlueprintFromActors(BlueprintPath, Actors, Params);

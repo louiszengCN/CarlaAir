@@ -157,7 +157,7 @@ void FSimReadyUSDSequenceImporter::RemoveEmptyLevelSequence()
                 FAssetRegistryModule::AssetDeleted(LevelSequence.Get());
                 LevelSequence->ClearFlags(RF_Standalone | RF_Public);
                 LevelSequence->RemoveFromRoot();
-                LevelSequence->MarkPendingKill();
+                LevelSequence->MarkAsGarbage();
                 LevelSequence = nullptr;
             }		
         }
