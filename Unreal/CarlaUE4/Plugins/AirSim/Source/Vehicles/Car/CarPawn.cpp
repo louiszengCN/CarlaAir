@@ -86,7 +86,7 @@ ACarPawn::ACarPawn()
 void ACarPawn::setupVehicleMovementComponent()
 {
     UWheeledVehicleMovementComponent4W* movement = CastChecked<UWheeledVehicleMovementComponent4W>(getVehicleMovementComponent());
-    check(movement->WheelSetups.Num() == 4);
+    if (movement->WheelSetups.Num() != 4) { return; }
 
     // Wheels/Tires
     // Setup the wheels
