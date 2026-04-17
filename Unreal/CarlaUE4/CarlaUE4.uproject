@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.26",
+	"EngineAssociation": "5.7",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -10,7 +10,7 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"PhysXVehicles",
+				"ChaosVehicles",
 				"Carla",
 				"CoreUObject"
 			]
@@ -23,7 +23,7 @@
 		},
 		{
 			"Name": "AirSim",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "OnlineSubsystemGooglePlay",

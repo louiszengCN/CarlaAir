@@ -30,7 +30,7 @@ struct FShapeVisitor
       LifeTime(InLifeTime),
       bPersistentLines(bInPersistentLines)
   {
-    World->PersistentLineBatcher->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   }
 
   ACarlaHUD * GetHUD() const {
@@ -52,7 +52,7 @@ struct FShapeVisitor
     {
       Location = LargeMap->GlobalToLocalLocation(Location);
     }
-    World->PersistentLineBatcher->DrawPoint(
+    World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawPoint(
         Location,
         Color,
         1e2f * Point.size,
@@ -71,7 +71,7 @@ struct FShapeVisitor
     {
       Location = LargeMap->GlobalToLocalLocation(Location);
     }
-    Hud->AddHUDLine(Location, Location, Point.size, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Location, Location, Point.size, Color.ToFColor(true), LifeTime);
   }
 
   void operator()(const Shape::Line &Line) const
@@ -84,7 +84,7 @@ struct FShapeVisitor
       Begin = LargeMap->GlobalToLocalLocation(Begin);
       End = LargeMap->GlobalToLocalLocation(End);
     }
-    World->PersistentLineBatcher->DrawLine(
+    World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawLine(
         Begin,
         End,
         Color,
@@ -104,7 +104,7 @@ struct FShapeVisitor
       Begin = LargeMap->GlobalToLocalLocation(Begin);
       End = LargeMap->GlobalToLocalLocation(End);
     }
-    Hud->AddHUDLine(Begin, End, Line.thickness, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Begin, End, Line.thickness, Color.ToFColor(true), LifeTime);
   }
 
   void operator()(const Shape::Arrow &Arrow) const
@@ -127,7 +127,7 @@ struct FShapeVisitor
     const auto ArrowTipDist = Dist - ArrowSize;
     const auto Thickness = 1e2f * Arrow.line.thickness;
 
-    World->PersistentLineBatcher->DrawLines(TArray<FBatchedLine>({
+    World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawLines(TArray<FBatchedLine>({
         FBatchedLine(
             Begin, End, Color, LifeTime, Thickness, DepthPriority),
         FBatchedLine(
@@ -165,19 +165,19 @@ struct FShapeVisitor
     const auto ArrowTipDist = Dist - ArrowSize;
     const auto Thickness = Arrow.line.thickness;
 
-    Hud->AddHUDLine(Begin, End, Thickness, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Begin, End, Thickness, Color.ToFColor(true), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, +ArrowSize, +ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.ToFColor(true), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, +ArrowSize, -ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.ToFColor(true), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, -ArrowSize, +ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.ToFColor(true), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, -ArrowSize, -ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.ToFColor(true), LifeTime);
   }
 
   void operator()(const Shape::Box &Box) const
@@ -202,19 +202,19 @@ struct FShapeVisitor
       {
         P.X=B[i].X; Q.X=B[i].X; P.Y=B[j].Y;
         Q.Y=B[j].Y; P.Z=B[0].Z; Q.Z=B[1].Z;
-        World->PersistentLineBatcher->DrawLine(
+        World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
             Color, DepthPriority, Thickness, LifeTime);
 
         P.Y=B[i].Y; Q.Y=B[i].Y; P.Z=B[j].Z;
         Q.Z=B[j].Z; P.X=B[0].X; Q.X=B[1].X;
-        World->PersistentLineBatcher->DrawLine(
+        World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
             Color, DepthPriority, Thickness, LifeTime);
 
         P.Z=B[i].Z; Q.Z=B[i].Z; P.X=B[j].X;
         Q.X=B[j].X; P.Y=B[0].Y; Q.Y=B[1].Y;
-        World->PersistentLineBatcher->DrawLine(
+        World->GetLineBatcher(bPersistentLines ? UWorld::ELineBatcherType::WorldPersistent : UWorld::ELineBatcherType::World)->DrawLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
             Color, DepthPriority, Thickness, LifeTime);
       }
@@ -246,19 +246,19 @@ struct FShapeVisitor
         Q.Y=B[j].Y; P.Z=B[0].Z; Q.Z=B[1].Z;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.ToFColor(true), LifeTime);
 
         P.Y=B[i].Y; Q.Y=B[i].Y; P.Z=B[j].Z;
         Q.Z=B[j].Z; P.X=B[0].X; Q.X=B[1].X;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.ToFColor(true), LifeTime);
 
         P.Z=B[i].Z; Q.Z=B[i].Z; P.X=B[j].X;
         Q.X=B[j].X; P.Y=B[0].Y; Q.Y=B[1].Y;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.ToFColor(true), LifeTime);
       }
     }
   }
@@ -273,7 +273,7 @@ struct FShapeVisitor
     {
       Location = LargeMap->GlobalToLocalLocation(Location);
     }
-    Hud->AddHUDString(carla::rpc::ToFString(Str.text), Location, Color.Quantize(), LifeTime);
+    Hud->AddHUDString(carla::rpc::ToFString(Str.text), Location, Color.ToFColor(true), LifeTime);
   }
 
 private:
@@ -308,5 +308,6 @@ void FDebugShapeDrawer::Draw(const carla::rpc::DebugShape &Shape)
 
 void FDebugShapeDrawer::Clear()
 {
-  World.PersistentLineBatcher->Flush();
+  World.GetLineBatcher(UWorld::ELineBatcherType::World)->Flush();
+  World.GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)->Flush();
 }

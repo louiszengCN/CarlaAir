@@ -6,6 +6,7 @@
 
 #include "CarlaRecorderWeather.h"
 #include "CarlaRecorderHelpers.h"
+#include "Carla/Recorder/CarlaRecorder.h"
 
 void CarlaRecorderWeather::Write(std::ostream &OutFile)
 {

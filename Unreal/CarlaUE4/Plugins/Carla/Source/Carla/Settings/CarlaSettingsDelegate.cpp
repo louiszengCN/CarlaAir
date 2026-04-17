@@ -43,7 +43,7 @@ void UCarlaSettingsDelegate::RegisterSpawnHandler(UWorld *InWorld)
 void UCarlaSettingsDelegate::OnActorSpawned(AActor *InActor)
 {
   check(CarlaSettings != nullptr);
-  if (InActor != nullptr && IsValid(InActor) && !InActor->IsPendingKill() &&
+  if (InActor != nullptr && IsValid(InActor) && IsValid(InActor) &&
       !InActor->IsA<AInstancedFoliageActor>() && // foliage culling is
                                                  // controlled per instance
       !InActor->IsA<ALandscape>() && // dont touch landscapes nor roads
@@ -121,7 +121,7 @@ void UCarlaSettingsDelegate::ApplyQualityLevelPreRestart()
 {
   CheckCarlaSettings(nullptr);
   UWorld *InWorld = CarlaSettings->GetWorld();
-  if (!IsValid(InWorld) || InWorld->IsPendingKill())
+  if (!IsValid(InWorld) || IsGarbage(InWorld))
   {
     return;
   }
@@ -155,7 +155,7 @@ void UCarlaSettingsDelegate::CheckCarlaSettings(UWorld *world)
   {
     return;
   }
-  if (world == nullptr || !IsValid(world) || world->IsPendingKill())
+  if (world == nullptr || !IsValid(world) || IsGarbage(world))
   {
     world = GetLocalWorld();
   }
@@ -229,12 +229,12 @@ void UCarlaSettingsDelegate::SetAllRoads(
     const float max_draw_distance,
     const TArray<FStaticMaterial> &road_pieces_materials) const
 {
-  if (!world || !IsValid(world) || world->IsPendingKill())
+  if (!world || !IsValid(world) || IsGarbage(world))
   {
     return;
   }
   AsyncTask(ENamedThreads::GameThread, [=]() {
-    if (!world || !IsValid(world) || world->IsPendingKill())
+    if (!world || !IsValid(world) || IsGarbage(world))
     {
       return;
     }
@@ -244,7 +244,7 @@ void UCarlaSettingsDelegate::SetAllRoads(
     for (int32 i = 0; i < actors.Num(); i++)
     {
       AActor *actor = actors[i];
-      if (!IsValid(actor) || actor->IsPendingKill())
+      if (!IsValid(actor) || IsGarbage(actor))
       {
         continue;
       }
@@ -320,12 +320,12 @@ void UCarlaSettingsDelegate::SetAllActorsDrawDistance(UWorld *world, const float
   /// @TODO: use semantics to grab all actors by type
   /// (vehicles,ground,people,props) and set different distances configured in
   /// the global properties
-  if (!world || !IsValid(world) || world->IsPendingKill())
+  if (!world || !IsValid(world) || IsGarbage(world))
   {
     return;
   }
   AsyncTask(ENamedThreads::GameThread, [=]() {
-    if (!world || !IsValid(world) || world->IsPendingKill())
+    if (!world || !IsValid(world) || IsGarbage(world))
     {
       return;
     }
@@ -335,7 +335,7 @@ void UCarlaSettingsDelegate::SetAllActorsDrawDistance(UWorld *world, const float
     for (int32 i = 0; i < actors.Num(); i++)
     {
       AActor *actor = actors[i];
-      if (!IsValid(actor) || actor->IsPendingKill() ||
+      if (!IsValid(actor) || IsGarbage(actor) ||
       actor->IsA<AInstancedFoliageActor>() ||   // foliage culling is controlled
                                                 // per instance
       actor->IsA<ALandscape>() ||   // dont touch landscapes nor roads
@@ -356,7 +356,7 @@ void UCarlaSettingsDelegate::SetPostProcessEffectsEnabled(UWorld *world, const b
   for (int32 i = 0; i < actors.Num(); i++)
   {
     AActor *actor = actors[i];
-    if (!IsValid(actor) || actor->IsPendingKill())
+    if (!IsValid(actor) || IsGarbage(actor))
     {
       continue;
     }
@@ -419,12 +419,12 @@ void UCarlaSettingsDelegate::SetAllLights(
     const bool cast_shadows,
     const bool hide_non_directional) const
 {
-  if (!world || !IsValid(world) || world->IsPendingKill())
+  if (!world || !IsValid(world) || IsGarbage(world))
   {
     return;
   }
   AsyncTask(ENamedThreads::GameThread, [=]() {
-    if (!world || !IsValid(world) || world->IsPendingKill())
+    if (!world || !IsValid(world) || IsGarbage(world))
     {
       return;
     }
@@ -432,7 +432,7 @@ void UCarlaSettingsDelegate::SetAllLights(
     UGameplayStatics::GetAllActorsOfClass(world, ALight::StaticClass(), actors);
     for (int32 i = 0; i < actors.Num(); i++)
     {
-      if (!IsValid(actors[i]) || actors[i]->IsPendingKill())
+      if (!IsValid(actors[i]) || IsGarbage(actors[i]))
       {
         continue;
       }

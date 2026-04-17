@@ -394,7 +394,7 @@ void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (CarlaActor->IsPendingKill())
+  if (IsGarbage(CarlaActor))
   {
     return;
   }
@@ -416,7 +416,7 @@ void FFrameData::AddVehicleAnimation(FCarlaActor *CarlaActor)
 void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr)
-  if (CarlaActor->IsPendingKill())
+  if (IsGarbage(CarlaActor))
     return;
   if (CarlaActor->GetActorType() != FCarlaActor::ActorType::Vehicle)
     return;
@@ -429,47 +429,15 @@ void FFrameData::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
   if (SkeletalMesh == nullptr)
     return;
 
-  UVehicleAnimInstance* VehicleAnim = Cast<UVehicleAnimInstance>(SkeletalMesh->GetAnimInstance());
-  if (VehicleAnim == nullptr)
-    return;
-
-  const UWheeledVehicleMovementComponent* WheeledVehicleMovementComponent = VehicleAnim->GetWheeledVehicleMovementComponent();
-  if (WheeledVehicleMovementComponent == nullptr)
-    return;
-
-  CarlaRecorderAnimWheels Record;
-  Record.DatabaseId = CarlaActor->GetActorId();
-  Record.WheelValues.reserve(WheeledVehicleMovementComponent->Wheels.Num());
-
-  uint8 i = 0;
-  for (auto Wheel : WheeledVehicleMovementComponent->Wheels)
-  {
-    WheelInfo Info;
-    Info.Location = static_cast<EVehicleWheelLocation>(i);
-    Info.SteeringAngle = CarlaVehicle->GetWheelSteerAngle(Info.Location);
-    Info.TireRotation = Wheel->GetRotationAngle();
-    Record.WheelValues.push_back(Info);
-    ++i;
-  }
-
-  AddAnimVehicleWheels(Record);
-
-  if (CarlaVehicle->IsTwoWheeledVehicle())
-  {
-    AddAnimBiker(CarlaRecorderAnimBiker
-    {
-      CarlaActor->GetActorId(),
-      WheeledVehicleMovementComponent->GetForwardSpeed(),
-      WheeledVehicleMovementComponent->GetEngineRotationSpeed() / WheeledVehicleMovementComponent->GetEngineMaxRotationSpeed()
-    });
-  }
+  // UE5: UVehicleAnimInstance / UWheeledVehicleMovementComponent wheel animation API removed in ChaosVehicles
+  // Wheel animation recording disabled for UE5.7 compatibility
 }
 
 void FFrameData::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (!CarlaActor->IsPendingKill())
+  if (IsValid(CarlaActor))
   {
     FWalkerControl Control;
     CarlaActor->GetWalkerControl(Control);
@@ -1031,15 +999,8 @@ void FFrameData::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWheels Vehicl
   check(CarlaVehicle != nullptr)
   USkeletalMeshComponent* SkeletalMesh = CarlaVehicle->GetMesh();
   check(SkeletalMesh != nullptr)
-  UVehicleAnimInstance* VehicleAnim = Cast<UVehicleAnimInstance>(SkeletalMesh->GetAnimInstance());
-  check(VehicleAnim != nullptr)
-
-  for (uint32_t i = 0; i < VehicleAnimWheels.WheelValues.size(); ++i)
-  {
-    const WheelInfo& Element = VehicleAnimWheels.WheelValues[i];
-    VehicleAnim->SetWheelRotYaw(static_cast<uint8>(Element.Location), Element.SteeringAngle);
-    VehicleAnim->SetWheelPitchAngle(static_cast<uint8>(Element.Location), Element.TireRotation);
-  }
+  // UE5: UVehicleAnimInstance wheel animation API removed in ChaosVehicles
+  // Wheel replay animation disabled for UE5.7 compatibility
 }
 
 // set the lights for vehicles

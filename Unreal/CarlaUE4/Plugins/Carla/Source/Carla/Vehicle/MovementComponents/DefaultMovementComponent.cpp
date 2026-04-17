@@ -29,12 +29,12 @@ void UDefaultMovementComponent::ProcessControl(FVehicleControl &Control)
   MovementComponent->SetHandbrakeInput(Control.bHandBrake);
   if (CarlaVehicle->GetVehicleControl().bReverse != Control.bReverse)
   {
-    MovementComponent->SetUseAutoGears(!Control.bReverse);
+    // MovementComponent->SetUseAutoGears(!Control.bReverse); // UE5: SetUseAutoGears removed from ChaosVehicles
     MovementComponent->SetTargetGear(Control.bReverse ? -1 : 1, true);
   }
   else
   {
-    MovementComponent->SetUseAutoGears(!Control.bManualGearShift);
+    // MovementComponent->SetUseAutoGears(!Control.bManualGearShift); // UE5: SetUseAutoGears removed from ChaosVehicles
     if (Control.bManualGearShift)
     {
       MovementComponent->SetTargetGear(Control.Gear, true);

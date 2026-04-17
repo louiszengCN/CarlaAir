@@ -2797,7 +2797,7 @@ BIND_SYNC(send) << [this](
         else
         {
           auto Actor = View.GetActor();
-          if (!Actor->IsPendingKill())
+          if (IsValid(Actor))
           {
             const ACarlaWheeledVehicle *Vehicle = Cast<ACarlaWheeledVehicle>(Actor);
             List.emplace_back(

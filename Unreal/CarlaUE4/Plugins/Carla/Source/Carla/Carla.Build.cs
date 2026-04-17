@@ -18,14 +18,22 @@ public class Carla : ModuleRules
   public Carla(ReadOnlyTargetRules Target) : base(Target)
   {
     PrivatePCHHeaderFile = "Carla.h";
+    CppStandard = CppStandardVersion.Cpp20;
 
     if (IsWindows(Target))
     {
       bEnableExceptions = true;
     }
 
+    // Eigen3 - required for vehicle physics computations
+    string CarlaPluginPath = Path.GetFullPath(ModuleDirectory);
+    string EigenPath = Path.Combine(CarlaPluginPath, "../../ThirdParty/eigen3");
+    if (Directory.Exists(EigenPath))
+    {
+      PublicIncludePaths.Add(EigenPath);
+    }
+
     // Read config about carsim
-    string CarlaPluginPath = Path.GetFullPath( ModuleDirectory );
     string ConfigDir =  Path.GetFullPath(Path.Combine(CarlaPluginPath, "../../../../Config/"));
     string OptionalModulesFile = Path.Combine(ConfigDir, "OptionalModules.ini");
     string[] text = System.IO.File.ReadAllLines(OptionalModulesFile);
@@ -111,9 +119,9 @@ public class Carla : ModuleRules
         "Json",
         "JsonUtilities",
         "Landscape",
-        "PhysX",
-        "PhysXVehicles",
-        "PhysXVehicleLib",
+        "ChaosVehicles",
+        "ChaosVehicleMovement",
+        "Chaos",
         "Projects",
         "Slate",
         "SlateCore",

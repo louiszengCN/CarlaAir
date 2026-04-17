@@ -29,7 +29,7 @@ bool AShaderBasedSensor_WideAngleLens::AddPostProcessingMaterial(const FString& 
     return Loader.Succeeded();
 }
 
-void AShaderBasedSensor_WideAngleLens::SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D_CARLA*> SceneCaptures)
+void AShaderBasedSensor_WideAngleLens::SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D*> SceneCaptures)
 {
     for (auto SceneCapture : SceneCaptures)
     {

@@ -26,6 +26,6 @@ public:
 
 protected:
 
-  void SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D_CARLA*> SceneCaptures) override;
+  void SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D*> SceneCaptures) override;
   void PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaSeconds) override;
 };

@@ -6,10 +6,12 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "CarlaWheeledVehicleNW.h"
-#include "WheeledVehicleMovementComponentNW.h"
+#include "WheeledVehicleMovementComponentNW.h" // UE5 note: not available in ChaosVehicles
 
 ACarlaWheeledVehicleNW::ACarlaWheeledVehicleNW(const FObjectInitializer& ObjectInitializer) :
-  Super(ObjectInitializer.SetDefaultSubobjectClass<UWheeledVehicleMovementComponentNW>(AWheeledVehicle::VehicleMovementComponentName))
+  // UE5: WheeledVehicleMovementComponentNW stubbed out - not available in ChaosVehicles
+  // Super(ObjectInitializer.SetDefaultSubobjectClass<UWheeledVehicleMovementComponentNW>(AWheeledVehicle::VehicleMovementComponentName))
+  Super(ObjectInitializer)
 {
   bIsNWVehicle = true;
 }

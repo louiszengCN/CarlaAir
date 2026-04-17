@@ -44,8 +44,9 @@ void FPixelReader::WritePixelsToBuffer(
     return;
   }
 
+  // UE5: UTexture::Resource field removed; use GetResource() instead
   auto RenderResource =
-      static_cast<const FTextureRenderTarget2DResource *>(RenderTarget.Resource);
+      static_cast<const FTextureRenderTarget2DResource *>(RenderTarget.GetResource());
   FTexture2DRHIRef Texture = RenderResource->GetRenderTargetTexture();
   if (!Texture)
   {

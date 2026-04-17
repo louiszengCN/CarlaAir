@@ -49,7 +49,7 @@ static auto WIDE_ANGLE_LENS_SENSOR_COUNTER_COUNTER = 0u;
 // Local namespace to avoid name collisions on unit builds.
 namespace SceneCaptureSensorWideAngleLens_local_ns {
 
-    static void SetCameraDefaultOverrides(USceneCaptureComponent2D_CARLA& CaptureComponent);
+    static void SetCameraDefaultOverrides(USceneCaptureComponent2D& CaptureComponent);
 
     static void ConfigureShowFlags(FEngineShowFlags& ShowFlags, bool bPostProcessing = true);
 
@@ -168,8 +168,8 @@ ASceneCaptureSensor_WideAngleLens::ASceneCaptureSensor_WideAngleLens(const FObje
         RenderTarget->AddressX = TextureAddress::TA_Clamp;
         RenderTarget->AddressY = TextureAddress::TA_Clamp;
 
-        FaceCapture = CreateDefaultSubobject<USceneCaptureComponent2D_CARLA>(
-            FName(*FString::Printf(TEXT("USceneCaptureComponent2D_CARLA-%d"), AbsIndex)));
+        FaceCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(
+            FName(*FString::Printf(TEXT("USceneCaptureComponent2D-%d"), AbsIndex)));
         check(FaceCapture != nullptr);
         FaceCapture->SetupAttachment(RootComponent);
         FaceCapture->SetRelativeRotation(FRotationMatrix::MakeFromXY(Forward[i], Right[i]).ToQuat());
@@ -468,7 +468,7 @@ void ASceneCaptureSensor_WideAngleLens::CaptureSceneExtended()
     {
         TRACE_CPUPROFILER_EVENT_SCOPE(WideAngleLensCommand);
 
-        if (this->IsPendingKill())
+        if (IsGarbage(this))
             return;
 
         FRDGBuilder GraphBuilder(RHICmdList);
@@ -645,7 +645,7 @@ void ASceneCaptureSensor_WideAngleLens::EndPlay(const EEndPlayReason::Type EndPl
     FlushRenderingCommands();
 }
 
-TArrayView<USceneCaptureComponent2D_CARLA*> ASceneCaptureSensor_WideAngleLens::GetCaptureComponents2D()
+TArrayView<USceneCaptureComponent2D*> ASceneCaptureSensor_WideAngleLens::GetCaptureComponents2D()
 {
     return FaceCaptures;
 }
@@ -666,7 +666,7 @@ float ASceneCaptureSensor_WideAngleLens::VerticalToHorizontal(
 
 namespace SceneCaptureSensorWideAngleLens_local_ns {
 
-    static void SetCameraDefaultOverrides(USceneCaptureComponent2D_CARLA& CaptureComponent)
+    static void SetCameraDefaultOverrides(USceneCaptureComponent2D& CaptureComponent)
     {
         FPostProcessSettings& PostProcessSettings = CaptureComponent.PostProcessSettings;
         PostProcessSettings.bOverride_VignetteIntensity = true;

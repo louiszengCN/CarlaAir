@@ -54,8 +54,9 @@ ASceneCaptureSensor::ASceneCaptureSensor(const FObjectInitializer &ObjectInitial
   CaptureRenderTarget->AddressX = TextureAddress::TA_Clamp;
   CaptureRenderTarget->AddressY = TextureAddress::TA_Clamp;
 
-  CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D_CARLA>(
-      FName(*FString::Printf(TEXT("USceneCaptureComponent2D_CARLA_%d"), SCENE_CAPTURE_COUNTER)));
+  // UE5: Changed from USceneCaptureComponent2D_CARLA to USceneCaptureComponent2D
+  CaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>(
+      FName(*FString::Printf(TEXT("USceneCaptureComponent2D_%d"), SCENE_CAPTURE_COUNTER)));
   check(CaptureComponent2D != nullptr);
   CaptureComponent2D->ViewActor = this;
   CaptureComponent2D->SetupAttachment(RootComponent);
@@ -481,76 +482,28 @@ constexpr const TCHAR* GBufferNames[] =
   TEXT("CustomStencil"),
 };
 
-template <EGBufferTextureID ID, typename T>
-static void CheckGBufferStream(T& GBufferStream, FGBufferRequest& GBuffer)
-{
-  GBufferStream.bIsUsed = GBufferStream.Stream.AreClientsListening();
-  if (GBufferStream.bIsUsed)
-    GBuffer.MarkAsRequested(ID);
-}
+// UE5: GBuffer API removed.
+// CheckGBufferStream, FGBufferRequest, EGBufferTextureID, and
+// CaptureSceneWithGBuffer are no longer available in UE5.
+// Use CaptureScene() + RenderTarget->ReadPixels() instead.
+//
+// template <EGBufferTextureID ID, typename T>
+// static void CheckGBufferStream(T& GBufferStream, FGBufferRequest& GBuffer) { ... }
 
 static uint64 Prior = 0;
 
 void ASceneCaptureSensor::CaptureSceneExtended()
 {
-  auto GBufferPtr = MakeUnique<FGBufferRequest>();
-  auto& GBuffer = *GBufferPtr;
-
-  CheckGBufferStream<EGBufferTextureID::SceneColor>(CameraGBuffers.SceneColor, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::SceneDepth>(CameraGBuffers.SceneDepth, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::SceneStencil>(CameraGBuffers.SceneStencil, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferA>(CameraGBuffers.GBufferA, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferB>(CameraGBuffers.GBufferB, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferC>(CameraGBuffers.GBufferC, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferD>(CameraGBuffers.GBufferD, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferE>(CameraGBuffers.GBufferE, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::GBufferF>(CameraGBuffers.GBufferF, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::Velocity>(CameraGBuffers.Velocity, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::SSAO>(CameraGBuffers.SSAO, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::CustomDepth>(CameraGBuffers.CustomDepth, GBuffer);
-  CheckGBufferStream<EGBufferTextureID::CustomStencil>(CameraGBuffers.CustomStencil, GBuffer);
-
-  if (GBufferPtr->DesiredTexturesMask == 0)
-  {
-    // Creates an snapshot of the scene, requieres bCaptureEveryFrame = false.
-    CaptureComponent2D->CaptureScene();
-    return;
-  }
-
-  if (Prior != GBufferPtr->DesiredTexturesMask)
-    UE_LOG(LogCarla, Verbose, TEXT("GBuffer selection changed (%llu)."), GBufferPtr->DesiredTexturesMask);
-
-  Prior = GBufferPtr->DesiredTexturesMask;
-  GBufferPtr->OwningActor = CaptureComponent2D->GetViewOwner();
-
-#define CARLA_GBUFFER_DISABLE_TAA // Temporarily disable TAA to avoid jitter.
-
-#ifdef CARLA_GBUFFER_DISABLE_TAA
-  bool bTAA = CaptureComponent2D->ShowFlags.TemporalAA;
-  if (bTAA) {
-    CaptureComponent2D->ShowFlags.TemporalAA = false;
-  }
-#endif
-
-  CaptureComponent2D->CaptureSceneWithGBuffer(GBuffer);
-
-#ifdef CARLA_GBUFFER_DISABLE_TAA
-  if (bTAA) {
-    CaptureComponent2D->ShowFlags.TemporalAA = true;
-  }
-#undef CARLA_GBUFFER_DISABLE_TAA
-#endif
-
-  AsyncTask(ENamedThreads::AnyHiPriThreadNormalTask, [this, GBuffer = MoveTemp(GBufferPtr)]() mutable
-  {
-    SendGBufferTextures(*GBuffer);
-  });
+  // UE5: GBuffer path disabled — FGBufferRequest / CaptureSceneWithGBuffer removed.
+  // Fall back to standard CaptureScene() for all cases.
+  CaptureComponent2D->CaptureScene();
 }
 
-void ASceneCaptureSensor::SendGBufferTextures(FGBufferRequest& GBuffer)
-{
-  SendGBufferTexturesInternal(*this, GBuffer);
-}
+// UE5: SendGBufferTextures disabled — use CaptureScene() + ReadPixels() API.
+// void ASceneCaptureSensor::SendGBufferTextures(FGBufferRequest& GBuffer)
+// {
+//   SendGBufferTexturesInternal(*this, GBuffer);
+// }
 
 void ASceneCaptureSensor::BeginPlay()
 {
@@ -567,7 +520,7 @@ void ASceneCaptureSensor::BeginPlay()
     CaptureRenderTarget->TargetGamma = TargetGamma;
   }
 
-  check(IsValid(CaptureComponent2D) && !CaptureComponent2D->IsPendingKill());
+  check(IsValid(CaptureComponent2D) && IsValid(CaptureComponent2D));
 
   CaptureComponent2D->Deactivate();
   CaptureComponent2D->TextureTarget = CaptureRenderTarget;
@@ -672,7 +625,7 @@ namespace SceneCaptureSensor_local_ns {
 #if PLATFORM_LINUX
   // Looks like Windows and Linux have different outputs with the
   // same exposure compensation, this fixes it.
-  PostProcessSettings.ColorContrast = FVector4(1.2f, 1.2f, 1.2f, 1.0f);
+  PostProcessSettings.ColorContrast = FVector4f(1.2f, 1.2f, 1.2f, 1.0f); // UE5: FVector4 → FVector4f
 #endif
 
     // Chromatic Aberration

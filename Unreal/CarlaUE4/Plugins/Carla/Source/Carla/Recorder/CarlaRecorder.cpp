@@ -18,7 +18,7 @@
 #include "Carla/Walker/WalkerController.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "VehicleAnimInstance.h"
+#include "ChaosVehicleAnimationInstance.h"
 
 #include <compiler/disable-ue4-macros.h>
 #include "carla/rpc/VehicleLightState.h"
@@ -108,7 +108,7 @@ void ACarlaRecorder::Ticking(float DeltaSeconds)
     // through all actors in registry
     for (auto It = Registry.begin(); It != Registry.end(); ++It)
     {
-      FCarlaActor* View = It.Value().Get();
+      FCarlaActor* View = It.Value.Get();
 
       switch (View->GetActorType())
       {
@@ -194,7 +194,7 @@ void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (CarlaActor->IsPendingKill())
+  if (IsGarbage(CarlaActor))
   {
     return;
   }
@@ -215,61 +215,14 @@ void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 
 void ACarlaRecorder::AddVehicleWheelsAnimation(FCarlaActor *CarlaActor)
 {
-  check(CarlaActor != nullptr)
-  if (CarlaActor->IsPendingKill())
-    return;
-  if (CarlaActor->GetActorType() != FCarlaActor::ActorType::Vehicle)
-    return;
-
-  ACarlaWheeledVehicle* CarlaVehicle = Cast<ACarlaWheeledVehicle>(CarlaActor->GetActor());
-  if (CarlaVehicle == nullptr)
-    return;
-
-  USkeletalMeshComponent* SkeletalMesh = CarlaVehicle->GetMesh();
-  if (SkeletalMesh == nullptr)
-    return;
-
-  UVehicleAnimInstance* VehicleAnim = Cast<UVehicleAnimInstance>(SkeletalMesh->GetAnimInstance());
-  if (VehicleAnim == nullptr)
-    return;
-
-  const UWheeledVehicleMovementComponent* WheeledVehicleMovementComponent = VehicleAnim->GetWheeledVehicleMovementComponent();
-  if (WheeledVehicleMovementComponent == nullptr)
-    return;
-
-  CarlaRecorderAnimWheels Record;
-  Record.DatabaseId = CarlaActor->GetActorId();
-  Record.WheelValues.reserve(WheeledVehicleMovementComponent->Wheels.Num());
-
-  uint8 i = 0;
-  for (auto Wheel : WheeledVehicleMovementComponent->Wheels)
-  {
-    WheelInfo Info;
-    Info.Location = static_cast<EVehicleWheelLocation>(i);
-    Info.SteeringAngle = CarlaVehicle->GetWheelSteerAngle(Info.Location);
-    Info.TireRotation = Wheel->GetRotationAngle();
-    Record.WheelValues.push_back(Info);
-    ++i;
-  }
-
-  AddAnimVehicleWheels(Record);
-
-  if (CarlaVehicle->IsTwoWheeledVehicle())
-  {
-    AddAnimBiker(CarlaRecorderAnimBiker
-    {
-      CarlaActor->GetActorId(),
-      WheeledVehicleMovementComponent->GetForwardSpeed(),
-      WheeledVehicleMovementComponent->GetEngineRotationSpeed() / WheeledVehicleMovementComponent->GetEngineMaxRotationSpeed()
-    });
-  }
+  // UE5: wheel recording disabled - ChaosVehicles API changed
 }
 
 void ACarlaRecorder::AddWalkerAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
 
-  if (!CarlaActor->IsPendingKill())
+  if (IsValid(CarlaActor))
   {
     FWalkerControl Control;
     CarlaActor->GetWalkerControl(Control);

@@ -80,7 +80,10 @@ void UGenerateTaggedMaterialsRegistryCommandlet::CreateMapPackage(const FString&
 
   // Save the new package
   const FString PackageFileName = FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetMapPackageExtension());
-  UPackage::SavePackage(Package, World, RF_Public | RF_Standalone, *PackageFileName);
+  FSavePackageArgs SaveArgs;
+  SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+  SaveArgs.SaveFlags = SAVE_NoError;
+  UPackage::Save(Package, World, *PackageFileName, SaveArgs);
 }
 
 TArray<FString> UGenerateTaggedMaterialsRegistryCommandlet::ParseAndSplitParamList(const TArray<FString>& Switches, const FString& SwitchKey) {

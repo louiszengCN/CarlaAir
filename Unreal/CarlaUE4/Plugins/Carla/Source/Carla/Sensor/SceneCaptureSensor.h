@@ -8,11 +8,12 @@
 
 #include "Carla/Sensor/PixelReader.h"
 #include "Carla/Sensor/Sensor.h"
-#include "Carla/Sensor/UE4_Overridden/SceneCaptureComponent2D_CARLA.h"
+// UE5: USceneCaptureComponent2D_CARLA removed; use standard component instead
+#include "Components/SceneCaptureComponent2D.h"
 #include "Carla/Sensor/ImageUtil.h"
 
 #include "Async/Async.h"
-#include "Renderer/Public/GBufferView.h"
+// UE5: GBufferView.h removed — GBuffer API no longer available via this header
 
 #include <type_traits>
 
@@ -434,7 +435,8 @@ protected:
 
   void CaptureSceneExtended();
 
-  virtual void SendGBufferTextures(FGBufferRequest& GBuffer);
+  // UE5: GBuffer API removed — SendGBufferTextures disabled
+  // virtual void SendGBufferTextures(FGBufferRequest& GBuffer);
 
   virtual void BeginPlay() override;
 
@@ -450,8 +452,9 @@ protected:
   UTextureRenderTarget2D *CaptureRenderTarget = nullptr;
 
   /// Scene capture component.
+  // UE5: Changed from USceneCaptureComponent2D_CARLA* to USceneCaptureComponent2D*
   UPROPERTY(EditAnywhere)
-  USceneCaptureComponent2D_CARLA *CaptureComponent2D = nullptr;
+  USceneCaptureComponent2D *CaptureComponent2D = nullptr;
 
   UPROPERTY(EditAnywhere)
   float TargetGamma = 2.4f;
@@ -476,131 +479,17 @@ protected:
   UPROPERTY(EditAnywhere)
   bool bEnableGBuffers = false;
 
-private:
-
-  template <
-    typename SensorT,
-    typename CameraGBufferT>
-  static void SendGBuffer(
-      SensorT& Self,
-      CameraGBufferT& CameraGBuffer,
-      FGBufferRequest& GBufferData,
-      EGBufferTextureID TextureID)
-  {
-      using PixelType = typename std::conditional<
-        std::is_same<std::remove_reference_t<CameraGBufferT>, FCameraGBufferUint8>::value,
-        FColor,
-        FLinearColor>::type;
-      FIntPoint ViewSize;
-      TArray<PixelType> Pixels;
-      if (GBufferData.WaitForTextureTransfer(TextureID))
-      {
-        TRACE_CPUPROFILER_EVENT_SCOPE_STR("GBuffer Decode");
-        void* PixelData;
-        int32 SourcePitch;
-        FIntPoint SourceExtent;
-        GBufferData.MapTextureData(
-          TextureID,
-          PixelData,
-          SourcePitch,
-          SourceExtent);
-        auto Format = GBufferData.Readbacks[(size_t)TextureID]->GetFormat();
-        ViewSize = GBufferData.ViewRect.Size();
-        Pixels.AddUninitialized(ViewSize.X * ViewSize.Y);
-        FReadSurfaceDataFlags Flags = {};
-        Flags.SetLinearToGamma(true);
-        ImageUtil::DecodePixelsByFormat(
-          PixelData,
-          SourcePitch,
-          SourceExtent,
-          ViewSize,
-          Format,
-          Flags,
-          Pixels);
-        GBufferData.UnmapTextureData(TextureID);
-      }
-      else
-      {
-        ViewSize = GBufferData.ViewRect.Size();
-        Pixels.SetNum(ViewSize.X * ViewSize.Y);
-        for (auto& Pixel : Pixels)
-          Pixel = PixelType::Black;
-      }
-      auto GBufferStream = CameraGBuffer.GetDataStream(Self);
-      auto Buffer = GBufferStream.PopBufferFromPool();
-      Buffer.copy_from(
-        carla::sensor::SensorRegistry::get<CameraGBufferT*>::type::header_offset,
-        Pixels);
-      if (Buffer.empty()) {
-        return;
-      }
-      SCOPE_CYCLE_COUNTER(STAT_CarlaSensorStreamSend);
-      TRACE_CPUPROFILER_EVENT_SCOPE_STR("Stream Send");
-      GBufferStream.SerializeAndSend(
-        CameraGBuffer,
-        std::move(Buffer),
-        ViewSize.X,
-        ViewSize.Y,
-        Self.GetFOVAngle());
-  }
-
-protected:
-
-  template <typename T>
-  void SendGBufferTexturesInternal(T& Self, FGBufferRequest& GBufferData)
-  {
-    for (size_t i = 0; i != FGBufferRequest::TextureCount; ++i)
-    {
-      if ((GBufferData.DesiredTexturesMask & (UINT64_C(1) << i)) == 0) {
-        continue;
-      }
-      auto& C = CameraGBuffers;
-      EGBufferTextureID ID = (EGBufferTextureID)i;
-      switch (ID)
-      {
-      case EGBufferTextureID::SceneColor:
-        SendGBuffer(Self, C.SceneColor, GBufferData, ID);
-        break;
-      case EGBufferTextureID::SceneDepth:
-        SendGBuffer(Self, C.SceneDepth, GBufferData, ID);
-        break;
-      case EGBufferTextureID::SceneStencil:
-        SendGBuffer(Self, C.SceneStencil, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferA:
-        SendGBuffer(Self, C.GBufferA, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferB:
-        SendGBuffer(Self, C.GBufferB, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferC:
-        SendGBuffer(Self, C.GBufferC, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferD:
-        SendGBuffer(Self, C.GBufferD, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferE:
-        SendGBuffer(Self, C.GBufferE, GBufferData, ID);
-        break;
-      case EGBufferTextureID::GBufferF:
-        SendGBuffer(Self, C.GBufferF, GBufferData, ID);
-        break;
-      case EGBufferTextureID::Velocity:
-        SendGBuffer(Self, C.Velocity, GBufferData, ID);
-        break;
-      case EGBufferTextureID::SSAO:
-        SendGBuffer(Self, C.SSAO, GBufferData, ID);
-        break;
-      case EGBufferTextureID::CustomDepth:
-        SendGBuffer(Self, C.CustomDepth, GBufferData, ID);
-        break;
-      case EGBufferTextureID::CustomStencil:
-        SendGBuffer(Self, C.CustomStencil, GBufferData, ID);
-        break;
-      default:
-          abort();
-      }
-    }
-  }
+// UE5: GBuffer API removed — SendGBuffer and SendGBufferTexturesInternal disabled.
+// The FGBufferRequest / EGBufferTextureID types no longer exist in UE5.
+// GBuffer data must be retrieved via render targets and CaptureScene() + ReadPixels().
+//
+// private:
+//   template <typename SensorT, typename CameraGBufferT>
+//   static void SendGBuffer(SensorT& Self, CameraGBufferT& CameraGBuffer,
+//       FGBufferRequest& GBufferData, EGBufferTextureID TextureID) { ... }
+//
+// protected:
+//   template <typename T>
+//   void SendGBufferTexturesInternal(T& Self, FGBufferRequest& GBufferData) { ... }
 
 };

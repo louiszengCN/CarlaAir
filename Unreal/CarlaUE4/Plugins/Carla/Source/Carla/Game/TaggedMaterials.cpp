@@ -387,8 +387,12 @@ void UTaggedMaterialsRegistry::Save() {
 
   MarkPackageDirty();
   FAssetRegistryModule::AssetCreated(this);
-  UPackage::SavePackage(Package, this, RF_Public | RF_Standalone,
-                        *FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetAssetPackageExtension()));
+  FSavePackageArgs SaveArgs;
+  SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+  SaveArgs.SaveFlags = SAVE_NoError;
+  UPackage::Save(Package, this,
+                 *FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetAssetPackageExtension()),
+                 SaveArgs);
 }
 #endif // WITH_EDITOR
 

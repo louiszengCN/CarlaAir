@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "WheeledVehicle.h"
+#include "WheeledVehiclePawn.h"
 
 #include "Vehicle/AckermannController.h"
 #include "Vehicle/AckermannControllerSettings.h"
@@ -18,9 +18,10 @@
 #include "Vehicle/VehiclePhysicsControl.h"
 #include "Vehicle/VehicleTelemetryData.h"
 #include "VehicleVelocityControl.h"
-#include "WheeledVehicleMovementComponent4W.h"
-#include "WheeledVehicleMovementComponentNW.h"
-#include "VehicleAnimInstance.h"
+// #include "WheeledVehicleMovementComponent4W.h" // UE5: removed, use ChaosWheeledVehicleMovementComponent
+// #include "WheeledVehicleMovementComponentNW.h" // UE5: removed
+#include "ChaosWheeledVehicleMovementComponent.h"
+#include "ChaosVehicleAnimationInstance.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "MovementComponents/BaseCarlaMovementComponent.h"
 
@@ -70,7 +71,7 @@ enum class EVehicleDoor : uint8 {
 
 /// Base class for CARLA wheeled vehicles.
 UCLASS()
-class CARLA_API ACarlaWheeledVehicle : public AWheeledVehicle
+class CARLA_API ACarlaWheeledVehicle : public AWheeledVehiclePawn
 {
   GENERATED_BODY()
 
@@ -186,9 +187,10 @@ public:
   UFUNCTION(Category = "CARLA Wheeled Vehicle", BlueprintCallable)
   void SetSimulatePhysics(bool enabled);
 
-  void SetWheelCollision(UWheeledVehicleMovementComponent4W *Vehicle4W, const FVehiclePhysicsControl &PhysicsControl);
+  void SetWheelCollision(UChaosWheeledVehicleMovementComponent *VehicleChaos, const FVehiclePhysicsControl &PhysicsControl);
 
-  void SetWheelCollisionNW(UWheeledVehicleMovementComponentNW *VehicleNW, const FVehiclePhysicsControl &PhysicsControl);
+  // UE5: SetWheelCollisionNW removed - WheeledVehicleMovementComponentNW not available in ChaosVehicles
+  // void SetWheelCollisionNW(UWheeledVehicleMovementComponentNW *VehicleNW, const FVehiclePhysicsControl &PhysicsControl);
 
   void SetVehicleLightState(const FVehicleLightState &LightState);
 

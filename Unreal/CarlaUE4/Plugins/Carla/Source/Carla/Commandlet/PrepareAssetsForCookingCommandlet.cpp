@@ -478,16 +478,14 @@ bool UPrepareAssetsForCookingCommandlet::SavePackage(const FString &PackagePath,
     return false;
   }
 
-  return UPackage::SavePackage(
+  FSavePackageArgs SaveArgs;
+  SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+  SaveArgs.SaveFlags = SAVE_NoError;
+  return UPackage::Save(
       Package,
       World,
-      EObjectFlags::RF_Public | EObjectFlags::RF_Standalone,
       *PackageFileName,
-      GError,
-      nullptr,
-      true,
-      true,
-      SAVE_NoError);
+      SaveArgs) == ESavePackageResult::Success;
 }
 
 void UPrepareAssetsForCookingCommandlet::GenerateMapPathsFile(

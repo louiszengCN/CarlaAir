@@ -52,7 +52,7 @@ static EQualityLevel QualityLevelFromString(
 
 FString QualityLevelToString(EQualityLevel QualitySettingsLevel)
 {
-  const UEnum *ptr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EQualityLevel"), true);
+  const UEnum *ptr = FindObject<UEnum>(nullptr, TEXT("EQualityLevel"), true);
   if (!ptr)
   {
     return FString("Invalid");

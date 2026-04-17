@@ -200,10 +200,10 @@ void ACosmosControlSensor::PostPhysTick(UWorld *World, ELevelTick TickType, floa
     }
     else if(skeletal_mesh_comp != nullptr)
     {
-      if (skeletal_mesh_comp->SkeletalMesh)
+      if (skeletal_mesh_comp->GetSkeletalMeshAsset())
       {
         //TODO: Get more precise pedestrian bounds
-        bounds = skeletal_mesh_comp->SkeletalMesh->GetBounds();
+        bounds = skeletal_mesh_comp->GetSkeletalMeshAsset()->GetBounds();
         bounds.Origin = skeletal_mesh_comp->GetComponentLocation();
         bounds.Origin.Z += bounds.BoxExtent.Z;
       }

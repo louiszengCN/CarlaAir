@@ -126,7 +126,7 @@ FBoundingBox UBoundingBoxCalculator::GetVehicleBoundingBox(
   crp::CityObjectLabel Tag = ATagger::GetTagOfTaggedComponent(*ParentComp);
   if(FilterByTagEnabled && Tag != TagQueried) return {};
 
-  USkeletalMesh* SkeletalMesh = ParentComp->SkeletalMesh;
+  USkeletalMesh* SkeletalMesh = ParentComp->GetSkeletalMeshAsset();
   FBoundingBox BB = GetSkeletalMeshBoundingBox(SkeletalMesh);
 
   if(BB.Extent.IsZero())
@@ -254,7 +254,7 @@ FBoundingBox UBoundingBoxCalculator::GetSkeletalMeshBoundingBoxFromComponent(
   const USkeletalMeshComponent* SkeletalMeshComp
 )
 {
-  if(!SkeletalMeshComp || !SkeletalMeshComp->SkeletalMesh)
+  if(!SkeletalMeshComp || !SkeletalMeshComp->GetSkeletalMeshAsset())
   {
     UE_LOG(LogCarla, Error, TEXT("GetSkeletalMeshBoundingBoxFromComponent no SkeletalMeshComponent or SkeletalMesh"));
     return {};
@@ -433,7 +433,7 @@ void UBoundingBoxCalculator::GetBBsOfSkeletalMeshComponents(
 
     if(!Comp->IsVisible() || (FilterByTagEnabled && Tag != TagQueried)) continue;
 
-    USkeletalMesh* SkeletalMesh = Comp->SkeletalMesh;
+    USkeletalMesh* SkeletalMesh = Comp->GetSkeletalMeshAsset();
     FBoundingBox BoundingBox = GetSkeletalMeshBoundingBox(SkeletalMesh);
     if(BoundingBox.Extent.IsZero())
     {

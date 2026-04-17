@@ -145,7 +145,7 @@ public:
     FlushRenderingCommands();
   }
 
-  TArrayView<USceneCaptureComponent2D_CARLA*> GetCaptureComponents2D();
+  TArrayView<USceneCaptureComponent2D*> GetCaptureComponents2D();
 
 protected:
 
@@ -165,12 +165,12 @@ protected:
   virtual void PrePhysTick(float DeltaSeconds) override;
   virtual void PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaTime) override;
 
-  virtual void SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D_CARLA*> SceneCaptures) {}
+  virtual void SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D*> SceneCaptures) {}
 
   virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
   UPROPERTY(EditAnywhere)
-  TArray<USceneCaptureComponent2D_CARLA*> FaceCaptures;
+  TArray<USceneCaptureComponent2D*> FaceCaptures;
   
   UPROPERTY(EditAnywhere)
   TArray<UTextureRenderTarget2D*> FaceRenderTargets;

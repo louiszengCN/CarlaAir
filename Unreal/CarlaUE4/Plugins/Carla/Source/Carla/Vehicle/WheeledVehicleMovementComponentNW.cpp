@@ -11,6 +11,8 @@
 #include "Components/PrimitiveComponent.h"
 #include "Logging/MessageLog.h"
 
+#if 0 // UE5: WheeledVehicleMovementComponentNW not available in ChaosVehicles
+
 UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// grab default values from physx
@@ -408,3 +410,5 @@ const physx::PxVehicleWheelData UWheeledVehicleMovementComponentNW::GetWheelData
 	const physx::PxVehicleWheelData WheelData = InWheels->mWheelsSimData.getWheelData((physx::PxU32)InWheel);
 	return WheelData;
 }
+
+#endif // UE5: WheeledVehicleMovementComponentNW not available in ChaosVehicles

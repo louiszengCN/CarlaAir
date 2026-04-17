@@ -40,7 +40,7 @@ public:
   /// @{
 public:
 
-  virtual void PreSave(const ITargetPlatform *TargetPlatform) override;
+  virtual void PreSave(FObjectPreSaveContext SaveContext) override;
 
   /// @}
   // ===========================================================================

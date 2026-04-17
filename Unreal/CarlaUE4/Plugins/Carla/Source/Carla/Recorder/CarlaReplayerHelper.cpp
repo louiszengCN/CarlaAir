@@ -107,7 +107,7 @@ FCarlaActor *CarlaReplayerHelper::FindTrafficSignAt(FVector Location)
   // through all actors in registry
   for (auto It = Registry.begin(); It != Registry.end(); ++It)
   {
-    FCarlaActor* CarlaActor = It.Value().Get();
+    FCarlaActor* CarlaActor = It.Value.Get();
     if(CarlaActor->GetActorType() == FCarlaActor::ActorType::TrafficLight || CarlaActor->GetActorType() == FCarlaActor::ActorType::TrafficSign)
     {
       FVector vec = CarlaActor->GetActorGlobalLocation();
@@ -331,15 +331,9 @@ void CarlaReplayerHelper::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWhee
   check(CarlaVehicle != nullptr)
   USkeletalMeshComponent* SkeletalMesh = CarlaVehicle->GetMesh();
   check(SkeletalMesh != nullptr)
-  UVehicleAnimInstance* VehicleAnim = Cast<UVehicleAnimInstance>(SkeletalMesh->GetAnimInstance());
-  check(VehicleAnim != nullptr)
-
-  for (uint32_t i = 0; i < VehicleAnimWheels.WheelValues.size(); ++i)
-  {
-    const WheelInfo& Element = VehicleAnimWheels.WheelValues[i];
-    VehicleAnim->SetWheelRotYaw(static_cast<uint8>(Element.Location), Element.SteeringAngle);
-    VehicleAnim->SetWheelPitchAngle(static_cast<uint8>(Element.Location), Element.TireRotation);
-  }
+  // UE5: UVehicleAnimInstance wheel animation API removed in ChaosVehicles
+  // Wheel replay animation disabled for UE5.7 compatibility
+  (void)SkeletalMesh;
 }
 
 // reposition the camera

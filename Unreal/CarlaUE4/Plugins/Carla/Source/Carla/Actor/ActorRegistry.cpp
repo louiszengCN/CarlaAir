@@ -8,6 +8,7 @@
 #include "Carla/Actor/ActorData.h"
 #include "Carla/Actor/ActorRegistry.h"
 
+#include "GameFramework/Character.h"
 #include "Carla/Game/Tagger.h"
 #include "Carla/Traffic/TrafficLightBase.h"
 #include "Carla/Util/BoundingBoxCalculator.h"
@@ -34,7 +35,7 @@ FCarlaActor::ActorType FActorRegistry::GetActorType(const AActor *Actor)
   {
     return FCarlaActor::ActorType::Vehicle;
   }
-  else if (nullptr != Cast<AWalkerBase>(Actor))
+  else if (nullptr != Cast<ACharacter>(Actor))
   {
     return FCarlaActor::ActorType::Walker;
   }

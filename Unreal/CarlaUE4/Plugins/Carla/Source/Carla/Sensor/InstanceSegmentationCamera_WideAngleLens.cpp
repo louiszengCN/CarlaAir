@@ -30,7 +30,7 @@ AInstanceSegmentationCamera_WideAngleLens::AInstanceSegmentationCamera_WideAngle
   // World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateRaw(this, &AInstanceSegmentationCamera_WideAngleLens::OnActorSpawned));
 }
 
-void AInstanceSegmentationCamera_WideAngleLens::SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D_CARLA*> SceneCaptures)
+void AInstanceSegmentationCamera_WideAngleLens::SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D*> SceneCaptures)
 {
   Super::SetUpSceneCaptureComponents(SceneCaptures);
 

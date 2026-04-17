@@ -22,7 +22,7 @@ static bool IsSplineValid(const USplineComponent *SplineComponent)
 
 static AWheeledVehicleAIController *GetVehicleController(AActor *Actor)
 {
-  auto *Vehicle = (Actor->IsPendingKill() ? nullptr : Cast<ACarlaWheeledVehicle>(Actor));
+  auto *Vehicle = (IsGarbage(Actor) ? nullptr : Cast<ACarlaWheeledVehicle>(Actor));
   return (Vehicle != nullptr ?
          Cast<AWheeledVehicleAIController>(Vehicle->GetController()) :
          nullptr);
@@ -122,7 +122,7 @@ void ARoutePlanner::CleanRoute()
 
 void ARoutePlanner::AssignRandomRoute(AWheeledVehicleAIController &Controller) const
 {
-  if (!Controller.IsPendingKill() && (Controller.GetRandomEngine() != nullptr))
+  if (!IsGarbage(&Controller) && (Controller.GetRandomEngine() != nullptr))
   {
     auto *RandomEngine = Controller.GetRandomEngine();
     auto *Route = PickARoute(*RandomEngine, Routes, Probabilities);
