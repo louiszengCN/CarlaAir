@@ -29,7 +29,8 @@ namespace carla {
       _acceptor.cancel();
       _acceptor.close();
       _io_context.stop();
-      _io_context.restart(); // Boost 1.66+: io_context::reset() renamed to restart()
+      // Note: do NOT call restart() here — Stop() is final teardown; the context should stay stopped.
+      // (Boost 1.66+ renamed reset() to restart(); only call restart() before re-running the context.)
     }
 
     void Listener::OpenSession(time_duration timeout, callback_function_type on_opened,

@@ -77,26 +77,8 @@ void ACarlaWheeledVehicle::SetWheelCollision(UChaosWheeledVehicleMovementCompone
 
 }
 
-// UE5: SetWheelCollisionNW stubbed - NW not available in ChaosVehicles
-// void ACarlaWheeledVehicle::SetWheelCollisionNW(UWheeledVehicleMovementComponentNW *VehicleNW,
-//     const FVehiclePhysicsControl &PhysicsControl ) {
-//
-//   #ifdef WHEEL_SWEEP_ENABLED
-//     const bool IsEqual = VehicleNW->UseSweepWheelCollision == PhysicsControl.UseSweepWheelCollision;
-//
-//     if (IsEqual)
-//       return;
-//
-//     VehicleNW->UseSweepWheelCollision = PhysicsControl.UseSweepWheelCollision;
-//
-//   #else
-//
-//     if (PhysicsControl.UseSweepWheelCollision)
-//       UE_LOG(LogCarla, Warning, TEXT("Error: Sweep for wheel collision is not available. \
-//       Make sure you have installed the required patch.") );
-//
-//   #endif
-// }
+// UE5: SetWheelCollisionNW removed — UWheeledVehicleMovementComponentNW not available in ChaosVehicles.
+// Tracked in issue #UE5-NW-VEHICLE.
 
 void ACarlaWheeledVehicle::BeginPlay()
 {
@@ -322,11 +304,15 @@ FVector ACarlaWheeledVehicle::GetVehicleBoundingBoxExtent() const
 float ACarlaWheeledVehicle::GetMaximumSteerAngle() const
 {
   const UChaosWheeledVehicleMovementComponent* VehicleChaos = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
-  check(VehicleChaos != nullptr);
-  const auto &Wheels = VehicleChaos->Wheels;
-  check(Wheels.Num() > 0);
-  const UChaosVehicleWheel *FrontWheel = Wheels[0].Get(); // UE5: Wheels is TArray<TObjectPtr<UChaosVehicleWheel>>
-  check(FrontWheel != nullptr);
+  if (!VehicleChaos || VehicleChaos->Wheels.Num() == 0)
+  {
+    return 0.0f;
+  }
+  const UChaosVehicleWheel *FrontWheel = VehicleChaos->Wheels[0].Get(); // UE5: TArray<TObjectPtr<UChaosVehicleWheel>>
+  if (!FrontWheel)
+  {
+    return 0.0f;
+  }
   // UE5: SteerAngle renamed to MaxSteerAngle in UChaosVehicleWheel
   return FrontWheel->MaxSteerAngle;
 }

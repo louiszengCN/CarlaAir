@@ -66,6 +66,8 @@ namespace ImageUtil
       ConvertRawR24G8DataToFLinearColor(DestinationExtent.X, DestinationExtent.Y, (uint8*)PixelData, SourcePitch, Out.GetData(), Flags);
       break;
     case PF_R32_FLOAT: // Depth — single-channel float; no UE5 built-in, implement inline
+      // Note: output is raw linear depth, NOT gamma-corrected. This is intentional for
+      // depth sensors (values represent NDC/world depth, not perceptual brightness).
       {
         float* SrcRow = (float*)PixelData;
         FLinearColor* DstRow = Out.GetData();

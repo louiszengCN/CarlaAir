@@ -168,20 +168,26 @@ public:
   template<typename T>
   T* GetActorData()
   {
-    // UE5: RTTI globally disabled — replaced dynamic_cast with static_cast.
-    // SAFETY CONTRACT: caller must verify GetActorType() matches the expected subtype
-    // (FVehicleData→Vehicle, FWalkerData→Walker, FActorSensorData→Sensor, etc.)
-    // before calling this template. A wrong T silently reinterprets memory.
-    check(ActorData.IsValid()); // guard null dereference; type correctness is caller's responsibility
+    // UE5: RTTI globally disabled — use static_cast instead of dynamic_cast.
+    // Type map: Vehicle→FVehicleData, Walker→FWalkerData, Sensor→FActorSensorData,
+    //           TrafficLight/TrafficSign/Other→FActorData.
+    // Guard: ActorData must be valid and ActorType must match T before calling.
+    if (!ActorData.IsValid())
+    {
+      return nullptr;
+    }
     return static_cast<T*>(ActorData.Get());
   }
 
   template<typename T>
   const T* GetActorData() const
   {
-    // UE5: RTTI globally disabled — replaced dynamic_cast with static_cast.
-    // See non-const overload for safety contract.
-    check(ActorData.IsValid());
+    // UE5: RTTI globally disabled — use static_cast instead of dynamic_cast.
+    // See non-const overload for type map and safety contract.
+    if (!ActorData.IsValid())
+    {
+      return nullptr;
+    }
     return static_cast<const T*>(ActorData.Get());
   }
 

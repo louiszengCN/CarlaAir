@@ -26,6 +26,10 @@ void ASoilTypeManager::Tick(float DeltaTime)
     ALargeMapManager* LocalLargeMapManager = (ALargeMapManager*) UGameplayStatics::GetActorOfClass(GetWorld(), ALargeMapManager::StaticClass()); // renamed to avoid shadowing member LargeMapManager
     AActor* Car = UGameplayStatics::GetActorOfClass(GetWorld(), CarClass);
 
+    if(LocalLargeMapManager == nullptr || Car == nullptr)
+    {
+      return;
+    }
     if(Car != nullptr)
     {
       FVector CarPos = Car->GetActorLocation();

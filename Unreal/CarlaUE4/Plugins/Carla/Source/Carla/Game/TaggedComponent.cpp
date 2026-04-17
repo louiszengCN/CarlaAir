@@ -144,7 +144,10 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UStaticMeshComponent *
     return NULL;
   }
 
-  // UE5: FSplineMeshSceneProxy is final; spline meshes fall back to FTaggedStaticMeshSceneProxy
+  // UE5: FSplineMeshSceneProxy is final in UE5.7 and cannot be subclassed.
+  // Spline mesh components fall back to FTaggedStaticMeshSceneProxy which skips spline
+  // deformation — road/guardrail splines will render flat/undeformed.
+  // TODO(#UE5-SPLINE-TAG): restore per-spline tagging once UE5 exposes a non-final proxy.
   return new FTaggedStaticMeshSceneProxy(StaticMeshComponent, true, TaggedMID, TaggedMaterials);
 }
 
@@ -254,7 +257,9 @@ FPrimitiveViewRelevance FTaggedStaticMeshSceneProxy::GetViewRelevance(const FSce
 {
   FPrimitiveViewRelevance ViewRelevance = FStaticMeshSceneProxy::GetViewRelevance(View);
 
-  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
+  // UE5: NotDrawTaggedComponents was a CARLA engine patch, unavailable in stock UE5.7.
+  // Tagged components now draw in ALL views — semantic segmentation isolation may break.
+  // TODO(#UE5-NOTAG-FLAG): re-add engine patch or use a custom FEngineShowFlags extension.
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -290,7 +295,9 @@ FPrimitiveViewRelevance FTaggedSkeletalMeshSceneProxy::GetViewRelevance(const FS
 {
   FPrimitiveViewRelevance ViewRelevance = FSkeletalMeshSceneProxy::GetViewRelevance(View);
 
-  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
+  // UE5: NotDrawTaggedComponents was a CARLA engine patch, unavailable in stock UE5.7.
+  // Tagged components now draw in ALL views — semantic segmentation isolation may break.
+  // TODO(#UE5-NOTAG-FLAG): re-add engine patch or use a custom FEngineShowFlags extension.
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -321,7 +328,9 @@ FPrimitiveViewRelevance FTaggedInstancedStaticMeshSceneProxy::GetViewRelevance(c
 {
   FPrimitiveViewRelevance ViewRelevance = FInstancedStaticMeshSceneProxy::GetViewRelevance(View);
 
-  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
+  // UE5: NotDrawTaggedComponents was a CARLA engine patch, unavailable in stock UE5.7.
+  // Tagged components now draw in ALL views — semantic segmentation isolation may break.
+  // TODO(#UE5-NOTAG-FLAG): re-add engine patch or use a custom FEngineShowFlags extension.
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -353,7 +362,9 @@ FPrimitiveViewRelevance FTaggedHierarchicalStaticMeshSceneProxy::GetViewRelevanc
 {
   FPrimitiveViewRelevance ViewRelevance = FInstancedStaticMeshSceneProxy::GetViewRelevance(View); // UE5: base changed to FInstancedStaticMeshSceneProxy
 
-  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
+  // UE5: NotDrawTaggedComponents was a CARLA engine patch, unavailable in stock UE5.7.
+  // Tagged components now draw in ALL views — semantic segmentation isolation may break.
+  // TODO(#UE5-NOTAG-FLAG): re-add engine patch or use a custom FEngineShowFlags extension.
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;
@@ -477,7 +488,9 @@ FPrimitiveViewRelevance FTaggedLandscapeComponentSceneProxy::GetViewRelevance(co
 {
   FPrimitiveViewRelevance ViewRelevance = FLandscapeComponentSceneProxy::GetViewRelevance(View);
 
-  // UE5: NotDrawTaggedComponents was a patched engine flag, unavailable in stock UE5.7
+  // UE5: NotDrawTaggedComponents was a CARLA engine patch, unavailable in stock UE5.7.
+  // Tagged components now draw in ALL views — semantic segmentation isolation may break.
+  // TODO(#UE5-NOTAG-FLAG): re-add engine patch or use a custom FEngineShowFlags extension.
   ViewRelevance.bShadowRelevance = false;
 
   return ViewRelevance;

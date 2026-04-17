@@ -189,9 +189,6 @@ public:
 
   void SetWheelCollision(UChaosWheeledVehicleMovementComponent *VehicleChaos, const FVehiclePhysicsControl &PhysicsControl);
 
-  // UE5: SetWheelCollisionNW removed - WheeledVehicleMovementComponentNW not available in ChaosVehicles
-  // void SetWheelCollisionNW(UWheeledVehicleMovementComponentNW *VehicleNW, const FVehiclePhysicsControl &PhysicsControl);
-
   void SetVehicleLightState(const FVehicleLightState &LightState);
 
   void SetFailureState(const carla::rpc::VehicleFailureState &FailureState);
