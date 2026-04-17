@@ -88,7 +88,7 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy()
   if (!IsValid(ParentComponent))
   {
     UE_LOG(LogCarla, Error, TEXT("Invalid parent component"));
-    return NULL;
+    return nullptr;
   }
 
   USkeletalMeshComponent * SkeletalMeshComponent = Cast<USkeletalMeshComponent>(ParentComponent);
@@ -117,7 +117,7 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy()
 
   UE_LOG(LogCarla, Error, TEXT("Unknown type of parent component: %s"), *ParentComponent->GetClass()->GetName());
 
-  return NULL;
+  return nullptr;
 }
 
 FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UStaticMeshComponent * StaticMeshComponent)
@@ -125,23 +125,23 @@ FPrimitiveSceneProxy * UTaggedComponent::CreateSceneProxy(UStaticMeshComponent *
   // Make sure static mesh has render data
   UStaticMesh * StaticMesh = StaticMeshComponent->GetStaticMesh();
 
-  if (StaticMesh == NULL)
+  if (StaticMesh == nullptr)
   {
     UE_LOG(LogCarla, Error, TEXT("Failed to create scene proxy for static mesh component (because static mesh is null): %s"), *StaticMeshComponent->GetReadableName());
-    return NULL;
+    return nullptr;
   }
 
-  if (StaticMesh->GetRenderData() == NULL) // UE5: RenderData private
+  if (StaticMesh->GetRenderData() == nullptr) // UE5: RenderData private
   {
     UE_LOG(LogCarla, Error, TEXT("Failed to create scene proxy for static mesh component (because render data is null): %s"), *StaticMeshComponent->GetReadableName());
-    return NULL;
+    return nullptr;
   }
 
 
   if (StaticMesh->GetRenderData()->LODResources.Num() == 0) // UE5: GetRenderData()
   {
     UE_LOG(LogCarla, Error, TEXT("Failed to create scene proxy for static mesh component (because num LOD resources is 0): %s"), *StaticMeshComponent->GetReadableName());
-    return NULL;
+    return nullptr;
   }
 
   // UE5: FSplineMeshSceneProxy is final in UE5.7 and cannot be subclassed.
@@ -392,14 +392,14 @@ FPrimitiveSceneProxy * UTaggedLandscapeComponent::CreateSceneProxy()
   if (!IsValid(ParentComponent))
   {
     UE_LOG(LogCarla, Error, TEXT("Invalid parent component"));
-    return NULL;
+    return nullptr;
   }
   ULandscapeComponent* LandscapeComponent = Cast<ULandscapeComponent>(ParentComponent);
 
   if (!IsValid(LandscapeComponent))
   {
     UE_LOG(LogCarla, Error, TEXT("UTaggedLandscapeComponent falsely attached to parent component of type: %s"), *ParentComponent->GetClass()->GetName());
-    return NULL;
+    return nullptr;
   }
 
   // Unreal's landscape rendering code contains lots of logic to cache SceneProxies, so that a ULandscapeComponent essentially has one fixed SceneProxy.
@@ -415,7 +415,7 @@ FPrimitiveSceneProxy * UTaggedLandscapeComponent::CreateSceneProxy()
   // Note: This should not happen, only if .umap and .uasset files are missing to some unknown reasons.
   if (!SceneProxyTemp->TaggedLandscapeMaterialInstance)
   {
-    return NULL;
+    return nullptr;
   }
   // Create pointer to SceneProxy's material here (in game-thread object), to prevent material being garbage collected
   TaggedLMIC = SceneProxyTemp->TaggedLandscapeMaterialInstance;
