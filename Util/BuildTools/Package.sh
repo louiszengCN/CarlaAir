@@ -77,7 +77,7 @@ PACKAGES="$(echo "${PACKAGES}" | tr ',' '\n' | sort -u | tr '\n' ',')"
 IFS=',' read -r -a PACKAGES <<< "${PACKAGES}"
 
 # If contains an element called "Carla".
-if [[ "${PACKAGES[@]}" =~ "Carla" ]] ; then
+if [[ "${PACKAGES[*]}" =~ "Carla" ]] ; then
   DO_CARLA_RELEASE=true
 else
   DO_CARLA_RELEASE=false
@@ -85,19 +85,19 @@ fi
 
 REPOSITORY_TAG=$(get_git_repository_version)
 
-if [[ ${ARCHIVE_SUFIX} != "" ]] ; then
+if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then
   RELEASE_BUILD_FOLDER=${CARLA_DIST_FOLDER}/CARLA_${PACKAGE_CONFIG}_${REPOSITORY_TAG}_${ARCHIVE_SUFIX}
 else
   RELEASE_BUILD_FOLDER=${CARLA_DIST_FOLDER}/CARLA_${PACKAGE_CONFIG}_${REPOSITORY_TAG}
 fi
 
-if [[ ${PACKAGE_CONFIG} == "Shipping" ]] ; then
+if [[ "${PACKAGE_CONFIG}" == "Shipping" ]] ; then
   RELEASE_PACKAGE_PATH=${CARLA_DIST_FOLDER}/CARLA_${REPOSITORY_TAG}
 else
   RELEASE_PACKAGE_PATH=${CARLA_DIST_FOLDER}/CARLA_${PACKAGE_CONFIG}_${REPOSITORY_TAG}
 fi
 
-if [[ ${ARCHIVE_SUFIX} != "" ]] ; then
+if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then
   RELEASE_PACKAGE_PATH=${RELEASE_PACKAGE_PATH}_${ARCHIVE_SUFIX}
 fi
 
@@ -113,7 +113,7 @@ function copy_dir_fast {
   CF_DEST=$2
   CF_SRC_FS=$(stat -c "%d" "${CF_SRC}")
   CF_DEST_FS=$(stat -c "%d" "${CF_DEST}")
-  if [[ ${CF_SRC_FS} == ${CF_DEST_FS} ]] ; then
+  if [[ "${CF_SRC_FS}" == "${CF_DEST_FS}" ]] ; then
     cp -rlan "${CF_SRC}"/* "${CF_DEST}"
   else
     cp -ran "${CF_SRC}"/* "${CF_DEST}"
@@ -128,7 +128,7 @@ function cook_tagged_materials {
   CUR_PACKAGES=("${@}")
   CUR_PACKAGES_UE=$(IFS=+ ; echo "${CUR_PACKAGES[*]}")
   REGISTRIES_SUBDIR=CarlaUE4/Plugins/Carla/Content/PostProcessingMaterials/TaggedMaterials
-  TEMP_BUILD_DIR=${CARLA_DIST_FOLDER}/${REPOSITORY_TAG}_TaggedMaterials
+  TEMP_BUILD_DIR="${CARLA_DIST_FOLDER}/${REPOSITORY_TAG}_TaggedMaterials"
 
   # Call commandlet to build TaggedMaterialsRegistries for the current package(s).
   # Temporary maps containing the TaggedMaterialsRegistries will be created,
@@ -140,7 +140,7 @@ function cook_tagged_materials {
     TARGET_ARCHIVE_OPTION=
   fi
   ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
-  -run=GenerateTaggedMaterialsRegistry -PackageNames=${CUR_PACKAGES_UE} ${TARGET_ARCHIVE_OPTION} \
+  -run=GenerateTaggedMaterialsRegistry -PackageNames="${CUR_PACKAGES_UE}" ${TARGET_ARCHIVE_OPTION} \
   -NoShaderCompile
 
   # Construct string for all maps to cook all at once
@@ -165,68 +165,68 @@ function cook_tagged_materials {
 
   # Move/Copy the generated files to the correct packages (zipping happens later on)
   log "Copy cooked TaggedMaterialsRegistries"
-  if [[ ${CUR_PACKAGES_UE} == Carla ]] ; then
+  if [[ "${CUR_PACKAGES_UE}" == "Carla" ]] ; then
     # For Carla package, we only move the files to target dir
     SRC=${TEMP_BUILD_DIR}/${REGISTRIES_SUBDIR}/TaggedMaterials_Carla
     TRG=${RELEASE_BUILD_FOLDER}/LinuxNoEditor/${REGISTRIES_SUBDIR}
-    [ ! -d ${TRG} ] && mkdir -p ${TRG}
-    mv ${SRC}.* ${TRG}
+    [ ! -d "${TRG}" ] && mkdir -p "${TRG}"
+    mv "${SRC}".* "${TRG}"
   elif ${SINGLE_PACKAGE} ; then
     # Move the monolithic TaggedMaterialsRegistry to the target archive
     SRC=${TEMP_BUILD_DIR}/${REGISTRIES_SUBDIR}/TaggedMaterials_${TARGET_ARCHIVE}
     SINGLE_PACKAGE_ROOT=${CARLA_DIST_FOLDER}/${TARGET_ARCHIVE}_${REPOSITORY_TAG}
-    if [[ ${ARCHIVE_SUFIX} != "" ]] ; then SINGLE_PACKAGE_ROOT=${SINGLE_PACKAGE_ROOT}_${ARCHIVE_SUFIX} ; fi
+    if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then SINGLE_PACKAGE_ROOT=${SINGLE_PACKAGE_ROOT}_${ARCHIVE_SUFIX} ; fi
 
-    if [ -f ${SRC}.uasset ]; then
+    if [ -f "${SRC}.uasset" ]; then
       if ! ${DO_CLEAN_INTERMEDIATE} ; then
-        SINGLE_PACKAGE_TRG=${SINGLE_PACKAGE_ROOT}/${REGISTRIES_SUBDIR}/
-        [ ! -d ${SINGLE_PACKAGE_TRG} ] && mkdir -p ${SINGLE_PACKAGE_TRG}
-        cp ${SRC}.* ${SINGLE_PACKAGE_TRG}
+        SINGLE_PACKAGE_TRG="${SINGLE_PACKAGE_ROOT}/${REGISTRIES_SUBDIR}/"
+        [ ! -d "${SINGLE_PACKAGE_TRG}" ] && mkdir -p "${SINGLE_PACKAGE_TRG}"
+        cp "${SRC}".* "${SINGLE_PACKAGE_TRG}"
       fi
 
       if ${DO_TARBALL} ; then
-        TEMP_TAR_DIR=${CARLA_DIST_FOLDER}/${TARGET_ARCHIVE}_${REPOSITORY_TAG}_TaggedMaterials_totar
-        TEMP_TAR_RESULT_DIR=${TEMP_TAR_DIR}/${REGISTRIES_SUBDIR}/
-        mkdir -p ${TEMP_TAR_RESULT_DIR}
-        mv ${SRC}.* ${TEMP_TAR_RESULT_DIR}
+        TEMP_TAR_DIR="${CARLA_DIST_FOLDER}/${TARGET_ARCHIVE}_${REPOSITORY_TAG}_TaggedMaterials_totar"
+        TEMP_TAR_RESULT_DIR="${TEMP_TAR_DIR}/${REGISTRIES_SUBDIR}/"
+        mkdir -p "${TEMP_TAR_RESULT_DIR}"
+        mv "${SRC}".* "${TEMP_TAR_RESULT_DIR}"
 
-        pushd "${TEMP_TAR_DIR}" >/dev/null
-        tar -rf ${SINGLE_PACKAGE_ROOT}.tar *
-        popd >/dev/null
-        rm -Rf ${TEMP_TAR_DIR}
+        pushd "${TEMP_TAR_DIR}" >/dev/null || exit 1
+        tar -rf "${SINGLE_PACKAGE_ROOT}.tar" ./*
+        popd >/dev/null || exit 1
+        rm -Rf "${TEMP_TAR_DIR}"
       fi
     fi
   else
     # For other packages, we copy the files to the corresponding dirs
     for CUR_PACKAGE in "${CUR_PACKAGES[@]}" ; do
       SRC=${TEMP_BUILD_DIR}/${REGISTRIES_SUBDIR}/TaggedMaterials_${CUR_PACKAGE}
-      if [ -f ${SRC}.uasset ]; then
-        CUR_PACKAGE_ROOT=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}
-        if [[ ${ARCHIVE_SUFIX} != "" ]] ; then CUR_PACKAGE_ROOT=${CUR_PACKAGE_ROOT}_${ARCHIVE_SUFIX} ; fi
+      if [ -f "${SRC}.uasset" ]; then
+        CUR_PACKAGE_ROOT="${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}"
+        if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then CUR_PACKAGE_ROOT=${CUR_PACKAGE_ROOT}_${ARCHIVE_SUFIX} ; fi
 
         if ! ${DO_CLEAN_INTERMEDIATE} ; then
-          CUR_PACKAGE_TRG=${CUR_PACKAGE_ROOT}/${REGISTRIES_SUBDIR}/
-          [ ! -d ${CUR_PACKAGE_TRG} ] && mkdir -p ${CUR_PACKAGE_TRG}
-          cp ${SRC}.* ${CUR_PACKAGE_TRG}
+          CUR_PACKAGE_TRG="${CUR_PACKAGE_ROOT}/${REGISTRIES_SUBDIR}/"
+          [ ! -d "${CUR_PACKAGE_TRG}" ] && mkdir -p "${CUR_PACKAGE_TRG}"
+          cp "${SRC}".* "${CUR_PACKAGE_TRG}"
         fi
 
         if ${DO_TARBALL} ; then
-          TEMP_TAR_DIR=${CARLA_DIST_FOLDER}/${CUR_PACKAGE}_${REPOSITORY_TAG}_TaggedMaterials_totar
-          TEMP_TAR_RESULT_DIR=${TEMP_TAR_DIR}/${REGISTRIES_SUBDIR}/
-          mkdir -p ${TEMP_TAR_RESULT_DIR}
-          mv ${SRC}.* ${TEMP_TAR_RESULT_DIR}
+          TEMP_TAR_DIR="${CARLA_DIST_FOLDER}/${CUR_PACKAGE}_${REPOSITORY_TAG}_TaggedMaterials_totar"
+          TEMP_TAR_RESULT_DIR="${TEMP_TAR_DIR}/${REGISTRIES_SUBDIR}/"
+          mkdir -p "${TEMP_TAR_RESULT_DIR}"
+          mv "${SRC}".* "${TEMP_TAR_RESULT_DIR}"
 
-          pushd "${TEMP_TAR_DIR}" >/dev/null
-          tar -rf ${CUR_PACKAGE_ROOT}.tar *
-          popd >/dev/null
-          rm -Rf ${TEMP_TAR_DIR}
+          pushd "${TEMP_TAR_DIR}" >/dev/null || exit 1
+          tar -rf "${CUR_PACKAGE_ROOT}.tar" ./*
+          popd >/dev/null || exit 1
+          rm -Rf "${TEMP_TAR_DIR}"
         fi
       fi
     done
   fi
 
   # Delete the temporary files.
-  rm -Rf ${TEMP_BUILD_DIR}
+  rm -Rf "${TEMP_BUILD_DIR}"
 
   T_END_COOK_TAGGED_MATS=$(date +%s)
   ELAPSED_TIME=$((T_END_COOK_TAGGED_MATS - T_START_COOK_TAGGED_MATS))
@@ -240,7 +240,7 @@ function cook_tagged_materials {
 T_START_DO_PACKAGE=$(date +%s)
 if ${DO_CARLA_RELEASE} ; then
 
-  pushd "${CARLAUE4_ROOT_FOLDER}" >/dev/null
+  pushd "${CARLAUE4_ROOT_FOLDER}" >/dev/null || exit 1
 
   if ${USE_CARSIM} ; then
     python3 ${PWD}/../../Util/BuildTools/enable_carsim_to_uproject.py -f="CarlaUE4.uproject" -e
@@ -264,7 +264,7 @@ if ${DO_CARLA_RELEASE} ; then
 
   cook_tagged_materials "Carla"
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
   if [[ ! -d ${RELEASE_BUILD_FOLDER}/LinuxNoEditor ]] ; then
     fatal_error "Failed to cook the project!"
@@ -272,7 +272,7 @@ if ${DO_CARLA_RELEASE} ; then
 
 fi
 T_END_DO_PACKAGE=$(date +%s)
-ELAPSED_TIME=$((T_END_DO_PACKAGE - T_END_DO_PACKAGE))
+ELAPSED_TIME=$((T_END_DO_PACKAGE - T_START_DO_PACKAGE))
 if ${DO_CARLA_RELEASE}; then log "Building and cooking Carla took ${ELAPSED_TIME} seconds."; fi
 
 # ==============================================================================
@@ -286,7 +286,7 @@ if ${DO_CARLA_RELEASE} ; then
 
   log "Adding extra files to CARLA package."
 
-  pushd ${CARLA_ROOT_FOLDER} >/dev/null
+  pushd "${CARLA_ROOT_FOLDER}" >/dev/null || exit 1
 
   mkdir -p "${DESTINATION}/Import"
 
@@ -328,11 +328,11 @@ if ${DO_CARLA_RELEASE} ; then
   copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/*.pcd" "${DESTINATION}/HDMaps/"
   copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/Readme.md" "${DESTINATION}/HDMaps/README"
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi
 T_END_DO_COPY_FILES=$(date +%s)
-ELAPSED_TIME=$((T_END_DO_COPY_FILES - T_END_DO_COPY_FILES))
+ELAPSED_TIME=$((T_END_DO_COPY_FILES - T_START_DO_COPY_FILES))
 if ${DO_CARLA_RELEASE}; then log "Copying extra files to package Carla took ${ELAPSED_TIME} seconds."; fi
 
 # ==============================================================================
@@ -345,7 +345,7 @@ if ${DO_CARLA_RELEASE} && ${DO_TARBALL} ; then
   DESTINATION=${RELEASE_PACKAGE_PATH}
   SOURCE=${RELEASE_BUILD_FOLDER}/LinuxNoEditor
 
-  pushd "${SOURCE}" >/dev/null
+  pushd "${SOURCE}" >/dev/null || exit 1
 
   log "Packaging CARLA release."
 
@@ -356,11 +356,11 @@ if ${DO_CARLA_RELEASE} && ${DO_TARBALL} ; then
 
   tar -czf ${DESTINATION} *
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
 fi
 T_END_DO_TARBALL=$(date +%s)
-ELAPSED_TIME=$((T_END_DO_TARBALL - T_START_DO_CLEAN))
+ELAPSED_TIME=$((T_END_DO_TARBALL - T_START_DO_TARBALL))
 if ${DO_CARLA_RELEASE} && ${DO_TARBALL}; then log "Archiving and compressing the project took ${ELAPSED_TIME} seconds."; fi
 
 # ==============================================================================
@@ -399,11 +399,11 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
       BUILD_FOLDER_TARGET=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}
   fi
 
-  if [[ ${ARCHIVE_SUFIX} != "" ]] ; then
+  if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then
     BUILD_FOLDER_TARGET=${BUILD_FOLDER_TARGET}_${ARCHIVE_SUFIX}
   fi
 
-  if [[ ${ARCHIVE_SUFIX} != "" ]] ; then
+  if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then
     BUILD_FOLDER=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}_${ARCHIVE_SUFIX}
   else
     BUILD_FOLDER=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}
@@ -416,7 +416,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
 
   log "Cooking package '${PACKAGE_NAME}'..."
 
-  pushd "${CARLAUE4_ROOT_FOLDER}" > /dev/null
+  pushd "${CARLAUE4_ROOT_FOLDER}" > /dev/null || exit 1
 
   # Prepare cooking of package
   ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
@@ -432,7 +432,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
   TOTAL=0
   MAP_STRING=""
   for MAP in "${MAP_LIST[@]}"; do
-    if (($(($TOTAL+${#MAP})) > $MAX_STRINGLENGTH)); then
+    if (( (TOTAL + ${#MAP}) > MAX_STRINGLENGTH )); then
       echo "Cooking $MAP_STRING"
       ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
           -run=cook -map="${MAP_STRING}" -cooksinglepackage -targetplatform="LinuxNoEditor" \
@@ -441,9 +441,9 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
       TOTAL=0
     fi
     MAP_STRING=$MAP_STRING+$MAP
-    TOTAL=$(($TOTAL+${#MAP}))
+    TOTAL=$((TOTAL + ${#MAP}))
   done
-  if (($TOTAL > 0)); then
+  if ((TOTAL > 0)); then
     ${UE4_ROOT}/Engine/Binaries/Linux/UE4Editor "${CARLAUE4_ROOT_FOLDER}/CarlaUE4.uproject" \
         -run=cook -map="${MAP_STRING}" -cooksinglepackage -targetplatform="LinuxNoEditor" \
         -OutputDir="${BUILD_FOLDER}" -iterate
@@ -455,9 +455,9 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
     rm -Rf ${PROP_MAP_FOLDER}
   fi
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
-  pushd "${BUILD_FOLDER}" > /dev/null
+  pushd "${BUILD_FOLDER}" > /dev/null || exit 1
 
   SUBST_PATH="${BUILD_FOLDER}/CarlaUE4"
   SUBST_FILE="${PACKAGE_FILE/${CARLAUE4_ROOT_FOLDER}/${SUBST_PATH}}"
@@ -487,7 +487,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
     # binary files for navigation and traffic manager
     BIN_FILE_PATH="${CARLAUE4_ROOT_FOLDER}/Content${i:5}"
     MAP_NAME=${BIN_FILE_PATH##*/}
-    find "${CARLAUE4_ROOT_FOLDER}/Content" -name "${MAP_NAME}.bin" -print0 | while read -d $'\0' BIN_FILE
+    find "${CARLAUE4_ROOT_FOLDER}/Content" -name "${MAP_NAME}.bin" -print0 | while IFS= read -r -d $'\0' BIN_FILE
     do
       if [ -f "${BIN_FILE}" ] ; then
 
@@ -512,7 +512,7 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
     tar -rf ${DESTINATION} *
   fi
 
-  popd >/dev/null
+  popd >/dev/null || exit 1
 
   if ${DO_CLEAN_INTERMEDIATE} ; then
 
@@ -528,8 +528,8 @@ for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; 
 fi ; done
 
 # Create tagged materials for the instance segmentation for all packages at once
-if [[ ${#PACKAGES[@]} > 1 || "${PACKAGES[0]}" != "Carla" ]] ; then
-  cook_tagged_materials ${PACKAGES[@]}
+if [[ ${#PACKAGES[@]} -gt 1 || "${PACKAGES[0]}" != "Carla" ]] ; then
+  cook_tagged_materials "${PACKAGES[@]}"
 fi
 
 # Compress the TAR balls
@@ -539,7 +539,7 @@ if ${DO_TARBALL} ; then
   else
     for PACKAGE_NAME in "${PACKAGES[@]}" ; do if [[ ${PACKAGE_NAME} != "Carla" ]] ; then
       BUILD_FOLDER_TARGET=${CARLA_DIST_FOLDER}/${PACKAGE_NAME}_${REPOSITORY_TAG}
-      if [[ ${ARCHIVE_SUFIX} != "" ]] ; then BUILD_FOLDER_TARGET=${BUILD_FOLDER_TARGET}_${ARCHIVE_SUFIX} ; fi
+      if [[ "${ARCHIVE_SUFIX}" != "" ]] ; then BUILD_FOLDER_TARGET=${BUILD_FOLDER_TARGET}_${ARCHIVE_SUFIX} ; fi
       DESTINATION=${BUILD_FOLDER_TARGET}.tar
       gzip -f ${DESTINATION}
     fi ; done
