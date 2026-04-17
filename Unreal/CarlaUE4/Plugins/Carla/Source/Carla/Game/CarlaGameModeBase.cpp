@@ -85,7 +85,7 @@ void ACarlaGameModeBase::InitGame(
   Super::InitGame(MapName, Options, ErrorMessage);
 
   UWorld* World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
   FString InMapName(MapName);
 
   checkf(
@@ -185,7 +185,7 @@ void ACarlaGameModeBase::BeginPlay()
   Super::BeginPlay();
 
   UWorld* World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
 
   LoadMapLayer(GameInstance->GetCurrentMapLayer());
   ReadyToRegisterObjects = true;
@@ -425,7 +425,7 @@ void ACarlaGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ACarlaGameModeBase::SpawnActorFactories()
 {
   auto *World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
 
   for (auto &FactoryClass : ActorFactories)
   {
@@ -682,7 +682,7 @@ void ACarlaGameModeBase::DebugShowSignals(bool enable)
 {
 
   auto World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
 
   if(!Map)
   {
