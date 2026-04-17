@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""drone_traj_col.py — Drone Trajectory Collector for CARLA + AirSim."""
+
 from __future__ import annotations
 
 import argparse
