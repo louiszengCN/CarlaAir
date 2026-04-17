@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "AirBlueprintLib.h"
+#include <cstring>
 #include "GameFramework/WorldSettings.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/SkinnedMeshComponent.h"
@@ -484,7 +485,7 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
             (
                 [vertex_buffer, data](FRHICommandListImmediate& RHICmdList) {
                     FVector* indices = (FVector*)RHILockVertexBuffer(vertex_buffer->VertexBufferRHI, 0, vertex_buffer->VertexBufferRHI->GetSize(), RLM_ReadOnly);
-                    memcpy(data, indices, vertex_buffer->VertexBufferRHI->GetSize());
+                    std::memcpy(data, indices, vertex_buffer->VertexBufferRHI->GetSize());
                     RHIUnlockVertexBuffer(vertex_buffer->VertexBufferRHI);
                 });
 
@@ -502,7 +503,7 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
                 (
                     [IndexBuffer, data_ptr](FRHICommandListImmediate& RHICmdList) {
                         uint16_t* indices = (uint16_t*)RHILockIndexBuffer(IndexBuffer->IndexBufferRHI, 0, IndexBuffer->IndexBufferRHI->GetSize(), RLM_ReadOnly);
-                        memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
+                        std::memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
                         RHIUnlockIndexBuffer(IndexBuffer->IndexBufferRHI);
                     });
 
@@ -525,7 +526,7 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
                 (
                     [IndexBuffer, data_ptr](FRHICommandListImmediate& RHICmdList) {
                         uint32_t* indices = (uint32_t*)RHILockIndexBuffer(IndexBuffer->IndexBufferRHI, 0, IndexBuffer->IndexBufferRHI->GetSize(), RLM_ReadOnly);
-                        memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
+                        std::memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
                         RHIUnlockIndexBuffer(IndexBuffer->IndexBufferRHI);
                     });
 
