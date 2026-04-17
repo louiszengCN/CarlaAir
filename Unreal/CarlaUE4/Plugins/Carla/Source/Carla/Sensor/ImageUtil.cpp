@@ -89,7 +89,7 @@ namespace ImageUtil
       break;
     default:
       UE_LOG(LogCarla, Warning, TEXT("Unsupported format %llu"), (unsigned long long)Format);
-      check(false);
+      // unsupported format already logged above
       break;
     }
   }
@@ -170,7 +170,7 @@ namespace ImageUtil
       break;
     default:
       UE_LOG(LogCarla, Warning, TEXT("Unsupported format %llu"), (unsigned long long)Format);
-      check(false);
+      // unsupported format already logged above
       break;
     }
   }

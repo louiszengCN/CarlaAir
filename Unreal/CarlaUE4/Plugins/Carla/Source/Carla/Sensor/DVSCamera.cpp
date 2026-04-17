@@ -130,7 +130,7 @@ void ADVSCamera::Set(const FActorDescription &Description)
 void ADVSCamera::PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaTime)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE(ADVSCamera::PostPhysTick);
-  check(CaptureRenderTarget != nullptr);
+  if (!IsValid(CaptureRenderTarget)) { return; }
   if (!HasActorBegunPlay() || !IsValid(this))
   {
     return;

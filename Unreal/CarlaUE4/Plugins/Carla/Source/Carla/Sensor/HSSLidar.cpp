@@ -197,7 +197,7 @@ void AHSSLidar::SimulateLidar(const float DeltaTime)
     return;
   }
 
-  check(ChannelCount == LaserAngles.Num());
+  ensure(ChannelCount == (uint32)LaserAngles.Num());
 
   ResetRecordedHits(ChannelCount, PointsToScanWithOneLaser);
   PreprocessRays(ChannelCount, PointsToScanWithOneLaser);

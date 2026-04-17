@@ -337,7 +337,7 @@ static carla::Buffer FWorldObserver_Serialize(
     carla::sensor::data::ActorDynamicState::TypeDependentState State{};
 
 
-    check(View);
+    if (!View) { continue; }
 
     if(View->IsDormant())
     {
@@ -376,7 +376,7 @@ static carla::Buffer FWorldObserver_Serialize(
   // Shrink buffer
   buffer.resize(current_size);
 
-  check(buffer.size() == current_size);
+  ensure(buffer.size() == current_size);
 
   return std::move(buffer);
 }

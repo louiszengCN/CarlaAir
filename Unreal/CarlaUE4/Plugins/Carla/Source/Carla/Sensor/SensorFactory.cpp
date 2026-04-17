@@ -133,7 +133,11 @@ FActorSpawnResult ASensorFactory::SpawnActor(
   else
   {
     auto *Episode = GameInstance->GetCarlaEpisode();
-    check(Episode != nullptr);
+    if (!Episode)
+    {
+      UE_LOG(LogCarla, Error, TEXT("ASensorFactory:: cannot spawn sensor, no episode."));
+      return {};
+    }
 
     Sensor->SetEpisode(*Episode);
     Sensor->Set(Description);

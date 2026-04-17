@@ -86,7 +86,7 @@ void ASensor::Tick(const float DeltaTime)
 
 void ASensor::SetSeed(const int32 InSeed)
 {
-  check(RandomEngine != nullptr);
+  if (!IsValid(RandomEngine)) { return; }
   Seed = InSeed;
   RandomEngine->Seed(InSeed);
 }

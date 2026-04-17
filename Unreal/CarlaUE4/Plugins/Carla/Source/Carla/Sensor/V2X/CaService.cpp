@@ -641,7 +641,7 @@ float CaService::ComputeSpeed()const
 
 float CaService::ComputeYawRate()const
 {
-    check(mActorOwner != nullptr);
+    if (!IsValid(mActorOwner)) { return 0.0f; }
     const FVector AngularVelocity =
         AInertialMeasurementUnit::GetActorAngularVelocityInRadians(*mActorOwner);
 

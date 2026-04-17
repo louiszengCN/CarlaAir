@@ -52,7 +52,7 @@ void ARayCastSemanticLidar::Set(const FLidarDescription &LidarDescription)
 void ARayCastSemanticLidar::CreateLasers()
 {
   const auto NumberOfLasers = Description.Channels;
-  check(NumberOfLasers > 0u);
+  ensure(NumberOfLasers > 0u);
   const float DeltaAngle = NumberOfLasers == 1u ? 0.f :
     (Description.UpperFovLimit - Description.LowerFovLimit) /
     static_cast<float>(NumberOfLasers - 1);
@@ -107,7 +107,7 @@ void ARayCastSemanticLidar::SimulateLidar(const float DeltaTime)
     return;
   }
 
-  check(ChannelCount == LaserAngles.Num());
+  ensure(ChannelCount == (uint32)LaserAngles.Num());
 
   const float CurrentHorizontalAngle = carla::geom::Math::ToDegrees(
       SemanticLidarData.GetHorizontalAngle());
