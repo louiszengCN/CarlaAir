@@ -348,7 +348,7 @@ void FCarlaEngine::OnPostTick(UWorld *World, ELevelTick TickType, float DeltaSec
 
         // send frame data to secondary
         std::string Tmp(OutStream.str());
-        SecondaryServer->GetCommander().SendFrameData(carla::Buffer(std::move((unsigned char *) Tmp.c_str()), (uint64_t) Tmp.size()));
+        SecondaryServer->GetCommander().SendFrameData(carla::Buffer((unsigned char *) Tmp.c_str(), (uint64_t) Tmp.size())); // Buffer copies data; std::move on raw ptr was a no-op
 
         GetCurrentEpisode()->GetFrameData().Clear();
       }

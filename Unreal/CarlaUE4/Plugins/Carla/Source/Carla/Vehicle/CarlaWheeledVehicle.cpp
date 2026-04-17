@@ -409,7 +409,10 @@ FVehiclePhysicsControl ACarlaWheeledVehicle::GetVehiclePhysicsControl() const
 
   UChaosWheeledVehicleMovementComponent *VehicleChaos = Cast<UChaosWheeledVehicleMovementComponent>(
         GetVehicleMovementComponent());
-  check(VehicleChaos != nullptr);
+  if (!VehicleChaos)
+  {
+    return PhysicsControl;
+  }
 
   // Engine Setup
   PhysicsControl.TorqueCurve = VehicleChaos->EngineSetup.TorqueCurve.EditorCurveData;
@@ -450,9 +453,10 @@ FVehiclePhysicsControl ACarlaWheeledVehicle::GetVehiclePhysicsControl() const
   // Center of mass offset (Center of mass is always zero vector in local
   // position)
   UPrimitiveComponent *UpdatedPrimitive = Cast<UPrimitiveComponent>(VehicleChaos->UpdatedComponent);
-  check(UpdatedPrimitive != nullptr);
-
-  PhysicsControl.CenterOfMass = UpdatedPrimitive->BodyInstance.COMNudge;
+  if (UpdatedPrimitive)
+  {
+    PhysicsControl.CenterOfMass = UpdatedPrimitive->BodyInstance.COMNudge;
+  }
 
   // Steering Setup
   PhysicsControl.SteeringCurve = VehicleChaos->SteeringSetup.SteeringCurve.EditorCurveData;
@@ -510,7 +514,10 @@ void ACarlaWheeledVehicle::ApplyVehiclePhysicsControl(const FVehiclePhysicsContr
 
   UChaosWheeledVehicleMovementComponent *VehicleChaos = Cast<UChaosWheeledVehicleMovementComponent>(
         GetVehicleMovementComponent());
-  check(VehicleChaos != nullptr);
+  if (!VehicleChaos)
+  {
+    return;
+  }
 
   // Engine Setup
   VehicleChaos->EngineSetup.TorqueCurve.EditorCurveData = PhysicsControl.TorqueCurve;
@@ -543,9 +550,10 @@ void ACarlaWheeledVehicle::ApplyVehiclePhysicsControl(const FVehiclePhysicsContr
 
   // Center of mass
   UPrimitiveComponent *UpdatedPrimitive = Cast<UPrimitiveComponent>(VehicleChaos->UpdatedComponent);
-  check(UpdatedPrimitive != nullptr);
-
-  UpdatedPrimitive->BodyInstance.COMNudge = PhysicsControl.CenterOfMass;
+  if (UpdatedPrimitive)
+  {
+    UpdatedPrimitive->BodyInstance.COMNudge = PhysicsControl.CenterOfMass;
+  }
 
   // Steering Setup
   VehicleChaos->SteeringSetup.SteeringCurve.EditorCurveData = PhysicsControl.SteeringCurve;
@@ -557,11 +565,17 @@ void ACarlaWheeledVehicle::ApplyVehiclePhysicsControl(const FVehiclePhysicsContr
   SetWheelCollision(VehicleChaos, PhysicsControl);
 
   TArray<FChaosWheelSetup> NewWheelSetups = VehicleChaos->WheelSetups;
+  const int32 VehicleWheelsNum = NewWheelSetups.Num();
 
   for (int32 i = 0; i < PhysicsWheelsNum; ++i)
   {
+    if (i >= VehicleWheelsNum)
+    {
+      UE_LOG(LogCarla, Warning, TEXT("ApplyVehiclePhysicsControl: PhysicsControl has %d wheels but vehicle has %d — skipping extra"), PhysicsWheelsNum, VehicleWheelsNum);
+      break;
+    }
     UChaosVehicleWheel *Wheel = NewWheelSetups[i].WheelClass.GetDefaultObject(); // UE5: TSubclassOf::GetDefaultObject() not a template
-    check(Wheel != nullptr);
+    if (!Wheel) continue;
 
     // UE5: TireConfig replaced by FrictionForceMultiplier on UChaosVehicleWheel
     Wheel->FrictionForceMultiplier = PhysicsControl.Wheels[i].TireFriction;
