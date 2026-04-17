@@ -81,7 +81,7 @@ void ASoilTypeManager::SetGeneralTerrainProperties(FSoilTerramechanicsProperties
 void ASoilTypeManager::AddTerrainPropertiesToTile(int TileX, int TileY, FSoilTerramechanicsProperties TerrainProperties)
 {
   // Compute ID from X,Y coords
-  check(LargeMapManager != nullptr)
+  if (!IsValid(LargeMapManager)) { return; }
 
   FIntVector TileVectorID(TileX, TileY, 0);
 

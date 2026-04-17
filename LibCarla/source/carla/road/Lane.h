@@ -11,9 +11,8 @@
 #include "carla/road/InformationSet.h"
 #include "carla/road/RoadTypes.h"
 
-#include <vector>
-#include <iostream>
 #include <memory>
+#include <vector>
 
 namespace carla {
 namespace road {
