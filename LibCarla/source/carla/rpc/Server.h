@@ -38,8 +38,8 @@ namespace carla {
     /// `SyncRunFor` function.
     class Server {
     public:
-      // UE5: rpclib 2.2.1 does not expose connection callbacks; use std::function
-      using callback_type = std::function<void(::rpc::session_id_t)>;
+      // rpclib callback_type: std::function<void(std::shared_ptr<::rpc::detail::server_session>)>
+      using callback_type = ::rpc::server::callback_type;
 
       template <typename... Args> explicit Server(Args &&...args);
 
@@ -65,9 +65,10 @@ namespace carla {
         _server.stop();
       }
 
-      // UE5: rpclib 2.2.1 does not support connection/disconnection callbacks; accept any callable, ignore it
-      template <typename F> void BindOnClientConnected(F &&) {}
-      template <typename F> void BindOnClientDisconnected(F &&) {}
+      // rpclib 2.2.1 exposes set_on_connection/set_on_disconnection with callback_type above.
+      // Previously stubbed out (no-op), which silently broke client sync participant registration.
+      void BindOnClientConnected(callback_type callback) { _server.set_on_connection(std::move(callback)); }
+      void BindOnClientDisconnected(callback_type callback) { _server.set_on_disconnection(std::move(callback)); }
 
     private:
       boost::asio::io_context _sync_io_context;
