@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "WeatherLib.h"
+#include "AirSim.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -20,15 +21,15 @@ UMaterialParameterCollectionInstance* UWeatherLib::getWeatherMaterialCollectionI
                 return Instance;
             }
             else {
-                UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get WeatherParameterCollectionInstance1!"));
+                UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get WeatherParameterCollectionInstance1!"));
             }
         }
         else {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get WeatherParameterCollection1!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get WeatherParameterCollection1!"));
         }
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get World!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get World!"));
     }
 
     return nullptr;
@@ -50,7 +51,7 @@ void UWeatherLib::initWeather(UWorld* World, TArray<AActor*> ActorsToAttachTo)
             }
         }
         else {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid weather actor class!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid weather actor class!"));
         }
         // still need the menu class for f10
         UClass* MenuActorClass = getWeatherMenuObjectPath().TryLoadClass<AActor>();
@@ -63,7 +64,7 @@ void UWeatherLib::initWeather(UWorld* World, TArray<AActor*> ActorsToAttachTo)
             World->SpawnActor(MenuActorClass, &Location, &Rotation, SpawnInfo);
         }
         else {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid menu actor class!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid menu actor class!"));
         }
     }
 
@@ -75,7 +76,7 @@ void UWeatherLib::setWeatherParamScalar(UWorld* World, EWeatherParamScalar Param
     if (WeatherMaterialCollectionInstance) {
         FName ParamName = GetWeatherParamScalarName(Param);
         if (ParamName == TEXT("")) {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
         }
         WeatherMaterialCollectionInstance->SetScalarParameterValue(ParamName, Amount);
 
@@ -93,7 +94,7 @@ void UWeatherLib::setWeatherParamScalar(UWorld* World, EWeatherParamScalar Param
         }
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
     }
 }
 float UWeatherLib::getWeatherParamScalar(UWorld* World, EWeatherParamScalar Param)
@@ -102,7 +103,7 @@ float UWeatherLib::getWeatherParamScalar(UWorld* World, EWeatherParamScalar Para
     if (WeatherMaterialCollectionInstance) {
         FName ParamName = GetWeatherParamScalarName(Param);
         if (ParamName == TEXT("")) {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
         }
         float Amount;
         WeatherMaterialCollectionInstance->GetScalarParameterValue(ParamName, Amount); //SetScalarParameterValue(ParamName, Amount);
@@ -110,7 +111,7 @@ float UWeatherLib::getWeatherParamScalar(UWorld* World, EWeatherParamScalar Para
         return Amount;
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
     }
     return 0.0f;
 }
@@ -120,7 +121,7 @@ FVector UWeatherLib::getWeatherWindDirection(UWorld* World)
     if (WeatherMaterialCollectionInstance) {
         FName ParamName = GetWeatherParamVectorName(EWeatherParamVector::WEATHER_PARAM_VECTOR_WIND);
         if (ParamName == TEXT("")) {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
         }
         FLinearColor Direction;
         WeatherMaterialCollectionInstance->GetVectorParameterValue(ParamName, Direction); //SetScalarParameterValue(ParamName, Amount);
@@ -128,7 +129,7 @@ FVector UWeatherLib::getWeatherWindDirection(UWorld* World)
         return FVector(Direction);
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
     }
     return FVector(0, 0, 0);
 }
@@ -138,12 +139,12 @@ void UWeatherLib::setWeatherWindDirection(UWorld* World, FVector NewWind)
     if (WeatherMaterialCollectionInstance) {
         FName ParamName = GetWeatherParamVectorName(EWeatherParamVector::WEATHER_PARAM_VECTOR_WIND);
         if (ParamName == TEXT("")) {
-            UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid paramname!"));
         }
         WeatherMaterialCollectionInstance->SetVectorParameterValue(ParamName, NewWind);
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could NOT get MaterialCollectionInstance!"));
     }
 }
 bool UWeatherLib::getIsWeatherEnabled(UWorld* World)
@@ -179,7 +180,7 @@ void UWeatherLib::showWeatherMenu(UWorld* World)
         }
     }
     else {
-        UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could not load weather widget!"));
+        UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI could not load weather widget!"));
     }
 }
 void UWeatherLib::hideWeatherMenu(UWorld* World)
@@ -193,7 +194,7 @@ void UWeatherLib::hideWeatherMenu(UWorld* World)
         TArray<UUserWidget*> FoundWidgets;
         UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, FoundWidgets, UUserWidget::StaticClass());
 
-        UE_LOG(LogTemp, Warning, TEXT("%s Warning, WeatherAPI"), *MenuWidgetClass->GetClass()->GetFName().ToString());
+        UE_LOG(LogAirSim, Warning, TEXT("%s Warning, WeatherAPI"), *MenuWidgetClass->GetClass()->GetFName().ToString());
 
         if (FoundWidgets.Num() > 0) {
             for (int32 i = 0; i < FoundWidgets.Num(); i++) {
@@ -221,7 +222,7 @@ bool UWeatherLib::isMenuVisible(UWorld* World)
         TArray<UUserWidget*> FoundWidgets;
         UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, FoundWidgets, UUserWidget::StaticClass());
 
-        UE_LOG(LogTemp, Warning, TEXT("%s Warning, WeatherAPI"), *MenuWidgetClass->GetClass()->GetFName().ToString());
+        UE_LOG(LogAirSim, Warning, TEXT("%s Warning, WeatherAPI"), *MenuWidgetClass->GetClass()->GetFName().ToString());
 
         if (FoundWidgets.Num() > 0) {
             for (int32 i = 0; i < FoundWidgets.Num(); i++) {

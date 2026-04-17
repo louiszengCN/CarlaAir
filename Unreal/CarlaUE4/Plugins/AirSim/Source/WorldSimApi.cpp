@@ -1,4 +1,5 @@
 #include "WorldSimApi.h"
+#include "AirSim.h"
 #include "common/common_utils/Utils.hpp"
 #include "AirBlueprintLib.h"
 #include "TextureShuffleActor.h"
@@ -50,7 +51,7 @@ bool WorldSimApi::loadLevel(const std::string& level_name)
 void WorldSimApi::spawnPlayer()
 {
     using namespace std::chrono_literals;
-    UE_LOG(LogTemp, Log, TEXT("spawning player"));
+    UE_LOG(LogAirSim, Log, TEXT("spawning player"));
     bool success{ false };
 
     UAirBlueprintLib::RunCommandOnGameThread([&]() {
@@ -59,7 +60,7 @@ void WorldSimApi::spawnPlayer()
                                              true);
 
     if (!success) {
-        UE_LOG(LogTemp, Error, TEXT("Could not find valid PlayerStart Position"));
+        UE_LOG(LogAirSim, Error, TEXT("Could not find valid PlayerStart Position"));
     }
     else {
         std::this_thread::sleep_for(1s);
@@ -225,7 +226,7 @@ bool WorldSimApi::createVoxelGrid(const Vector3r& position, const int& x_size, c
 
     std::ofstream output(output_file, std::ios::out | std::ios::binary);
     if (!output.good()) {
-        UE_LOG(LogTemp, Error, TEXT("Could not open output file to write voxel grid!"));
+        UE_LOG(LogAirSim, Error, TEXT("Could not open output file to write voxel grid!"));
         return success;
     }
 
