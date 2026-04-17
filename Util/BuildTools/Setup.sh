@@ -1,4 +1,6 @@
-#! /bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -8,7 +10,7 @@ DOC_STRING="Download and install the required libraries for carla."
 
 USAGE_STRING="Usage: $0 [--python-version=VERSION]"
 
-OPTS=`getopt -o h --long help,chrono,chrono-path:,ros2,pytorch,python-version: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,chrono,chrono-path:,ros2,pytorch,python-version: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -50,7 +52,8 @@ done
 # -- Set up environment --------------------------------------------------------
 # ==============================================================================
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 export CC="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang"
 export CXX="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang++"
