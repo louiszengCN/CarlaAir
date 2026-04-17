@@ -33,7 +33,7 @@
 <p align="center">
   <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a> &nbsp;&nbsp;|&nbsp;&nbsp;
   📄 <a href="docs/pdf/CarlaAir.pdf"><b>Paper</b></a> &nbsp;|&nbsp;
-  🌐 <a href="#"><b>Project Page</b></a> <i>(coming soon)</i> &nbsp;|&nbsp;
+  🌐 <a href="https://carla-air.com/"><b>Project Page</b></a> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>Docs</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://youtu.be/a0fZG2dmT1Q"><b>Video</b></a>
 </p>
@@ -63,6 +63,7 @@
 <a id="news"></a>
 
 ## 🔥 News
+- **[2026-04-17]** 🌐 **[Project page is live!](https://carla-air.com/)** -- Explore CARLA-Air features, tutorials, and demos at our official website.
 - **[2026-04-16]** $\color{red}{\textbf{Windows pre-built package is now available.}}$ **Download:** [Baidu Pan — Windows build](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm) (Win11 x86_64 recommended; no compilation)
 - **[2026-04-10]** [![Windows Source](https://img.shields.io/badge/Windows-Source%20Branch-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows source branch published](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows build and runtime support is now available on the dedicated branch
 - **[2026-04-01]** 🏆 $\color{red}{\text{\textbf{No.~1 Paper of the Day — Hugging Face Daily Papers!}}}$ ([paper / leaderboard](https://huggingface.co/papers/2603.28032))
@@ -427,7 +428,7 @@ We provide **6 curated Python examples** showcasing the core air-ground cooperat
 - [x] One-click environment setup
 - [x] Recording toolkit (vehicle, drone, pedestrian trajectories)
 - [x] Technical report ([PDF](docs/pdf/CarlaAir.pdf))
-- [ ] Project page (in progress)
+- [x] Project page ([carla-air.com](https://carla-air.com/))
 - [ ] Tutorial documentation
 - [ ] 3DGS rendering pipeline integration
 - [ ] World Model integration

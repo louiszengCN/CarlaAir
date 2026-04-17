@@ -33,7 +33,7 @@
 <p align="center">
   <a href="README.md">English</a> | <b>简体中文</b> &nbsp;&nbsp;|&nbsp;&nbsp;
   📄 <a href="docs/pdf/CarlaAir.pdf"><b>论文</b></a> &nbsp;|&nbsp;
-  🌐 <a href="#"><b>项目主页</b></a> <i>(即将上线)</i> &nbsp;|&nbsp;
+  🌐 <a href="https://carla-air.com/"><b>项目主页</b></a> &nbsp;|&nbsp;
   📖 <a href="CarlaAir_Release/guide/Quick-Start.md"><b>文档</b></a> &nbsp;|&nbsp;
   🎬 <a href="https://www.bilibili.com/video/BV1pTQzBkES7/"><b>视频</b></a>
 </p>
@@ -62,11 +62,12 @@
 
 ## 🔥 最新动态
 
+- **[2026-04-17]** 🌐 **[项目主页正式上线！](https://carla-air.com/)** -- 访问官网了解 CARLA-Air 的全部功能、教程与演示。
 - **[2026-04-16]** $\color{red}{\textbf{Windows 版预编译包已发布。}}$ **下载：** [百度网盘 — Windows 构建](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm)（推荐 Win11 x86_64；无需编译）
 - **[2026-04-10]** [![Windows 源码分支](https://img.shields.io/badge/Windows-源码分支-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows 源码分支已发布](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows 构建与运行支持现已在独立分支中提供
 - **[2026-04-01]** 🏆 $\color{red}{\text{\textbf{登顶 Hugging Face Daily Papers（No.~1 Paper of the Day）！}}}$（[论文 / 榜单页](https://huggingface.co/papers/2603.28032)）
 - **[2026-03-30]** 📄 技术报告发布 -- [阅读论文](docs/pdf/CarlaAir.pdf)
-- **[2026-03-31]** 🚀 即将上线 -- 项目主页、教程文档及开箱即用的二进制发布包，敬请期待！
+- **[2026-03-31]** 🚀 项目主页、教程文档及开箱即用的二进制发布包已上线！访问 [carla-air.com](https://carla-air.com/)
 - **[2026-03]** `v0.1.7` 发布 -- VSync 修复、稳定交通系统、一键环境配置、无人机录制工具、坐标系文档
 - **[2026-03]** `v0.1.6` 发布 -- 自动交通生成、UE4 原生 Sweep 碰撞、地面夹紧系统
 - **[2026-03]** `v0.1.5` 发布 -- 12 方向碰撞系统、双语帮助菜单（`H`）
@@ -411,7 +412,7 @@ CARLA-Air 旨在支持空地一体具身智能的四大研究方向：
 - [x] 一键环境配置
 - [x] 录制工具（车辆、无人机、行人轨迹）
 - [x] 技术报告（[PDF](docs/pdf/CarlaAir.pdf)）
-- [ ] 项目主页（开发中）
+- [x] 项目主页（[carla-air.com](https://carla-air.com/)）
 - [ ] 教程文档
 - [ ] 3DGS 渲染管线集成
 - [ ] World Model 集成
