@@ -432,33 +432,33 @@ LIBPNG_INSTALL=${LIBPNG_BASENAME}-install
 LIBPNG_INCLUDE=${PWD}/${LIBPNG_BASENAME}-install/include/
 LIBPNG_LIBPATH=${PWD}/${LIBPNG_BASENAME}-install/lib
 
-if [[ -d ${LIBPNG_INSTALL} ]] ; then
+if [[ -d "${LIBPNG_INSTALL}" ]] ; then
   log "Libpng already installed."
 else
   log "Retrieving libpng."
 
   start=$(date +%s)
-  wget ${LIBPNG_REPO}
+  wget "${LIBPNG_REPO}"
   end=$(date +%s)
   echo "Elapsed Time downloading libpng: $((end-start)) seconds"
 
   start=$(date +%s)
   log "Extracting libpng."
-  tar -xf libpng-${LIBPNG_VERSION}.tar.xz
+  tar -xf "libpng-${LIBPNG_VERSION}.tar.xz"
   end=$(date +%s)
   echo "Elapsed Time Extracting libpng: $((end-start)) seconds"
 
-  mv ${LIBPNG_BASENAME} ${LIBPNG_BASENAME}-source
+  mv "${LIBPNG_BASENAME}" "${LIBPNG_BASENAME}-source"
 
-  pushd ${LIBPNG_BASENAME}-source >/dev/null || exit 1
+  pushd "${LIBPNG_BASENAME}-source" >/dev/null || exit 1
 
-  ./configure --prefix=${CARLA_BUILD_FOLDER}/${LIBPNG_INSTALL}
+  ./configure "--prefix=${CARLA_BUILD_FOLDER}/${LIBPNG_INSTALL}"
   make install
 
   popd >/dev/null
 
-  rm -Rf libpng-${LIBPNG_VERSION}.tar.xz
-  rm -Rf ${LIBPNG_BASENAME}-source
+  rm -Rf "libpng-${LIBPNG_VERSION}.tar.xz"
+  rm -Rf "${LIBPNG_BASENAME}-source"
 fi
 
 # ==============================================================================
@@ -477,12 +477,12 @@ XERCESC_INSTALL_SERVER_DIR=${XERCESC_BASENAME}-install-server
 XERCESC_LIB=${XERCESC_INSTALL_DIR}/lib/libxerces-c.a
 XERCESC_SERVER_LIB=${XERCESC_INSTALL_SERVER_DIR}/lib/libxerces-c.a
 
-if [[ -d ${XERCESC_INSTALL_DIR} &&  -d ${XERCESC_INSTALL_SERVER_DIR} ]] ; then
+if [[ -d "${XERCESC_INSTALL_DIR}" && -d "${XERCESC_INSTALL_SERVER_DIR}" ]] ; then
   log "Xerces-c already installed."
 else
   log "Retrieving xerces-c."
   start=$(date +%s)
-  wget ${XERCESC_REPO}
+  wget "${XERCESC_REPO}"
   end=$(date +%s)
   echo "Elapsed Time downloading from xerces repo: $((end-start)) seconds"
   # try to use the backup boost we have in Jenkins
@@ -497,15 +497,15 @@ else
   log "Extracting xerces-c."
 
   start=$(date +%s)
-  tar -xzf ${XERCESC_BASENAME}.tar.gz
+  tar -xzf "${XERCESC_BASENAME}.tar.gz"
   end=$(date +%s)
   echo "Elapsed Time Extracting xerces-c: $((end-start)) seconds"
 
-  mv ${XERCESC_BASENAME} ${XERCESC_SRC_DIR}
-  mkdir -p ${XERCESC_INSTALL_DIR}
-  mkdir -p ${XERCESC_SRC_DIR}/build
+  mv "${XERCESC_BASENAME}" "${XERCESC_SRC_DIR}"
+  mkdir -p "${XERCESC_INSTALL_DIR}"
+  mkdir -p "${XERCESC_SRC_DIR}/build"
 
-  pushd ${XERCESC_SRC_DIR}/build >/dev/null || exit 1
+  pushd "${XERCESC_SRC_DIR}/build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -w" \
@@ -520,9 +520,9 @@ else
 
   popd >/dev/null
 
-  mkdir -p ${XERCESC_INSTALL_SERVER_DIR}
+  mkdir -p "${XERCESC_INSTALL_SERVER_DIR}"
 
-  pushd ${XERCESC_SRC_DIR}/build >/dev/null || exit 1
+  pushd "${XERCESC_SRC_DIR}/build" >/dev/null || exit 1
 
   cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -fPIC -w -I${LLVM_INCLUDE} -L${LLVM_LIBPATH}" \
@@ -537,15 +537,15 @@ else
 
   popd >/dev/null
 
-  rm -Rf ${XERCESC_BASENAME}.tar.gz
-  rm -Rf ${XERCESC_SRC_DIR}
+  rm -Rf "${XERCESC_BASENAME}.tar.gz"
+  rm -Rf "${XERCESC_SRC_DIR}"
 fi
 
-mkdir -p ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
-cp ${XERCESC_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+mkdir -p "${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/"
+cp "${XERCESC_LIB}" "${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/"
 
-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-cp -p ${XERCESC_SERVER_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+cp -p "${XERCESC_SERVER_LIB}" "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
 
 # ==============================================================================
 # -- Get Eigen headers 3.1.0 (CARLA dependency) -------------------------------------
@@ -559,41 +559,41 @@ EIGEN_INSTALL_DIR=eigen-${EIGEN_VERSION}-install
 EIGEN_INCLUDE=${EIGEN_INSTALL_DIR}/include
 
 
-if [[ -d ${EIGEN_INSTALL_DIR} ]] ; then
+if [[ -d "${EIGEN_INSTALL_DIR}" ]] ; then
     log "Eigen already installed."
 else
     log "Retrieving Eigen."
 
     start=$(date +%s)
-    wget ${EIGEN_REPO}
+    wget "${EIGEN_REPO}"
     end=$(date +%s)
     echo "Elapsed Time: $((end-start)) seconds"
 
     log "Extracting Eigen."
 
     start=$(date +%s)
-    tar -xzf ${EIGEN_BASENAME}.tar.gz
+    tar -xzf "${EIGEN_BASENAME}.tar.gz"
     end=$(date +%s)
     echo "Elapsed Time Extracting for Eigen: $((end-start)) seconds"
 
-    mv ${EIGEN_BASENAME} ${EIGEN_SRC_DIR}
-    mkdir -p ${EIGEN_INCLUDE}/unsupported
-    mv ${EIGEN_SRC_DIR}/Eigen ${EIGEN_INCLUDE}
-    mv ${EIGEN_SRC_DIR}/unsupported/Eigen ${EIGEN_INCLUDE}/unsupported/Eigen
+    mv "${EIGEN_BASENAME}" "${EIGEN_SRC_DIR}"
+    mkdir -p "${EIGEN_INCLUDE}/unsupported"
+    mv "${EIGEN_SRC_DIR}/Eigen" "${EIGEN_INCLUDE}"
+    mv "${EIGEN_SRC_DIR}/unsupported/Eigen" "${EIGEN_INCLUDE}/unsupported/Eigen"
 
-    rm -Rf ${EIGEN_BASENAME}.tar.gz
-    rm -Rf ${EIGEN_SRC_DIR}
+    rm -Rf "${EIGEN_BASENAME}.tar.gz"
+    rm -Rf "${EIGEN_SRC_DIR}"
 fi
 
-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
-cp -p -r ${EIGEN_INCLUDE}/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
+mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/include/"
+cp -p -r "${EIGEN_INCLUDE}/"* "${LIBCARLA_INSTALL_SERVER_FOLDER}/include/"
 
 if ${USE_CHRONO} ; then
   # ==============================================================================
   # -- Get Eigen headers (Chrono dependency) -------------------------------------
   # ==============================================================================
   CHRONO_INSTALL_DIR=chrono-install
-  if [[ -d ${CHRONO_INSTALL_DIR} ]] ; then
+  if [[ -d "${CHRONO_INSTALL_DIR}" ]] ; then
     log "chrono library already installed."
   else
     if [[ -n "${CHRONO_PATH}" ]] ; then
@@ -606,19 +606,19 @@ if ${USE_CHRONO} ; then
       CHRONO_TAG=6.0.0
       CHRONO_REPO=https://github.com/projectchrono/chrono.git
       CHRONO_SRC_DIR=chrono-source
-      if [[ -d ${CHRONO_INSTALL_DIR} ]] ; then
+      if [[ -d "${CHRONO_INSTALL_DIR}" ]] ; then
         log "chrono library already installed."
       else
         log "Retrieving chrono library."
         start=$(date +%s)
-        git clone --depth 1 --branch ${CHRONO_TAG} ${CHRONO_REPO} ${CHRONO_SRC_DIR}
+        git clone --depth 1 --branch "${CHRONO_TAG}" "${CHRONO_REPO}" "${CHRONO_SRC_DIR}"
         end=$(date +%s)
         echo "Elapsed Time dowloading chrono: $((end-start)) seconds"
       fi
     fi
     EIGEN_INCLUDE=$(realpath "${EIGEN_INSTALL_DIR}/include")
-    mkdir -p ${CHRONO_SRC_DIR}/build
-    pushd ${CHRONO_SRC_DIR}/build >/dev/null || exit 1
+    mkdir -p "${CHRONO_SRC_DIR}/build"
+    pushd "${CHRONO_SRC_DIR}/build" >/dev/null || exit 1
     cmake -G "Ninja" \
       -DCMAKE_CXX_FLAGS="-fPIC -std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -L${LLVM_LIBPATH} -Wno-unused-command-line-argument ${UNREAL_HOSTED_CFLAGS}" \
       -DEIGEN3_INCLUDE_DIR="${EIGEN_INCLUDE}" \
@@ -633,12 +633,12 @@ if ${USE_CHRONO} ; then
     if [[ -n "${CHRONO_PATH}" ]] ; then
       log "Skipping src removal."
     else
-      rm -Rf ${CHRONO_SRC_DIR}
+      rm -Rf "${CHRONO_SRC_DIR}"
     fi
-    mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-    mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
-    cp -p ${CHRONO_INSTALL_DIR}/lib/*.so ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-    cp -p -r ${CHRONO_INSTALL_DIR}/include/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
+    mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+    mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/include/"
+    cp -p "${CHRONO_INSTALL_DIR}/lib/"*.so "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+    cp -p -r "${CHRONO_INSTALL_DIR}/include/"* "${LIBCARLA_INSTALL_SERVER_FOLDER}/include/"
   fi
 fi
 
@@ -658,45 +658,45 @@ SQLITE_LIB=${PWD}/${SQLITE_INSTALL_DIR}/lib/libsqlite3.a
 SQLITE_FULL_LIB=${PWD}/${SQLITE_INSTALL_DIR}/lib/
 SQLITE_EXE=${PWD}/${SQLITE_INSTALL_DIR}/bin/sqlite3
 
-if [[ -d ${SQLITE_INSTALL_DIR} ]] ; then
+if [[ -d "${SQLITE_INSTALL_DIR}" ]] ; then
   log "Sqlite already installed."
 else
   log "Retrieving Sqlite3"
 
   start=$(date +%s)
-  wget ${SQLITE_REPO}
+  wget "${SQLITE_REPO}"
   end=$(date +%s)
   echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting Sqlite3"
 
   start=$(date +%s)
-  tar -xzf ${SQLITE_TAR}
+  tar -xzf "${SQLITE_TAR}"
   end=$(date +%s)
   echo "Elapsed Time Extracting for SQlite: $((end-start)) seconds"
 
-  mv ${SQLITE_VERSION} ${SQLITE_SOURCE_DIR}
+  mv "${SQLITE_VERSION}" "${SQLITE_SOURCE_DIR}"
 
-  mkdir ${SQLITE_INSTALL_DIR}
+  mkdir "${SQLITE_INSTALL_DIR}"
 
-  pushd ${SQLITE_SOURCE_DIR} >/dev/null || exit 1
+  pushd "${SQLITE_SOURCE_DIR}" >/dev/null || exit 1
 
   export CFLAGS="-fPIC -w"
-  ./configure --prefix=${PWD}/../sqlite-install/
+  ./configure "--prefix=${PWD}/../sqlite-install/"
   make
   make install
 
   popd >/dev/null
 
-  rm -Rf ${SQLITE_TAR}
-  rm -Rf ${SQLITE_SOURCE_DIR}
+  rm -Rf "${SQLITE_TAR}"
+  rm -Rf "${SQLITE_SOURCE_DIR}"
 fi
 
-mkdir -p ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
-cp ${SQLITE_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+mkdir -p "${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/"
+cp "${SQLITE_LIB}" "${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/"
 
-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
-cp -p -r ${SQLITE_FULL_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}
+mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
+cp -p -r "${SQLITE_FULL_LIB}" "${LIBCARLA_INSTALL_SERVER_FOLDER}"
 
 # ==============================================================================
 # -- Get and compile PROJ ------------------------------------------------------
@@ -776,7 +776,7 @@ fi
 
 cp ${PROJ_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
 
-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
 cp -p ${PROJ_SERVER_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
 
 # ==============================================================================
@@ -900,7 +900,7 @@ if ${USE_PYTORCH} ; then
 
   build_torch_extension ${LIBTORCHCLUSTER_SOURCE_DIR} ${LIBTORCHCLUSTER_INSTALL_DIR} "${LIBTORCHCLUSTER_REPO}"
 
-  mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+  mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
   cp -p ${LIBTORCH_LIB}/*.a ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
   cp -p ${LIBTORCH_LIB}/*.so* ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
   cp -p ${LIBTORCHSCATTER_LIB}/*.so ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
@@ -1000,7 +1000,7 @@ if ${USE_ROS2} ; then
     popd >/dev/null
     rm -Rf ${FAST_DDS_LIB_SOURCE_DIR}
 
-    mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+    mkdir -p "${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/"
     cp -p ${FASTDDS_LIB}/*.a ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
     cp -p -r ${FASTDDS_INCLUDE}/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
   fi
