@@ -184,6 +184,7 @@ function build_libcarla {
 
   if ${NEEDS_CMAKE} ; then
 
+    # shellcheck disable=SC2086  # CMAKE_EXTRA_OPTIONS is a word list, splitting is intentional
     cmake \
         -G "Eclipse CDT4 - Ninja" \
         -DCMAKE_BUILD_TYPE="${BUILD_TYPE:-$1}" \
