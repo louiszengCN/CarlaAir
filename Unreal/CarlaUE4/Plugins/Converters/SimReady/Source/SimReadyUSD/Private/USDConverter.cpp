@@ -2988,8 +2988,8 @@ int32 FillVertexData(const UParticleModuleRequired* RequiredModule,
             int32 InterpCount = TrailPayload->RenderingInterpCount;
             if (InterpCount > 1)
             {
-                check(PrevParticle);
-                check(TRAIL_EMITTER_IS_HEAD(TrailPayload->Flags) == 0);
+                ensure(PrevParticle);
+                ensure(TRAIL_EMITTER_IS_HEAD(TrailPayload->Flags) == 0);
 
                 // Interpolate between current and next...
                 FVector CurrPosition = PackingParticle->Location;
@@ -3487,7 +3487,7 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                         for (int i = 0; i < Attributes.FaceVertexIndices.size(); ++i)
                         {
                             int AdjustedIndex = BeginVertIndex + Attributes.FaceVertexIndices[i];
-                            check(AdjustedIndex < PointCacheVertices.size());
+                            ensure(AdjustedIndex < PointCacheVertices.size());
                             PointCacheFaceVertexIndices.push_back(AdjustedIndex);
                         }
 
@@ -3502,7 +3502,7 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                                 pxr::GfVec3f Normal = { NormalTransformed.X, NormalTransformed.Y, NormalTransformed.Z };
                                 PointCacheNormals.push_back(Normal);
                             }
-                            check(PointCacheNormals.size() == PointCacheFaceVertexIndices.size());
+                            ensure(PointCacheNormals.size() == PointCacheFaceVertexIndices.size());
                         }
 
                         if (Attributes.TangentX.size())
@@ -3515,19 +3515,19 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                                 pxr::GfVec3f TangentX = { TangentXTransformed.X, TangentXTransformed.Y, TangentXTransformed.Z };
                                 PointCacheTangentX.push_back(TangentX);
                             }
-                            check(PointCacheTangentX.size() == PointCacheFaceVertexIndices.size());
+                            ensure(PointCacheTangentX.size() == PointCacheFaceVertexIndices.size());
                         }
 
                         if (Attributes.Colors.size())
                         {
                             std::copy(Attributes.Colors.begin(), Attributes.Colors.end(), std::back_inserter(PointCacheColors));
-                            check(PointCacheColors.size() == PointCacheFaceVertexIndices.size());
+                            ensure(PointCacheColors.size() == PointCacheFaceVertexIndices.size());
                         }
 
                         if (Attributes.Opacities.size())
                         {
                             std::copy(Attributes.Opacities.begin(), Attributes.Opacities.end(), std::back_inserter(PointCacheOpacities));
-                            check(PointCacheOpacities.size() == PointCacheFaceVertexIndices.size());
+                            ensure(PointCacheOpacities.size() == PointCacheFaceVertexIndices.size());
                         }
 
                         if (Attributes.UVs.size())
@@ -3536,7 +3536,7 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                             for (int i = 0; i < PointCacheTexCoordChannels.size(); ++i)
                             {
                                 std::copy(Attributes.UVs[i].begin(), Attributes.UVs[i].end(), std::back_inserter(PointCacheTexCoordChannels[i]));
-                                check(PointCacheTexCoordChannels[i].size() == PointCacheFaceVertexIndices.size());
+                                ensure(PointCacheTexCoordChannels[i].size() == PointCacheFaceVertexIndices.size());
                             }
                         }
                     }
@@ -3552,7 +3552,7 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                             PointCacheVertices.push_back(vert);
                         }
                     }
-                    check(PointCacheVertices.size() == EmitterInstance->MaxActiveParticles * Attributes.Points.size());
+                    ensure(PointCacheVertices.size() == EmitterInstance->MaxActiveParticles * Attributes.Points.size());
 
                     auto USDMesh = pxr::UsdGeomMesh::Define(Stage, EmitterPath);
                     if (USDMesh)
@@ -3905,11 +3905,11 @@ pxr::UsdGeomXform FUSDExporter::ExportParticleSystem(const pxr::UsdStageRefPtr& 
                             PointCacheVertices.push_back(vert);
                         }
                     }
-                    check(PointCacheVertices.size() == EmitterInstance->MaxActiveParticles * BillboardVertsCount);
+                    ensure(PointCacheVertices.size() == EmitterInstance->MaxActiveParticles * BillboardVertsCount);
 
 
                     std::string reason;
-                    check(pxr::UsdGeomMesh::ValidateTopology(PointCacheFaceVertexIndices, PointCacheFaceVertexCounts, PointCacheVertices.size(), &reason));
+                    ensure(pxr::UsdGeomMesh::ValidateTopology(PointCacheFaceVertexIndices, PointCacheFaceVertexCounts, PointCacheVertices.size(), &reason));
 
                     // optimization - prebuilt index buffer that's prebuilt for worst-case size.
                     // problematic, USDView complains. 
@@ -4987,7 +4987,7 @@ void ExportStaticMeshLOD(const FStaticMeshLODResources& StaticMeshLOD, FMeshDesc
     {
         const FStaticMeshSection& Section = StaticMeshLOD.Sections[SectionIndex];
         FPolygonGroupID CurrentPolygonGroupID = OutRawMesh.CreatePolygonGroup();
-        check(CurrentPolygonGroupID.GetValue() == SectionIndex);
+        ensure(CurrentPolygonGroupID.GetValue() == SectionIndex);
         if (Materials.IsValidIndex(Section.MaterialIndex))
         {
             PolygonGroupImportedMaterialSlotNames[CurrentPolygonGroupID] = Materials[Section.MaterialIndex].ImportedMaterialSlotName;
@@ -5020,7 +5020,7 @@ void ExportStaticMeshLOD(const FStaticMeshLODResources& StaticMeshLOD, FMeshDesc
                 break;
             }
         }
-        check(CurrentPolygonGroupID != FPolygonGroupID::Invalid);
+        ensure(CurrentPolygonGroupID != FPolygonGroupID::Invalid);
 
         FVertexID VertexIDs[3];
         TArray<FVertexInstanceID> VertexInstanceIDs;
@@ -5300,14 +5300,14 @@ bool IsSphericalOrCylindricalProjectionUsed(UMeshComponent* MeshComponent)
                 if (FunctionCall->MaterialFunction && 
                     FunctionCall->MaterialFunction->GetName() == TEXT("mdl_base_coordinate_projection"))
                 {
-                    check(FunctionCall->FunctionInputs.Num() >= 3)
+                    ensure(FunctionCall->FunctionInputs.Num() >= 3)
                     FExpressionInput& Input = FunctionCall->FunctionInputs[2].Input;
 
                     // check projection type. Only spherical and cylindrical need z-up axis correction.
                     if (Input.InputName == TEXT("projection_type"))
                     {
                         UMaterialExpressionConstant* ProjectionType = Cast<UMaterialExpressionConstant>(Input.Expression);
-                        check(ProjectionType);
+                        ensure(ProjectionType);
                         /*
                         projection_cubic = 1
                             [[ anno::description("Projected space has a cube-shaped appearance") ]],
@@ -7231,7 +7231,7 @@ bool FUSDExporter::ExportSceneComponent(const pxr::UsdGeomImageable& Imageable, 
                         {
                             // get the same time sample from the parent to apply with the child
                             auto ParentTransform = ParentTransformTimeSamples.Transform.Find(timeCode.GetValue());
-                            check(ParentTransform)
+                            ensure(ParentTransform)
                             setLocalTransformMatrix(Xformable, TransformRH * (*ParentTransform), timeCode,
                                 bTranslateTimeSamples, bRotateTimeSamples, bScaleTimeSamples,
                                 bIgnoreTranslate, bIgnoreRotate, bIgnoreScale);
@@ -7486,7 +7486,7 @@ void SetNonVisualTags(const pxr::UsdPrim& Prim, const pxr::TfToken& Base)
 void ExportCarlaTag(const pxr::UsdPrim& Prim, const UObject* Asset, const UActorComponent* Component)
 {
     // Get asset folder name
-    check(Prim);
+    ensure(Prim);
     if (auto StaticMeshComp = Cast<UStaticMeshComponent>(Component))
     {
         Asset = StaticMeshComp->GetStaticMesh();
@@ -7546,7 +7546,7 @@ void ExportCarlaTag(const pxr::UsdPrim& Prim, const UObject* Asset, const UActor
     if (Component)
     {
         auto CarlaWheeledVehicleClass = FindObject<UClass>(ANY_PACKAGE, TEXT("CarlaWheeledVehicle"));
-        check(CarlaWheeledVehicleClass);
+        ensure(CarlaWheeledVehicleClass);
         if (FolderName == "Pedestrian" && Component->GetOwner()->IsA(CarlaWheeledVehicleClass))
         {
             FolderName = "Rider";
