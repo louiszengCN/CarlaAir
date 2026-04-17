@@ -14,7 +14,7 @@ UCarlaGameInstance::UCarlaGameInstance() {
   Recorder = CreateDefaultSubobject<ACarlaRecorder>(TEXT("Recorder"));
   CarlaEngine.SetRecorder(Recorder);
 
-  check(CarlaSettings != nullptr);
+  if (!CarlaSettings) { return; }
   CarlaSettings->LoadSettings();
   CarlaSettings->LogSettings();
 }

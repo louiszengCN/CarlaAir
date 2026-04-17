@@ -56,7 +56,7 @@ void UMoveAssetsCommandlet::MoveAssets(const FMovePackageParams &PackageParams)
 
 void MoveFiles(const TArray<UObject *> &Assets, const FString &DestPath)
 {
-  check(DestPath.Len() > 0);
+  if (!ensure(DestPath.Len() > 0)) { return; }
 
   FAssetToolsModule &AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
   TArray<FAssetRenameData> AssetsAndNames;

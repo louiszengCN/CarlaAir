@@ -23,7 +23,7 @@ AStaticMeshCollection::AStaticMeshCollection(
 void AStaticMeshCollection::PushBackInstantiator(UStaticMesh *Mesh)
 {
   auto Instantiator = NewObject<UInstancedStaticMeshComponent>(this);
-  check(Instantiator != nullptr);
+  if (!IsValid(Instantiator)) { return; }
   Instantiator->SetMobility(EComponentMobility::Static);
   Instantiator->SetupAttachment(RootComponent);
   Instantiator->SetStaticMesh(Mesh);

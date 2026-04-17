@@ -63,7 +63,7 @@ namespace MapGen {
       }
       edge = &Dcel::GetNextInNode(*edge);
     } while (edge != &firstHalfEdge);
-    check(!edgeMap.empty());
+    ensure(!edgeMap.empty());
     return {edgeMap.rbegin()->second, edgeMap.begin()->second};
   }
 

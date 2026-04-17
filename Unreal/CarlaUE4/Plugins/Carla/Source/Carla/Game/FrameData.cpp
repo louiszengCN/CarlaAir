@@ -986,7 +986,7 @@ void FFrameData::ProcessReplayerAnimVehicle(CarlaRecorderAnimVehicle Vehicle)
 
 void FFrameData::ProcessReplayerAnimVehicleWheels(CarlaRecorderAnimWheels VehicleAnimWheels)
 {
-  check(Episode != nullptr)
+  if (!Episode) { return; }
   FCarlaActor *CarlaActor = Episode->FindCarlaActor(VehicleAnimWheels.DatabaseId);
   if (CarlaActor == nullptr)
     return;
@@ -1141,9 +1141,9 @@ void FFrameData::SetFrameCounter()
 
 FCarlaActor *FFrameData::FindTrafficSignAt(FVector Location)
 {
-  if (!Episode) { return false; }
+  if (!Episode) { return nullptr; }
   auto World = Episode->GetWorld();
-  check(World != nullptr);
+  if (!World) { return nullptr; }
 
   // get its position (truncated as int's)
   int x = static_cast<int>(Location.X);

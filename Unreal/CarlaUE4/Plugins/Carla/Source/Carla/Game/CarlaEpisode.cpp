@@ -333,7 +333,7 @@ void UCarlaEpisode::AttachActors(
 void UCarlaEpisode::InitializeAtBeginPlay()
 {
   auto World = GetWorld();
-  check(World != nullptr);
+  if (!World) { return; }
   auto PlayerController = UGameplayStatics::GetPlayerController(World, 0);
   if (PlayerController == nullptr)
   {
@@ -371,7 +371,7 @@ void UCarlaEpisode::InitializeAtBeginPlay()
   for (TActorIterator<ATrafficSignBase> It(World); It; ++It)
   {
     ATrafficSignBase *Actor = *It;
-    check(Actor != nullptr);
+    if (!Actor) { continue; }
     FActorDescription Description;
     Description.Id = UCarlaEpisode_GetTrafficSignId(Actor->GetTrafficSignState());
     Description.Class = Actor->GetClass();
@@ -393,9 +393,9 @@ void UCarlaEpisode::InitializeAtBeginPlay()
   for (TActorIterator<AStaticMeshActor> It(World); It; ++It)
   {
     auto Actor = *It;
-    check(Actor != nullptr);
+    if (!Actor) { continue; }
     auto MeshComponent = Actor->GetStaticMeshComponent();
-    check(MeshComponent != nullptr);
+    if (!MeshComponent) { continue; }
     if (MeshComponent->Mobility == EComponentMobility::Movable)
     {
       FActorDescription Description;
