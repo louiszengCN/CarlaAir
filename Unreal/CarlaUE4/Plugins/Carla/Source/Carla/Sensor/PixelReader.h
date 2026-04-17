@@ -95,7 +95,7 @@ template <typename TSensor, typename TPixel>
 void FPixelReader::SendPixelsInRenderThread(TSensor &Sensor, bool use16BitFormat, std::function<TArray<TPixel>(void *, uint32)> Conversor)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE(FPixelReader::SendPixelsInRenderThread);
-  check(Sensor.CaptureRenderTarget != nullptr);
+  ensure(Sensor.CaptureRenderTarget != nullptr);
 
   if (!Sensor.HasActorBegunPlay() || !IsValid(&Sensor))
   {
@@ -170,7 +170,6 @@ void FPixelReader::SendPixelsInRenderThread(TSensor &Sensor, bool use16BitFormat
 
             if (ExpectedRowBytes == CurrentRowBytes)
             {
-              check(ExpectedRowBytes == CurrentRowBytes);
               TRACE_CPUPROFILER_EVENT_SCOPE_STR("Buffer Copy");
               Buffer.copy_from(Offset, boost::asio::buffer(LockedData, Size));
             }
