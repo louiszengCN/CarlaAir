@@ -52,7 +52,7 @@ namespace client {
       waypoint = _map.GetWaypoint(location, lane_type);
     }
     return waypoint.has_value() ?
-    SharedPtr<Waypoint>(new Waypoint{shared_from_this(), *waypoint}) :
+    MakeShared<Waypoint>(shared_from_this(), *waypoint) :
     nullptr;
   }
 
@@ -63,7 +63,7 @@ namespace client {
     boost::optional<road::element::Waypoint> waypoint;
     waypoint = _map.GetWaypoint(road_id, lane_id, s);
     return waypoint.has_value() ?
-        SharedPtr<Waypoint>(new Waypoint{shared_from_this(), *waypoint}) :
+        MakeShared<Waypoint>(shared_from_this(), *waypoint) :
         nullptr;
   }
 
@@ -76,7 +76,7 @@ namespace client {
       if (it == waypoints.end()) {
         it = waypoints.emplace(
             waypoint,
-            SharedPtr<Waypoint>(new Waypoint{shared_from_this(), waypoint})).first;
+            MakeShared<Waypoint>(shared_from_this(), waypoint)).first;
       }
       return it->second;
     };
@@ -97,7 +97,7 @@ namespace client {
     const auto waypoints = _map.GenerateWaypoints(distance);
     result.reserve(waypoints.size());
     for (const auto &waypoint : waypoints) {
-      result.emplace_back(SharedPtr<Waypoint>(new Waypoint{shared_from_this(), waypoint}));
+      result.emplace_back(MakeShared<Waypoint>(shared_from_this(), waypoint));
     }
     return result;
   }
@@ -122,7 +122,7 @@ namespace client {
 
   SharedPtr<Junction> Map::GetJunction(const Waypoint &waypoint) const {
     const road::Junction *juncptr = GetMap().GetJunction(waypoint.GetJunctionId());
-    auto junction = SharedPtr<Junction>(new Junction(shared_from_this(), juncptr));
+    auto junction = MakeShared<Junction>(shared_from_this(), juncptr);
     return junction;
   }
 
@@ -133,8 +133,8 @@ namespace client {
     auto junction_waypoints = GetMap().GetJunctionWaypoints(id, lane_type);
     for (auto &waypoint_pair : junction_waypoints) {
       result.emplace_back(
-      std::make_pair(SharedPtr<Waypoint>(new Waypoint(shared_from_this(), waypoint_pair.first)),
-      SharedPtr<Waypoint>(new Waypoint(shared_from_this(), waypoint_pair.second))));
+      std::make_pair(MakeShared<Waypoint>(shared_from_this(), waypoint_pair.first),
+      MakeShared<Waypoint>(shared_from_this(), waypoint_pair.second)));
     }
     return result;
   }
