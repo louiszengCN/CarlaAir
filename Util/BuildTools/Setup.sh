@@ -793,41 +793,41 @@ PATCHELF_INSTALL_DIR=patchelf-install
 PATCHELF_INCLUDE_DIR=${PWD}/${PATCHELF_INSTALL_DIR}/include
 PATCHELF_EXE=${PWD}/${PATCHELF_INSTALL_DIR}/bin/patchelf
 
-if [[ -d ${PATCHELF_INSTALL_DIR} ]] ; then
+if [[ -d "${PATCHELF_INSTALL_DIR}" ]] ; then
   log "Patchelf already installed."
 else
   log "Retrieving patchelf"
 
   start=$(date +%s)
-  wget ${PATCHELF_REPO}
+  wget "${PATCHELF_REPO}"
   end=$(date +%s)
   echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting patchelf"
   start=$(date +%s)
-  tar -xzf ${PATCHELF_TAR}
+  tar -xzf "${PATCHELF_TAR}"
   end=$(date +%s)
   echo "Elapsed Time Extracting patchelf: $((end-start)) seconds"
 
-  mv patchelf-${PATCHELF_VERSION} ${PATCHELF_SOURCE_DIR}
+  mv "patchelf-${PATCHELF_VERSION}" "${PATCHELF_SOURCE_DIR}"
 
-  mkdir ${PATCHELF_INSTALL_DIR}
+  mkdir "${PATCHELF_INSTALL_DIR}"
 
-  pushd ${PATCHELF_SOURCE_DIR} >/dev/null || exit 1
+  pushd "${PATCHELF_SOURCE_DIR}" >/dev/null || exit 1
 
   ./bootstrap.sh
-  ./configure --prefix=${PWD}/../${PATCHELF_INSTALL_DIR}
+  ./configure --prefix="${PWD}/../${PATCHELF_INSTALL_DIR}"
   make
   make install
 
   popd >/dev/null
 
-  rm -Rf ${PATCHELF_TAR}
-  rm -Rf ${PATCHELF_SOURCE_DIR}
+  rm -Rf "${PATCHELF_TAR}"
+  rm -Rf "${PATCHELF_SOURCE_DIR}"
 fi
 
-mkdir -p ${LIBCARLA_INSTALL_CLIENT_FOLDER}/bin/
-cp ${PATCHELF_EXE} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/bin/
+mkdir -p "${LIBCARLA_INSTALL_CLIENT_FOLDER}/bin/"
+cp "${PATCHELF_EXE}" "${LIBCARLA_INSTALL_CLIENT_FOLDER}/bin/"
 
 # ==============================================================================
 # -- Download libtorch and dependencies ----------------------------------------
