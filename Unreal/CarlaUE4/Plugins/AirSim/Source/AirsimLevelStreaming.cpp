@@ -26,7 +26,7 @@ UAirsimLevelStreaming* UAirsimLevelStreaming::LoadAirsimLevelInstance(UWorld* Wo
     UniqueLevelPackageName += TEXT("_LevelInstance_") + FString::FromInt(++LevelInstanceId);
 
     // Setup streaming level object that will load specified map
-    ULevelStreamingDynamic* level_pointer = NewObject<ULevelStreamingDynamic>(WorldContextObject, ULevelStreamingDynamic::StaticClass(), NAME_None, RF_Transient, NULL);
+    ULevelStreamingDynamic* level_pointer = NewObject<ULevelStreamingDynamic>(WorldContextObject, ULevelStreamingDynamic::StaticClass(), NAME_None, RF_Transient, nullptr);
     level_pointer->SetWorldAssetByPackageName(FName(*UniqueLevelPackageName));
     level_pointer->LevelColor = FColor::MakeRandomColor();
     level_pointer->SetShouldBeLoaded(true);

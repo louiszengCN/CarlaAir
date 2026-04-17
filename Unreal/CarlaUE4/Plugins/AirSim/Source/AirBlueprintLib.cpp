@@ -247,7 +247,7 @@ void UAirBlueprintLib::GenerateAssetRegistryMap(const UObject* context, TMap<FSt
         FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
         AssetRegistryModule.Get().GetAssets(Filter, AssetData);
 
-        UObject* LoadObject = NULL;
+        UObject* LoadObject = nullptr;
         for (const auto& asset : AssetData) {
             FString asset_name = asset.AssetName.ToString();
             asset_map.Add(asset_name, asset);
@@ -582,7 +582,7 @@ UObject* UAirBlueprintLib::GetMeshFromRegistry(const std::string& load_object)
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
     AssetRegistryModule.Get().GetAssets(Filter, AssetData);
 
-    UObject* LoadObject = NULL;
+    UObject* LoadObject = nullptr;
     for (auto asset : AssetData) {
         UE_LOG(LogTemp, Log, TEXT("Asset path: %s"), *asset.PackagePath.ToString());
         if (asset.AssetName == FName(load_object.c_str())) {
