@@ -63,9 +63,9 @@ private:
       }
       Message += TEXT(" ");
       // UE5.7: FString::Printf uses consteval format validation which fails for
-      // non-constexpr template parameters. Use FCString::Sprintf to bypass.
+      // non-constexpr template parameters. Use FCString::Snprintf (bounds-checked) to bypass.
       TCHAR TmpBuf[2048];
-      FCString::Sprintf(TmpBuf, Format, std::forward<ARGS>(Args)...);
+      FCString::Snprintf(TmpBuf, UE_ARRAY_COUNT(TmpBuf), Format, std::forward<ARGS>(Args)...); // bounds-safe
       Message += TmpBuf;
 
       UE_LOG(LogCarla, Error, TEXT("%s"), *Message);
