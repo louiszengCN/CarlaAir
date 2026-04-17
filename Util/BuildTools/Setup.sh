@@ -149,7 +149,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     start=$(date +%s)
     wget "https://archives.boost.io/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" -O ${BOOST_PACKAGE_BASENAME}.tar.gz || true
     end=$(date +%s)
-    echo "Elapsed Time downloading from boost webpage: $(($end-$start)) seconds"
+    echo "Elapsed Time downloading from boost webpage: $((end-start)) seconds"
 
     # try to use the backup boost we have in Jenkins
     if [ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ] || [[ $(sha256sum "${BOOST_PACKAGE_BASENAME}.tar.gz" | cut -d " " -f 1 ) != "${BOOST_SHA256SUM}" ]] ; then
@@ -158,7 +158,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
       start=$(date +%s)
       wget "https://carla-releases.s3.us-east-005.backblazeb2.com/Backup/${BOOST_PACKAGE_BASENAME}.tar.gz" -O ${BOOST_PACKAGE_BASENAME}.tar.gz || true
       end=$(date +%s)
-      echo "Elapsed Time downloading from boost carla backup in backblaze: $(($end-$start)) seconds"
+      echo "Elapsed Time downloading from boost carla backup in backblaze: $((end-start)) seconds"
 
     fi
 
@@ -167,7 +167,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     start=$(date +%s)
     tar -xzf ${BOOST_PACKAGE_BASENAME}.tar.gz
     end=$(date +%s)
-    echo "Elapsed Time Extracting boost for Python: $(($end-$start)) seconds"
+    echo "Elapsed Time Extracting boost for Python: $((end-start)) seconds"
 
     mkdir -p ${BOOST_BASENAME}-install/include
     mv ${BOOST_PACKAGE_BASENAME} ${BOOST_BASENAME}-source
@@ -244,7 +244,7 @@ else
 
   end_download_time=$(date +%s)
 
-  echo "Elapsed Time downloading rpclib: $(($end_download_time-$start_download_time)) seconds"
+  echo "Elapsed Time downloading rpclib: $((end_download_time-start_download_time)) seconds"
   log "Building rpclib with libc++."
 
   # rpclib does not use any cmake 3.9 feature.
@@ -316,7 +316,7 @@ else
   git clone --depth=1 -b release-${GTEST_VERSION} https://github.com/google/googletest.git ${GTEST_BASENAME}-source
 
   end_download_time=$(date +%s)
-  echo "Elapsed Time downloading rpclib: $(($end_download_time-$start_download_time)) seconds"
+  echo "Elapsed Time downloading rpclib: $((end_download_time-start_download_time)) seconds"
 
   log "Building Google Test with libc++."
 
@@ -383,7 +383,7 @@ else
   git clone --depth 1 -b carla https://github.com/carla-simulator/recastnavigation.git ${RECAST_BASENAME}-source
 
   end=$(date +%s)
-  echo "Elapsed Time downloading: $(($end-$start)) seconds"
+  echo "Elapsed Time downloading: $((end-start)) seconds"
 
   pushd ${RECAST_BASENAME}-source >/dev/null || exit 1
 
@@ -440,13 +440,13 @@ else
   start=$(date +%s)
   wget ${LIBPNG_REPO}
   end=$(date +%s)
-  echo "Elapsed Time downloading libpng: $(($end-$start)) seconds"
+  echo "Elapsed Time downloading libpng: $((end-start)) seconds"
 
   start=$(date +%s)
   log "Extracting libpng."
   tar -xf libpng-${LIBPNG_VERSION}.tar.xz
   end=$(date +%s)
-  echo "Elapsed Time Extracting libpng: $(($end-$start)) seconds"
+  echo "Elapsed Time Extracting libpng: $((end-start)) seconds"
 
   mv ${LIBPNG_BASENAME} ${LIBPNG_BASENAME}-source
 
@@ -484,14 +484,14 @@ else
   start=$(date +%s)
   wget ${XERCESC_REPO}
   end=$(date +%s)
-  echo "Elapsed Time downloading from xerces repo: $(($end-$start)) seconds"
+  echo "Elapsed Time downloading from xerces repo: $((end-start)) seconds"
   # try to use the backup boost we have in Jenkins
   if [[ ! -f "${XERCESC_BASENAME}.tar.gz" ]] ; then
     log "Using xerces backup"
     start=$(date +%s)
     wget "https://carla-releases.s3.us-east-005.backblazeb2.com/Backup/${XERCESC_BASENAME}.tar.gz" || true
     end=$(date +%s)
-    echo "Elapsed Time downloading from xerces backup: $(($end-$start)) seconds"
+    echo "Elapsed Time downloading from xerces backup: $((end-start)) seconds"
   fi
 
   log "Extracting xerces-c."
@@ -499,7 +499,7 @@ else
   start=$(date +%s)
   tar -xzf ${XERCESC_BASENAME}.tar.gz
   end=$(date +%s)
-  echo "Elapsed Time Extracting xerces-c: $(($end-$start)) seconds"
+  echo "Elapsed Time Extracting xerces-c: $((end-start)) seconds"
 
   mv ${XERCESC_BASENAME} ${XERCESC_SRC_DIR}
   mkdir -p ${XERCESC_INSTALL_DIR}
@@ -567,14 +567,14 @@ else
     start=$(date +%s)
     wget ${EIGEN_REPO}
     end=$(date +%s)
-    echo "Elapsed Time: $(($end-$start)) seconds"
+    echo "Elapsed Time: $((end-start)) seconds"
 
     log "Extracting Eigen."
 
     start=$(date +%s)
     tar -xzf ${EIGEN_BASENAME}.tar.gz
     end=$(date +%s)
-    echo "Elapsed Time Extracting for Eigen: $(($end-$start)) seconds"
+    echo "Elapsed Time Extracting for Eigen: $((end-start)) seconds"
 
     mv ${EIGEN_BASENAME} ${EIGEN_SRC_DIR}
     mkdir -p ${EIGEN_INCLUDE}/unsupported
@@ -613,7 +613,7 @@ if ${USE_CHRONO} ; then
         start=$(date +%s)
         git clone --depth 1 --branch ${CHRONO_TAG} ${CHRONO_REPO} ${CHRONO_SRC_DIR}
         end=$(date +%s)
-        echo "Elapsed Time dowloading chrono: $(($end-$start)) seconds"
+        echo "Elapsed Time dowloading chrono: $((end-start)) seconds"
       fi
     fi
     EIGEN_INCLUDE=$(realpath "${EIGEN_INSTALL_DIR}/include")
@@ -666,14 +666,14 @@ else
   start=$(date +%s)
   wget ${SQLITE_REPO}
   end=$(date +%s)
-  echo "Elapsed Time: $(($end-$start)) seconds"
+  echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting Sqlite3"
 
   start=$(date +%s)
   tar -xzf ${SQLITE_TAR}
   end=$(date +%s)
-  echo "Elapsed Time Extracting for SQlite: $(($end-$start)) seconds"
+  echo "Elapsed Time Extracting for SQlite: $((end-start)) seconds"
 
   mv ${SQLITE_VERSION} ${SQLITE_SOURCE_DIR}
 
@@ -722,13 +722,13 @@ else
   start=$(date +%s)
   wget ${PROJ_REPO}
   end=$(date +%s)
-  echo "Elapsed Time: $(($end-$start)) seconds"
+  echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting PROJ"
   start=$(date +%s)
   tar -xzf ${PROJ_TAR}
   end=$(date +%s)
-  echo "Elapsed Time Extracting for PROJ: $(($end-$start)) seconds"
+  echo "Elapsed Time Extracting for PROJ: $((end-start)) seconds"
 
   mv ${PROJ_VERSION} ${PROJ_SRC_DIR}
 
@@ -801,13 +801,13 @@ else
   start=$(date +%s)
   wget ${PATCHELF_REPO}
   end=$(date +%s)
-  echo "Elapsed Time: $(($end-$start)) seconds"
+  echo "Elapsed Time: $((end-start)) seconds"
 
   log "Extracting patchelf"
   start=$(date +%s)
   tar -xzf ${PATCHELF_TAR}
   end=$(date +%s)
-  echo "Elapsed Time Extracting patchelf: $(($end-$start)) seconds"
+  echo "Elapsed Time Extracting patchelf: $((end-start)) seconds"
 
   mv patchelf-${PATCHELF_VERSION} ${PATCHELF_SOURCE_DIR}
 
@@ -847,7 +847,7 @@ if ${USE_PYTORCH} ; then
     start=$(date +%s)
     wget ${LIBTORCH_REPO}
     end=$(date +%s)
-    echo "Elapsed Time downloading LIBTORCH_REPO: $(($end-$start)) seconds"
+    echo "Elapsed Time downloading LIBTORCH_REPO: $((end-start)) seconds"
 
     unzip ${LIBTORCH_ZIPFILE}
   fi
