@@ -51,22 +51,18 @@ class TestMap(SmokeTest):
 
     def test_reload_world(self) -> None:
         """Verify world can be reloaded and returns same map."""
-        print("TestMap.test_reload_world")
         map_name = self.client.get_world().get_map().name
         world = self.client.reload_world()
-        self.assertEqual(map_name, world.get_map().name)
+        assert map_name == world.get_map().name
 
     def test_load_all_maps(self) -> None:
         """Verify all standard maps can be loaded and validated."""
-        print("TestMap.test_load_all_maps")
         for map_name in _MAP_NAMES:
             world = self.client.load_world(map_name)
             # Workaround: give time to UE4 to clean memory after loading
             time.sleep(_RELOAD_DELAY)
             m = world.get_map()
-            self.assertEqual(
-                map_name.split("/")[-1], m.name.split("/")[-1]
-            )
+            assert map_name.split("/")[-1] == m.name.split("/")[-1]
             self._check_map(m)
 
     def _check_map(self, m: carla.Map) -> None:
@@ -77,23 +73,21 @@ class TestMap(SmokeTest):
         """
         for spawn_point in m.get_spawn_points():
             waypoint = m.get_waypoint(
-                spawn_point.location, project_to_road=False
+                spawn_point.location, project_to_road=False,
             )
-            self.assertIsNotNone(waypoint)
+            assert waypoint is not None
 
         topology = m.get_topology()
-        self.assertGreater(len(topology), 0)
+        assert len(topology) > 0
 
         waypoints = list(m.generate_waypoints(_WAYPOINT_DISTANCE))
-        self.assertGreater(len(waypoints), 0)
+        assert len(waypoints) > 0
         random.shuffle(waypoints)
 
         for initial_waypoint in waypoints[:_WAYPOINT_LIMIT]:
             current_waypoint = initial_waypoint
             for _ in range(_NEXT_WAYPOINT_ITERATIONS):
-                self.assertGreaterEqual(
-                    current_waypoint.lane_width, _LANE_WIDTH_MIN
-                )
+                assert current_waypoint.lane_width >= _LANE_WIDTH_MIN
                 _ = current_waypoint.get_right_lane()
                 _ = current_waypoint.get_left_lane()
                 next_waypoints = current_waypoint.next(_NEXT_WAYPOINT_DISTANCE)
@@ -102,14 +96,10 @@ class TestMap(SmokeTest):
                 current_waypoint = random.choice(next_waypoints)
 
         _ = m.transform_to_geolocation(carla.Location())
-        self.assertTrue(str(m.to_opendrive()))
+        assert str(m.to_opendrive())
 
         if not any(
             map_name in m.name for map_name in _MAPS_WITHOUT_CROSSWALKS
         ):
             crosswalks = m.get_crosswalks()
-            self.assertGreater(
-                len(crosswalks),
-                0,
-                msg=f"Map {m.name} has no crosswalks.",
-            )
+            assert len(crosswalks) > 0, f"Map {m.name} has no crosswalks."

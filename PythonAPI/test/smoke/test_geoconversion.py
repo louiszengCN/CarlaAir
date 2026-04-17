@@ -8,8 +8,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 
 import carla
@@ -169,7 +167,7 @@ class TestGeoLocationConversion(SmokeTest):
             and _LAT_MIN <= b.latitude <= _LAT_MAX
         ):
             raise ValueError(
-                f"Latitude out of bounds: {a.latitude}, {b.latitude}"
+                f"Latitude out of bounds: {a.latitude}, {b.latitude}",
             )
 
         # Longitudes must stay in range [-180, 180]
@@ -178,7 +176,7 @@ class TestGeoLocationConversion(SmokeTest):
             and _LON_MIN <= b.longitude <= _LON_MAX
         ):
             raise ValueError(
-                f"Longitude out of bounds: {a.longitude}, {b.longitude}"
+                f"Longitude out of bounds: {a.longitude}, {b.longitude}",
             )
 
         lon_diff = (
@@ -198,58 +196,35 @@ class TestGeoLocationConversion(SmokeTest):
                 f"Geo conversion failed: large discrepancy "
                 f"(lat diff = {lat_diff}, lon diff = {lon_diff})\n"
                 f"Original: lat={a.latitude}, lon={a.longitude}\n"
-                f"Back:     lat={b.latitude}, lon={b.longitude}"
+                f"Back:     lat={b.latitude}, lon={b.longitude}",
             )
 
-        self.assertLessEqual(
-            lat_diff,
-            latlon_tol,
-            f"Latitude mismatch: {a.latitude} vs {b.latitude}",
-        )
-        self.assertLessEqual(
-            lon_diff,
-            latlon_tol,
-            f"Longitude mismatch: {a.longitude} vs {b.longitude}",
-        )
-        self.assertLessEqual(
-            alt_diff,
-            alt_tol,
-            f"Altitude mismatch: {a.altitude} vs {b.altitude}",
-        )
+        assert lat_diff <= latlon_tol, f"Latitude mismatch: {a.latitude} vs {b.latitude}"
+        assert lon_diff <= latlon_tol, f"Longitude mismatch: {a.longitude} vs {b.longitude}"
+        assert alt_diff <= alt_tol, f"Altitude mismatch: {a.altitude} vs {b.altitude}"
 
     def test_geo_reference(self) -> None:
         """Test geo reference consistency."""
-        print("TestGeoLocationConversion.test_geo_reference")
         geo_reference = self.map.get_georeference()
         geo_reference_2 = self.map.transform_to_geolocation(
-            carla.Location()
+            carla.Location(),
         )
         self._assert_geolocation_close(geo_reference, geo_reference_2)
 
     def test_geo_projection(self) -> None:
         """Test geo projection type."""
-        print("TestGeoLocationConversion.test_geo_projection")
         geo_projection = self.map.get_geoprojection()
-        self.assertIsInstance(
-            geo_projection,
-            (
-                carla.GeoProjectionTM,
-                carla.GeoProjectionUTM,
-                carla.GeoProjectionWebMerc,
-                carla.GeoProjectionLCC2SP,
-            ),
-        )
+        assert isinstance(geo_projection, (carla.GeoProjectionTM, carla.GeoProjectionUTM, carla.GeoProjectionWebMerc, carla.GeoProjectionLCC2SP))
 
     def test_location_to_geo_and_back(self) -> None:
         """Test location -> geo -> location roundtrip."""
-        print("TestGeoLocationConversion.test_location_to_geo_and_back")
         x_list = np.linspace(*_X_RANGE_SMALL, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_SMALL, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc)
             loc2 = self.map.geolocation_to_transform(geo)
@@ -257,7 +232,6 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_geo_to_location_and_back(self) -> None:
         """Test geo -> location -> geo roundtrip."""
-        print("TestGeoLocationConversion.test_geo_to_location_and_back")
         origin_geo = self.map.get_georeference()
         lat_0, lon_0 = origin_geo.latitude, origin_geo.longitude
 
@@ -277,17 +251,13 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_tm_location_to_geo_and_back(self) -> None:
         """Test TM projection location -> geo -> location."""
-        print(
-            "TestGeoLocationConversion."
-            "test_tm_location_to_geo_and_back"
-        )
         x_list = np.linspace(*_X_RANGE_TM, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_TM, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc, _TM)
             loc2 = self.map.geolocation_to_transform(geo, _TM)
@@ -295,10 +265,6 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_tm_geo_to_location_and_back(self) -> None:
         """Test TM projection geo -> location -> geo."""
-        print(
-            "TestGeoLocationConversion."
-            "test_tm_geo_to_location_and_back"
-        )
         lat_list = np.linspace(*_LAT_RANGE_TM, _AMOUNT_STEPS).tolist()
         lon_list = np.linspace(*_LON_RANGE_TM, _AMOUNT_STEPS).tolist()
         alt_list = np.linspace(*_ALT_RANGE_LOW, _AMOUNT_STEPS).tolist()
@@ -315,17 +281,13 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_utm_north_location_to_geo_and_back(self) -> None:
         """Test UTM North location -> geo -> location."""
-        print(
-            "TestGeoLocationConversion."
-            "test_utm_north_location_to_geo_and_back"
-        )
         x_list = np.linspace(*_X_RANGE_TM, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_UTM_N, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc, _UTMNORTH)
             loc2 = self.map.geolocation_to_transform(geo, _UTMNORTH)
@@ -333,15 +295,11 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_utm_north_geo_to_location_and_back(self) -> None:
         """Test UTM North geo -> location -> geo."""
-        print(
-            "TestGeoLocationConversion."
-            "test_utm_north_geo_to_location_and_back"
-        )
         lat_list = np.linspace(
-            *_LAT_RANGE_UTM_N, _AMOUNT_STEPS
+            *_LAT_RANGE_UTM_N, _AMOUNT_STEPS,
         ).tolist()
         lon_list = np.linspace(
-            *_LON_RANGE_UTM_N, _AMOUNT_STEPS
+            *_LON_RANGE_UTM_N, _AMOUNT_STEPS,
         ).tolist()
         alt_list = np.linspace(*_ALT_RANGE_LOW, _AMOUNT_STEPS).tolist()
 
@@ -357,17 +315,13 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_utm_south_location_to_geo_and_back(self) -> None:
         """Test UTM South location -> geo -> location."""
-        print(
-            "TestGeoLocationConversion."
-            "test_utm_south_location_to_geo_and_back"
-        )
         x_list = np.linspace(*_X_RANGE_TM, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_UTM_S, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc, _UTMSOUTH)
             loc2 = self.map.geolocation_to_transform(geo, _UTMSOUTH)
@@ -375,15 +329,11 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_utm_south_geo_to_location_and_back(self) -> None:
         """Test UTM South geo -> location -> geo."""
-        print(
-            "TestGeoLocationConversion."
-            "test_utm_south_geo_to_location_and_back"
-        )
         lat_list = np.linspace(
-            *_LAT_RANGE_UTM_S, _AMOUNT_STEPS
+            *_LAT_RANGE_UTM_S, _AMOUNT_STEPS,
         ).tolist()
         lon_list = np.linspace(
-            *_LON_RANGE_UTM_S, _AMOUNT_STEPS
+            *_LON_RANGE_UTM_S, _AMOUNT_STEPS,
         ).tolist()
         alt_list = np.linspace(*_ALT_RANGE_LOW, _AMOUNT_STEPS).tolist()
 
@@ -399,17 +349,13 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_webmerc_location_to_geo_and_back(self) -> None:
         """Test WebMerc location -> geo -> location."""
-        print(
-            "TestGeoLocationConversion."
-            "test_webmerc_location_to_geo_and_back"
-        )
         x_list = np.linspace(*_X_RANGE_WEBM, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_WEBM, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc, _WEBM)
             loc2 = self.map.geolocation_to_transform(geo, _WEBM)
@@ -417,15 +363,11 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_webmerc_geo_to_location_and_back(self) -> None:
         """Test WebMerc geo -> location -> geo."""
-        print(
-            "TestGeoLocationConversion."
-            "test_webmerc_geo_to_location_and_back"
-        )
         lat_list = np.linspace(
-            *_LAT_RANGE_WEBM, _AMOUNT_STEPS
+            *_LAT_RANGE_WEBM, _AMOUNT_STEPS,
         ).tolist()
         lon_list = np.linspace(
-            *_LON_RANGE_WEBM, _AMOUNT_STEPS
+            *_LON_RANGE_WEBM, _AMOUNT_STEPS,
         ).tolist()
         alt_list = np.linspace(*_ALT_RANGE_LOW, _AMOUNT_STEPS).tolist()
 
@@ -441,17 +383,13 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_lcc_location_to_geo_and_back(self) -> None:
         """Test LCC location -> geo -> location."""
-        print(
-            "TestGeoLocationConversion."
-            "test_lcc_location_to_geo_and_back"
-        )
         x_list = np.linspace(*_X_RANGE_LCC, _AMOUNT_STEPS).tolist()
         y_list = np.linspace(*_Y_RANGE_LCC, _AMOUNT_STEPS).tolist()
         z_list = np.linspace(*_Z_RANGE_SMALL, _AMOUNT_STEPS).tolist()
 
         for i in range(_AMOUNT_STEPS):
             loc = carla.Location(
-                x=x_list[i], y=y_list[i], z=z_list[i]
+                x=x_list[i], y=y_list[i], z=z_list[i],
             )
             geo = self.map.transform_to_geolocation(loc, _LCC)
             loc2 = self.map.geolocation_to_transform(geo, _LCC)
@@ -459,15 +397,11 @@ class TestGeoLocationConversion(SmokeTest):
 
     def test_lcc_geo_to_location_and_back(self) -> None:
         """Test LCC geo -> location -> geo."""
-        print(
-            "TestGeoLocationConversion."
-            "test_lcc_geo_to_location_and_back"
-        )
         lat_list = np.linspace(
-            *_LAT_RANGE_LCC, _AMOUNT_STEPS
+            *_LAT_RANGE_LCC, _AMOUNT_STEPS,
         ).tolist()
         lon_list = np.linspace(
-            *_LON_RANGE_LCC, _AMOUNT_STEPS
+            *_LON_RANGE_LCC, _AMOUNT_STEPS,
         ).tolist()
         alt_list = np.linspace(*_ALT_RANGE_LOW, _AMOUNT_STEPS).tolist()
 

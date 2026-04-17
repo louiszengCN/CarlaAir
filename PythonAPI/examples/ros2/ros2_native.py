@@ -47,15 +47,15 @@ def _setup_sensors(world, vehicle, sensors_config):
 
         wp = carla.Transform(
             location=carla.Location(x=sensor["spawn_point"]["x"], y=-sensor["spawn_point"]["y"], z=sensor["spawn_point"]["z"]),
-            rotation=carla.Rotation(roll=sensor["spawn_point"]["roll"], pitch=-sensor["spawn_point"]["pitch"], yaw=-sensor["spawn_point"]["yaw"])
+            rotation=carla.Rotation(roll=sensor["spawn_point"]["roll"], pitch=-sensor["spawn_point"]["pitch"], yaw=-sensor["spawn_point"]["yaw"]),
         )
 
         sensors.append(
             world.spawn_actor(
                 bp,
                 wp,
-                attach_to=vehicle
-            )
+                attach_to=vehicle,
+            ),
         )
 
         sensors[-1].enable_for_ros()
@@ -63,7 +63,7 @@ def _setup_sensors(world, vehicle, sensors_config):
     return sensors
 
 
-def main(args):
+def main(args) -> None:
 
     world = None
     vehicle = None
@@ -101,7 +101,7 @@ def main(args):
             _ = world.tick()
 
     except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
+        pass
 
     finally:
         if original_settings:
@@ -114,18 +114,18 @@ def main(args):
             vehicle.destroy()
 
 
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='CARLA ROS2 native')
-    argparser.add_argument('--host', metavar='H', default='localhost', help='IP of the host CARLA Simulator (default: localhost)')
-    argparser.add_argument('--port', metavar='P', default=2000, type=int, help='TCP port of CARLA Simulator (default: 2000)')
-    argparser.add_argument('-f', '--file', default='', required=True, help='File to be executed')
-    argparser.add_argument('-v', '--verbose', action='store_true', dest='debug', help='print debug information')
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description="CARLA ROS2 native")
+    argparser.add_argument("--host", metavar="H", default="localhost", help="IP of the host CARLA Simulator (default: localhost)")
+    argparser.add_argument("--port", metavar="P", default=2000, type=int, help="TCP port of CARLA Simulator (default: 2000)")
+    argparser.add_argument("-f", "--file", default="", required=True, help="File to be executed")
+    argparser.add_argument("-v", "--verbose", action="store_true", dest="debug", help="print debug information")
 
     args = argparser.parse_args()
 
     log_level = logging.DEBUG if args.debug else logging.INFO
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
 
-    logging.info('Listening to server %s:%s', args.host, args.port)
+    logging.info("Listening to server %s:%s", args.host, args.port)
 
     main(args)

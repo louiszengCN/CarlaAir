@@ -22,7 +22,6 @@ class TestPropsLoading(SmokeTest):
 
     def test_spawn_loaded_props(self) -> None:
         """Verify props can be spawned at randomized locations."""
-        print("TestPropsLoading.test_spawn_loaded_props")
         client = self.client
         world = client.get_world()
 
@@ -40,7 +39,7 @@ class TestPropsLoading(SmokeTest):
         response = client.apply_batch_sync(batch)
         spawned_ids: list[carla.ActorId] = []
         for resp in response:
-            self.assertFalse(resp.error)
+            assert not resp.error
             spawned_ids.append(resp.actor_id)
 
-        self.assertEqual(len(spawned_ids), len(props))
+        assert len(spawned_ids) == len(props)

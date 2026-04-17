@@ -17,6 +17,7 @@ Controls:
 
 from __future__ import annotations
 
+import contextlib
 import math
 from dataclasses import dataclass
 from enum import Enum
@@ -204,7 +205,7 @@ class PanelConfig:
 
 # CityScapes semantic segmentation palette
 CITYSCAPES_PALETTE: npt.NDArray[np.uint8] = np.zeros(
-    (256, 3), dtype=np.uint8
+    (256, 3), dtype=np.uint8,
 )
 CITYSCAPES_PALETTE[0] = [0, 0, 0]
 CITYSCAPES_PALETTE[1] = [128, 64, 128]
@@ -250,7 +251,7 @@ def depth_to_rgb(img: carla.Image) -> npt.NDArray[np.uint8]:
         RGB array with depth colormap
     """
     arr = np.frombuffer(img.raw_data, dtype=np.uint8).reshape(
-        (img.height, img.width, 4)
+        (img.height, img.width, 4),
     )
     r = arr[:, :, 2].astype(np.float32)
     g = arr[:, :, 1].astype(np.float32)
@@ -291,7 +292,7 @@ def semantic_to_rgb(img: carla.Image) -> npt.NDArray[np.uint8]:
         RGB array with semantic colors
     """
     arr = np.frombuffer(img.raw_data, dtype=np.uint8).reshape(
-        (img.height, img.width, 4)
+        (img.height, img.width, 4),
     )
     return CITYSCAPES_PALETTE[arr[:, :, 2]]
 
@@ -306,19 +307,19 @@ def instance_to_rgb(img: carla.Image) -> npt.NDArray[np.uint8]:
         RGB array with unique colors per instance
     """
     arr = np.frombuffer(img.raw_data, dtype=np.uint8).reshape(
-        (img.height, img.width, 4)
+        (img.height, img.width, 4),
     )
     ids = arr[:, :, 2].astype(np.uint32) + arr[:, :, 1].astype(
-        np.uint32
+        np.uint32,
     ) * 256
     r = ((ids * _INSTANCE_HASH_R[0] + _INSTANCE_HASH_R[1]) % 256).astype(
-        np.uint8
+        np.uint8,
     )
     g = ((ids * _INSTANCE_HASH_G[0] + _INSTANCE_HASH_G[1]) % 256).astype(
-        np.uint8
+        np.uint8,
     )
     b = ((ids * _INSTANCE_HASH_B[0] + _INSTANCE_HASH_B[1]) % 256).astype(
-        np.uint8
+        np.uint8,
     )
     bg = ids == 0
     r[bg] = _INSTANCE_BG_R
@@ -328,7 +329,7 @@ def instance_to_rgb(img: carla.Image) -> npt.NDArray[np.uint8]:
 
 
 def dvs_to_rgb(
-    events: carla.Image | None, w: int, h: int
+    events: carla.Image | None, w: int, h: int,
 ) -> npt.NDArray[np.uint8]:
     """Render DVS events as red/blue on black background.
 
@@ -380,7 +381,7 @@ def lidar_bev(
         RGB array with LiDAR BEV visualization
     """
     img: npt.NDArray[np.uint8] = np.full(
-        (h, w, 3), _LIDAR_BEV_BG, dtype=np.uint8
+        (h, w, 3), _LIDAR_BEV_BG, dtype=np.uint8,
     )
     if data is None:
         return img
@@ -438,14 +439,10 @@ def _cleanup_sensors(world: carla.World) -> None:
         world: CARLA world
     """
     for sensor in world.get_actors().filter(_SENSOR_FILTER):
-        try:
+        with contextlib.suppress(Exception):
             sensor.stop()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             sensor.destroy()
-        except Exception:
-            pass
 
 
 def _cleanup_vehicles(world: carla.World) -> None:
@@ -455,10 +452,8 @@ def _cleanup_vehicles(world: carla.World) -> None:
         world: CARLA world
     """
     for vehicle in world.get_actors().filter(_VEHICLE_FILTER):
-        try:
+        with contextlib.suppress(Exception):
             vehicle.destroy()
-        except Exception:
-            pass
 
 
 def _render_panel(
@@ -493,7 +488,7 @@ def _render_panel(
 
     lbl = font.render(label, True, _WHITE_COLOR)
     bg = pygame.Surface(
-        (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y)
+        (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y),
     )
     bg.set_alpha(_LABEL_BG_ALPHA)
     bg.fill(_HUD_BG_COLOR)
@@ -534,7 +529,6 @@ def main() -> None:
     images: dict[str, npt.NDArray[np.uint8] | carla.LidarMeasurement | None] = {}
 
     try:
-        print("\n  Connecting...")
         client = carla.Client(_CARLA_HOST, _CARLA_PORT)
         client.set_timeout(_CARLA_TIMEOUT)
         world = client.get_world()
@@ -569,7 +563,7 @@ def main() -> None:
         tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
 
         cam_tf = carla.Transform(
-            carla.Location(x=_CAMERA_X, z=_CAMERA_Z)
+            carla.Location(x=_CAMERA_X, z=_CAMERA_Z),
         )
 
         def _make_cam(
@@ -591,7 +585,7 @@ def main() -> None:
             lambda i: images.__setitem__(
                 "rgb",
                 np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4)
+                    (i.height, i.width, 4),
                 )[:, :, :3][:, :, ::-1],
             ),
         )
@@ -618,7 +612,7 @@ def main() -> None:
         dvs_bp.set_attribute("fov", _CAMERA_FOV)
         dvs = world.spawn_actor(dvs_bp, cam_tf, attach_to=vehicle)
         dvs.listen(
-            lambda e: images.__setitem__("dvs", dvs_to_rgb(e, _PANEL_W, _PANEL_H))
+            lambda e: images.__setitem__("dvs", dvs_to_rgb(e, _PANEL_W, _PANEL_H)),
         )
         actors.append(dvs)
 
@@ -636,15 +630,14 @@ def main() -> None:
             attach_to=vehicle,
         )
         lidar.listen(
-            lambda d: images.__setitem__("lidar_raw", d)
+            lambda d: images.__setitem__("lidar_raw", d),
         )
         actors.append(lidar)
 
-        print("  6 sensors attached. Autopilot cruising.\n")
 
         pygame.init()
         display = pygame.display.set_mode(
-            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS
+            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption(_DISPLAY_CAPTION)
         clock = pygame.time.Clock()
@@ -686,22 +679,21 @@ def main() -> None:
 
             for (label, img), cfg in zip(panel_data, PANEL_CONFIGS):
                 _render_panel(
-                    display, label, img, cfg.position[0], cfg.position[1], font
+                    display, label, img, cfg.position[0], cfg.position[1], font,
                 )
 
             vel = vehicle.get_velocity()
             spd = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2
+                vel.x**2 + vel.y**2 + vel.z**2,
             )
             _render_hud(
-                display, weather_list[weather_idx].value[0], spd, font
+                display, weather_list[weather_idx].value[0], spd, font,
             )
             pygame.display.flip()
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:
-        print(f"  Error: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
@@ -712,15 +704,10 @@ def main() -> None:
                     a.stop()
             except Exception:
                 pass
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
-        try:
+        with contextlib.suppress(Exception):
             pygame.quit()
-        except Exception:
-            pass
-        print("  Done.\n")
 
 
 if __name__ == "__main__":

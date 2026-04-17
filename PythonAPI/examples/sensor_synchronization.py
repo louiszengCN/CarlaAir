@@ -23,6 +23,7 @@ sensors are going to tick at each frame.
 
 from __future__ import annotations
 
+import contextlib
 from queue import Empty, Queue
 from typing import Any
 
@@ -112,8 +113,8 @@ def main() -> None:
         cam = world.spawn_actor(cam_bp, carla.Transform())
         cam.listen(
             lambda data, q=sensor_queue, n=name: sensor_callback(
-                data, q, n
-            )
+                data, q, n,
+            ),
         )
         sensor_list.append(cam)
 
@@ -122,8 +123,8 @@ def main() -> None:
     lidar01 = world.spawn_actor(lidar_bp, carla.Transform())
     lidar01.listen(
         lambda data, q=sensor_queue: sensor_callback(
-            data, q, _SENSOR_NAMES[3]
-        )
+            data, q, _SENSOR_NAMES[3],
+        ),
     )
     sensor_list.append(lidar01)
 
@@ -131,8 +132,8 @@ def main() -> None:
     lidar02 = world.spawn_actor(lidar_bp, carla.Transform())
     lidar02.listen(
         lambda data, q=sensor_queue: sensor_callback(
-            data, q, _SENSOR_NAMES[4]
-        )
+            data, q, _SENSOR_NAMES[4],
+        ),
     )
     sensor_list.append(lidar02)
 
@@ -141,8 +142,8 @@ def main() -> None:
         radar = world.spawn_actor(radar_bp, carla.Transform())
         radar.listen(
             lambda data, q=sensor_queue, n=name: sensor_callback(
-                data, q, n
-            )
+                data, q, n,
+            ),
         )
         sensor_list.append(radar)
 
@@ -150,15 +151,13 @@ def main() -> None:
     try:
         while True:
             world.tick()
-            w_frame = world.get_snapshot().frame
-            print(f"\nWorld's frame: {w_frame}")
+            world.get_snapshot().frame
 
             try:
                 for _ in range(len(sensor_list)):
-                    s_frame = sensor_queue.get(True, _QUEUE_TIMEOUT)
-                    print(f"    Frame: {s_frame[0]}   Sensor: {s_frame[1]}")
+                    sensor_queue.get(True, _QUEUE_TIMEOUT)
             except Empty:
-                print("    Some of the sensor information is missed")
+                pass
 
     finally:
         world.apply_settings(original_settings)
@@ -167,7 +166,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        print(" - Exited by user.")

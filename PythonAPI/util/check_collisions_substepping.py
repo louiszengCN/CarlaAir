@@ -13,6 +13,7 @@ are deterministic for different simulation parameters.
 """
 
 import argparse
+import contextlib
 import filecmp
 import os
 import shutil
@@ -24,7 +25,7 @@ import carla
 
 
 class Scenario:
-    def __init__(self, client, world, save_snapshots_mode=False):
+    def __init__(self, client, world, save_snapshots_mode=False) -> None:
         self.world = world
         self.client = client
         self.actor_list = []
@@ -34,7 +35,7 @@ class Scenario:
         self.save_snapshots_mode = save_snapshots_mode
         self.snapshots = []
 
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         self.prefix = prefix
         self.actor_list = []
         self.active = True
@@ -44,9 +45,9 @@ class Scenario:
 
         # Init timestamp
         world_snapshot = self.world.get_snapshot()
-        self.init_timestamp = {'frame0' : world_snapshot.frame, 'time0' : world_snapshot.timestamp.elapsed_seconds}
+        self.init_timestamp = {"frame0" : world_snapshot.frame, "time0" : world_snapshot.timestamp.elapsed_seconds}
 
-    def add_actor(self, actor, actor_name="Actor"):
+    def add_actor(self, actor, actor_name="Actor") -> None:
         actor_idx = len(self.actor_list)
 
         name = str(actor_idx) + "_" + actor_name
@@ -56,46 +57,45 @@ class Scenario:
         if self.save_snapshots_mode:
             self.snapshots.append(np.empty((0,11), float))
 
-    def wait(self, frames=100):
+    def wait(self, frames=100) -> None:
         for _i in range(frames):
             self.world.tick()
 
-    def clear_scene(self):
+    def clear_scene(self) -> None:
         for actor in self.actor_list:
             actor[1].destroy()
 
         self.active = False
 
-    def reload_world(self, settings = None, spectator_tr = None):
+    def reload_world(self, settings = None, spectator_tr = None) -> None:
         self.client.reload_world()
         if settings is not None:
             self.world.apply_settings(settings)
         if spectator_tr is not None:
             self.reset_spectator(spectator_tr)
 
-    def reset_spectator(self, spectator_tr):
+    def reset_spectator(self, spectator_tr) -> None:
         spectator = self.world.get_spectator()
         spectator.set_transform(spectator_tr)
 
     def save_snapshot(self, actor):
         snapshot = self.world.get_snapshot()
 
-        actor_snapshot = np.array([
-                float(snapshot.frame - self.init_timestamp['frame0']), \
-                snapshot.timestamp.elapsed_seconds - self.init_timestamp['time0'], \
+        return np.array([
+                float(snapshot.frame - self.init_timestamp["frame0"]), \
+                snapshot.timestamp.elapsed_seconds - self.init_timestamp["time0"], \
                 actor.get_location().x, actor.get_location().y, actor.get_location().z, \
                 actor.get_velocity().x, actor.get_velocity().y, actor.get_velocity().z, \
                 actor.get_angular_velocity().x, actor.get_angular_velocity().y, actor.get_angular_velocity().z])
-        return actor_snapshot
 
-    def save_snapshots(self):
+    def save_snapshots(self) -> None:
         if not self.save_snapshots_mode:
             return
 
         for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
-    def save_snapshots_to_disk(self):
+    def save_snapshots_to_disk(self) -> None:
         if not self.save_snapshots_mode:
             return
 
@@ -129,7 +129,7 @@ class Scenario:
 
 
 class TwoSpawnedCars(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -152,7 +152,7 @@ class TwoSpawnedCars(Scenario):
 
 
 class TwoCarsSlowSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -174,7 +174,7 @@ class TwoCarsSlowSpeedCollision(Scenario):
 
 
 class TwoCarsHighSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -196,7 +196,7 @@ class TwoCarsHighSpeedCollision(Scenario):
 
 
 class ThreeCarsSlowSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -225,7 +225,7 @@ class ThreeCarsSlowSpeedCollision(Scenario):
 
 
 class ThreeCarsHighSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -254,7 +254,7 @@ class ThreeCarsHighSpeedCollision(Scenario):
 
 
 class CarBikeCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -277,7 +277,7 @@ class CarBikeCollision(Scenario):
 
 
 class CarWalkerCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -287,8 +287,8 @@ class CarWalkerCollision(Scenario):
 
         walker_tr = carla.Transform(carla.Location(85, -255, 1.00), carla.Rotation(yaw=-90))
         walker_bp = blueprint_library.filter("walker.pedestrian.0007")[0]
-        if walker_bp.has_attribute('is_invincible'):
-            walker_bp.set_attribute('is_invincible', 'false')
+        if walker_bp.has_attribute("is_invincible"):
+            walker_bp.set_attribute("is_invincible", "false")
         walker = self.world.spawn_actor(walker_bp, walker_tr)
 
         self.wait(1)
@@ -303,7 +303,7 @@ class CarWalkerCollision(Scenario):
 
 
 class CollisionScenarioTester:
-    def __init__(self, scene, output_path):
+    def __init__(self, scene, output_path) -> None:
         self.scene = scene
         self.world = self.scene.world
         self.client = self.scene.client
@@ -357,7 +357,7 @@ class CollisionScenarioTester:
 
         return determinism_set
 
-    def save_simulations(self, rep_prefixes, prefix, max_idx, min_idx):
+    def save_simulations(self, rep_prefixes, prefix, max_idx, min_idx) -> None:
         for actor in self.scene.actor_list:
             actor_id = actor[0]
             reference_id = "reference_" + actor_id
@@ -409,13 +409,13 @@ class CollisionScenarioTester:
         output_str += "  -> Comp. Time per frame: %.0f" % (t_comp/repetitions*sim_tics)
 
         if determ_repet[0] != repetitions:
-            print("Error!!! Scenario %s is not deterministic: %d / %d" % (self.scenario_name, determ_repet[0], repetitions))
+            pass
 
         return output_str
 
 
 
-def main(arg):
+def main(arg) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(30.0)
@@ -448,15 +448,12 @@ def main(arg):
 
         repetitions = 10
         for item in test_list:
-            print("--------------------------------------------------------------")
             #item.test_scenario(20,  20, repetitions)
             #item.test_scenario(20,  40, repetitions)
             #item.test_scenario(20,  60, repetitions)
             #item.test_scenario(20,  80, repetitions)
-            out = item.test_scenario(20, 100, repetitions)
-            print(out)
+            item.test_scenario(20, 100, repetitions)
 
-        print("--------------------------------------------------------------")
 
         # Remove all the output files
         #shutil.rmtree(path)
@@ -472,20 +469,20 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='localhost',
-        help='IP of the host CARLA Simulator (default: localhost)')
+        "--host",
+        metavar="H",
+        default="localhost",
+        help="IP of the host CARLA Simulator (default: localhost)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port of CARLA Simulator (default: 2000)')
+        help="TCP port of CARLA Simulator (default: 2000)")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='model3',
+        "--filter",
+        metavar="PATTERN",
+        default="model3",
         help='actor filter (default: "vehicle.*")')
 #    argparser.add_argument(
 #        '-fps', '--fps',
@@ -502,7 +499,5 @@ if __name__ == "__main__":
 #            divide the dt in substeps if required to get more precision.  (default: 100)')
     args = argparser.parse_args()
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main(args)
-    except KeyboardInterrupt:
-        print(' - Exited by user.')

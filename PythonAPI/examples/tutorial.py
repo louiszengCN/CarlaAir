@@ -70,14 +70,13 @@ def main() -> None:
         bp = random.choice(blueprint_library.filter(_VEHICLE_FILTER))
         if bp.has_attribute("color"):
             color = random.choice(
-                bp.get_attribute("color").recommended_values
+                bp.get_attribute("color").recommended_values,
             )
             bp.set_attribute("color", color)
 
         transform = random.choice(world.get_map().get_spawn_points())
         vehicle = world.spawn_actor(bp, transform)
         actor_list.append(vehicle)
-        print(f"created {vehicle.type_id}")
 
         # Enable autopilot
         vehicle.set_autopilot(True)
@@ -85,31 +84,29 @@ def main() -> None:
         # Add depth camera
         camera_bp = blueprint_library.find(_CAMERA_BLUEPRINT)
         camera_transform = carla.Transform(
-            carla.Location(x=_CAMERA_X, z=_CAMERA_Z)
+            carla.Location(x=_CAMERA_X, z=_CAMERA_Z),
         )
         camera = world.spawn_actor(
-            camera_bp, camera_transform, attach_to=vehicle
+            camera_bp, camera_transform, attach_to=vehicle,
         )
         actor_list.append(camera)
-        print(f"created {camera.type_id}")
 
         # Save depth images
         cc = carla.ColorConverter.LogarithmicDepth
         camera.listen(
             lambda image: image.save_to_disk(
-                _OUTPUT_PATTERN % image.frame, cc
-            )
+                _OUTPUT_PATTERN % image.frame, cc,
+            ),
         )
 
         # Move vehicle forward
         location = vehicle.get_location()
         location.x += _VEHICLE_MOVE_X
         vehicle.set_location(location)
-        print(f"moved vehicle to {location}")
 
         # Add traffic vehicles
         transform.location += carla.Location(
-            x=_TRAFFIC_SPAWN_X, y=_TRAFFIC_SPAWN_Y
+            x=_TRAFFIC_SPAWN_X, y=_TRAFFIC_SPAWN_Y,
         )
         transform.rotation.yaw = _TRAFFIC_SPAWN_YAW
         for _ in range(_TRAFFIC_VEHICLE_COUNT):
@@ -119,16 +116,13 @@ def main() -> None:
             if npc is not None:
                 actor_list.append(npc)
                 npc.set_autopilot(True)
-                print(f"created {npc.type_id}")
 
         time.sleep(_SIMULATION_DURATION)
 
     finally:
-        print("destroying actors")
         client.apply_batch(
-            [carla.command.DestroyActor(x) for x in actor_list]
+            [carla.command.DestroyActor(x) for x in actor_list],
         )
-        print("done.")
 
 
 if __name__ == "__main__":

@@ -172,7 +172,6 @@ class BasicAgent:
             if isinstance(map_inst, carla.Map):
                 self._map = map_inst
             else:
-                print("Warning: Ignoring the given map as it is not a 'carla.Map'")
                 self._map = self._world.get_map()
         else:
             self._map = self._world.get_map()
@@ -225,7 +224,6 @@ class BasicAgent:
             if isinstance(grp_inst, GlobalRoutePlanner):
                 self._global_planner = grp_inst
             else:
-                print("Warning: Ignoring the given map as it is not a 'carla.Map'")
                 self._global_planner = GlobalRoutePlanner(self._map, self._sampling_resolution)
         else:
             self._global_planner = GlobalRoutePlanner(self._map, self._sampling_resolution)
@@ -440,7 +438,7 @@ class BasicAgent:
             step_distance=self._sampling_resolution,
         )
         if not path:
-            print("WARNING: Ignoring the lane change as no path was found")
+            pass
 
         self.set_global_plan(path)
 

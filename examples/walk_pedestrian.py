@@ -20,6 +20,7 @@ Usage:
 
 from __future__ import annotations
 
+import contextlib
 import math
 from dataclasses import dataclass
 from enum import Enum
@@ -160,10 +161,8 @@ def _cleanup_actors(
                 actor.stop()
         except Exception:
             pass
-        try:
+        with contextlib.suppress(Exception):
             actor.destroy()
-        except Exception:
-            pass
 
 
 def _render_hud(
@@ -228,10 +227,8 @@ def _restore_settings(
         client: CARLA client
         original: original world settings
     """
-    try:
+    with contextlib.suppress(Exception):
         world.apply_settings(original)
-    except Exception:
-        pass
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -246,7 +243,6 @@ def main() -> None:
     original_settings: carla.WorldSettings | None = None
 
     try:
-        print("\n  Connecting to CarlaAir...")
         client = carla.Client(_CARLA_HOST, _CARLA_PORT)
         client.set_timeout(_CARLA_TIMEOUT)
         world = client.get_world()
@@ -274,7 +270,6 @@ def main() -> None:
         )
         actors.append(walker)
         world.tick()
-        print("  Pedestrian spawned")
 
         # Chase camera
         cam_bp = bp_lib.find("sensor.camera.rgb")
@@ -291,7 +286,7 @@ def main() -> None:
         def _on_image(img: carla.Image) -> None:
             arr = np.frombuffer(img.raw_data, dtype=np.uint8)
             latest_image[0] = arr.reshape((img.height, img.width, 4))[
-                :, :, :3
+                :, :, :3,
             ][:, :, ::-1]
 
         camera.listen(_on_image)
@@ -300,7 +295,7 @@ def main() -> None:
         # Pygame setup
         pygame.init()
         display = pygame.display.set_mode(
-            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS
+            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption(_DISPLAY_CAPTION)
         pygame.event.set_grab(True)
@@ -315,9 +310,6 @@ def main() -> None:
         pitch_cam = 0.0
         running = True
 
-        print(
-            "  WASD=Move  Mouse=Look  Shift=Sprint  Space=Jump  N=Weather  ESC=Quit\n"
-        )
 
         while running:
             clock.tick(_DISPLAY_FPS)
@@ -336,7 +328,7 @@ def main() -> None:
             dx, dy = pygame.mouse.get_rel()
             yaw += dx * _MOUSE_SENSITIVITY
             pitch_cam = np.clip(
-                pitch_cam - dy * _MOUSE_SENSITIVITY, _PITCH_MIN, _PITCH_MAX
+                pitch_cam - dy * _MOUSE_SENSITIVITY, _PITCH_MIN, _PITCH_MAX,
             )
 
             tf = walker.get_transform()
@@ -347,9 +339,9 @@ def main() -> None:
                 carla.Transform(
                     carla.Location(x=_CHASE_CAMERA_X, z=_CHASE_CAMERA_Z),
                     carla.Rotation(
-                        pitch=pitch_cam + _CHASE_CAMERA_PITCH, yaw=0, roll=0
+                        pitch=pitch_cam + _CHASE_CAMERA_PITCH, yaw=0, roll=0,
                     ),
-                )
+                ),
             )
 
             # Movement
@@ -375,7 +367,7 @@ def main() -> None:
             # Render
             if latest_image[0] is not None:
                 surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1)
+                    latest_image[0].swapaxes(0, 1),
                 )
                 display.blit(surf, (0, 0))
 
@@ -386,7 +378,7 @@ def main() -> None:
                 weather_name=weather_list[weather_idx].value[0],
             )
             _render_hud(
-                display, state, _DISPLAY_WIDTH, _DISPLAY_HEIGHT, font
+                display, state, _DISPLAY_WIDTH, _DISPLAY_HEIGHT, font,
             )
             pygame.display.flip()
 
@@ -399,10 +391,8 @@ def main() -> None:
                     actor.stop()
             except Exception:
                 pass
-            try:
+            with contextlib.suppress(Exception):
                 actor.destroy()
-            except Exception:
-                pass
         if original_settings is not None:
             _restore_settings(world, client, original_settings)
         try:
@@ -411,7 +401,6 @@ def main() -> None:
             pygame.quit()
         except Exception:
             pass
-        print("  Done.\n")
 
 
 if __name__ == "__main__":

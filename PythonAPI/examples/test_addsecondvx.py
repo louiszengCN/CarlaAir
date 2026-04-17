@@ -19,21 +19,18 @@ def get_actor_blueprints(world, pattern, generation):
         int_generation = int(generation)
         # Check if generation is in available generations
         if int_generation in [1, 2]:
-            bps = [x for x in bps if int(x.get_attribute('generation')) == int_generation]
-            return bps
-        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
+            return [x for x in bps if int(x.get_attribute("generation")) == int_generation]
         return []
     except Exception:
-        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 
 class V2XSensor:
-    def __init__(self, parent_actor):
+    def __init__(self, parent_actor) -> None:
         self.sensor = None
         self._parent = parent_actor
         world = self._parent.get_world()
         #bp = world.get_blueprint_library().find('sensor.other.v2x_custom')
-        bp = world.get_blueprint_library().find('sensor.other.v2x')
+        bp = world.get_blueprint_library().find("sensor.other.v2x")
         self.sensor = world.spawn_actor(
             bp, carla.Transform(), attach_to=self._parent)
         # We need to pass the lambda a weak reference to self to avoid circular
@@ -42,22 +39,19 @@ class V2XSensor:
         self.sensor.listen(
             lambda sensor_data: V2XSensor._V2X_callback(weak_self, sensor_data))
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.sensor.stop()
         self.sensor.destroy()
 
     @staticmethod
-    def _V2X_callback(weak_self, sensor_data):
+    def _V2X_callback(weak_self, sensor_data) -> None:
         self = weak_self()
         if not self:
             return
         for data in sensor_data:
-            msg = data.get()
+            data.get()
             # stationId = msg["Header"]["Station ID"]
-            power = data.power
-            print(msg)
             # print('Cam message received from %s ' % stationId)
-            print(f'Cam message received with power {power:f} ')
 
 client = carla.Client("localhost",2000)
 client.set_timeout(2000.0)
@@ -71,7 +65,7 @@ smap = world.get_map()
 spawn_points = smap.get_spawn_points()
 spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
 blueprint = random.choice(get_actor_blueprints(world, "vehicle.*", "2"))
-blueprint.set_attribute('role_name', "test")
+blueprint.set_attribute("role_name", "test")
 player = world.try_spawn_actor(blueprint, spawn_point)
 v2x_sensor = V2XSensor(player)
 

@@ -39,7 +39,6 @@ class SmokeTest(unittest.TestCase):
         """Set up CARLA client connection."""
         host = _DEFAULT_HOST
         port = _DEFAULT_PORT
-        print(f"Connecting to {host}:{port}...", flush=True)
         cls.client = carla.Client(host, port)
         cls.client.set_timeout(_CONNECTION_TIMEOUT)
         cls.world = cls.client.get_world()

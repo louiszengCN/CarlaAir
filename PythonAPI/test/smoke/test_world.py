@@ -25,10 +25,9 @@ class TestWorld(SmokeTest):
 
     def test_fixed_delta_seconds(self) -> None:
         """Verify fixed delta seconds is applied correctly."""
-        print("TestWorld.test_fixed_delta_seconds")
         world = self.client.get_world()
         settings = world.get_settings()
-        self.assertFalse(settings.synchronous_mode)
+        assert not settings.synchronous_mode
 
         for expected_delta in _DELTA_VALUES:
             settings.fixed_delta_seconds = expected_delta

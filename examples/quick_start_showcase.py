@@ -21,6 +21,7 @@ Controls:
 
 from __future__ import annotations
 
+import contextlib
 import math
 import time
 from dataclasses import dataclass
@@ -222,7 +223,7 @@ class ShowcaseState:
 
 # CityScapes semantic segmentation palette
 CITYSCAPES_PALETTE: npt.NDArray[np.uint8] = np.zeros(
-    (256, 3), dtype=np.uint8
+    (256, 3), dtype=np.uint8,
 )
 CITYSCAPES_PALETTE[0] = [0, 0, 0]
 CITYSCAPES_PALETTE[1] = [128, 64, 128]
@@ -267,7 +268,7 @@ def depth_to_rgb(
         RGB array with depth colormap
     """
     arr = np.frombuffer(depth_image.raw_data, dtype=np.uint8).reshape(
-        (depth_image.height, depth_image.width, 4)
+        (depth_image.height, depth_image.width, 4),
     )
     r = arr[:, :, 2].astype(np.float32)
     g = arr[:, :, 1].astype(np.float32)
@@ -311,7 +312,7 @@ def semantic_to_rgb(
         RGB array with semantic colors
     """
     arr = np.frombuffer(sem_image.raw_data, dtype=np.uint8).reshape(
-        (sem_image.height, sem_image.width, 4)
+        (sem_image.height, sem_image.width, 4),
     )
     return CITYSCAPES_PALETTE[arr[:, :, 2]]
 
@@ -334,7 +335,7 @@ def lidar_to_bev(
         RGB array with LiDAR BEV visualization
     """
     img: npt.NDArray[np.uint8] = np.zeros(
-        (img_h, img_w, 3), dtype=np.uint8
+        (img_h, img_w, 3), dtype=np.uint8,
     )
     img[:] = _DISPLAY_BG
 
@@ -342,7 +343,7 @@ def lidar_to_bev(
         return img
 
     points = np.frombuffer(
-        lidar_data.raw_data, dtype=np.float32
+        lidar_data.raw_data, dtype=np.float32,
     ).reshape(-1, 4)
     if len(points) == 0:
         return img
@@ -354,7 +355,7 @@ def lidar_to_bev(
     px = ((y / max_range) * _LIDAR_BEV_SCALE + _LIDAR_BEV_OFFSET) * img_w
     py = ((-x / max_range) * _LIDAR_BEV_SCALE + _LIDAR_BEV_OFFSET) * img_h
     z_norm = np.clip(
-        (z + _LIDAR_Z_OFFSET) / _LIDAR_Z_RANGE, 0, 1
+        (z + _LIDAR_Z_OFFSET) / _LIDAR_Z_RANGE, 0, 1,
     )
     r = (
         np.clip(
@@ -425,7 +426,7 @@ def calibrate_offset(
 
 
 def carla_to_ned(
-    cx: float, cy: float, cz: float, ox: float, oy: float, oz: float
+    cx: float, cy: float, cz: float, ox: float, oy: float, oz: float,
 ) -> tuple[float, float, float]:
     """Convert CARLA coordinates to AirSim NED coordinates.
 
@@ -455,10 +456,8 @@ def cleanup_previous(world: carla.World) -> int:
     actors = world.get_actors()
     count = 0
     for sensor in actors.filter(_SENSOR_FILTER):
-        try:
+        with contextlib.suppress(Exception):
             sensor.stop()
-        except Exception:
-            pass
         try:
             sensor.destroy()
             count += 1
@@ -471,10 +470,6 @@ def cleanup_previous(world: carla.World) -> int:
         except Exception:
             pass
     if count:
-        print(
-            f"  Cleaned up {count} leftover actors "
-            f"from previous run"
-        )
         time.sleep(_CLEANUP_DELAY)
     return count
 
@@ -505,7 +500,7 @@ def _render_panel(
                 or surf.get_height() != _PANEL_H
             ):
                 surf = pygame.transform.scale(
-                    surf, (_PANEL_W, _PANEL_H)
+                    surf, (_PANEL_W, _PANEL_H),
                 )
             display.blit(surf, (px, py))
         except Exception:
@@ -516,7 +511,7 @@ def _render_panel(
         (
             lbl.get_width() + _LABEL_PADDING_X,
             lbl.get_height() + _LABEL_PADDING_Y,
-        )
+        ),
     )
     bg.set_alpha(_LABEL_BG_ALPHA)
     bg.fill(_HUD_BG_COLOR)
@@ -567,7 +562,6 @@ def main() -> None:
 
     try:
         # ── Connect CARLA ──
-        print("\n  Connecting to CarlaAir...")
         carla_client = carla.Client(_CARLA_HOST, _CARLA_PORT)
         carla_client.set_timeout(_CARLA_TIMEOUT)
         world = carla_client.get_world()
@@ -586,8 +580,6 @@ def main() -> None:
         air_client.armDisarm(True)
 
         offset = calibrate_offset(world, air_client)
-        print(f"  Connected! Map: {map_name}")
-        print(f"  CARLA (port {_CARLA_PORT}) + AirSim (port {_AIRSIM_PORT})")
 
         # ── Weather ──
         weather_list = list(WeatherPreset)
@@ -609,14 +601,10 @@ def main() -> None:
         if vehicle is None:
             raise RuntimeError(
                 "Cannot spawn vehicle — "
-                "all points occupied. Try restarting CarlaAir."
+                "all points occupied. Try restarting CarlaAir.",
             )
         actors.append(vehicle)
         veh_loc = vehicle.get_location()
-        print(
-            f"  Vehicle: {_VEHICLE_DISPLAY_NAME} at "
-            f"({veh_loc.x:.0f}, {veh_loc.y:.0f})"
-        )
 
         # ── Sensors on vehicle ──
         def _make_cam(
@@ -643,7 +631,7 @@ def main() -> None:
             lambda img: images.__setitem__(
                 "rgb",
                 np.frombuffer(img.raw_data, np.uint8).reshape(
-                    (img.height, img.width, 4)
+                    (img.height, img.width, 4),
                 )[:, :, :3][:, :, ::-1],
             ),
         )
@@ -656,7 +644,7 @@ def main() -> None:
             SensorType.SEMANTIC.value,
             chase_tf,
             lambda img: images.__setitem__(
-                "semantic", semantic_to_rgb(img)
+                "semantic", semantic_to_rgb(img),
             ),
         )
 
@@ -665,29 +653,24 @@ def main() -> None:
         lidar_bp.set_attribute("range", str(_LIDAR_RANGE))
         lidar_bp.set_attribute("channels", _LIDAR_CHANNELS)
         lidar_bp.set_attribute(
-            "points_per_second", _LIDAR_POINTS_PER_SEC
+            "points_per_second", _LIDAR_POINTS_PER_SEC,
         )
         lidar_bp.set_attribute(
-            "rotation_frequency", _LIDAR_ROTATION_FREQ
+            "rotation_frequency", _LIDAR_ROTATION_FREQ,
         )
         lidar_bp.set_attribute("upper_fov", _LIDAR_UPPER_FOV)
         lidar_bp.set_attribute("lower_fov", _LIDAR_LOWER_FOV)
         lidar_tf = carla.Transform(carla.Location(x=0, z=_LIDAR_Z))
         lidar_sensor = world.spawn_actor(
-            lidar_bp, lidar_tf, attach_to=vehicle
+            lidar_bp, lidar_tf, attach_to=vehicle,
         )
         lidar_sensor.listen(
-            lambda data: images.__setitem__("lidar", data)
+            lambda data: images.__setitem__("lidar", data),
         )
         actors.append(lidar_sensor)
         sensors.append(lidar_sensor)
-        print(
-            f"  Sensors: RGB + Depth + Semantic + "
-            f"LiDAR ({_LIDAR_CHANNELS}ch)"
-        )
 
         # ── Phase 1: Drone → fly to vehicle ──
-        print("\n  Drone taking off...")
         air_client.takeoffAsync()
         time.sleep(_TAKEOFF_DELAY)
 
@@ -703,12 +686,11 @@ def main() -> None:
             pose = airsim.Pose(
                 airsim.Vector3r(nx, ny, nz),
                 airsim.to_quaternion(
-                    0, 0, math.radians(sp.rotation.yaw)
+                    0, 0, math.radians(sp.rotation.yaw),
                 ),
             )
             air_client.simSetVehiclePose(pose, True)
             time.sleep(_SYNC_DELAY)
-            print("  Drone locked above vehicle!")
 
         pygame.init()
         pygame_started = True
@@ -723,14 +705,13 @@ def main() -> None:
         tm.ignore_lights_percentage(vehicle, 100)
         tm.auto_lane_change(vehicle, False)
         tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
-        print("  Tesla cruising — drone following!\n")
 
         # ── Pygame display ──
         display = pygame.display.set_mode(
-            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS
+            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption(
-            f"CarlaAir Showcase | {map_name} | N=Weather  ESC=Quit"
+            f"CarlaAir Showcase | {map_name} | N=Weather  ESC=Quit",
         )
         clock = pygame.time.Clock()
         font = pygame.font.SysFont("monospace", _FONT_SIZE, bold=True)
@@ -751,10 +732,10 @@ def main() -> None:
                         running = False
                     elif ev.key == pygame.K_n:
                         weather_idx = (weather_idx + 1) % len(
-                            weather_list
+                            weather_list,
                         )
                         world.set_weather(
-                            weather_list[weather_idx].value[1]
+                            weather_list[weather_idx].value[1],
                         )
                         last_weather_change = time.time()
 
@@ -765,7 +746,7 @@ def main() -> None:
             ):
                 weather_idx = (weather_idx + 1) % len(weather_list)
                 world.set_weather(
-                    weather_list[weather_idx].value[1]
+                    weather_list[weather_idx].value[1],
                 )
                 last_weather_change = time.time()
 
@@ -776,14 +757,14 @@ def main() -> None:
                     yaw = veh_tf.rotation.yaw
                     yaw_rad = math.radians(yaw)
                     cx = veh_tf.location.x - _DRONE_BACK * math.cos(
-                        yaw_rad
+                        yaw_rad,
                     )
                     cy = veh_tf.location.y - _DRONE_BACK * math.sin(
-                        yaw_rad
+                        yaw_rad,
                     )
                     cz = veh_tf.location.z + _DRONE_HEIGHT
                     nx, ny, nz = carla_to_ned(
-                        cx, cy, cz, offset.x, offset.y, offset.z
+                        cx, cy, cz, offset.x, offset.y, offset.z,
                     )
                     air_client.moveToPositionAsync(
                         nx,
@@ -814,14 +795,14 @@ def main() -> None:
             ]
 
             for (label, img), (_, pos) in zip(
-                panels, PANEL_CONFIGS
+                panels, PANEL_CONFIGS,
             ):
                 _render_panel(display, label, img, pos[0], pos[1], font)
 
             # HUD
             vel = vehicle.get_velocity()
             spd = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2
+                vel.x**2 + vel.y**2 + vel.z**2,
             )
             state = ShowcaseState(
                 weather_name=weather_list[weather_idx].value[0],
@@ -833,25 +814,19 @@ def main() -> None:
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:
-        print(f"\n  Error: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
     finally:
-        print("\n  Cleaning up...")
         # Stop sensors first
         for s in sensors:
-            try:
+            with contextlib.suppress(Exception):
                 s.stop()
-            except Exception:
-                pass
         # Destroy all spawned actors
         for a in actors:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
         # Release AirSim
         if air_client is not None:
             try:
@@ -860,11 +835,8 @@ def main() -> None:
             except Exception:
                 pass
         if pygame_started:
-            try:
+            with contextlib.suppress(Exception):
                 pygame.quit()
-            except Exception:
-                pass
-        print("  Done. Welcome to CarlaAir!\n")
 
 
 if __name__ == "__main__":

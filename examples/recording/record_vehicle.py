@@ -30,6 +30,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import time
@@ -347,9 +348,7 @@ def _save_trajectory(
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data.model_dump(), f, indent=2)
 
-    dur = len(frames) * _DELTA_TIME
-    print(f"\n  Saved: {filename}")
-    print(f"  {len(frames)} frames, {dur:.1f}s")
+    len(frames) * _DELTA_TIME
     return filename
 
 
@@ -391,7 +390,7 @@ def _update_drone_loop(
 def main() -> None:
     """Main entry point for vehicle trajectory recording."""
     parser = argparse.ArgumentParser(
-        description="Record vehicle trajectory"
+        description="Record vehicle trajectory",
     )
     parser.add_argument("--host", default=_CARLA_HOST)
     parser.add_argument("--port", type=int, default=_CARLA_PORT)
@@ -443,12 +442,11 @@ def main() -> None:
     # Output directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     out_dir = cfg.output_dir or os.path.join(
-        os.path.dirname(script_dir), _OUTPUT_SUBDIR
+        os.path.dirname(script_dir), _OUTPUT_SUBDIR,
     )
     os.makedirs(out_dir, exist_ok=True)
 
     # Connect
-    print("Connecting to CARLA...")
     client = carla.Client(cfg.host, cfg.port)
     client.set_timeout(_CARLA_TIMEOUT)
 
@@ -461,7 +459,6 @@ def main() -> None:
             m for m in available if cfg.map_name.lower() in m.lower()
         ]
         if matched:
-            print(f"Loading map: {matched[0]}...")
             client.load_world(matched[0])
             time.sleep(_MAP_LOAD_DELAY)
 
@@ -474,7 +471,6 @@ def main() -> None:
     weather = _parse_weather(cfg.weather)
     if weather is not None:
         world.set_weather(weather)
-        print(f"Weather: {cfg.weather}")
 
     # Sync mode
     original_settings = world.get_settings()
@@ -499,36 +495,20 @@ def main() -> None:
         if vehicle_bp is None:
             candidates = bp_lib.filter(_VEHICLE_FILTER)
             vehicle_bp = candidates[0]
-            print(
-                f"Warning: '{cfg.vehicle}' not found, "
-                f"using {vehicle_bp.id}"
-            )
 
         # Spawn points
         spawn_points = world.get_map().get_spawn_points()
         if not spawn_points:
-            print("Error: No spawn points")
             return
 
         if cfg.spawn is not None:
-            if cfg.spawn < len(spawn_points):
-                sp = spawn_points[cfg.spawn]
-            else:
-                print(
-                    f"Spawn point {cfg.spawn} out of range "
-                    f"(max {len(spawn_points)-1}), using 0"
-                )
-                sp = spawn_points[0]
+            sp = spawn_points[cfg.spawn] if cfg.spawn < len(spawn_points) else spawn_points[0]
         else:
             sp = spawn_points[0]
 
         vehicle = world.spawn_actor(vehicle_bp, sp)
         actors.append(vehicle)
         world.tick()
-        print(
-            f"Vehicle spawned: {vehicle_bp.id} at "
-            f"({sp.location.x:.0f}, {sp.location.y:.0f})"
-        )
 
         # Camera (3rd person)
         cam_bp = bp_lib.find("sensor.camera.rgb")
@@ -545,7 +525,7 @@ def main() -> None:
         def _on_image(image: carla.Image) -> None:
             arr = np.frombuffer(image.raw_data, dtype=np.uint8)
             arr = arr.reshape((image.height, image.width, 4))[
-                :, :, :3
+                :, :, :3,
             ][:, :, ::-1]
             latest_image[0] = arr
 
@@ -559,28 +539,24 @@ def main() -> None:
             dtraj = load_trajectory_json(cfg.loop_drone)
             if dtraj.get("type") != _DRONE_TRAJ_TYPE:
                 raise SystemExit(
-                    f"--loop-drone JSON must have type '{_DRONE_TRAJ_TYPE}'"
+                    f"--loop-drone JSON must have type '{_DRONE_TRAJ_TYPE}'",
                 )
             drone_frames = dtraj["frames"]
             drone_dt = float(dtraj.get("delta_time", _DELTA_TIME))
             if not wait_for_airsim(cfg.airsim_port):
                 raise SystemExit(
-                    f"AirSim not reachable on port {cfg.airsim_port}"
+                    f"AirSim not reachable on port {cfg.airsim_port}",
                 )
             ac = airsim.MultirotorClient(port=cfg.airsim_port)
             ac.confirmConnection()
             ac.enableApiControl(True)
             ac.armDisarm(True)
             drone_apply_frame(ac, drone_frames[0])
-            print(
-                f"Looping drone: {len(drone_frames)} frames, "
-                f"dt={drone_dt}s from {cfg.loop_drone}"
-            )
 
         # Pygame
         pygame.init()
         display = pygame.display.set_mode(
-            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS
+            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption("")
         pygame.event.set_grab(True)
@@ -594,17 +570,6 @@ def main() -> None:
         save_on_exit = False
         steer_max = _DEFAULT_STEER_MAX
 
-        print(f"\n{_DIVIDER}")
-        print("  Vehicle Recorder")
-        print(f"  Map: {map_name} | Vehicle: {vehicle_bp.id}")
-        print(
-            "  W=Gas  S=Brake  A/D=Steer  Space=Handbrake"
-        )
-        print(
-            "  R=Reverse  F9=StartRecording  "
-            "F1=Save&Quit  ESC=Quit(discard)"
-        )
-        print(f"{_DIVIDER}\n")
 
         while running:
             clock.tick(_DISPLAY_FPS)
@@ -618,22 +583,19 @@ def main() -> None:
                     elif ev.key == pygame.K_F9:
                         if not recording_started:
                             recording_started = True
-                            print("  >>> Recording started (F9)")
                     elif ev.key == pygame.K_F1:
                         save_on_exit = True
                         running = False
                     elif ev.key == pygame.K_r:
                         input_state.reverse = not input_state.reverse
-                        rev_str = "ON" if input_state.reverse else "OFF"
-                        print(f"  Reverse: {rev_str}")
                 elif ev.type == pygame.MOUSEBUTTONDOWN:
                     if ev.button == KeyCommand.SCROLL_UP.value:
                         steer_max = min(
-                            steer_max + _STEER_SCROLL_STEP, _STEER_MAX_MAX
+                            steer_max + _STEER_SCROLL_STEP, _STEER_MAX_MAX,
                         )
                     elif ev.button == KeyCommand.SCROLL_DOWN.value:
                         steer_max = max(
-                            steer_max - _STEER_SCROLL_STEP, _STEER_MAX_MIN
+                            steer_max - _STEER_SCROLL_STEP, _STEER_MAX_MIN,
                         )
 
             # Input state
@@ -655,12 +617,12 @@ def main() -> None:
             input_state.steer_smooth += (
                 steer_target - input_state.steer_smooth
             ) * min(
-                1.0, _DELTA_TIME * _STEER_SMOOTH_FACTOR
+                1.0, _DELTA_TIME * _STEER_SMOOTH_FACTOR,
             )
 
             # Drone loop update
             drone_time_acc, drone_idx = _update_drone_loop(
-                ac, drone_frames, drone_dt, drone_time_acc, drone_idx
+                ac, drone_frames, drone_dt, drone_time_acc, drone_idx,
             )
 
             # Apply vehicle control
@@ -679,14 +641,14 @@ def main() -> None:
             if recording_started:
                 frames.append(
                     _build_vehicle_frame(
-                        len(frames), tf, vel, input_state
-                    )
+                        len(frames), tf, vel, input_state,
+                    ),
                 )
 
             # Display
             if latest_image[0] is not None:
                 surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1)
+                    latest_image[0].swapaxes(0, 1),
                 )
                 display.blit(surf, (0, 0))
             else:
@@ -697,15 +659,12 @@ def main() -> None:
         # Save
         if save_on_exit and frames:
             _save_trajectory(
-                frames, map_name, vehicle_bp.id, out_dir
+                frames, map_name, vehicle_bp.id, out_dir,
             )
         elif frames:
-            print(f"\n  Discarded {len(frames)} frames.")
+            pass
         else:
-            print(
-                "\n  No frames recorded "
-                "(press F9 to start recording before F1)."
-            )
+            pass
 
     finally:
         try:
@@ -714,27 +673,22 @@ def main() -> None:
         except Exception:
             pass
         for a in actors:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
         if ac is not None:
             try:
                 ac.armDisarm(False)
                 ac.enableApiControl(False)
             except Exception:
                 pass
-        try:
+        with contextlib.suppress(Exception):
             world.apply_settings(original_settings)
-        except Exception:
-            pass
         try:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
         except Exception:
             pass
-        print("  Done.")
 
 
 if __name__ == "__main__":

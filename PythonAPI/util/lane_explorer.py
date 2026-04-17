@@ -241,7 +241,7 @@ def draw_junction(
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="Explore lane topology by walking random waypoints"
+        description="Explore lane topology by walking random waypoints",
     )
     argparser.add_argument(
         "--host",
@@ -314,10 +314,8 @@ def main() -> None:
         debug = world.debug
 
         random.seed(args.seed)
-        print("Seed:", args.seed)
 
         loc = start_pos.to_location()
-        print("Initial location:", loc)
 
         current_w = map_inst.get_waypoint(loc)
 
@@ -325,7 +323,7 @@ def main() -> None:
         while True:
             # List of potential next waypoints
             potential_w = list(
-                current_w.next(_WAYPOINT_SEPARATION)
+                current_w.next(_WAYPOINT_SEPARATION),
             )
 
             # Check for available right driving lanes
@@ -336,7 +334,7 @@ def main() -> None:
                     and right_w.lane_type == carla.LaneType.Driving
                 ):
                     potential_w += list(
-                        right_w.next(_WAYPOINT_SEPARATION)
+                        right_w.next(_WAYPOINT_SEPARATION),
                     )
 
             # Check for available left driving lanes
@@ -347,7 +345,7 @@ def main() -> None:
                     and left_w.lane_type == carla.LaneType.Driving
                 ):
                     potential_w += list(
-                        left_w.next(_WAYPOINT_SEPARATION)
+                        left_w.next(_WAYPOINT_SEPARATION),
                     )
 
             # Choose a random waypoint to be the next
@@ -357,7 +355,7 @@ def main() -> None:
             # Render information
             if args.info:
                 draw_waypoint_info(
-                    current_w, debug, _TRAIL_LIFE_TIME
+                    current_w, debug, _TRAIL_LIFE_TIME,
                 )
             draw_waypoint_union(
                 current_w,
@@ -367,16 +365,16 @@ def main() -> None:
                 _TRAIL_LIFE_TIME,
             )
             draw_transform(
-                debug, current_w.transform, _WHITE, _TRAIL_LIFE_TIME
+                debug, current_w.transform, _WHITE, _TRAIL_LIFE_TIME,
             )
 
             # Print the remaining waypoints
             for p in potential_w:
                 draw_waypoint_union(
-                    current_w, p, debug, _RED, _TRAIL_LIFE_TIME
+                    current_w, p, debug, _RED, _TRAIL_LIFE_TIME,
                 )
                 draw_transform(
-                    debug, p.transform, _WHITE, _TRAIL_LIFE_TIME
+                    debug, p.transform, _WHITE, _TRAIL_LIFE_TIME,
                 )
 
             # Draw all junction waypoints and bounding box
@@ -396,6 +394,6 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nExit by user.")
+        pass
     finally:
-        print("\nExit.")
+        pass

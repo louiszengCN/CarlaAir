@@ -73,40 +73,30 @@ def test_carla_features(carla_port: int = _CARLA_DEFAULT_PORT) -> carla.World:
     """Test CARLA features are working."""
     import carla
 
-    print(f"--- Testing CARLA API (port {carla_port}) ---")
     client = carla.Client("localhost", carla_port)
     client.set_timeout(_CARLA_TIMEOUT)
 
-    print(f"Server version: {client.get_server_version()}")
     world = client.get_world()
 
     try:
         carla_map = world.get_map()
-        print(f"Map: {carla_map.name}")
-        spawn_points = carla_map.get_spawn_points()
-        print(f"Spawn points: {len(spawn_points)}")
-    except Exception as e:
-        print(f"Map info: {e}")
+        carla_map.get_spawn_points()
+    except Exception:
+        pass
 
     actors = world.get_actors()
-    print(f"Total actors: {len(actors)}")
 
     bp_lib = world.get_blueprint_library()
-    print(f"Blueprint library: {len(bp_lib)} blueprints")
 
-    vehicle_bps = bp_lib.filter("vehicle.*")
-    print(f"Vehicle types: {len(vehicle_bps)}")
+    bp_lib.filter("vehicle.*")
 
     try:
-        weather = world.get_weather()
-        print(f"Weather: sun_alt={weather.sun_altitude_angle:.1f}")
+        world.get_weather()
         world.set_weather(carla.WeatherParameters.ClearNoon)
-        print("Weather set to ClearNoon")
     except Exception:
-        print("Weather: N/A")
+        pass
 
-    traffic_lights = actors.filter("traffic.traffic_light*")
-    print(f"Traffic lights: {len(traffic_lights)}")
+    actors.filter("traffic.traffic_light*")
 
     return world
 
@@ -117,7 +107,6 @@ def test_airsim_drone(
     """Test AirSim drone control."""
     import airsim
 
-    print(f"\n--- Testing AirSim Drone (port {airsim_port}) ---")
     client = airsim.MultirotorClient()
     client.confirmConnection()
     client.enableApiControl(True)
@@ -125,8 +114,7 @@ def test_airsim_drone(
 
     state = client.getMultirotorState()
     pos = state.kinematics_estimated.position
-    drone_state = DroneState.from_airsim(pos)
-    print(f"Drone position: x={drone_state.x:.1f}, y={drone_state.y:.1f}, z={drone_state.z:.1f}")
+    DroneState.from_airsim(pos)
 
     return client
 
@@ -137,13 +125,11 @@ def _capture_drone_image(airsim_client: Any, label: str) -> None:  # airsim.Mult
     import numpy as np
 
     responses = airsim_client.simGetImages(
-        [airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)]
+        [airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)],
     )
     if responses and responses[0].width > 0:
         img = np.frombuffer(responses[0].image_data_uint8, dtype=np.uint8)
-        img = img.reshape(responses[0].height, responses[0].width, 3)
-        print(f"{label}: {img.shape[1]}x{img.shape[0]}, mean={img.mean():.1f}")
-        return img
+        return img.reshape(responses[0].height, responses[0].width, 3)
     return None
 
 
@@ -160,15 +146,12 @@ def fly_drone_in_carla(
 ) -> list[DroneState]:
     """Fly the drone around the CARLA environment."""
 
-    print("\n--- Flying Drone in CARLA ---")
 
     # Take off
-    print("Taking off...")
     airsim_client.takeoffAsync().join()
     time.sleep(_WAYPOINT_PAUSE)
 
     # Fly to altitude
-    print(f"Ascending to {abs(_AIRSIM_ALTITUDE):.0f}m...")
     airsim_client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()
     time.sleep(_WAYPOINT_PAUSE)
 
@@ -187,28 +170,23 @@ def fly_drone_in_carla(
 
     flight_path: list[DroneState] = []
 
-    for i, wp in enumerate(waypoints):
-        print(f"Flying to waypoint {i + 1}: ({wp.x}, {wp.y}, {wp.z})")
+    for _i, wp in enumerate(waypoints):
         airsim_client.moveToPositionAsync(wp.x, wp.y, wp.z, wp.speed).join()
         time.sleep(_WAYPOINT_PAUSE)
 
         # Get drone position
         state = _get_current_drone_state(airsim_client)
         flight_path.append(state)
-        print(f"  Position: ({state.x:.1f}, {state.y:.1f}, {state.z:.1f})")
 
     # Final camera capture
     img = _capture_drone_image(airsim_client, "Final drone camera")
     if img is not None:
         pil_img = Image.fromarray(img)
         pil_img.save("/tmp/drone_in_carla.png")
-        print("Image saved to /tmp/drone_in_carla.png")
 
     # Land
-    print("\nLanding...")
     airsim_client.landAsync().join()
 
-    print("\n=== Drone flight in CARLA complete! ===")
     return flight_path
 
 
@@ -216,20 +194,17 @@ def main() -> int:
     """Main entry point."""
     carla_port = int(sys.argv[1]) if len(sys.argv) > 1 else _CARLA_DEFAULT_PORT
 
-    print("=== AirSim Drone in CARLA Environment ===\n")
 
     try:
         carla_world = test_carla_features(carla_port)
         airsim_client = test_airsim_drone()
         flight_path = fly_drone_in_carla(airsim_client, carla_world)
 
-        print(f"\nFlight path recorded: {len(flight_path)} states")
-        for i, state in enumerate(flight_path):
-            print(f"  {i + 1}: ({state.x:.1f}, {state.y:.1f}, {state.z:.1f})")
+        for _i, _state in enumerate(flight_path):
+            pass
 
         return 0
-    except Exception as e:
-        print(f"\nError: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()

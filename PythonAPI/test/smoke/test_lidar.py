@@ -11,7 +11,7 @@ from __future__ import annotations
 import time
 from enum import Enum
 from queue import Queue
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import numpy as np
 
@@ -157,11 +157,11 @@ class LiDARSensor:
 
         if self.sensor_type == LidarSensorType.LIDAR:
             self.bp_sensor = self.world.get_blueprint_library().filter(
-                _LIDAR_FILTER
+                _LIDAR_FILTER,
             )[0]
         elif self.sensor_type == LidarSensorType.SEM_LIDAR:
             self.bp_sensor = self.world.get_blueprint_library().filter(
-                _SEM_LIDAR_FILTER
+                _SEM_LIDAR_FILTER,
             )[0]
         else:
             self.error = "Unknown type of sensor"
@@ -175,8 +175,8 @@ class LiDARSensor:
         self.sensor = self.world.spawn_actor(self.bp_sensor, tranf)
         self.sensor.listen(
             lambda sensor_data: self._callback(
-                sensor_data, self.name, self.queue
-            )
+                sensor_data, self.name, self.queue,
+            ),
         )
 
     def destroy(self) -> None:
@@ -209,16 +209,16 @@ class LiDARSensor:
         # Point cloud used with numpy from the raw data
         if self.sensor_type == LidarSensorType.LIDAR:
             points = np.frombuffer(
-                sensor_data.raw_data, dtype=np.dtype(_POINT_DTYPE)
+                sensor_data.raw_data, dtype=np.dtype(_POINT_DTYPE),
             )
             points = np.reshape(
-                points, (int(points.shape[0] / _POINT_COLUMNS), 4)
+                points, (int(points.shape[0] / _POINT_COLUMNS), 4),
             )
             total_np_points = points.shape[0]
             self.curr_det_pts = total_np_points
         elif self.sensor_type == LidarSensorType.SEM_LIDAR:
             data = np.frombuffer(
-                sensor_data.raw_data, dtype=np.dtype(_SEM_LIDAR_DTYPE)
+                sensor_data.raw_data, dtype=np.dtype(_SEM_LIDAR_DTYPE),
             )
             pts = np.array([data["x"], data["y"], data["z"]]).T
             total_np_points = pts.shape[0]
@@ -262,17 +262,16 @@ class TestSyncLidar(SyncSmokeTest):
 
     def test_lidar_point_count(self) -> None:
         """Test LiDAR point counts in sync mode."""
-        print("TestSyncLidar.test_lidar_point_count")
         sensors: list[LiDARSensor] = []
 
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L00)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L00),
         )
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L01)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L01),
         )
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L02)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L02),
         )
 
         for _ in range(_SYNC_TICK_COUNT):
@@ -288,18 +287,17 @@ class TestSyncLidar(SyncSmokeTest):
 
     def test_semlidar_point_count(self) -> None:
         """Test semantic LiDAR point counts in sync mode."""
-        print("TestSyncLidar.test_semlidar_point_count")
         sensors: list[LiDARSensor] = []
 
         sensors.append(
             LiDARSensor(
-                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S00
-            )
+                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S00,
+            ),
         )
         sensors.append(
             LiDARSensor(
-                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S01
-            )
+                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S01,
+            ),
         )
 
         for _ in range(_SYNC_TICK_COUNT):
@@ -319,17 +317,16 @@ class TestASyncLidar(SmokeTest):
 
     def test_lidar_point_count(self) -> None:
         """Test LiDAR point counts in async mode."""
-        print("TestASyncLidar.test_lidar_point_count")
         sensors: list[LiDARSensor] = []
 
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L00)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L00),
         )
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L01)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L01),
         )
         sensors.append(
-            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L02)
+            LiDARSensor(self, LidarSensorType.LIDAR, _LIDAR_ATTR_L02),
         )
 
         time.sleep(_ASYNC_WAIT)
@@ -343,18 +340,17 @@ class TestASyncLidar(SmokeTest):
 
     def test_semlidar_point_count(self) -> None:
         """Test semantic LiDAR point counts in async mode."""
-        print("TestASyncLidar.test_semlidar_point_count")
         sensors: list[LiDARSensor] = []
 
         sensors.append(
             LiDARSensor(
-                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S00
-            )
+                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S00,
+            ),
         )
         sensors.append(
             LiDARSensor(
-                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S01
-            )
+                self, LidarSensorType.SEM_LIDAR, _SEM_LIDAR_ATTR_S01,
+            ),
         )
 
         time.sleep(_ASYNC_WAIT)
@@ -372,7 +368,6 @@ class TestCompareLidars(SyncSmokeTest):
 
     def test_lidar_comparison(self) -> None:
         """Compare semantic LiDAR vs standard LiDAR outputs."""
-        print("TestCompareLidars.test_lidar_comparison")
         sensors: list[LiDARSensor] = []
         sensor_queue: Queue = Queue()
 
@@ -383,7 +378,7 @@ class TestCompareLidars(SyncSmokeTest):
                 _COMPARISON_SEM_LIDAR,
                 _SEM_LIDAR_NAME,
                 sensor_queue,
-            )
+            ),
         )
         sensors.append(
             LiDARSensor(
@@ -392,7 +387,7 @@ class TestCompareLidars(SyncSmokeTest):
                 _COMPARISON_LIDAR_NOD,
                 _LIDAR_NOD_NAME,
                 sensor_queue,
-            )
+            ),
         )
         sensors.append(
             LiDARSensor(
@@ -401,7 +396,7 @@ class TestCompareLidars(SyncSmokeTest):
                 _COMPARISON_LIDAR_DEF,
                 _LIDAR_DEF_NAME,
                 sensor_queue,
-            )
+            ),
         )
 
         for _ in range(_COMPARISON_TICK_COUNT):
@@ -427,41 +422,19 @@ class TestCompareLidars(SyncSmokeTest):
             assert data_lidar_def is not None
 
             # Check that frame numbers are correct
-            self.assertEqual(
-                data_sem_lidar[0],
-                data_lidar_nod[0],
-                (
-                    "The frame numbers of LiDAR and SemLiDAR "
-                    "do not match."
-                ),
-            )
-            self.assertEqual(
-                data_sem_lidar[0],
-                data_lidar_def[0],
-                (
-                    "The frame numbers of LiDAR and SemLiDAR "
-                    "do not match."
-                ),
-            )
+            assert data_sem_lidar[0] == data_lidar_nod[0], "The frame numbers of LiDAR and SemLiDAR " "do not match."
+            assert data_sem_lidar[0] == data_lidar_def[0], "The frame numbers of LiDAR and SemLiDAR " "do not match."
 
             # The detections of the semantic lidar and the Lidar
             # with no dropoff should have the same point count
-            self.assertEqual(
-                data_sem_lidar[2],
-                data_lidar_nod[2],
-                (
-                    "The point count of the detections of this "
-                    "frame of LiDAR(No dropoff) and SemLiDAR "
-                    "do not match."
-                ),
-            )
+            assert data_sem_lidar[2] == data_lidar_nod[2], "The point count of the detections of this " "frame of LiDAR(No dropoff) and SemLiDAR " "do not match."
 
             # Default lidar should drop a minimum of 25% of points
             if data_lidar_def[2] > _DROP_RATIO_THRESHOLD * data_sem_lidar[2]:
                 self.fail(
                     "The point count of the default lidar should "
                     "be much less than the Semantic Lidar point "
-                    "count."
+                    "count.",
                 )
 
         time.sleep(_POST_WAIT)

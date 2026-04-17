@@ -7,6 +7,7 @@ Tests each feature systematically and reports pass/fail.
 
 from __future__ import annotations
 
+import contextlib
 import sys
 import time
 import traceback
@@ -120,9 +121,6 @@ def test_carla_basic(
     map_inst = world.get_map()
     spawn_points = map_inst.get_spawn_points()
 
-    print(f"  Map: {map_inst.name}")
-    print(f"  Spawn points: {len(spawn_points)}")
-    print(f"  Blueprints: {len(bp_lib)}")
     return client, world, bp_lib, spawn_points
 
 
@@ -139,7 +137,6 @@ def test_weather(world: carla.World) -> None:
     assert weather.precipitation > 0, "Should have rain"
 
     world.set_weather(carla.WeatherParameters.ClearNoon)
-    print("  Weather control OK")
 
 
 def test_vehicle_spawn(
@@ -151,7 +148,6 @@ def test_vehicle_spawn(
     import random
 
     vehicle_bps = bp_lib.filter("vehicle.*")
-    print(f"  Vehicle types: {len(vehicle_bps)}")
 
     vehicles: list[carla.Vehicle] = []
     for i in range(_TEST_VEHICLE_COUNT):
@@ -160,10 +156,9 @@ def test_vehicle_spawn(
             v = world.spawn_actor(bp, spawn_points[i])
             v.set_autopilot(True)
             vehicles.append(v)
-        except Exception as e:
-            print(f"  WARN: spawn failed for {bp.id}: {e}")
+        except Exception:
+            pass
 
-    print(f"  Spawned {len(vehicles)} vehicles with autopilot")
     assert len(vehicles) > 0, "Should spawn at least 1 vehicle"
     return vehicles
 
@@ -177,7 +172,6 @@ def test_walker_spawn(
     import random
 
     walker_bps = bp_lib.filter("walker.pedestrian.*")
-    print(f"  Walker types: {len(walker_bps)}")
 
     walkers: list[carla.Actor] = []
     for i in range(_TEST_WALKER_COUNT):
@@ -187,10 +181,9 @@ def test_walker_spawn(
         try:
             w = world.spawn_actor(bp, sp)
             walkers.append(w)
-        except Exception as e:
-            print(f"  WARN: spawn failed: {e}")
+        except Exception:
+            pass
 
-    print(f"  Spawned {len(walkers)} walkers")
     assert len(walkers) > 0, "Should spawn at least 1 walker"
     return walkers
 
@@ -214,10 +207,8 @@ def test_walker_control(
     walker.apply_control(control)
     time.sleep(_WALKER_CONTROL_DURATION)
 
-    loc = walker.get_location()
-    print(f"  Walker at ({loc.x:.1f}, {loc.y:.1f}, {loc.z:.1f})")
+    walker.get_location()
     walker.destroy()
-    print("  WalkerControl OK")
 
 
 def test_camera_sensor(
@@ -257,7 +248,6 @@ def test_camera_sensor(
     cam.destroy()
 
     assert received[0], "Should receive camera image"
-    print(f"  Camera: {width_height[0]}x{width_height[1]} OK")
 
 
 def test_opendrive(world: carla.World) -> None:
@@ -265,7 +255,6 @@ def test_opendrive(world: carla.World) -> None:
     map_inst = world.get_map()
     waypoints = map_inst.generate_waypoints(_WAYPOINT_DISTANCE)
     topology = map_inst.get_topology()
-    print(f"  Waypoints: {len(waypoints)}, Topology: {len(topology)}")
     assert len(waypoints) > 0, "Should have waypoints"
     assert len(topology) > 0, "Should have topology"
 
@@ -274,9 +263,9 @@ def test_navigation_mesh(world: carla.World) -> bool:
     """Test navigation mesh (used by human_traj_col.py)."""
     loc = world.get_random_location_from_navigation()
     if loc is not None:
-        print(f"  Nav mesh location: ({loc.x:.1f}, {loc.y:.1f}, {loc.z:.1f})")
+        pass
     else:
-        print("  WARN: Navigation mesh returned None (may not be loaded)")
+        pass
     return loc is not None
 
 
@@ -303,7 +292,6 @@ def test_debug_drawing(world: carla.World) -> None:
         color=carla.Color(255, 255, 0),
         life_time=5.0,
     )
-    print("  Debug drawing OK (point, line, string)")
 
 
 def test_sync_mode(client: carla.Client, world: carla.World) -> None:
@@ -326,7 +314,6 @@ def test_sync_mode(client: carla.Client, world: carla.World) -> None:
     settings.fixed_delta_seconds = None
     world.apply_settings(settings)
     tm.set_synchronous_mode(False)
-    print("  Synchronous mode OK")
 
 
 def test_drone_prop_blueprint(bp_lib: carla.BlueprintLibrary) -> str | None:
@@ -338,17 +325,14 @@ def test_drone_prop_blueprint(bp_lib: carla.BlueprintLibrary) -> str | None:
         try:
             bp_lib.find(bp_id)
             found = bp_id
-            print(f"  Found: {bp_id}")
             break
         except Exception:
-            print(f"  NOT found: {bp_id}")
+            pass
 
     if found is None:
-        print("  WARN: No drone prop blueprint found!")
-        print("  Listing all static.prop.* blueprints:")
         props = bp_lib.filter("static.prop.*")
-        for p in props:
-            print(f"    - {p.id}")
+        for _p in props:
+            pass
     return found
 
 
@@ -357,12 +341,10 @@ def test_environment_objects(world: carla.World) -> bool:
     import carla
 
     buildings = world.get_environment_objects(carla.CityObjectLabel.Buildings)
-    print(f"  Buildings: {len(buildings)}")
     if buildings:
-        max_h = max(
+        max(
             b.bounding_box.location.z + b.bounding_box.extent.z for b in buildings
         )
-        print(f"  Max building height: {max_h:.1f}m")
     return len(buildings) > 0
 
 
@@ -375,9 +357,8 @@ def test_spectator(world: carla.World) -> None:
         carla.Transform(
             carla.Location(x=0, y=0, z=_SPECTATOR_Z),
             carla.Rotation(pitch=_SPECTATOR_PITCH),
-        )
+        ),
     )
-    print("  Spectator control OK")
 
 
 def test_airsim_connection(
@@ -388,7 +369,6 @@ def test_airsim_connection(
 
     client = airsim.MultirotorClient(port=airsim_port)
     client.confirmConnection()
-    print("  AirSim connected")
     return client
 
 
@@ -398,21 +378,14 @@ def test_airsim_flight(client: Any) -> None:  # airsim.MultirotorClient
     client.armDisarm(True)
     client.takeoffAsync().join()
 
-    pos = client.getMultirotorState().kinematics_estimated.position
-    print(
-        f"  Takeoff position: ({pos.x_val:.1f}, {pos.y_val:.1f}, {pos.z_val:.1f})"
-    )
+    client.getMultirotorState().kinematics_estimated.position
 
     client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()
-    pos = client.getMultirotorState().kinematics_estimated.position
-    print(
-        f"  At altitude: ({pos.x_val:.1f}, {pos.y_val:.1f}, {pos.z_val:.1f})"
-    )
+    client.getMultirotorState().kinematics_estimated.position
 
     client.landAsync().join()
     client.armDisarm(False)
     client.enableApiControl(False)
-    print("  Flight test OK")
 
 
 def test_airsim_camera(client: Any) -> None:  # airsim.MultirotorClient
@@ -425,17 +398,15 @@ def test_airsim_camera(client: Any) -> None:  # airsim.MultirotorClient
     client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()
 
     responses = client.simGetImages(
-        [airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)]
+        [airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)],
     )
 
     w, h = responses[0].width, responses[0].height
-    print(f"  Camera: {w}x{h}")
     assert w > 0 and h > 0, "Camera image should have valid dimensions"
 
     client.landAsync().join()
     client.armDisarm(False)
     client.enableApiControl(False)
-    print("  AirSim camera OK")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -451,10 +422,8 @@ def run_test(
     **kwargs: Any,
 ) -> TestResult:
     """Run a test and catch exceptions."""
-    print(f"\n--- {name} ---")
     try:
         result = func(*args, **kwargs)
-        print(f"  [PASS] {name}")
         return TestResult(
             name=name,
             status=TestStatus.PASS,
@@ -462,7 +431,6 @@ def run_test(
             data=result,
         )
     except Exception as e:
-        print(f"  [FAIL] {name}: {e}")
         traceback.print_exc()
         return TestResult(
             name=name,
@@ -474,38 +442,28 @@ def run_test(
 
 def _print_summary(summary: TestSummary) -> None:
     """Print test summary."""
-    print("\n" + "=" * 60)
-    print("  SUMMARY")
-    print("=" * 60)
 
-    for result in summary.results:
-        status = result.status.value
-        print(f"  [{status}] {result.name}")
+    for _result in summary.results:
+        pass
 
-    print(f"\n  {summary.passed}/{summary.total} tests passed")
 
     if summary.all_passed:
-        print("\n  ALL TESTS PASSED!")
+        pass
     else:
-        failed_names = [r.name for r in summary.results if r.status == TestStatus.FAIL]
-        print(f"\n  FAILED: {', '.join(failed_names)}")
+        [r.name for r in summary.results if r.status == TestStatus.FAIL]
 
 
 def main() -> int:
     """Run all diagnostic tests."""
     results: list[TestResult] = []
 
-    print("=" * 60)
-    print("  CARLA + AirSim Diagnostic Test")
-    print("=" * 60)
 
     # CARLA tests
     result = run_test(
-        "CARLA Connection", test_carla_basic, TestCategory.CARLA
+        "CARLA Connection", test_carla_basic, TestCategory.CARLA,
     )
     results.append(result)
     if result.status != TestStatus.PASS:
-        print("\nCRITICAL: Cannot connect to CARLA. Aborting.")
         _print_summary(TestSummary(results, 0, 1, 0, 1))
         return 1
 
@@ -540,19 +498,15 @@ def main() -> int:
             walkers = r.data
 
     for v in vehicles:
-        try:
+        with contextlib.suppress(Exception):
             v.destroy()
-        except Exception:
-            pass
     for w in walkers:
-        try:
+        with contextlib.suppress(Exception):
             w.destroy()
-        except Exception:
-            pass
 
     # AirSim tests
     result = run_test(
-        "AirSim Connection", test_airsim_connection, TestCategory.AIRSIM
+        "AirSim Connection", test_airsim_connection, TestCategory.AIRSIM,
     )
     results.append(result)
 

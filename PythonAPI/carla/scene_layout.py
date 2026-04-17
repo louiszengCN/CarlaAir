@@ -46,7 +46,7 @@ def get_scene_layout(carla_map):
         lane = {
             "waypoints": waypoints,
             "left_marking": left_marking,
-            "right_marking": right_marking
+            "right_marking": right_marking,
         }
 
         if map_dict.get(waypoint.road_id) is None:
@@ -99,7 +99,7 @@ def get_scene_layout(carla_map):
                     "right_margin_position": [rm.latitude, rm.longitude, rm.altitude],
                     "next_waypoints_ids": next_ids,
                     "left_lane_waypoint_id": left_lane_waypoint_id,
-                    "right_lane_waypoint_id": right_lane_waypoint_id
+                    "right_lane_waypoint_id": right_lane_waypoint_id,
                 }
                 waypoints_graph[map_dict[road_key][lane_key]["waypoints"][i].id] = waypoint_dict
 
@@ -117,8 +117,7 @@ def get_dynamic_objects(carla_world, carla_map):
             carla.Location(x=-bb.x, y=bb.y)]
         t = actor.get_transform()
         t.transform(corners)
-        corners = [carla_map.transform_to_geolocation(p) for p in corners]
-        return corners
+        return [carla_map.transform_to_geolocation(p) for p in corners]
 
     def _get_trigger_volume(actor):
         bb = actor.trigger_volume.extent
@@ -130,8 +129,7 @@ def get_dynamic_objects(carla_world, carla_map):
         corners = [x + actor.trigger_volume.location for x in corners]
         t = actor.get_transform()
         t.transform(corners)
-        corners = [carla_map.transform_to_geolocation(p) for p in corners]
-        return corners
+        return [carla_map.transform_to_geolocation(p) for p in corners]
 
     def _split_actors(actors):
         vehicles = []
@@ -141,17 +139,17 @@ def get_dynamic_objects(carla_world, carla_map):
         stops = []
         static_obstacles = []
         for actor in actors:
-            if 'vehicle' in actor.type_id:
+            if "vehicle" in actor.type_id:
                 vehicles.append(actor)
-            elif 'traffic_light' in actor.type_id:
+            elif "traffic_light" in actor.type_id:
                 traffic_lights.append(actor)
-            elif 'speed_limit' in actor.type_id:
+            elif "speed_limit" in actor.type_id:
                 speed_limits.append(actor)
-            elif 'walker' in actor.type_id:
+            elif "walker" in actor.type_id:
                 walkers.append(actor)
-            elif 'stop' in actor.type_id:
+            elif "stop" in actor.type_id:
                 stops.append(actor)
-            elif 'static.prop' in actor.type_id:
+            elif "static.prop" in actor.type_id:
                 static_obstacles.append(actor)
 
 
@@ -166,7 +164,7 @@ def get_dynamic_objects(carla_world, carla_map):
             st_dict = {
                 "id": stop.id,
                 "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
-                "trigger_volume": [[v.longitude, v.latitude, v.altitude] for v in _get_trigger_volume(stop)]
+                "trigger_volume": [[v.longitude, v.latitude, v.altitude] for v in _get_trigger_volume(stop)],
             }
             stop_signals_dict[stop.id] = st_dict
         return stop_signals_dict
@@ -180,7 +178,7 @@ def get_dynamic_objects(carla_world, carla_map):
                 "id": traffic_light.id,
                 "state": int(traffic_light.state),
                 "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
-                "trigger_volume": [[v.longitude, v.latitude, v.altitude] for v in _get_trigger_volume(traffic_light)]
+                "trigger_volume": [[v.longitude, v.latitude, v.altitude] for v in _get_trigger_volume(traffic_light)],
             }
             traffic_lights_dict[traffic_light.id] = tl_dict
         return traffic_lights_dict
@@ -194,7 +192,7 @@ def get_dynamic_objects(carla_world, carla_map):
                 "id": vehicle.id,
                 "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
                 "orientation": [v_transform.rotation.roll, v_transform.rotation.pitch, v_transform.rotation.yaw],
-                "bounding_box": [[v.longitude, v.latitude, v.altitude] for v in _get_bounding_box(vehicle)]
+                "bounding_box": [[v.longitude, v.latitude, v.altitude] for v in _get_bounding_box(vehicle)],
             }
             vehicles_dict[vehicle.id] = v_dict
         return vehicles_dict
@@ -207,13 +205,12 @@ def get_dynamic_objects(carla_world, carla_map):
         hero_transform = hero_vehicle.get_transform()
         location_gnss = carla_map.transform_to_geolocation(hero_transform.location)
 
-        hero_vehicle_dict = {
+        return {
             "id": hero_vehicle.id,
             "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
             "road_id": hero_waypoint.road_id,
-            "lane_id": hero_waypoint.lane_id
+            "lane_id": hero_waypoint.lane_id,
         }
-        return hero_vehicle_dict
 
     def get_walkers(walkers):
         walkers_dict = {}
@@ -224,7 +221,7 @@ def get_dynamic_objects(carla_world, carla_map):
                 "id": walker.id,
                 "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
                 "orientation": [w_transform.rotation.roll, w_transform.rotation.pitch, w_transform.rotation.yaw],
-                "bounding_box": [[v.longitude, v.latitude, v.altitude] for v in _get_bounding_box(walker)]
+                "bounding_box": [[v.longitude, v.latitude, v.altitude] for v in _get_bounding_box(walker)],
             }
             walkers_dict[walker.id] = w_dict
         return walkers_dict
@@ -237,7 +234,7 @@ def get_dynamic_objects(carla_world, carla_map):
             sl_dict = {
                 "id": speed_limit.id,
                 "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
-                "speed": int(speed_limit.type_id.split('.')[2])
+                "speed": int(speed_limit.type_id.split(".")[2]),
             }
             speed_limits_dict[speed_limit.id] = sl_dict
         return speed_limits_dict
@@ -249,7 +246,7 @@ def get_dynamic_objects(carla_world, carla_map):
             location_gnss = carla_map.transform_to_geolocation(sl_transform.location)
             sl_dict = {
                 "id": static_prop.id,
-                "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude]
+                "position": [location_gnss.latitude, location_gnss.longitude, location_gnss.altitude],
             }
             static_obstacles_dict[static_prop.id] = sl_dict
         return static_obstacles_dict
@@ -258,15 +255,15 @@ def get_dynamic_objects(carla_world, carla_map):
     vehicles, traffic_lights, speed_limits, walkers, stops, static_obstacles = _split_actors(actors)
 
     hero_vehicles = [vehicle for vehicle in vehicles if
-                     'vehicle' in vehicle.type_id and vehicle.attributes['role_name'] == 'hero']
+                     "vehicle" in vehicle.type_id and vehicle.attributes["role_name"] == "hero"]
     hero = None if len(hero_vehicles) == 0 else random.choice(hero_vehicles)
 
     return {
-        'vehicles': get_vehicles(vehicles),
-        'hero_vehicle': get_hero_vehicle(hero),
-        'walkers': get_walkers(walkers),
-        'traffic_lights': get_traffic_lights(traffic_lights),
-        'stop_signs': get_stop_signals(stops),
-        'speed_limits': get_speed_limits(speed_limits),
-        'static_obstacles': get_static_obstacles(static_obstacles)
+        "vehicles": get_vehicles(vehicles),
+        "hero_vehicle": get_hero_vehicle(hero),
+        "walkers": get_walkers(walkers),
+        "traffic_lights": get_traffic_lights(traffic_lights),
+        "stop_signs": get_stop_signals(stops),
+        "speed_limits": get_speed_limits(speed_limits),
+        "static_obstacles": get_static_obstacles(static_obstacles),
     }

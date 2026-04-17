@@ -65,27 +65,27 @@ class TestCollisionSensor(SyncSmokeTest):
         """
         veh_transf = carla.Transform(
             carla.Location(
-                x=_VEHICLE_X, y=_VEHICLE_Y, z=_VEHICLE_Z
+                x=_VEHICLE_X, y=_VEHICLE_Y, z=_VEHICLE_Z,
             ),
             carla.Rotation(yaw=_VEHICLE_YAW),
         )
         vehicle = self.world.spawn_actor(bp_vehicle, veh_transf)
 
         bp_col_sensor = self.world.get_blueprint_library().find(
-            _COLLISION_SENSOR
+            _COLLISION_SENSOR,
         )
         col_sensor = self.world.spawn_actor(
-            bp_col_sensor, carla.Transform(), attach_to=vehicle
+            bp_col_sensor, carla.Transform(), attach_to=vehicle,
         )
 
         event_list: list[carla.CollisionEvent] = []
         col_sensor.listen(
-            lambda data: self._collision_callback(data, event_list)
+            lambda data: self._collision_callback(data, event_list),
         )
 
         self._wait(_WAIT_FRAMES)
         vehicle.set_target_velocity(
-            _TEST_VELOCITY * veh_transf.rotation.get_forward_vector()
+            _TEST_VELOCITY * veh_transf.rotation.get_forward_vector(),
         )
         self._wait(_WAIT_FRAMES)
 
@@ -96,16 +96,15 @@ class TestCollisionSensor(SyncSmokeTest):
 
     def test_single_car(self) -> None:
         """Verify collision sensor works for all vehicle types."""
-        print("TestCollisionSensor.test_single_car")
 
         bp_vehicles = self.world.get_blueprint_library().filter(
-            _VEHICLE_FILTER
+            _VEHICLE_FILTER,
         )
         bp_vehicles = self.filter_vehicles_for_old_towns(bp_vehicles)
         cars_failing = ""
         for bp_veh in bp_vehicles:
             event_list = self._run_collision_single_car_against_wall(
-                bp_veh
+                bp_veh,
             )
             if not event_list:
                 cars_failing += f" {bp_veh.id}"
@@ -113,5 +112,5 @@ class TestCollisionSensor(SyncSmokeTest):
         if cars_failing:
             self.fail(
                 "The collision sensor has failed for the cars:"
-                f" {cars_failing}"
+                f" {cars_failing}",
             )

@@ -19,6 +19,7 @@ Usage:
 
 from __future__ import annotations
 
+import contextlib
 import math
 from dataclasses import dataclass
 from enum import Enum
@@ -152,10 +153,8 @@ def _cleanup_actors(
                 actor.stop()
         except Exception:
             pass
-        try:
+        with contextlib.suppress(Exception):
             actor.destroy()
-        except Exception:
-            pass
 
 
 def _render_hud(
@@ -214,7 +213,6 @@ def main() -> None:
     latest_image: list[np.ndarray | None] = [None]
 
     try:
-        print("\n  Connecting to CarlaAir...")
         client = carla.Client(_CARLA_HOST, _CARLA_PORT)
         client.set_timeout(_CARLA_TIMEOUT)
         world = client.get_world()
@@ -237,7 +235,6 @@ def main() -> None:
         if vehicle is None:
             raise RuntimeError("Cannot spawn vehicle")
         actors.append(vehicle)
-        print(f"  Vehicle: {_VEHICLE_DISPLAY_NAME}")
 
         # Chase camera
         cam_bp = bp_lib.find("sensor.camera.rgb")
@@ -254,7 +251,7 @@ def main() -> None:
         def _on_image(img: carla.Image) -> None:
             arr = np.frombuffer(img.raw_data, dtype=np.uint8)
             latest_image[0] = arr.reshape((img.height, img.width, 4))[
-                :, :, :3
+                :, :, :3,
             ][:, :, ::-1]
 
         camera.listen(_on_image)
@@ -262,7 +259,7 @@ def main() -> None:
         # Pygame setup
         pygame.init()
         display = pygame.display.set_mode(
-            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS
+            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption(_DISPLAY_CAPTION)
         clock = pygame.time.Clock()
@@ -274,7 +271,6 @@ def main() -> None:
         reverse = False
         running = True
 
-        print("  WASD=Drive  Space=Brake  R=Reverse  N=Weather  ESC=Quit\n")
 
         while running:
             clock.tick(_DISPLAY_FPS)
@@ -288,7 +284,7 @@ def main() -> None:
                         running = False
                     elif weather_change is not None:
                         weather_idx = (weather_idx + weather_change) % len(
-                            weather_list
+                            weather_list,
                         )
                         world.set_weather(weather_list[weather_idx].value[1])
                     elif ev.key == pygame.K_r:
@@ -312,14 +308,14 @@ def main() -> None:
             # Render
             if latest_image[0] is not None:
                 surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1)
+                    latest_image[0].swapaxes(0, 1),
                 )
                 display.blit(surf, (0, 0))
 
             # HUD
             vel = vehicle.get_velocity()
             speed_kmh = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2
+                vel.x**2 + vel.y**2 + vel.z**2,
             )
             state = VehicleState(
                 speed_kmh=speed_kmh,
@@ -338,15 +334,10 @@ def main() -> None:
                     actor.stop()
             except Exception:
                 pass
-            try:
+            with contextlib.suppress(Exception):
                 actor.destroy()
-            except Exception:
-                pass
-        try:
+        with contextlib.suppress(Exception):
             pygame.quit()
-        except Exception:
-            pass
-        print("  Done.\n")
 
 
 if __name__ == "__main__":

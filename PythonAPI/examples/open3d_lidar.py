@@ -9,6 +9,7 @@
 """Open3D Lidar visualization example for CARLA"""
 
 import argparse
+import contextlib
 import random
 import sys
 import time
@@ -20,7 +21,7 @@ from matplotlib import cm
 
 import carla
 
-VIRIDIS = np.array(cm._colormaps.get_cmap('plasma').colors)
+VIRIDIS = np.array(cm._colormaps.get_cmap("plasma").colors)
 VID_RANGE = np.linspace(0.0, 1.0, VIRIDIS.shape[0])
 LABEL_COLORS = np.array([
     (0, 0, 0),           # 0: None
@@ -56,10 +57,10 @@ LABEL_COLORS = np.array([
     (180, 165, 180),     # 28: GuardRail (custom, light purple)
 ]) / 255.0  # normalize to [0, 1] for Open3D
 
-def lidar_callback(point_cloud, point_list):
+def lidar_callback(point_cloud, point_list) -> None:
     """Prepares a point cloud with intensity
     colors ready to be consumed by Open3D"""
-    data = np.copy(np.frombuffer(point_cloud.raw_data, dtype=np.dtype('f4')))
+    data = np.copy(np.frombuffer(point_cloud.raw_data, dtype=np.dtype("f4")))
     data = np.reshape(data, (int(data.shape[0] / 4), 4))
 
     # Isolate the intensity and compute a color for it
@@ -87,22 +88,22 @@ def lidar_callback(point_cloud, point_list):
     point_list.colors = o3d.utility.Vector3dVector(int_color)
 
 
-def semantic_lidar_callback(point_cloud, point_list):
+def semantic_lidar_callback(point_cloud, point_list) -> None:
     """Prepares a point cloud with semantic segmentation
     colors ready to be consumed by Open3D"""
     data = np.frombuffer(point_cloud.raw_data, dtype=np.dtype([
-        ('x', np.float32), ('y', np.float32), ('z', np.float32),
-        ('CosAngle', np.float32), ('ObjIdx', np.uint32), ('ObjTag', np.uint32)]))
+        ("x", np.float32), ("y", np.float32), ("z", np.float32),
+        ("CosAngle", np.float32), ("ObjIdx", np.uint32), ("ObjTag", np.uint32)]))
 
     # We're negating the y to correclty visualize a world that matches
     # what we see in Unreal since Open3D uses a right-handed coordinate system
-    points = np.array([data['x'], -data['y'], data['z']]).T
+    points = np.array([data["x"], -data["y"], data["z"]]).T
 
     # # An example of adding some noise to our data if needed:
     # points += np.random.uniform(-0.05, 0.05, size=points.shape)
 
     # Colorize the pointcloud based on the CityScapes color palette
-    labels = np.array(data['ObjTag'])
+    labels = np.array(data["ObjTag"])
     int_color = LABEL_COLORS[labels]
 
     # # In case you want to make the color intensity depending
@@ -116,26 +117,26 @@ def semantic_lidar_callback(point_cloud, point_list):
 def generate_lidar_bp(arg, world, blueprint_library, delta):
     """Generates a CARLA blueprint based on the script parameters"""
     if arg.semantic:
-        lidar_bp = world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
+        lidar_bp = world.get_blueprint_library().find("sensor.lidar.ray_cast_semantic")
     else:
-        lidar_bp = blueprint_library.find('sensor.lidar.ray_cast')
+        lidar_bp = blueprint_library.find("sensor.lidar.ray_cast")
         if arg.no_noise:
-            lidar_bp.set_attribute('dropoff_general_rate', '0.0')
-            lidar_bp.set_attribute('dropoff_intensity_limit', '1.0')
-            lidar_bp.set_attribute('dropoff_zero_intensity', '0.0')
+            lidar_bp.set_attribute("dropoff_general_rate", "0.0")
+            lidar_bp.set_attribute("dropoff_intensity_limit", "1.0")
+            lidar_bp.set_attribute("dropoff_zero_intensity", "0.0")
         else:
-            lidar_bp.set_attribute('noise_stddev', '0.2')
+            lidar_bp.set_attribute("noise_stddev", "0.2")
 
-    lidar_bp.set_attribute('upper_fov', str(arg.upper_fov))
-    lidar_bp.set_attribute('lower_fov', str(arg.lower_fov))
-    lidar_bp.set_attribute('channels', str(arg.channels))
-    lidar_bp.set_attribute('range', str(arg.range))
-    lidar_bp.set_attribute('rotation_frequency', str(1.0 / delta))
-    lidar_bp.set_attribute('points_per_second', str(arg.points_per_second))
+    lidar_bp.set_attribute("upper_fov", str(arg.upper_fov))
+    lidar_bp.set_attribute("lower_fov", str(arg.lower_fov))
+    lidar_bp.set_attribute("channels", str(arg.channels))
+    lidar_bp.set_attribute("range", str(arg.range))
+    lidar_bp.set_attribute("rotation_frequency", str(1.0 / delta))
+    lidar_bp.set_attribute("points_per_second", str(arg.points_per_second))
     return lidar_bp
 
 
-def add_open3d_axis(vis):
+def add_open3d_axis(vis) -> None:
     """Add a small 3D axis on Open3D Visualizer"""
     axis = o3d.geometry.LineSet()
     axis.points = o3d.utility.Vector3dVector(np.array([
@@ -154,7 +155,7 @@ def add_open3d_axis(vis):
     vis.add_geometry(axis)
 
 
-def main(arg):
+def main(arg) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(2.0)
@@ -194,7 +195,7 @@ def main(arg):
 
         vis = o3d.visualization.Visualizer()
         vis.create_window(
-            window_name='Carla Lidar',
+            window_name="Carla Lidar",
             width=960,
             height=540,
             left=480,
@@ -220,7 +221,7 @@ def main(arg):
             world.tick()
 
             process_time = datetime.now(timezone.utc) - dt0
-            sys.stdout.write('\r' + 'FPS: ' + str(1.0 / process_time.total_seconds()))
+            sys.stdout.write("\r" + "FPS: " + str(1.0 / process_time.total_seconds()))
             sys.stdout.flush()
             dt0 = datetime.now(timezone.utc)
             frame += 1
@@ -238,87 +239,85 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='localhost',
-        help='IP of the host CARLA Simulator (default: localhost)')
+        "--host",
+        metavar="H",
+        default="localhost",
+        help="IP of the host CARLA Simulator (default: localhost)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port of CARLA Simulator (default: 2000)')
+        help="TCP port of CARLA Simulator (default: 2000)")
     argparser.add_argument(
-        '--no-rendering',
-        action='store_true',
-        help='use the no-rendering mode which will provide some extra'
-        ' performance but you will lose the articulated objects in the'
-        ' lidar, such as pedestrians')
+        "--no-rendering",
+        action="store_true",
+        help="use the no-rendering mode which will provide some extra"
+        " performance but you will lose the articulated objects in the"
+        " lidar, such as pedestrians")
     argparser.add_argument(
-        '--semantic',
-        action='store_true',
-        help='use the semantic lidar instead, which provides ground truth'
-        ' information')
+        "--semantic",
+        action="store_true",
+        help="use the semantic lidar instead, which provides ground truth"
+        " information")
     argparser.add_argument(
-        '--no-noise',
-        action='store_true',
-        help='remove the drop off and noise from the normal (non-semantic) lidar')
+        "--no-noise",
+        action="store_true",
+        help="remove the drop off and noise from the normal (non-semantic) lidar")
     argparser.add_argument(
-        '--no-autopilot',
-        action='store_false',
-        help='disables the autopilot so the vehicle will remain stopped')
+        "--no-autopilot",
+        action="store_false",
+        help="disables the autopilot so the vehicle will remain stopped")
     argparser.add_argument(
-        '--show-axis',
-        action='store_true',
-        help='show the cartesian coordinates axis')
+        "--show-axis",
+        action="store_true",
+        help="show the cartesian coordinates axis")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='model3',
+        "--filter",
+        metavar="PATTERN",
+        default="model3",
         help='actor filter (default: "vehicle.*")')
     argparser.add_argument(
-        '--upper-fov',
+        "--upper-fov",
         default=15.0,
         type=float,
-        help='lidar\'s upper field of view in degrees (default: 15.0)')
+        help="lidar's upper field of view in degrees (default: 15.0)")
     argparser.add_argument(
-        '--lower-fov',
+        "--lower-fov",
         default=-25.0,
         type=float,
-        help='lidar\'s lower field of view in degrees (default: -25.0)')
+        help="lidar's lower field of view in degrees (default: -25.0)")
     argparser.add_argument(
-        '--channels',
+        "--channels",
         default=64.0,
         type=float,
-        help='lidar\'s channel count (default: 64)')
+        help="lidar's channel count (default: 64)")
     argparser.add_argument(
-        '--range',
+        "--range",
         default=100.0,
         type=float,
-        help='lidar\'s maximum range in meters (default: 100.0)')
+        help="lidar's maximum range in meters (default: 100.0)")
     argparser.add_argument(
-        '--points-per-second',
+        "--points-per-second",
         default=500000,
         type=int,
-        help='lidar\'s points per second (default: 500000)')
+        help="lidar's points per second (default: 500000)")
     argparser.add_argument(
-        '-x',
+        "-x",
         default=0.0,
         type=float,
-        help='offset in the sensor position in the X-axis in meters (default: 0.0)')
+        help="offset in the sensor position in the X-axis in meters (default: 0.0)")
     argparser.add_argument(
-        '-y',
+        "-y",
         default=0.0,
         type=float,
-        help='offset in the sensor position in the Y-axis in meters (default: 0.0)')
+        help="offset in the sensor position in the Y-axis in meters (default: 0.0)")
     argparser.add_argument(
-        '-z',
+        "-z",
         default=0.0,
         type=float,
-        help='offset in the sensor position in the Z-axis in meters (default: 0.0)')
+        help="offset in the sensor position in the Z-axis in meters (default: 0.0)")
     args = argparser.parse_args()
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main(args)
-    except KeyboardInterrupt:
-        print(' - Exited by user.')

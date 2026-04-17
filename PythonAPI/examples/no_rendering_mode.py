@@ -75,7 +75,7 @@ try:
         K_w,
     )
 except ImportError:
-    raise RuntimeError('cannot import pygame, make sure pygame package is installed')
+    raise RuntimeError("cannot import pygame, make sure pygame package is installed")
 
 # ==============================================================================
 # -- Constants -----------------------------------------------------------------
@@ -127,9 +127,9 @@ COLOR_WHITE = pygame.Color(255, 255, 255)
 COLOR_BLACK = pygame.Color(0, 0, 0)
 
 # Module Defines
-TITLE_WORLD = 'WORLD'
-TITLE_HUD = 'HUD'
-TITLE_INPUT = 'INPUT'
+TITLE_WORLD = "WORLD"
+TITLE_HUD = "HUD"
+TITLE_INPUT = "INPUT"
 
 PIXELS_PER_METER = 12
 
@@ -144,14 +144,14 @@ PIXELS_AHEAD_VEHICLE = 150
 
 
 def get_actor_display_name(actor, truncate=250):
-    name = ' '.join(actor.type_id.replace('_', '.').title().split('.')[1:])
-    return (name[:truncate - 1] + '\u2026') if len(name) > truncate else name
+    name = " ".join(actor.type_id.replace("_", ".").title().split(".")[1:])
+    return (name[:truncate - 1] + "\u2026") if len(name) > truncate else name
 
 
 class Util:
 
     @staticmethod
-    def blits(destination_surface, source_surfaces, rect=None, blend_mode=0):
+    def blits(destination_surface, source_surfaces, rect=None, blend_mode=0) -> None:
         """Function that renders the all the source surfaces in a destination source"""
         for surface in source_surfaces:
             destination_surface.blit(surface[0], surface[1], rect, blend_mode)
@@ -183,7 +183,7 @@ class Util:
 class FadingText:
     """Renders texts that fades out after some seconds that the user specifies"""
 
-    def __init__(self, font, dim, pos):
+    def __init__(self, font, dim, pos) -> None:
         """Initializes variables such as text font, dimensions and position"""
         self.font = font
         self.dim = dim
@@ -191,7 +191,7 @@ class FadingText:
         self.seconds_left = 0
         self.surface = pygame.Surface(self.dim)
 
-    def set_text(self, text, color=COLOR_WHITE, seconds=2.0):
+    def set_text(self, text, color=COLOR_WHITE, seconds=2.0) -> None:
         """Sets the text, color and seconds until fade out"""
         text_texture = self.font.render(text, True, color)
         self.surface = pygame.Surface(self.dim)
@@ -199,13 +199,13 @@ class FadingText:
         self.surface.fill(COLOR_BLACK)
         self.surface.blit(text_texture, (10, 11))
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         """Each frame, it shows the displayed text for some specified seconds, if any"""
         delta_seconds = 1e-3 * clock.get_time()
         self.seconds_left = max(0.0, self.seconds_left - delta_seconds)
         self.surface.set_alpha(500.0 * self.seconds_left)
 
-    def render(self, display):
+    def render(self, display) -> None:
         """ Renders the text in its surface and its position"""
         display.blit(self.surface, self.pos)
 
@@ -216,9 +216,9 @@ class FadingText:
 
 
 class HelpText:
-    def __init__(self, font, width, height):
+    def __init__(self, font, width, height) -> None:
         """Renders the help text that shows the controls for using no rendering mode"""
-        lines = __doc__.split('\n')
+        lines = __doc__.split("\n")
         self.font = font
         self.dim = (680, len(lines) * 22 + 12)
         self.pos = (0.5 * width - 0.5 * self.dim[0], 0.5 * height - 0.5 * self.dim[1])
@@ -231,11 +231,11 @@ class HelpText:
             self._render = False
         self.surface.set_alpha(220)
 
-    def toggle(self):
+    def toggle(self) -> None:
         """Toggles display of help text"""
         self._render = not self._render
 
-    def render(self, display):
+    def render(self, display) -> None:
         """Renders the help text, if enabled"""
         if self._render:
             display.blit(self.surface, self.pos)
@@ -249,45 +249,45 @@ class HelpText:
 class HUD :
     """Class encharged of rendering the HUD that displays information about the world and the hero vehicle"""
 
-    def __init__(self, name, width, height):
+    def __init__(self, name, width, height) -> None:
         """Initializes default HUD params and content data parameters that will be displayed"""
         self.name = name
         self.dim = (width, height)
         self._init_hud_params()
         self._init_data_params()
 
-    def start(self):
+    def start(self) -> None:
         """Does nothing since it does not need to use other modules"""
 
-    def _init_hud_params(self):
+    def _init_hud_params(self) -> None:
         """Initialized visual parameters such as font text and size"""
-        font_name = 'courier' if os.name == 'nt' else 'mono'
+        font_name = "courier" if os.name == "nt" else "mono"
         fonts = [x for x in pygame.font.get_fonts() if font_name in x]
-        default_font = 'ubuntumono'
+        default_font = "ubuntumono"
         mono = default_font if default_font in fonts else fonts[0]
         mono = pygame.font.match_font(mono)
         self._font_mono = pygame.font.Font(mono, 14)
-        self._header_font = pygame.font.SysFont('Arial', 14, True)
+        self._header_font = pygame.font.SysFont("Arial", 14, True)
         self.help = HelpText(pygame.font.Font(mono, 24), *self.dim)
         self._notifications = FadingText(
             pygame.font.Font(pygame.font.get_default_font(), 20),
             (self.dim[0], 40), (0, self.dim[1] - 40))
 
-    def _init_data_params(self):
+    def _init_data_params(self) -> None:
         """Initializes the content data structures"""
         self.show_info = True
         self.show_actor_ids = False
         self._info_text = {}
 
-    def notification(self, text, seconds=2.0):
+    def notification(self, text, seconds=2.0) -> None:
         """Shows fading texts for some specified seconds"""
         self._notifications.set_text(text, seconds=seconds)
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         """Updated the fading texts each frame"""
         self._notifications.tick(clock)
 
-    def add_info(self, title, info):
+    def add_info(self, title, info) -> None:
         """Adds a block of information in the left HUD panel of the visualizer"""
         self._info_text[title] = info
 
@@ -306,9 +306,9 @@ class HUD :
                     angle = -hero_transform.rotation.yaw - 90
 
                 color = COLOR_SKY_BLUE_0
-                if int(actor[0].attributes['number_of_wheels']) == 2:
+                if int(actor[0].attributes["number_of_wheels"]) == 2:
                     color = COLOR_CHOCOLATE_0
-                if actor[0].attributes['role_name'] == 'hero':
+                if actor[0].attributes["role_name"] == "hero":
                     color = COLOR_CHAMELEON_0
 
                 font_surface = self._header_font.render(str(actor[0].id), True, color)
@@ -318,7 +318,7 @@ class HUD :
 
         return vehicle_id_surface
 
-    def render(self, display):
+    def render(self, display) -> None:
         """If flag enabled, it renders all the information regarding the left panel of the visualizer"""
         if self.show_info:
             info_surface = pygame.Surface((240, self.dim[1]))
@@ -374,13 +374,13 @@ class HUD :
 class TrafficLightSurfaces:
     """Holds the surfaces (scaled and rotated) for painting traffic lights"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         def make_surface(tl):
             """Draws a traffic light, which is composed of a dark background surface with 3 circles that indicate its color depending on the state"""
             w = 40
             surface = pygame.Surface((w, 3 * w), pygame.SRCALPHA)
-            surface.fill(COLOR_ALUMINIUM_5 if tl != 'h' else COLOR_ORANGE_2)
-            if tl != 'h':
+            surface.fill(COLOR_ALUMINIUM_5 if tl != "h" else COLOR_ORANGE_2)
+            if tl != "h":
                 hw = int(w / 2)
                 off = COLOR_ALUMINIUM_4
                 red = COLOR_SCARLET_RED_0
@@ -392,19 +392,19 @@ class TrafficLightSurfaces:
                 pygame.draw.circle(surface, yellow if tl == tls.Yellow else off, (hw, w + hw), int(0.4 * w))
                 pygame.draw.circle(surface, green if tl == tls.Green else off, (hw, 2 * w + hw), int(0.4 * w))
 
-            return pygame.transform.smoothscale(surface, (15, 45) if tl != 'h' else (19, 49))
+            return pygame.transform.smoothscale(surface, (15, 45) if tl != "h" else (19, 49))
 
         self._original_surfaces = {
-            'h': make_surface('h'),
+            "h": make_surface("h"),
             tls.Red: make_surface(tls.Red),
             tls.Yellow: make_surface(tls.Yellow),
             tls.Green: make_surface(tls.Green),
             tls.Off: make_surface(tls.Off),
-            tls.Unknown: make_surface(tls.Unknown)
+            tls.Unknown: make_surface(tls.Unknown),
         }
         self.surfaces = dict(self._original_surfaces)
 
-    def rotozoom(self, angle, scale):
+    def rotozoom(self, angle, scale) -> None:
         """Rotates and scales the traffic light surface"""
         for key, surface in self._original_surfaces.items():
             self.surfaces[key] = pygame.transform.rotozoom(surface, angle, scale)
@@ -419,7 +419,7 @@ class MapImage:
     """Class encharged of rendering a 2D image from top view of a carla world. Please note that a cache system is used, so if the OpenDrive content
     of a Carla town has not changed, it will read and use the stored image if it was rendered in a previous execution"""
 
-    def __init__(self, carla_world, carla_map, pixels_per_meter, show_triggers, show_connections, show_spawn_points):
+    def __init__(self, carla_world, carla_map, pixels_per_meter, show_triggers, show_connections, show_spawn_points) -> None:
         """ Renders the map image generated based on the world, its map and additional flags that provide extra information about the road network"""
         self._pixels_per_meter = pixels_per_meter
         self.scale = 1.0
@@ -458,7 +458,7 @@ class MapImage:
         opendrive_hash = str(hash_func.hexdigest())
 
         # Build path for saving or loading the cached rendered map
-        filename = carla_map.name.split('/')[-1] + "_" + opendrive_hash + ".tga"
+        filename = carla_map.name.split("/")[-1] + "_" + opendrive_hash + ".tga"
         dirname = os.path.join("cache", "no_rendering_mode")
         full_path = str(os.path.join(dirname, filename))
 
@@ -488,7 +488,7 @@ class MapImage:
 
         self.surface = self.big_map_surface
 
-    def draw_road_map(self, map_surface, carla_world, carla_map, world_to_pixel, world_to_pixel_width):
+    def draw_road_map(self, map_surface, carla_world, carla_map, world_to_pixel, world_to_pixel_width) -> None:
         """Draws all the roads, including lane markings, arrows and traffic signs"""
         map_surface.fill(COLOR_ALUMINIUM_4)
         precision = 0.05
@@ -514,12 +514,12 @@ class MapImage:
 
             return tango_color
 
-        def draw_solid_line(surface, color, closed, points, width):
+        def draw_solid_line(surface, color, closed, points, width) -> None:
             """Draws solid lines in a surface given a set of points, width and color"""
             if len(points) >= 2:
                 pygame.draw.lines(surface, color, closed, points, width)
 
-        def draw_broken_line(surface, color, closed, points, width):
+        def draw_broken_line(surface, color, closed, points, width) -> None:
             """Draws broken lines in a surface given a set of points, width and color"""
             # Select which lines are going to be rendered from the set of lines
             broken_lines = [x for n, x in enumerate(zip(*(iter(points),) * 20)) if n % 3 == 0]
@@ -552,7 +552,7 @@ class MapImage:
 
             return [(carla.LaneMarkingType.NONE, carla.LaneMarkingColor.Other, [])]
 
-        def draw_lane(surface, lane, color):
+        def draw_lane(surface, lane, color) -> None:
             """Renders a single lane in a surface and with a specified color"""
             for side in lane:
                 lane_left_side = [lateral_shift(w.transform, -w.lane_width * 0.5) for w in side]
@@ -565,7 +565,7 @@ class MapImage:
                     pygame.draw.polygon(surface, color, polygon, 5)
                     pygame.draw.polygon(surface, color, polygon)
 
-        def draw_lane_marking(surface, waypoints):
+        def draw_lane_marking(surface, waypoints) -> None:
             """Draws the left and right side of lane markings"""
             # Left Side
             draw_lane_marking_single_side(surface, waypoints[0], -1)
@@ -573,7 +573,7 @@ class MapImage:
             # Right Side
             draw_lane_marking_single_side(surface, waypoints[1], 1)
 
-        def draw_lane_marking_single_side(surface, waypoints, sign):
+        def draw_lane_marking_single_side(surface, waypoints, sign) -> None:
             """Draws the lane marking given a set of waypoints and decides whether drawing the right or left side of
             the waypoint based on the sign parameter"""
             lane_marking = None
@@ -630,7 +630,7 @@ class MapImage:
                 elif markings[0] == carla.LaneMarkingType.Broken:
                     draw_broken_line(surface, markings[1], False, markings[2], 2)
 
-        def draw_arrow(surface, transform, color=COLOR_ALUMINIUM_2):
+        def draw_arrow(surface, transform, color=COLOR_ALUMINIUM_2) -> None:
             """ Draws an arrow with a specified color given a transform"""
             transform.rotation.yaw += 180
             forward = transform.get_forward_vector()
@@ -645,7 +645,7 @@ class MapImage:
             pygame.draw.lines(surface, color, False, [world_to_pixel(x) for x in [start, end]], 4)
             pygame.draw.lines(surface, color, False, [world_to_pixel(x) for x in [left, start, right]], 4)
 
-        def draw_traffic_signs(surface, font_surface, actor, color=COLOR_ALUMINIUM_2, trigger_color=COLOR_PLUM_0):
+        def draw_traffic_signs(surface, font_surface, actor, color=COLOR_ALUMINIUM_2, trigger_color=COLOR_PLUM_0) -> None:
             """Draw stop traffic signs and its bounding box if enabled"""
             transform = actor.get_transform()
             waypoint = carla_map.get_waypoint(transform.location)
@@ -709,7 +709,7 @@ class MapImage:
             transform.rotation.yaw += 90
             return transform.location + shift * transform.get_forward_vector()
 
-        def draw_topology(carla_topology, index):
+        def draw_topology(carla_topology, index) -> None:
             """ Draws traffic signs and the roads network with sidewalks, parking and shoulders by generating waypoints"""
             topology = [x[index] for x in carla_topology]
             topology = sorted(topology, key=lambda w: w.transform.location.z)
@@ -823,10 +823,10 @@ class MapImage:
 
         # Find and Draw Traffic Signs: Stops and Yields
         font_size = world_to_pixel_width(1)
-        font = pygame.font.SysFont('Arial', font_size, True)
+        font = pygame.font.SysFont("Arial", font_size, True)
 
-        stops = [actor for actor in actors if 'stop' in actor.type_id]
-        yields = [actor for actor in actors if 'yield' in actor.type_id]
+        stops = [actor for actor in actors if "stop" in actor.type_id]
+        yields = [actor for actor in actors if "yield" in actor.type_id]
 
         stop_font_surface = font.render("STOP", False, COLOR_ALUMINIUM_2)
         stop_font_surface = pygame.transform.scale(
@@ -852,7 +852,7 @@ class MapImage:
         """Converts the world units to pixel units"""
         return int(self.scale * self._pixels_per_meter * width)
 
-    def scale_map(self, scale):
+    def scale_map(self, scale) -> None:
         """Scales the map surface"""
         if scale != self.scale:
             self.scale = scale
@@ -863,7 +863,7 @@ class MapImage:
 class World:
     """Class that contains all the information of a carla world that is running on the server side"""
 
-    def __init__(self, name, args, timeout):
+    def __init__(self, name, args, timeout) -> None:
         self.client = None
         self.name = name
         self.args = args
@@ -919,7 +919,7 @@ class World:
             logging.exception("RuntimeError occurred")
             exit_game()
 
-    def start(self, hud, input_control):
+    def start(self, hud, input_control) -> None:
         """Build the map image, stores the needed modules and prepares rendering in Hero Mode"""
         self.world, self.town_map = self._get_data_from_carla()
 
@@ -977,24 +977,24 @@ class World:
         weak_self = weakref.ref(self)
         self.world.on_tick(lambda timestamp: World.on_world_tick(weak_self, timestamp))
 
-    def select_hero_actor(self):
+    def select_hero_actor(self) -> None:
         """Selects only one hero actor if there are more than one. If there are not any, it will spawn one."""
         hero_vehicles = [actor for actor in self.world.get_actors()
-                         if 'vehicle' in actor.type_id and actor.attributes['role_name'] == 'hero']
+                         if "vehicle" in actor.type_id and actor.attributes["role_name"] == "hero"]
         if len(hero_vehicles) > 0:
             self.hero_actor = random.choice(hero_vehicles)
             self.hero_transform = self.hero_actor.get_transform()
         else:
             self._spawn_hero()
 
-    def _spawn_hero(self):
+    def _spawn_hero(self) -> None:
         """Spawns the hero actor when the script runs"""
         # Get a random blueprint.
         blueprint = random.choice(self.world.get_blueprint_library().filter(self.args.filter))
-        blueprint.set_attribute('role_name', 'hero')
-        if blueprint.has_attribute('color'):
-            color = random.choice(blueprint.get_attribute('color').recommended_values)
-            blueprint.set_attribute('color', color)
+        blueprint.set_attribute("role_name", "hero")
+        if blueprint.has_attribute("color"):
+            color = random.choice(blueprint.get_attribute("color").recommended_values)
+            blueprint.set_attribute("color", color)
         # Spawn the player.
         while self.hero_actor is None:
             spawn_points = self.world.get_map().get_spawn_points()
@@ -1005,7 +1005,7 @@ class World:
         # Save it in order to destroy it when closing program
         self.spawned_hero = self.hero_actor
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         """Retrieves the actors for Hero and Map modes and updates de HUD based on that"""
         actors = self.world.get_actors()
 
@@ -1017,7 +1017,7 @@ class World:
 
         self.update_hud_info(clock)
 
-    def update_hud_info(self, clock):
+    def update_hud_info(self, clock) -> None:
         """Updates the HUD info regarding simulation, hero mode and whether there is a traffic light affecting the hero actor"""
 
         hero_mode_text = []
@@ -1025,45 +1025,45 @@ class World:
             hero_speed = self.hero_actor.get_velocity()
             hero_speed_text = 3.6 * math.sqrt(hero_speed.x ** 2 + hero_speed.y ** 2 + hero_speed.z ** 2)
 
-            affected_traffic_light_text = 'None'
+            affected_traffic_light_text = "None"
             if self.affected_traffic_light is not None:
                 state = self.affected_traffic_light.state
                 if state == carla.TrafficLightState.Green:
-                    affected_traffic_light_text = 'GREEN'
+                    affected_traffic_light_text = "GREEN"
                 elif state == carla.TrafficLightState.Yellow:
-                    affected_traffic_light_text = 'YELLOW'
+                    affected_traffic_light_text = "YELLOW"
                 else:
-                    affected_traffic_light_text = 'RED'
+                    affected_traffic_light_text = "RED"
 
             affected_speed_limit_text = self.hero_actor.get_speed_limit()
             if math.isnan(affected_speed_limit_text):
                 affected_speed_limit_text = 0.0
             hero_mode_text = [
-                'Hero Mode:                 ON',
-                'Hero ID:              %7d' % self.hero_actor.id,
-                'Hero Vehicle:  %14s' % get_actor_display_name(self.hero_actor, truncate=14),
-                'Hero Speed:          %3d km/h' % hero_speed_text,
-                'Hero Affected by:',
-                '  Traffic Light: %12s' % affected_traffic_light_text,
-                '  Speed Limit:       %3d km/h' % affected_speed_limit_text
+                "Hero Mode:                 ON",
+                "Hero ID:              %7d" % self.hero_actor.id,
+                "Hero Vehicle:  %14s" % get_actor_display_name(self.hero_actor, truncate=14),
+                "Hero Speed:          %3d km/h" % hero_speed_text,
+                "Hero Affected by:",
+                "  Traffic Light: %12s" % affected_traffic_light_text,
+                "  Speed Limit:       %3d km/h" % affected_speed_limit_text,
             ]
         else:
-            hero_mode_text = ['Hero Mode:                OFF']
+            hero_mode_text = ["Hero Mode:                OFF"]
 
         self.server_fps = self.server_clock.get_fps()
-        self.server_fps = 'inf' if self.server_fps == float('inf') else round(self.server_fps)
+        self.server_fps = "inf" if self.server_fps == float("inf") else round(self.server_fps)
         info_text = [
-            'Server:  % 16s FPS' % self.server_fps,
-            'Client:  % 16s FPS' % round(clock.get_fps()),
-            'Simulation Time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
-            'Map Name:          %10s' % self.town_map.name,
+            "Server:  % 16s FPS" % self.server_fps,
+            "Client:  % 16s FPS" % round(clock.get_fps()),
+            "Simulation Time: % 12s" % datetime.timedelta(seconds=int(self.simulation_time)),
+            "Map Name:          %10s" % self.town_map.name,
         ]
 
         self._hud.add_info(self.name, info_text)
-        self._hud.add_info('HERO', hero_mode_text)
+        self._hud.add_info("HERO", hero_mode_text)
 
     @staticmethod
-    def on_world_tick(weak_self, timestamp):
+    def on_world_tick(weak_self, timestamp) -> None:
         """Updates the server tick"""
         self = weak_self()
         if not self:
@@ -1073,7 +1073,7 @@ class World:
         self.server_fps = self.server_clock.get_fps()
         self.simulation_time = timestamp.elapsed_seconds
 
-    def _show_nearby_vehicles(self, vehicles):
+    def _show_nearby_vehicles(self, vehicles) -> None:
         """Shows nearby vehicles of the hero actor"""
         info_text = []
         if self.hero_actor is not None and len(vehicles) > 1:
@@ -1085,8 +1085,8 @@ class World:
                 if n > 15:
                     break
                 vehicle_type = get_actor_display_name(vehicle, truncate=22)
-                info_text.append('% 5d %s' % (vehicle.id, vehicle_type))
-        self._hud.add_info('NEARBY VEHICLES', info_text)
+                info_text.append("% 5d %s" % (vehicle.id, vehicle_type))
+        self._hud.add_info("NEARBY VEHICLES", info_text)
 
     def _split_actors(self):
         """Splits the retrieved actors by type id"""
@@ -1097,18 +1097,18 @@ class World:
 
         for actor_with_transform in self.actors_with_transforms:
             actor = actor_with_transform[0]
-            if 'vehicle' in actor.type_id:
+            if "vehicle" in actor.type_id:
                 vehicles.append(actor_with_transform)
-            elif 'traffic_light' in actor.type_id:
+            elif "traffic_light" in actor.type_id:
                 traffic_lights.append(actor_with_transform)
-            elif 'speed_limit' in actor.type_id:
+            elif "speed_limit" in actor.type_id:
                 speed_limits.append(actor_with_transform)
-            elif 'walker.pedestrian' in actor.type_id:
+            elif "walker.pedestrian" in actor.type_id:
                 walkers.append(actor_with_transform)
 
         return (vehicles, traffic_lights, speed_limits, walkers)
 
-    def _render_traffic_lights(self, surface, list_tl, world_to_pixel):
+    def _render_traffic_lights(self, surface, list_tl, world_to_pixel) -> None:
         """Renders the traffic lights and shows its triggers and bounding boxes if flags are enabled"""
         self.affected_traffic_light = None
 
@@ -1133,18 +1133,18 @@ class World:
                 if (d <= s):
                     # Highlight traffic light
                     self.affected_traffic_light = tl
-                    srf = self.traffic_light_surfaces.surfaces['h']
+                    srf = self.traffic_light_surfaces.surfaces["h"]
                     surface.blit(srf, srf.get_rect(center=pos))
 
             srf = self.traffic_light_surfaces.surfaces[tl.state]
             surface.blit(srf, srf.get_rect(center=pos))
 
-    def _render_speed_limits(self, surface, list_sl, world_to_pixel, world_to_pixel_width):
+    def _render_speed_limits(self, surface, list_sl, world_to_pixel, world_to_pixel_width) -> None:
         """Renders the speed limits by drawing two concentric circles (outer is red and inner white) and a speed limit text"""
 
         font_size = world_to_pixel_width(2)
         radius = world_to_pixel_width(2)
-        font = pygame.font.SysFont('Arial', font_size)
+        font = pygame.font.SysFont("Arial", font_size)
 
         for sl in list_sl:
 
@@ -1156,7 +1156,7 @@ class World:
             pygame.draw.circle(surface, COLOR_SCARLET_RED_1, (x, y), radius)
             pygame.draw.circle(surface, COLOR_ALUMINIUM_0, (x, y), white_circle_radius)
 
-            limit = sl.type_id.split('.')[2]
+            limit = sl.type_id.split(".")[2]
             font_surface = font.render(limit, True, COLOR_ALUMINIUM_5)
 
             if self.args.show_triggers:
@@ -1176,7 +1176,7 @@ class World:
                 # In map mode, there is no need to rotate the text of the speed limit
                 surface.blit(font_surface, (x - radius / 2, y - radius / 2))
 
-    def _render_walkers(self, surface, list_w, world_to_pixel):
+    def _render_walkers(self, surface, list_w, world_to_pixel) -> None:
         """Renders the walkers' bounding boxes"""
         for w in list_w:
             color = COLOR_PLUM_0
@@ -1193,13 +1193,13 @@ class World:
             corners = [world_to_pixel(p) for p in corners]
             pygame.draw.polygon(surface, color, corners)
 
-    def _render_vehicles(self, surface, list_v, world_to_pixel):
+    def _render_vehicles(self, surface, list_v, world_to_pixel) -> None:
         """Renders the vehicles' bounding boxes"""
         for v in list_v:
             color = COLOR_SKY_BLUE_0
-            if int(v[0].attributes['number_of_wheels']) == 2:
+            if int(v[0].attributes["number_of_wheels"]) == 2:
                 color = COLOR_CHOCOLATE_1
-            if v[0].attributes['role_name'] == 'hero':
+            if v[0].attributes["role_name"] == "hero":
                 color = COLOR_CHAMELEON_0
             # Compute bounding box points
             bb = v[0].bounding_box.extent
@@ -1208,13 +1208,13 @@ class World:
                        carla.Location(x=bb.x, y=0),
                        carla.Location(x=bb.x - 0.8, y=bb.y),
                        carla.Location(x=-bb.x, y=bb.y),
-                       carla.Location(x=-bb.x, y=-bb.y)
+                       carla.Location(x=-bb.x, y=-bb.y),
                        ]
             v[1].transform(corners)
             corners = [world_to_pixel(p) for p in corners]
             pygame.draw.lines(surface, color, False, corners, math.ceil(4.0 * self.map_image.scale))
 
-    def render_actors(self, surface, vehicles, traffic_lights, speed_limits, walkers):
+    def render_actors(self, surface, vehicles, traffic_lights, speed_limits, walkers) -> None:
         """Renders all the actors"""
         # Static actors
         self._render_traffic_lights(surface, [tl[0] for tl in traffic_lights], self.map_image.world_to_pixel)
@@ -1225,13 +1225,13 @@ class World:
         self._render_vehicles(surface, vehicles, self.map_image.world_to_pixel)
         self._render_walkers(surface, walkers, self.map_image.world_to_pixel)
 
-    def clip_surfaces(self, clipping_rect):
+    def clip_surfaces(self, clipping_rect) -> None:
         """Used to improve perfomance. Clips the surfaces in order to render only the part of the surfaces that are going to be visible"""
         self.actors_surface.set_clip(clipping_rect)
         self.vehicle_id_surface.set_clip(clipping_rect)
         self.result_surface.set_clip(clipping_rect)
 
-    def _compute_scale(self, scale_factor):
+    def _compute_scale(self, scale_factor) -> None:
         """Based on the mouse wheel and mouse position, it will compute the scale and move the map so that it is zoomed in or out based on mouse position"""
         m = self._input.mouse_pos
 
@@ -1253,7 +1253,7 @@ class World:
         # Scale performed
         self.map_image.scale_map(scale_factor)
 
-    def render(self, display):
+    def render(self, display) -> None:
         """Renders the map and all the actors in hero and map mode"""
         if self.actors_with_transforms is None:
             return
@@ -1338,7 +1338,7 @@ class World:
             display.blit(self.result_surface, (translation_offset[0] + center_offset[0],
                                                translation_offset[1]))
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the hero actor when class instance is destroyed"""
         if self.spawned_hero is not None:
             self.spawned_hero.destroy()
@@ -1351,7 +1351,7 @@ class World:
 class InputControl:
     """Class that handles input received such as keyboard and mouse."""
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         """Initializes input member variables when instance is created."""
         self.name = name
         self.mouse_pos = (0, 0)
@@ -1366,21 +1366,21 @@ class InputControl:
         self._hud = None
         self._world = None
 
-    def start(self, hud, world):
+    def start(self, hud, world) -> None:
         """Assigns other initialized modules that input module needs."""
         self._hud = hud
         self._world = world
 
         self._hud.notification("Press 'H' or '?' for help.", seconds=4.0)
 
-    def render(self, display):
+    def render(self, display) -> None:
         """Does nothing. Input module does not need render anything."""
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         """Executed each frame. Calls method for parsing input."""
         self.parse_input(clock)
 
-    def _parse_events(self):
+    def _parse_events(self) -> None:
         """Parses input events. These events are executed only once when pressing a key."""
         self.mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -1397,14 +1397,14 @@ class InputControl:
                         self._world.select_hero_actor()
                         self.wheel_offset = HERO_DEFAULT_SCALE
                         self.control = carla.VehicleControl()
-                        self._hud.notification('Hero Mode')
+                        self._hud.notification("Hero Mode")
                     else:
                         self.wheel_offset = MAP_DEFAULT_SCALE
                         self.mouse_offset = [0, 0]
                         self.mouse_pos = [0, 0]
                         self._world.scale_offset = [0, 0]
                         self._world.hero_actor = None
-                        self._hud.notification('Map Mode')
+                        self._hud.notification("Map Mode")
                 elif event.key == K_F1:
                     self._hud.show_info = not self._hud.show_info
                 elif event.key == K_i:
@@ -1415,8 +1415,8 @@ class InputControl:
                     elif event.key == K_m:
                         self.control.manual_gear_shift = not self.control.manual_gear_shift
                         self.control.gear = self._world.hero_actor.get_control().gear
-                        self._hud.notification('%s Transmission' % (
-                            'Manual' if self.control.manual_gear_shift else 'Automatic'))
+                        self._hud.notification("%s Transmission" % (
+                            "Manual" if self.control.manual_gear_shift else "Automatic"))
                     elif self.control.manual_gear_shift and event.key == K_COMMA:
                         self.control.gear = max(-1, self.control.gear - 1)
                     elif self.control.manual_gear_shift and event.key == K_PERIOD:
@@ -1425,7 +1425,7 @@ class InputControl:
                         # Toggle autopilot:
                             self._autopilot_enabled = not self._autopilot_enabled
                             self._world.hero_actor.set_autopilot(self._autopilot_enabled)
-                            self._hud.notification('Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))
+                            self._hud.notification("Autopilot %s" % ("On" if self._autopilot_enabled else "Off"))
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Handle mouse wheel for zooming in and out
                 if event.button == 4:
@@ -1435,7 +1435,7 @@ class InputControl:
                     self.wheel_offset -= self.wheel_amount
                     self.wheel_offset = max(0.1, self.wheel_offset)
 
-    def _parse_keys(self, milliseconds):
+    def _parse_keys(self, milliseconds) -> None:
         """Parses keyboard input when keys are pressed"""
         keys = pygame.key.get_pressed()
         self.control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
@@ -1451,7 +1451,7 @@ class InputControl:
         self.control.brake = 1.0 if keys[K_DOWN] or keys[K_s] else 0.0
         self.control.hand_brake = keys[K_SPACE]
 
-    def _parse_mouse(self):
+    def _parse_mouse(self) -> None:
         """Parses mouse input"""
         if pygame.mouse.get_pressed()[0]:
             x, y = pygame.mouse.get_pos()
@@ -1459,7 +1459,7 @@ class InputControl:
             self.mouse_offset[1] += (1.0 / self.wheel_offset) * (y - self.mouse_pos[1])
             self.mouse_pos = (x, y)
 
-    def parse_input(self, clock):
+    def parse_input(self, clock) -> None:
         """Parses the input, which is classified in keyboard events and mouse"""
         self._parse_events()
         self._parse_mouse()
@@ -1481,7 +1481,7 @@ class InputControl:
 # ==============================================================================
 
 
-def game_loop(args):
+def game_loop(args) -> None:
     """Initialized, Starts and runs all the needed modules for No Rendering Mode"""
     try:
         # Init Pygame
@@ -1495,7 +1495,7 @@ def game_loop(args):
 
         # Show loading screen
         font = pygame.font.Font(pygame.font.get_default_font(), 20)
-        text_surface = font.render('Rendering map...', True, COLOR_WHITE)
+        text_surface = font.render("Rendering map...", True, COLOR_WHITE)
         display.blit(text_surface, text_surface.get_rect(center=(args.width / 2, args.height / 2)))
         pygame.display.flip()
 
@@ -1528,14 +1528,14 @@ def game_loop(args):
             pygame.display.flip()
 
     except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
+        pass
 
     finally:
         if world is not None:
             world.destroy()
 
 
-def exit_game():
+def exit_game() -> None:
     """Shuts down program and PyGame"""
     pygame.quit()
     sys.exit()
@@ -1545,75 +1545,74 @@ def exit_game():
 # ==============================================================================
 
 
-def main():
+def main() -> None:
     """Parses the arguments received from commandline and runs the game loop"""
 
     # Define arguments that will be received and parsed
     argparser = argparse.ArgumentParser(
-        description='CARLA No Rendering Mode Visualizer')
+        description="CARLA No Rendering Mode Visualizer")
     argparser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
-        dest='debug',
-        help='print debug information')
+        "-v", "--verbose",
+        action="store_true",
+        dest="debug",
+        help="print debug information")
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default="127.0.0.1",
+        help="IP of the host server (default: 127.0.0.1)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help="TCP port to listen to (default: 2000)")
     argparser.add_argument(
-        '--res',
-        metavar='WIDTHxHEIGHT',
-        default='1280x720',
-        help='window resolution (default: 1280x720)')
+        "--res",
+        metavar="WIDTHxHEIGHT",
+        default="1280x720",
+        help="window resolution (default: 1280x720)")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='vehicle.*',
+        "--filter",
+        metavar="PATTERN",
+        default="vehicle.*",
         help='actor filter (default: "vehicle.*")')
     argparser.add_argument(
-        '--map',
-        metavar='TOWN',
+        "--map",
+        metavar="TOWN",
         default=None,
-        help='start a new episode at the given TOWN')
+        help="start a new episode at the given TOWN")
     argparser.add_argument(
-        '--no-rendering',
-        action='store_true',
-        help='switch off server rendering')
+        "--no-rendering",
+        action="store_true",
+        help="switch off server rendering")
     argparser.add_argument(
-        '--show-triggers',
-        action='store_true',
-        help='show trigger boxes of traffic signs')
+        "--show-triggers",
+        action="store_true",
+        help="show trigger boxes of traffic signs")
     argparser.add_argument(
-        '--show-connections',
-        action='store_true',
-        help='show waypoint connections')
+        "--show-connections",
+        action="store_true",
+        help="show waypoint connections")
     argparser.add_argument(
-        '--show-spawn-points',
-        action='store_true',
-        help='show recommended spawn points')
+        "--show-spawn-points",
+        action="store_true",
+        help="show recommended spawn points")
 
     # Parse arguments
     args = argparser.parse_args()
     args.description = argparser.description
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = [int(x) for x in args.res.split("x")]
 
     # Print server information
     log_level = logging.DEBUG if args.debug else logging.INFO
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
 
-    logging.info('listening to server %s:%s', args.host, args.port)
-    print(__doc__)
+    logging.info("listening to server %s:%s", args.host, args.port)
 
     # Run game loop
     game_loop(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

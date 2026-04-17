@@ -10,17 +10,17 @@ import os
 import sys
 import tarfile
 
-BLUE = '\033[94m'
-GREEN = '\033[92m'
-RED = '\033[91m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
+BLUE = "\033[94m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+ENDC = "\033[0m"
+BOLD = "\033[1m"
+UNDERLINE = "\033[4m"
 
 
 class ReadableStream:
 
-    def __init__(self, generator):
+    def __init__(self, generator) -> None:
         self._generator = generator
 
     def read(self):
@@ -28,29 +28,24 @@ class ReadableStream:
 
 
 def get_container_name(container):
-    return str(container.attrs['Config']['Image'])
+    return str(container.attrs["Config"]["Image"])
 
 
 def exec_command(container, command, user="root",
                  silent=False, verbose=False, ignore_error=True):
     command_prefix = "bash -c '"
     if not silent:
-        print(''.join([BOLD, BLUE,
-                       user, '@', get_container_name(container),
-                       ENDC, '$ ', str(command)]))
+        pass
 
     command_result = container.exec_run(
         command_prefix + command + "'",
         user=user)
     if not silent and verbose and command_result.exit_code:
-        print(''.join([RED, 'Command: "', command,
-                       '" exited with error: ', str(command_result.exit_code),
-                       ENDC]))
-        print('Error:')
+        pass
     if not silent:
         out = command_result.output.decode().strip()
         if out:
-            print(out)
+            pass
     if not ignore_error and command_result.exit_code:
         sys.exit(1)
     return command_result
@@ -67,17 +62,16 @@ def get_file_paths(container, path, user="root",
     result = exec_command(container, command + path, user=user, silent=True)
     if result.exit_code:
         if verbose:
-            print(RED + "No files found in " + path + ENDC)
+            pass
         return []
-    file_list = [x for x in result.output.decode('utf-8').split('\n') if x]
+    file_list = [x for x in result.output.decode("utf-8").split("\n") if x]
     if verbose:
-        print("Found files: " + str(file_list))
+        pass
     return file_list
 
 
-def extract_files(container, file_list, out_path):
+def extract_files(container, file_list, out_path) -> None:
     for file in file_list:
-        print('Copying "' + file + '" to ' + out_path)
         strm, _ = container.get_archive(file)
         with open(f"{out_path}/result.tar.gz", "wb") as f:
             for d in strm:

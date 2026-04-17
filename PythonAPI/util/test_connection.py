@@ -76,15 +76,10 @@ def main() -> int:
         try:
             client = carla.Client(args.host, args.port)
             client.set_timeout(_CHECK_INTERVAL)
-            print(
-                f"CARLA {client.get_server_version()} "
-                f"connected at {args.host}:{args.port}."
-            )
             return _EXIT_SUCCESS
         except RuntimeError:
             pass
 
-    print(f"Failed to connect to {args.host}:{args.port}.")
     return _EXIT_FAILURE
 
 

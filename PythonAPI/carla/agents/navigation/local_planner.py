@@ -142,7 +142,6 @@ class LocalPlanner:
             if isinstance(map_inst, carla.Map):
                 self._map = map_inst
             else:
-                print("Warning: Ignoring the given map as it is not a 'carla.Map'")
                 self._map = self._world.get_map()
         else:
             self._map = self._world.get_map()
@@ -243,10 +242,7 @@ class LocalPlanner:
             speed: new target speed in Km/h
         """
         if self._follow_speed_limits:
-            print(
-                "WARNING: The max speed is currently set to follow the speed limits. "
-                "Use 'follow_speed_limits' to deactivate this",
-            )
+            pass
         self._target_speed = speed
 
     def follow_speed_limits(self, value: bool = True) -> None:

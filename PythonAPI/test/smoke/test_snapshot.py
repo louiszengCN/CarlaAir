@@ -29,7 +29,6 @@ class TestSnapshot(SyncSmokeTest):
 
     def test_spawn_points(self) -> None:
         """Verify spawn point transforms match snapshot data."""
-        print("TestSnapshot.test_spawn_points")
         self.world = self.client.reload_world()
         # Workaround: give time to UE4 to clean memory after loading
         time.sleep(_RELOAD_DELAY)
@@ -46,35 +45,33 @@ class TestSnapshot(SyncSmokeTest):
             :_SPAWN_POINTS_LIMIT
         ]
         vehicles = self.world.get_blueprint_library().filter(
-            _VEHICLE_FILTER
+            _VEHICLE_FILTER,
         )
         batch = [(random.choice(vehicles), t) for t in spawn_points]
         batch = [carla.command.SpawnActor(*args) for args in batch]
         response = self.client.apply_batch_sync(batch, do_tick=False)
 
-        self.assertFalse(any(x.error for x in response))
+        assert not any(x.error for x in response)
         ids = [x.actor_id for x in response]
-        self.assertEqual(len(ids), len(spawn_points))
+        assert len(ids) == len(spawn_points)
 
         frame = self.world.tick()
         snapshot = self.world.get_snapshot()
-        self.assertEqual(frame, snapshot.timestamp.frame)
+        assert frame == snapshot.timestamp.frame
 
         actors = self.world.get_actors()
-        self.assertTrue(
-            all(snapshot.has_actor(x.id) for x in actors)
-        )
+        assert all(snapshot.has_actor(x.id) for x in actors)
 
         for actor_id, t0 in zip(ids, spawn_points):
             actor_snapshot = snapshot.find(actor_id)
-            self.assertIsNotNone(actor_snapshot)
+            assert actor_snapshot is not None
             t1 = actor_snapshot.get_transform()
             # Ignore Z because vehicle is falling.
             self.assertAlmostEqual(
-                t0.location.x, t1.location.x, places=_LOCATION_PLACES
+                t0.location.x, t1.location.x, places=_LOCATION_PLACES,
             )
             self.assertAlmostEqual(
-                t0.location.y, t1.location.y, places=_LOCATION_PLACES
+                t0.location.y, t1.location.y, places=_LOCATION_PLACES,
             )
             self.assertAlmostEqual(
                 t0.rotation.pitch,

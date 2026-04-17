@@ -6,6 +6,7 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 import argparse
+import contextlib
 import copy
 import math
 import random
@@ -18,12 +19,12 @@ import carla
 try:
     import pygame
 except ImportError:
-    raise RuntimeError('cannot import pygame, make sure pygame package is installed')
+    raise RuntimeError("cannot import pygame, make sure pygame package is installed")
 
 try:
     import numpy as np
 except ImportError:
-    raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+    raise RuntimeError("cannot import numpy, make sure numpy package is installed")
 
 try:
     import queue
@@ -42,11 +43,11 @@ class CarlaSyncMode:
 
     """
 
-    def __init__(self, world, *sensors, **kwargs):
+    def __init__(self, world, *sensors, **kwargs) -> None:
         self.world = world
         self.sensors = sensors
         self.frame = None
-        self.delta_seconds = 1.0 / kwargs.get('fps', 20)
+        self.delta_seconds = 1.0 / kwargs.get("fps", 20)
         self._queues = []
         self._settings = None
 
@@ -57,7 +58,7 @@ class CarlaSyncMode:
             synchronous_mode=True,
             fixed_delta_seconds=self.delta_seconds))
 
-        def make_queue(register_event):
+        def make_queue(register_event) -> None:
             q = queue.Queue()
             register_event(q.put)
             self._queues.append(q)
@@ -96,10 +97,9 @@ def get_image_as_array(image):
     array = array[:, :, :3]
     array = array[:, :, ::-1]
     # make the array writeable doing a deep copy
-    array2 = copy.deepcopy(array)
-    return array2
+    return copy.deepcopy(array)
 
-def draw_image(surface, array, blend=False):
+def draw_image(surface, array, blend=False) -> None:
     image_surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
     if blend:
         image_surface.set_alpha(100)
@@ -108,7 +108,7 @@ def draw_image(surface, array, blend=False):
 
 def get_font():
     fonts = list(pygame.font.get_fonts())
-    default_font = 'ubuntumono'
+    default_font = "ubuntumono"
     font = default_font if default_font in fonts else fonts[0]
     font = pygame.font.match_font(font)
     return pygame.font.Font(font, 14)
@@ -139,14 +139,13 @@ def get_screen_points(camera, K, image_w, image_h, points3d):
     points_2d = np.dot(K, points)
 
     # normalize the values and transpose
-    points_2d = np.array([
+    return np.array([
         points_2d[0, :] / points_2d[2, :],
         points_2d[1, :] / points_2d[2, :],
         points_2d[2, :]]).T
 
-    return points_2d
 
-def draw_points_on_buffer(buffer, image_w, image_h, points_2d, color, size=4):
+def draw_points_on_buffer(buffer, image_w, image_h, points_2d, color, size=4) -> None:
     half = int(size / 2)
     # draw each point
     for p in points_2d:
@@ -160,7 +159,7 @@ def draw_points_on_buffer(buffer, image_w, image_h, points_2d, color, size=4):
                         buffer[j][i][1] = color[1]
                         buffer[j][i][2] = color[2]
 
-def draw_line_on_buffer(buffer, image_w, image_h, points_2d, color, size=4):
+def draw_line_on_buffer(buffer, image_w, image_h, points_2d, color, size=4) -> None:
   x0 = int(points_2d[0][0])
   y0 = int(points_2d[0][1])
   x1 = int(points_2d[1][0])
@@ -182,7 +181,7 @@ def draw_line_on_buffer(buffer, image_w, image_h, points_2d, color, size=4):
       err += dx
       y0 += sy
 
-def draw_skeleton(buffer, image_w, image_h, boneIndex, points2d, color, size=4):
+def draw_skeleton(buffer, image_w, image_h, boneIndex, points2d, color, size=4) -> None:
     try:
         # draw_line_on_buffer(buffer, image_w, image_h, (points2d[boneIndex["crl_root"]], points2d[boneIndex["crl_hips__C"]]), color, size)
         draw_line_on_buffer(buffer, image_w, image_h, (points2d[boneIndex["crl_hips__C"]], points2d[boneIndex["crl_spine__C"]]), color, size)
@@ -252,7 +251,7 @@ def draw_skeleton(buffer, image_w, image_h, boneIndex, points2d, color, size=4):
     except Exception:
         pass
 
-def should_quit():
+def should_quit() -> bool:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return True
@@ -260,28 +259,28 @@ def should_quit():
             return True
     return False
 
-def write_image(frame, actor_id, buffer):
+def write_image(frame, actor_id, buffer) -> None:
     # Save the image using Pillow module.
     img = Image.fromarray(buffer)  # Uses actor_id
-    img.save('_out/%s_%06d.png' % (id, frame))
+    img.save("_out/%s_%06d.png" % (id, frame))
 
-def main():
+def main() -> None:
     argparser = argparse.ArgumentParser(
-        description='CARLA Manual Control Client')
+        description="CARLA Manual Control Client")
     argparser.add_argument(
-        '--fov',
+        "--fov",
         default=60,
         type=int,
-        help='FOV for camera')
+        help="FOV for camera")
     argparser.add_argument(
-      '--res',
-      metavar='WIDTHxHEIGHT',
+      "--res",
+      metavar="WIDTHxHEIGHT",
       # default='1920x1080',
-      default='800x600',
-      help='window resolution (default: 800x600)')
+      default="800x600",
+      help="window resolution (default: 800x600)")
     args = argparser.parse_args()
 
-    args.width, args.height = (int(x) for x in args.res.split('x'))
+    args.width, args.height = (int(x) for x in args.res.split("x"))
 
     actor_list = []
     pygame.init()
@@ -292,13 +291,13 @@ def main():
     get_font()
     clock = pygame.time.Clock()
 
-    client = carla.Client('localhost', 2000)
+    client = carla.Client("localhost", 2000)
     client.set_timeout(5.0)
 
     world = client.get_world()
 
     # spawn a camera
-    camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
+    camera_bp = world.get_blueprint_library().find("sensor.camera.rgb")
     camera_bp.set_attribute("image_size_x", str(args.width))
     camera_bp.set_attribute("image_size_y", str(args.height))
     camera_bp.set_attribute("fov", str(args.fov))
@@ -310,7 +309,7 @@ def main():
     trans = carla.Transform()
     trans.location = world.get_random_location_from_navigation()
     ped = world.spawn_actor(ped_bp, trans)
-    walker_controller_bp = world.get_blueprint_library().find('controller.ai.walker')
+    walker_controller_bp = world.get_blueprint_library().find("controller.ai.walker")
     controller = world.spawn_actor(walker_controller_bp, carla.Transform(), ped)
     controller.start()
     controller.go_to_location(world.get_random_location_from_navigation())
@@ -394,19 +393,15 @@ def main():
 
     finally:
         # time.sleep(5)
-        print('destroying actors.')
         for actor in actor_list:
             actor.destroy()
         pygame.quit()
         pool.close()
-        print('done.')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
 
         main()
 
-    except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')

@@ -26,6 +26,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -305,9 +306,7 @@ def _save_trajectory(
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data.model_dump(), f, indent=2)
 
-    dur = len(frames) * _DELTA_TIME
-    print(f"\n  Saved: {filename}")
-    print(f"  {len(frames)} frames, {dur:.1f}s")
+    len(frames) * _DELTA_TIME
     return filename
 
 
@@ -347,11 +346,10 @@ def main() -> None:
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     out_dir = cfg.output_dir or os.path.join(
-        os.path.dirname(script_dir), _OUTPUT_SUBDIR
+        os.path.dirname(script_dir), _OUTPUT_SUBDIR,
     )
     os.makedirs(out_dir, exist_ok=True)
 
-    print("Connecting to CARLA...")
     client = carla.Client(cfg.host, cfg.port)
     client.set_timeout(_CARLA_TIMEOUT)
 
@@ -363,7 +361,6 @@ def main() -> None:
             m for m in available if cfg.map_name.lower() in m.lower()
         ]
         if matched:
-            print(f"Loading map: {matched[0]}...")
             client.load_world(matched[0])
             time.sleep(_MAP_LOAD_DELAY)
 
@@ -375,7 +372,6 @@ def main() -> None:
     weather = _parse_weather(cfg.weather)
     if weather is not None:
         world.set_weather(weather)
-        print(f"Weather: {cfg.weather}")
 
     original_settings = world.get_settings()
     settings = world.get_settings()
@@ -403,7 +399,6 @@ def main() -> None:
         walker = world.spawn_actor(walker_bp, spawn_tf)
         actors.append(walker)
         world.tick()
-        print(f"Walker spawned at ({spawn_loc.x:.0f}, {spawn_loc.y:.0f})")
 
         # Camera
         cam_bp = bp_lib.find("sensor.camera.rgb")
@@ -420,7 +415,7 @@ def main() -> None:
         def _on_image(image: carla.Image) -> None:
             arr = np.frombuffer(image.raw_data, dtype=np.uint8)
             arr = arr.reshape((image.height, image.width, 4))[
-                :, :, :3
+                :, :, :3,
             ][:, :, ::-1]
             latest_image[0] = arr
 
@@ -430,7 +425,7 @@ def main() -> None:
         # Pygame
         pygame.init()
         display = pygame.display.set_mode(
-            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS
+            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption("")
         pygame.event.set_grab(True)
@@ -445,17 +440,6 @@ def main() -> None:
         running = True
         save_on_exit = False
 
-        print(f"\n{_DIVIDER}")
-        print("  Walker Recorder")
-        print(f"  Map: {map_name} | Speed: {walk_speed} m/s")
-        print(
-            "  WASD=Move  Mouse=Look  Shift=Run  Space=Jump"
-        )
-        print(
-            "  Scroll=Speed  F9=StartRecording  "
-            "F1=Save&Quit  ESC=Quit(discard)"
-        )
-        print(f"{_DIVIDER}\n")
 
         while running:
             clock.tick(_DISPLAY_FPS)
@@ -469,18 +453,17 @@ def main() -> None:
                     elif ev.key == pygame.K_F9:
                         if not recording_started:
                             recording_started = True
-                            print("  >>> Recording started (F9)")
                     elif ev.key == pygame.K_F1:
                         save_on_exit = True
                         running = False
                 elif ev.type == pygame.MOUSEBUTTONDOWN:
                     if ev.button == KeyCommand.SCROLL_UP.value:
                         walk_speed = min(
-                            walk_speed + _WALK_SPEED_STEP, _WALK_SPEED_MAX
+                            walk_speed + _WALK_SPEED_STEP, _WALK_SPEED_MAX,
                         )
                     elif ev.button == KeyCommand.SCROLL_DOWN.value:
                         walk_speed = max(
-                            walk_speed - _WALK_SPEED_STEP, _WALK_SPEED_MIN
+                            walk_speed - _WALK_SPEED_STEP, _WALK_SPEED_MIN,
                         )
 
             # Mouse look
@@ -500,9 +483,9 @@ def main() -> None:
                 carla.Transform(
                     carla.Location(x=_CHASE_X, z=_CHASE_Z),
                     carla.Rotation(
-                        pitch=pitch + _CHASE_PITCH, yaw=0, roll=0
+                        pitch=pitch + _CHASE_PITCH, yaw=0, roll=0,
                     ),
-                )
+                ),
             )
 
             # Movement
@@ -511,7 +494,7 @@ def main() -> None:
             right = keys[pygame.K_d] - keys[pygame.K_a]
             jump = bool(keys[pygame.K_SPACE])
             sprint = bool(
-                keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
+                keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT],
             )
 
             speed = walk_speed * (_SPRINT_MULT if sprint else 1.0)
@@ -534,14 +517,14 @@ def main() -> None:
             if recording_started:
                 frames.append(
                     _build_frame(
-                        len(frames), loc, rot, vel, speed, jump
-                    )
+                        len(frames), loc, rot, vel, speed, jump,
+                    ),
                 )
 
             # Display
             if latest_image[0] is not None:
                 surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1)
+                    latest_image[0].swapaxes(0, 1),
                 )
                 display.blit(surf, (0, 0))
             else:
@@ -552,35 +535,23 @@ def main() -> None:
         # Save
         if save_on_exit and frames:
             _save_trajectory(frames, map_name, out_dir)
-        elif frames:
-            print(f"\n  Discarded {len(frames)} frames.")
-        elif save_on_exit:
-            print(
-                "\n  No frames saved "
-                "(press F9 to start recording before F1)."
-            )
+        elif frames or save_on_exit:
+            pass
 
     finally:
-        try:
+        with contextlib.suppress(Exception):
             camera.stop()
-        except Exception:
-            pass
         for a in actors:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
-        try:
+        with contextlib.suppress(Exception):
             world.apply_settings(original_settings)
-        except Exception:
-            pass
         try:
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
         except Exception:
             pass
-        print("  Done.")
 
 
 if __name__ == "__main__":

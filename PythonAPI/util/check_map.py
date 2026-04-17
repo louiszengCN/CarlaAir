@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+import contextlib
+
 import carla
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -39,7 +41,6 @@ def main() -> None:
     world = client.get_world()
 
     crosswalks = world.get_map().get_crosswalks()
-    print(f"Crosswalks found: {len(crosswalks)}")
 
     for crosswalk in crosswalks:
         world.debug.draw_point(
@@ -51,7 +52,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        print(" - Exited by user.")

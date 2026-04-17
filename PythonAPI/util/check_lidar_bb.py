@@ -46,6 +46,7 @@ Important Data structure description:
 
 """
 
+import contextlib
 from queue import Empty, Queue
 
 import numpy as np
@@ -55,7 +56,7 @@ import carla
 
 class ActorTrace:
     """Class that store and process information about an actor at certain moment."""
-    def __init__(self, actor, lidar, world):
+    def __init__(self, actor, lidar, world) -> None:
         self._world = world
         self.set_lidar(lidar)
         self.set_actor(actor)
@@ -64,23 +65,23 @@ class ActorTrace:
         self._bb_minlimits = [0, 0, 0]
         self._bb_maxlimits = [0, 0, 0]
 
-    def set_lidar(self, lidar):
+    def set_lidar(self, lidar) -> None:
         self._frame = lidar[0]
         self._lidar_data = lidar[2]
         self._lidar_transf = lidar[3]
 
-    def set_actor(self, actor):
+    def set_actor(self, actor) -> None:
         self._actor_id = actor[0]
         self._actor_type = actor[1]
         self._actor_transf = actor[2]
         self._actor_bb = actor[3]
 
-    def process(self):
+    def process(self) -> None:
         # Filter lidar points that correspond to my actor id
-        data_actor = self._lidar_data[self._lidar_data['ObjIdx'] == self._actor_id]
+        data_actor = self._lidar_data[self._lidar_data["ObjIdx"] == self._actor_id]
 
         # Take the xyz point cloud data and transform it to actor's frame
-        points = np.array([data_actor['x'], data_actor['y'], data_actor['z']]).T
+        points = np.array([data_actor["x"], data_actor["y"], data_actor["z"]]).T
         points = np.append(points, np.ones((points.shape[0], 1)), axis=1)
         points = np.dot(self._lidar_transf.get_matrix(), points.T).T         # sensor -> world
         points = np.dot(self._actor_transf.get_inverse_matrix(), points.T).T # world -> actor
@@ -102,12 +103,12 @@ class ActorTrace:
         self._bb_minlimits = ver_np.min(axis=0) - 0.1
         self._bb_maxlimits = ver_np.max(axis=0) + 0.1
 
-    def print(self, print_if_empty = False):
+    def print(self, print_if_empty = False) -> None:
         if self._lidar_pc_local.shape[0] > 0 or print_if_empty:
             np.savetxt("veh_data_%d_%s_%d.out" % (self._frame, self._actor_type, self._actor_id), self._lidar_pc_local)
             np.savetxt("bb_data_%d_%s_%d.out"  % (self._frame, self._actor_type, self._actor_id), self._bb_vertices)
 
-    def lidar_is_outside_bb(self, check_axis = None):
+    def lidar_is_outside_bb(self, check_axis = None) -> bool:
         if check_axis is None:
             check_axis = [True, True, True]
         lidar_pc = self._lidar_pc_local
@@ -117,7 +118,6 @@ class ActorTrace:
             xmax = self._bb_maxlimits[0]
             out = np.any((lidar_pc[:,0] > xmax) | (lidar_pc[:,0] < xmin))
             if out:
-                print("Problem with x axis")
                 return True
 
         if check_axis[1]:
@@ -125,7 +125,6 @@ class ActorTrace:
             ymax = self._bb_maxlimits[1]
             out = np.any((lidar_pc[:, 1] > ymax) | (lidar_pc[:, 1] < ymin))
             if out:
-                print("Problem with y axis")
                 return True
 
         if check_axis[2]:
@@ -133,22 +132,18 @@ class ActorTrace:
             zmax = self._bb_maxlimits[2]
             out = np.any((lidar_pc[:, 2] > zmax) | (lidar_pc[:, 2] < zmin))
             if out:
-                print( f"Zmin: {zmin:f}, Zmax: {zmax:f}" )
-                print(f"Lidar points: {lidar_pc[:, 2]}")
-                print("Problem with z axis")
                 return True
 
         return False
 
-    def check_lidar_data(self):
+    def check_lidar_data(self) -> bool:
         if self.lidar_is_outside_bb():
-            print("Error!!! Points of lidar point cloud are outside its BB for car %d: %s " % (self._actor_id, self._actor_type))
             self.print()
             self.draw_debug(world=self._world)
             return False
         return True
 
-    def draw_debug(self, world=None):
+    def draw_debug(self, world=None) -> None:
         debug = self._world.debug if world is None else world.debug
 
         points = self._lidar_pc_local
@@ -172,7 +167,7 @@ class ActorTrace:
             self._actor_transf.rotation,
             thickness=40.0,
             color=carla.Color(255, 255, 255),
-            life_time=5000.0
+            life_time=5000.0,
         )
 
         # Optional: label it
@@ -182,7 +177,7 @@ class ActorTrace:
 
 
 
-def wait(world, frames=100, queue = None, slist = None):
+def wait(world, frames=100, queue = None, slist = None) -> None:
     for _i in range(frames):
         world.tick()
 
@@ -191,29 +186,29 @@ def wait(world, frames=100, queue = None, slist = None):
                 for _i in range (len(slist)):
                     queue.get(True, 1.0)
             except Empty:
-                print("    Some of the sensor information is missed")
+                pass
 
 # Sensor callback.
 # This is where you receive the sensor data and
 # process it as you liked and the important part is that,
 # at the end, it should include an element into the sensor queue.
-def lidar_callback(sensor_data, sensor_queue, sensor_name):
+def lidar_callback(sensor_data, sensor_queue, sensor_name) -> None:
     sensor_pc_local = np.frombuffer(sensor_data.raw_data, dtype=np.dtype([
-        ('x', np.float32), ('y', np.float32), ('z', np.float32),
-        ('CosAngle', np.float32), ('ObjIdx', np.uint32), ('ObjTag', np.uint32)]))
+        ("x", np.float32), ("y", np.float32), ("z", np.float32),
+        ("CosAngle", np.float32), ("ObjIdx", np.uint32), ("ObjTag", np.uint32)]))
     sensor_transf = sensor_data.transform
     sensor_queue.put((sensor_data.frame, sensor_name, sensor_pc_local, sensor_transf))
 
-def bb_callback(snapshot, world, sensor_queue, sensor_name):
+def bb_callback(snapshot, world, sensor_queue, sensor_name) -> None:
     data_array = []
 
-    vehicles = world.get_actors().filter('vehicle.*')
+    vehicles = world.get_actors().filter("vehicle.*")
     for actor in vehicles:
         data_array.append((actor.id, actor.type_id, actor.get_transform(), actor.bounding_box))
 
     sensor_queue.put((snapshot.frame, sensor_name, data_array))
 
-def move_spectator(world, actor):
+def move_spectator(world, actor) -> None:
     actor_tr = actor.get_transform()
     spectator_transform = carla.Transform(actor_tr.location, actor_tr.rotation)
     spectator_transform.location -= actor_tr.get_forward_vector() * 10
@@ -221,13 +216,13 @@ def move_spectator(world, actor):
     spectator = world.get_spectator()
     spectator.set_transform(spectator_transform)
 
-def world_callback(snapshot, world, sensor_queue, sensor_name, actor):
+def world_callback(snapshot, world, sensor_queue, sensor_name, actor) -> None:
     move_spectator(world, actor)
     bb_callback(snapshot, world, sensor_queue, sensor_name)
 
-def process_sensors(w_frame, sensor_queue, sensor_number, world):
+def process_sensors(w_frame, sensor_queue, sensor_number, world) -> None:
     if sensor_number != 2:
-        print("Error!!! Sensor number should be two")
+        pass
 
     sl_data = None
     bb_data = None
@@ -236,8 +231,6 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
         for _i in range (sensor_number):
             s_frame = sensor_queue.get(True, 1.0)
             while s_frame[0] != w_frame:
-                print("Warning! Missmatch for sensor %s in the frame timestamp (w: %d, s: %d)" % (s_frame[1], w_frame, s_frame[0]))
-                print("This could be due to accumulated data for previous steps")
                 s_frame = sensor_queue.get(True, 1.0)
 
             if s_frame[1] == "semlidar":
@@ -246,11 +239,10 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
                 bb_data = s_frame
           #print("    Frame: %d   Sensor: %s Len: %d " % (s_frame[0], s_frame[1], len(s_frame[2])))
     except Empty:
-        print("Error!!! The needeinformation is not here!!!")
         return
 
     if sl_data is None or bb_data is None:
-        print("Error!!! Missmatch for sensor %s in the frame timestamp (w: %d, s: %d)" % (s_frame[1], w_frame, s_frame[0]))
+        pass
 
     if( bb_data is not None ):
         for actor_data in bb_data[2]:
@@ -259,7 +251,7 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world):
             trace_vehicle.check_lidar_data()
 
 class SpawnCar:
-    def __init__(self, location, rotation, filter_pattern="vehicle.*", autopilot = False, velocity = None):
+    def __init__(self, location, rotation, filter_pattern="vehicle.*", autopilot = False, velocity = None) -> None:
         self._filter = filter_pattern
         self._transform = carla.Transform(location, rotation)
         self._autopilot = autopilot
@@ -275,7 +267,7 @@ class SpawnCar:
 
         return self._actor
 
-    def destroy(self):
+    def destroy(self) -> None:
         if self._actor is not None:
             self._actor.destroy()
 
@@ -307,23 +299,23 @@ CarPropList = [
     SpawnCar(carla.Location(x=243, y= +80,z=2),   carla.Rotation(yaw=-90),  filter= "tt", autopilot=True),
     SpawnCar(carla.Location(x=243, y=+100,z=2),   carla.Rotation(yaw=-90),  filter= "a2", autopilot=True),
     SpawnCar(carla.Location(x=243, y=+120,z=2),   carla.Rotation(yaw=-90),  filter= "wrangler_rubicon", autopilot=True),
-    SpawnCar(carla.Location(x=243, y=+140,z=2),   carla.Rotation(yaw=-90),  filter= "c3", autopilot=True)
+    SpawnCar(carla.Location(x=243, y=+140,z=2),   carla.Rotation(yaw=-90),  filter= "c3", autopilot=True),
 ]
 
-def spawn_prop_vehicles(world):
+def spawn_prop_vehicles(world) -> None:
     for car in CarPropList:
         car.spawn(world)
 
-def destroy_prop_vehicles():
+def destroy_prop_vehicles() -> None:
     for car in CarPropList:
         car.destroy()
 
 
-def main():
+def main() -> None:
     # We start creating the client
-    client = carla.Client('localhost', 2000)
+    client = carla.Client("localhost", 2000)
     client.set_timeout(30.0)
-    world = client.load_world('Town03')
+    world = client.load_world("Town03")
     actor = None
     callback_id = None
     try:
@@ -360,12 +352,12 @@ def main():
         # We create all the sensors and keep them in a list for convenience.
         sensor_list = []
 
-        lidar_bp = world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
-        lidar_bp.set_attribute('channels', '64')
-        lidar_bp.set_attribute('points_per_second', '500000')
-        lidar_bp.set_attribute('range', '300')
-        lidar_bp.set_attribute('upper_fov', '10.0')
-        lidar_bp.set_attribute('lower_fov', '-90.0')
+        lidar_bp = world.get_blueprint_library().find("sensor.lidar.ray_cast_semantic")
+        lidar_bp.set_attribute("channels", "64")
+        lidar_bp.set_attribute("points_per_second", "500000")
+        lidar_bp.set_attribute("range", "300")
+        lidar_bp.set_attribute("upper_fov", "10.0")
+        lidar_bp.set_attribute("lower_fov", "-90.0")
         lidar_tr = carla.Transform(carla.Location(z=3), carla.Rotation(yaw=0))
         lidar = world.spawn_actor(lidar_bp, lidar_tr, attach_to=actor)
         lidar.listen(lambda data: lidar_callback(data, sensor_queue, "semlidar"))
@@ -396,7 +388,5 @@ def main():
             sensor.destroy()
 
 if __name__ == "__main__":
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        print(' - Exited by user.')

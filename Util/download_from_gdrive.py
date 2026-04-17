@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import shutil
 import sys
 from enum import Enum
@@ -113,7 +114,6 @@ def _save_response_content(
                 f.write(chunk)
                 written_size += _CHUNK_SIZE
                 print_status(destination, written_size)
-    print("Done.")
 
 
 def _get_confirm_token(response: requests.Response) -> str | None:
@@ -146,7 +146,7 @@ def download_file_from_google_drive(
     session = requests.Session()
 
     response = session.get(
-        _GDRIVE_URL, params={"id": file_id}, stream=True
+        _GDRIVE_URL, params={"id": file_id}, stream=True,
     )
     token = _get_confirm_token(response)
 
@@ -174,7 +174,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        print("\nCancelled by user. Bye!")

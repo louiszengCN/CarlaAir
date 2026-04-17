@@ -17,17 +17,16 @@ from . import SmokeTest
 
 try:
     # python 3
-    from queue import Empty
-    from queue import Queue as Queue
+    from queue import Empty, Queue
 except ImportError:
     # python 2
-    from Queue import Queue as Queue
+    from Queue import Queue
 
 class DeterminismError(Exception):
     pass
 
 class Scenario:
-    def __init__(self, client, world, save_snapshots_mode=False):
+    def __init__(self, client, world, save_snapshots_mode=False) -> None:
         self.world = world
         self.client = client
         self.actor_list = []
@@ -39,7 +38,7 @@ class Scenario:
         self.sensor_list = []
         self.sensor_queue = Queue()
 
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         self.prefix = prefix
         self.actor_list = []
         self.active = True
@@ -55,7 +54,7 @@ class Scenario:
         snapshot = self.world.get_snapshot()
         self.init_timestamp = {"frame0" : snapshot.frame, "time0" : snapshot.timestamp.elapsed_seconds}
 
-    def add_actor(self, actor, actor_name="Actor"):
+    def add_actor(self, actor, actor_name="Actor") -> None:
         actor_idx = len(self.actor_list)
 
         name = str(actor_idx) + "_" + actor_name
@@ -65,14 +64,14 @@ class Scenario:
         if self.save_snapshots_mode:
             self.snapshots.append(np.empty((0,11), float))
 
-    def wait(self, frames=100):
+    def wait(self, frames=100) -> None:
         for _i in range(frames):
             self.world.tick()
             if self.active:
                 for _s in self.sensor_list:
                     self.sensor_queue.get(True, 15.0)
 
-    def clear_scene(self):
+    def clear_scene(self) -> None:
         for sensor in self.sensor_list:
             sensor[1].destroy()
 
@@ -81,7 +80,7 @@ class Scenario:
 
         self.active = False
 
-    def reload_world(self, settings = None, spectator_tr = None):
+    def reload_world(self, settings = None, spectator_tr = None) -> None:
         if settings is not None:
             self.world.apply_settings(settings)
         if spectator_tr is not None:
@@ -91,29 +90,28 @@ class Scenario:
         # workaround: give time to UE4 to clean memory after loading (old assets)
         time.sleep(5)
 
-    def reset_spectator(self, spectator_tr):
+    def reset_spectator(self, spectator_tr) -> None:
         spectator = self.world.get_spectator()
         spectator.set_transform(spectator_tr)
 
     def save_snapshot(self, actor):
         snapshot = self.world.get_snapshot()
 
-        actor_snapshot = np.array([
+        return np.array([
                 float(snapshot.frame - self.init_timestamp["frame0"]), \
                 snapshot.timestamp.elapsed_seconds - self.init_timestamp["time0"], \
                 actor.get_location().x, actor.get_location().y, actor.get_location().z, \
                 actor.get_velocity().x, actor.get_velocity().y, actor.get_velocity().z, \
                 actor.get_angular_velocity().x, actor.get_angular_velocity().y, actor.get_angular_velocity().z])
-        return actor_snapshot
 
-    def save_snapshots(self):
+    def save_snapshots(self) -> None:
         if not self.save_snapshots_mode:
             return
 
         for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
-    def save_snapshots_to_disk(self):
+    def save_snapshots_to_disk(self) -> None:
         if not self.save_snapshots_mode:
             return
 
@@ -128,7 +126,7 @@ class Scenario:
     def get_filename(self, actor_id=None, frame=None):
         return self.get_filename_with_prefix(self.prefix, actor_id, frame)
 
-    def run_simulation(self, prefix, run_settings, spectator_tr, tics = 200):
+    def run_simulation(self, prefix, run_settings, spectator_tr, tics = 200) -> None:
         original_settings = self.world.get_settings()
 
         self.init_scene(prefix, run_settings, spectator_tr)
@@ -142,7 +140,7 @@ class Scenario:
         self.save_snapshots_to_disk()
         self.clear_scene()
 
-    def add_sensor(self, sensor, sensor_type):
+    def add_sensor(self, sensor, sensor_type) -> None:
         sen_idx = len(self.sensor_list)
         if sensor_type == "LiDAR":
             name = str(sen_idx) + "_LiDAR"
@@ -156,7 +154,7 @@ class Scenario:
 
         self.sensor_list.append((name, sensor))
 
-    def add_lidar_snapshot(self, lidar_data, name="LiDAR"):
+    def add_lidar_snapshot(self, lidar_data, name="LiDAR") -> None:
         if not self.active:
             return
 
@@ -167,7 +165,7 @@ class Scenario:
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_semlidar_snapshot(self, lidar_data, name="SemLiDAR"):
+    def add_semlidar_snapshot(self, lidar_data, name="SemLiDAR") -> None:
         if not self.active:
             return
 
@@ -180,7 +178,7 @@ class Scenario:
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_radar_snapshot(self, radar_data, name="Radar"):
+    def add_radar_snapshot(self, radar_data, name="Radar") -> None:
         if not self.active:
             return
 
@@ -191,7 +189,7 @@ class Scenario:
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((radar_data.frame, name))
 
-    def sensor_syncronization(self):
+    def sensor_syncronization(self) -> None:
         # Sensor Syncronization
         w_frame = self.world.get_snapshot().frame
         for sensor in self.sensor_list:
@@ -205,8 +203,8 @@ class Scenario:
                                        % (sensor[0], w_frame, s_frame))
 
 class SpawnAllRaycastSensors(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
-        super(SpawnAllRaycastSensors, self).init_scene(prefix, settings, spectator_tr)
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+        super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
 
@@ -247,7 +245,7 @@ class SpawnAllRaycastSensors(Scenario):
         self.wait(1)
 
 class SensorScenarioTester:
-    def __init__(self, scene, output_path):
+    def __init__(self, scene, output_path) -> None:
         self.scene = scene
         self.world = self.scene.world
         self.client = self.scene.client
@@ -301,7 +299,7 @@ class SensorScenarioTester:
 
         return determinism_set
 
-    def test_scenario(self, repetitions = 1, sim_tics = 100):
+    def test_scenario(self, repetitions = 1, sim_tics = 100) -> None:
         prefix = self.output_path + self.scenario_name
 
         config_settings = self.world.get_settings()
@@ -323,8 +321,7 @@ class SensorScenarioTester:
 
 
 class TestSensorDeterminism(SmokeTest):
-    def test_all_sensors(self):
-        print("TestSensorDeterminism.test_all_sensors")
+    def test_all_sensors(self) -> None:
 
         orig_settings = self.world.get_settings()
 

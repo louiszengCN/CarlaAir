@@ -33,7 +33,7 @@ _ENABLED_KEY: str = "Enabled"
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="Edit uproject file to enable/disable a plugin"
+        description="Edit uproject file to enable/disable a plugin",
     )
     argparser.add_argument(
         "-f",
@@ -96,7 +96,7 @@ def _edit_plugin(
             {
                 _NAME_KEY: plugin_name,
                 _ENABLED_KEY: enable,
-            }
+            },
         )
 
     return should_do_changes
@@ -110,13 +110,13 @@ def main() -> None:
         uproject_json = json.load(uproject_file)
 
     should_do_changes = _edit_plugin(
-        uproject_json, args.plugin, args.enable
+        uproject_json, args.plugin, args.enable,
     )
 
     if should_do_changes:
         with open(args.file, "w", encoding="utf-8") as uproject_file:
             uproject_file.write(
-                json.dumps(uproject_json, indent=_JSON_INDENT)
+                json.dumps(uproject_json, indent=_JSON_INDENT),
             )
 
 

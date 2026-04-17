@@ -16,7 +16,7 @@ context manager that enables synchronous mode.
 from __future__ import annotations
 
 import random
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, suppress
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -26,14 +26,14 @@ try:
     import pygame
 except ImportError:
     raise RuntimeError(
-        "cannot import pygame, make sure pygame package is installed"
+        "cannot import pygame, make sure pygame package is installed",
     )
 
 try:
     import numpy as np
 except ImportError:
     raise RuntimeError(
-        "cannot import numpy, make sure numpy package is installed"
+        "cannot import numpy, make sure numpy package is installed",
     )
 
 try:
@@ -137,7 +137,7 @@ class CarlaSyncMode(AbstractContextManager):
                 no_rendering_mode=False,
                 synchronous_mode=True,
                 fixed_delta_seconds=self.delta_seconds,
-            )
+            ),
         )
 
         def _make_queue(
@@ -174,7 +174,7 @@ class CarlaSyncMode(AbstractContextManager):
             self.world.apply_settings(self.state._original_settings)
 
     def _retrieve_data(
-        self, sensor_queue: queue.Queue[Any], timeout: float
+        self, sensor_queue: queue.Queue[Any], timeout: float,
     ) -> Any:
         """Retrieve sensor data matching current frame.
 
@@ -257,7 +257,7 @@ def main() -> None:
     pygame.init()
 
     display = pygame.display.set_mode(
-        (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS
+        (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS,
     )
     font = get_font()
     clock = pygame.time.Clock()
@@ -300,7 +300,7 @@ def main() -> None:
 
         # Create a synchronous mode context.
         with CarlaSyncMode(
-            world, camera_rgb, camera_semseg, fps=_CAMERA_FPS
+            world, camera_rgb, camera_semseg, fps=_CAMERA_FPS,
         ) as sync_mode:
             while True:
                 if should_quit():
@@ -309,17 +309,17 @@ def main() -> None:
 
                 # Advance the simulation and wait for the data.
                 snapshot, image_rgb, image_semseg = sync_mode.tick(
-                    timeout=_TICK_TIMEOUT
+                    timeout=_TICK_TIMEOUT,
                 )
 
                 # Choose the next waypoint and update the car location.
                 waypoint = random.choice(
-                    waypoint.next(_WAYPOINT_DISTANCE)
+                    waypoint.next(_WAYPOINT_DISTANCE),
                 )
                 vehicle.set_transform(waypoint.transform)
 
                 image_semseg.convert(
-                    carla.ColorConverter.CityScapesPalette
+                    carla.ColorConverter.CityScapesPalette,
                 )
                 fps = round(1.0 / snapshot.timestamp.delta_seconds)
 
@@ -329,7 +329,7 @@ def main() -> None:
                 display.blit(
                     font.render(
                         f"{'':>5d} FPS (real)".replace(
-                            "d", ""
+                            "d", "",
                         ) + f" {clock.get_fps():5.0f} FPS (real)",
                         True,
                         _HUD_COLOR,
@@ -347,16 +347,12 @@ def main() -> None:
                 pygame.display.flip()
 
     finally:
-        print("destroying actors.")
         for actor in actor_list:
             actor.destroy()
 
         pygame.quit()
-        print("done.")
 
 
 if __name__ == "__main__":
-    try:
+    with suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        print("\nCancelled by user. Bye!")

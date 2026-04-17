@@ -127,7 +127,7 @@ _SPAWN_Z_OFFSET: float = 2.0
 
 # Weather pattern regex
 _WEATHER_NAME_RGX = re.compile(
-    ".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)"
+    ".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)",
 )
 _WEATHER_NAME_MATCH = re.compile("[A-Z].+")
 
@@ -309,12 +309,8 @@ def get_actor_blueprints(
                 for x in bps
                 if int(x.get_attribute("generation").as_int()) == int_generation
             ]
-        print(
-            "   Warning! Actor Generation is not valid. No actor will be spawned."
-        )
         return []
     except ValueError:
-        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 
 
@@ -359,10 +355,7 @@ class World:
         self.world = carla_world
         try:
             self.map = self.world.get_map()
-        except RuntimeError as error:
-            print(f"RuntimeError: {error}")
-            print("  The server could not send the OpenDRIVE (.xodr) file:")
-            print("  Make sure it exists, has the same name of your town, and is correct.")
+        except RuntimeError:
             sys.exit(1)
         self.hud = hud
         self.player = None
@@ -391,7 +384,7 @@ class World:
         )
 
         blueprint_list = get_actor_blueprints(
-            self.world, self._actor_filter, self._actor_generation
+            self.world, self._actor_filter, self._actor_generation,
         )
         if not blueprint_list:
             msg = "Couldn't find any blueprints with the specified filters"
@@ -400,7 +393,7 @@ class World:
         blueprint.set_attribute("role_name", "hero")
         if blueprint.has_attribute("color"):
             color = np.random.choice(
-                blueprint.get_attribute("color").recommended_values
+                blueprint.get_attribute("color").recommended_values,
             )
             blueprint.set_attribute("color", color)
 
@@ -415,8 +408,6 @@ class World:
 
         while self.player is None:
             if not self.map.get_spawn_points():
-                print("There are no spawn points available in your map/town.")
-                print("Please add some Vehicle Spawn Point to your UE4 scene.")
                 sys.exit(1)
             spawn_points = self.map.get_spawn_points()
             spawn_point = (
@@ -585,10 +576,10 @@ class HUD:
         mono_size = _MONO_FONT_SIZE_NT if os.name == "nt" else _MONO_FONT_SIZE_OTHER
         self._font_mono = pygame.font.Font(mono, mono_size)
         self._notifications = FadingText(
-            font, (width, _NOTIFICATION_HEIGHT), (0, height - _NOTIFICATION_HEIGHT)
+            font, (width, _NOTIFICATION_HEIGHT), (0, height - _NOTIFICATION_HEIGHT),
         )
         self.help = HelpText(
-            pygame.font.Font(mono, _DEFAULT_FONT_SIZE), width, height
+            pygame.font.Font(mono, _DEFAULT_FONT_SIZE), width, height,
         )
         self.server_fps = 0.0
         self.frame = 0
@@ -700,7 +691,7 @@ class HUD:
         return heading
 
     def _add_nearby_ehicles(
-        self, vehicles: Any, transform: carla.Transform
+        self, vehicles: Any, transform: carla.Transform,
     ) -> None:
         """Add nearby vehicles to info text.
 
@@ -713,7 +704,7 @@ class HUD:
             return math.sqrt(
                 (loc.x - transform.location.x) ** 2
                 + (loc.y - transform.location.y) ** 2
-                + (loc.z - transform.location.z) ** 2
+                + (loc.z - transform.location.z) ** 2,
             )
 
         nearby = [
@@ -813,12 +804,12 @@ class HUD:
         """
         if isinstance(item[1], bool):
             rect = pygame.Rect(
-                (bar_h_offset, v_offset + 8), (_INFO_BAR_HEIGHT, _INFO_BAR_HEIGHT)
+                (bar_h_offset, v_offset + 8), (_INFO_BAR_HEIGHT, _INFO_BAR_HEIGHT),
             )
             pygame.draw.rect(display, _BAR_COLOR, rect, 0 if item[1] else 1)
         else:
             rect_border = pygame.Rect(
-                (bar_h_offset, v_offset + 8), (bar_width, _INFO_BAR_HEIGHT)
+                (bar_h_offset, v_offset + 8), (bar_width, _INFO_BAR_HEIGHT),
             )
             pygame.draw.rect(display, _BAR_COLOR, rect_border, 1)
             fig = (item[1] - item[2]) / (item[3] - item[2])
@@ -829,7 +820,7 @@ class HUD:
                 )
             else:
                 rect = pygame.Rect(
-                    (bar_h_offset, v_offset + 8), (fig * bar_width, 6)
+                    (bar_h_offset, v_offset + 8), (fig * bar_width, 6),
                 )
             pygame.draw.rect(display, _BAR_COLOR, rect)
 
@@ -868,7 +859,7 @@ class FadingText:
         self.surface = pygame.Surface(self.dim)
 
     def set_text(
-        self, text: str, color: tuple[int, int, int] = _BAR_COLOR, seconds: float = 2.0
+        self, text: str, color: tuple[int, int, int] = _BAR_COLOR, seconds: float = 2.0,
     ) -> None:
         """Set the fading text content.
 
@@ -919,7 +910,7 @@ class HelpText:
     _render: bool
 
     def __init__(
-        self, font: pygame.font.Font, width: int, height: int
+        self, font: pygame.font.Font, width: int, height: int,
     ) -> None:
         """Initialize help text.
 
@@ -988,11 +979,11 @@ class CollisionSensor:
         world = self._parent.get_world()
         blueprint = world.get_blueprint_library().find("sensor.other.collision")
         self.sensor = world.spawn_actor(
-            blueprint, carla.Transform(), attach_to=self._parent
+            blueprint, carla.Transform(), attach_to=self._parent,
         )
         weak_self = weakref.ref(self)
         self.sensor.listen(
-            lambda event: CollisionSensor._on_collision(weak_self, event)
+            lambda event: CollisionSensor._on_collision(weak_self, event),
         )
 
     def get_collision_history(self) -> dict[int, int]:
@@ -1053,7 +1044,7 @@ class LaneInvasionSensor:
         self.sensor = world.spawn_actor(bp, carla.Transform(), attach_to=self._parent)
         weak_self = weakref.ref(self)
         self.sensor.listen(
-            lambda event: LaneInvasionSensor._on_invasion(weak_self, event)
+            lambda event: LaneInvasionSensor._on_invasion(weak_self, event),
         )
 
     @staticmethod
@@ -1104,7 +1095,7 @@ class GnssSensor:
         )
         weak_self = weakref.ref(self)
         self.sensor.listen(
-            lambda event: GnssSensor._on_gnss_event(weak_self, event)
+            lambda event: GnssSensor._on_gnss_event(weak_self, event),
         )
 
     @staticmethod
@@ -1209,12 +1200,12 @@ class CameraManager:
     def toggle_camera(self) -> None:
         """Cycle to next camera position."""
         self.transform_index = (self.transform_index + 1) % len(
-            self._camera_transforms
+            self._camera_transforms,
         )
         self.set_sensor(self.index, notify=False, force_respawn=True)
 
     def set_sensor(
-        self, index: int | None, notify: bool = True, force_respawn: bool = False
+        self, index: int | None, notify: bool = True, force_respawn: bool = False,
     ) -> None:
         """Set active camera sensor.
 
@@ -1241,7 +1232,7 @@ class CameraManager:
             )
             weak_self = weakref.ref(self)
             self.sensor.listen(
-                lambda image: CameraManager._parse_image(weak_self, image)
+                lambda image: CameraManager._parse_image(weak_self, image),
             )
         if notify:
             self.hud.notification(self.sensors[index][2])
@@ -1379,9 +1370,7 @@ def game_loop(cfg: SimulationConfig) -> None:
                 if cfg.loop:
                     agent.set_destination(np.random.choice(spawn_points).location)
                     world.hud.notification("Target reached", seconds=_DEFAULT_NOTIFICATION_SECS)
-                    print("The target has been reached, searching for another target")
                 else:
-                    print("The target has been reached, stopping the simulation")
                     break
 
             control = agent.run_step()
@@ -1392,7 +1381,7 @@ def game_loop(cfg: SimulationConfig) -> None:
 
 
 def _create_agent(
-    cfg: SimulationConfig, world: World
+    cfg: SimulationConfig, world: World,
 ) -> BasicAgent | ConstantVelocityAgent | BehaviorAgent:
     """Create navigation agent based on config.
 
@@ -1409,11 +1398,11 @@ def _create_agent(
     elif cfg.agent == AgentType.CONSTANT:
         agent = ConstantVelocityAgent(world.player, _DEFAULT_TARGET_SPEED)
         ground_loc = world.world.ground_projection(
-            world.player.get_location(), 5
+            world.player.get_location(), 5,
         )
         if ground_loc:
             world.player.set_location(
-                ground_loc.location + carla.Location(z=0.01)
+                ground_loc.location + carla.Location(z=0.01),
             )
         agent.follow_speed_limits(True)
     else:
@@ -1451,7 +1440,7 @@ def _cleanup_world(
 def main() -> None:
     """Main entry point."""
     argparser = argparse.ArgumentParser(
-        description="CARLA Automatic Control Client"
+        description="CARLA Automatic Control Client",
     )
     argparser.add_argument(
         "-v",
@@ -1549,7 +1538,6 @@ def main() -> None:
     logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
     logging.info("listening to server %s:%s", cfg.host, cfg.port)
 
-    print(__doc__)
 
     pygame.init()
     pygame.font.init()
@@ -1557,7 +1545,7 @@ def main() -> None:
     try:
         game_loop(cfg)
     except KeyboardInterrupt:
-        print("\nCancelled by user. Bye!")
+        pass
     finally:
         pygame.quit()
 

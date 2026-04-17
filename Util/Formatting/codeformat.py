@@ -20,7 +20,7 @@ SCRIPT_VERSION = "1.3"
 
 class CodeFormatter:
 
-    def __init__(self, command, expectedVersion, formatCommandArguments, verifyCommandArguments, verifyOutputIsDiff, fileEndings, fileDescription, installCommand):
+    def __init__(self, command, expectedVersion, formatCommandArguments, verifyCommandArguments, verifyOutputIsDiff, fileEndings, fileDescription, installCommand) -> None:
         self.command = command
         self.expectedVersion = expectedVersion
         self.formatCommandArguments = formatCommandArguments
@@ -30,12 +30,11 @@ class CodeFormatter:
         self.fileDescription = fileDescription
         self.installCommand = installCommand
 
-    def verifyFormatterVersion(self):
+    def verifyFormatterVersion(self) -> None:
         try:
-            versionOutput = subprocess.check_output([self.command, "--version"]).rstrip('\r\n')
+            versionOutput = subprocess.check_output([self.command, "--version"]).rstrip("\r\n")
             if self.expectedVersion != "":
                 if versionOutput.startswith(self.expectedVersion):
-                    print("[OK] Found formatter '" + versionOutput + "'")
                     return
                 cprint("[NOT OK] Found '" + versionOutput + "'", "red")
                 cprint("[NOT OK] Version string does not start with '" + self.expectedVersion + "'", "red")
@@ -47,22 +46,19 @@ class CodeFormatter:
                    self.installCommand + "'", "blue")
         sys.exit(1)
 
-    def printInputFiles(self):
+    def printInputFiles(self) -> None:
         if len(self.inputFiles) > 0:
-            print("Found " + self.fileDescription + " files:")
-            for fileName in self.inputFiles:
-                print(fileName)
-            print("")
+            for _fileName in self.inputFiles:
+                pass
 
-    def formatFile(self, fileName):
+    def formatFile(self, fileName) -> bool:
         commandList = [self.command]
         commandList.extend(self.formatCommandArguments)
         commandList.append(fileName)
         try:
             subprocess.check_output(commandList, stderr=subprocess.STDOUT)
-            print("[OK] " + fileName)
         except subprocess.CalledProcessError as e:
-            cprint("[ERROR] " + fileName + " (" + e.output.rstrip('\r\n') + ")", "red")
+            cprint("[ERROR] " + fileName + " (" + e.output.rstrip("\r\n") + ")", "red")
             return True
         return False
 
@@ -81,14 +77,14 @@ class CodeFormatter:
             return (True, "")
         return (False, diffOutput)
 
-    def verifyFile(self, fileName, printDiff):
+    def verifyFile(self, fileName, printDiff) -> bool:
         commandList = [self.command]
         commandList.extend(self.verifyCommandArguments)
         commandList.append(fileName)
         try:
             verifyOutput = subprocess.check_output(commandList, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            cprint("[ERROR] " + fileName + " (" + e.output.rstrip('\r\n') + ")", "red")
+            cprint("[ERROR] " + fileName + " (" + e.output.rstrip("\r\n") + ")", "red")
             return True
 
         diffOutput = ""
@@ -102,10 +98,9 @@ class CodeFormatter:
         if diffOutput != "":
             cprint("[NOT OK] " + fileName, "red")
             if printDiff:
-                print(diffOutput.rstrip('\r\n'))
+                pass
             return True
 
-        print("[OK] " + fileName)
         return False
 
 
@@ -114,7 +109,7 @@ class CodeFormatterClang(CodeFormatter):
     CHECKED_IN_CLANG_FORMAT_FILE = "clang-format"
     CODE_FORMAT_IGNORE_FILE = ".codeformatignore"
 
-    def __init__(self):
+    def __init__(self) -> None:
         CodeFormatter.__init__(self,
                                command="clang-format-3.9",
                                expectedVersion="clang-format version 3.9",
@@ -127,26 +122,25 @@ class CodeFormatterClang(CodeFormatter):
         self.scriptPath = os.path.dirname(os.path.abspath(__file__))
         self.checkedInClangFormatFile = os.path.join(self.scriptPath, CodeFormatterClang.CHECKED_IN_CLANG_FORMAT_FILE)
 
-    def verifyFormatterVersion(self):
+    def verifyFormatterVersion(self) -> None:
         CodeFormatter.verifyFormatterVersion(self)
         self.verifyClangFormatFileExistsAndMatchesCheckedIn()
 
-    def verifyCheckedInClangFormatFileExists(self):
+    def verifyCheckedInClangFormatFileExists(self) -> None:
         if os.path.exists(self.checkedInClangFormatFile):
-            print("[OK] Found " + CodeFormatterClang.CHECKED_IN_CLANG_FORMAT_FILE + " file (the one that should be in a repository) " +
-                  self.checkedInClangFormatFile)
+            pass
         else:
             cprint("[WARN] Not found " + CodeFormatterClang.CHECKED_IN_CLANG_FORMAT_FILE + " file " +
                    self.checkedInClangFormatFile, "yellow")
             self.confirmWithUserClangFormatFileCantBeVerified()
 
-    def confirmWithUserClangFormatFileCantBeVerified(self):
+    def confirmWithUserClangFormatFileCantBeVerified(self) -> None:
         if not self.args.yes:
             answer = input("Are you sure your .clang-format file is up-to-date and you want to continue? (y/N)")
             if answer != "y":
                 sys.exit(1)
 
-    def verifyClangFormatFileExistsAndMatchesCheckedIn(self):
+    def verifyClangFormatFileExistsAndMatchesCheckedIn(self) -> None:
         self.verifyCheckedInClangFormatFileExists()
         foundClangFormatFiles = sets.Set()
         for fileName in self.inputFiles:
@@ -164,8 +158,7 @@ class CodeFormatterClang(CodeFormatter):
                     cprint("[WARN] " + clangFormatFile + " does not match " + self.checkedInClangFormatFile, "yellow")
                     self.confirmWithUserClangFormatFileCantBeVerified()
                 else:
-                    print("[OK] Found " + CodeFormatterClang.CLANG_FORMAT_FILE +
-                          " file (used by the formatter) " + clangFormatFile)
+                    pass
             return True
         dirNameOneLevelUp = os.path.dirname(dirName)
         if dirNameOneLevelUp == dirName:
@@ -178,7 +171,7 @@ class CodeFormatterClang(CodeFormatter):
 
 class CodeFormatterAutopep(CodeFormatter):
 
-    def __init__(self):
+    def __init__(self) -> None:
         CodeFormatter.__init__(self,
                                command="autopep8",
                                expectedVersion="",
@@ -192,11 +185,11 @@ class CodeFormatterAutopep(CodeFormatter):
 
 class CodeFormat:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.failure = False
         self.codeFormatterInstances = []
 
-    def parseCommandLine(self):
+    def parseCommandLine(self) -> None:
         parser = argparse.ArgumentParser(
             description="Helper script for code formatting.")
         parser.add_argument("input", nargs="+",
@@ -214,10 +207,10 @@ class CodeFormat:
         if self.args.diff:
             self.args.verify = True
 
-    def addCodeFormatter(self, codeFormatterInstance):
+    def addCodeFormatter(self, codeFormatterInstance) -> None:
         self.codeFormatterInstances.append(codeFormatterInstance)
 
-    def scanForInputFiles(self):
+    def scanForInputFiles(self) -> None:
         for formatterInstance in self.codeFormatterInstances:
             filePattern = re.compile(r"^[^.].*\.(" + "|".join(formatterInstance.fileEndings) + ")$")
             formatterInstance.inputFiles = []
@@ -247,32 +240,32 @@ class CodeFormat:
                           not os.path.exists(os.path.join(root, directory, CodeFormatterClang.CODE_FORMAT_IGNORE_FILE))]
         return directories
 
-    def isFileNotExcluded(self, fileName):
+    def isFileNotExcluded(self, fileName) -> bool:
         if self.args.exclude is not None:
             for excluded in self.args.exclude:
                 if excluded in fileName:
                     return False
         return not os.path.islink(fileName)
 
-    def confirmWithUserFileIsOutsideGit(self, fileName):
+    def confirmWithUserFileIsOutsideGit(self, fileName) -> None:
         cprint("[WARN] File is not in a Git repo: " + fileName, "yellow")
         answer = input("Are you sure to code format it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
-    def confirmWithUserFileIsUntracked(self, fileName):
+    def confirmWithUserFileIsUntracked(self, fileName) -> None:
         cprint("[WARN] File is untracked in Git: " + fileName, "yellow")
         answer = input("Are you sure to code format it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
-    def confirmWithUserGitRepoIsNotClean(self, gitRepo):
+    def confirmWithUserGitRepoIsNotClean(self, gitRepo) -> None:
         cprint("[WARN] Git repo is not clean: " + gitRepo, "yellow")
         answer = input("Are you sure to code format files in it anyway? (y/Q)")
         if answer != "y":
             sys.exit(1)
 
-    def checkInputFilesAreInCleanGitReposAndAreTracked(self):
+    def checkInputFilesAreInCleanGitReposAndAreTracked(self) -> None:
         if self.args.verify or self.args.yes:
             return
         gitRepos = sets.Set()
@@ -301,7 +294,7 @@ class CodeFormat:
                                           cwd=os.path.dirname(fileName))
             gitOutput, _ = gitProcess.communicate()
             if gitProcess.returncode == 0:
-                return gitOutput.rstrip('\r\n')
+                return gitOutput.rstrip("\r\n")
         except OSError:
             cprint("[ERROR] Failed to run 'git rev-parse --show-toplevel' for " + fileName, "red")
         return None
@@ -315,12 +308,12 @@ class CodeFormat:
                                           cwd=os.path.dirname(fileName))
             gitOutput, _ = gitProcess.communicate()
             if gitProcess.returncode == 0:
-                return gitOutput.rstrip('\r\n') == "true"
+                return gitOutput.rstrip("\r\n") == "true"
         except OSError:
             cprint("[ERROR] Failed to run 'git rev-parse --is-inside-work-tree' for " + fileName, "red")
         return False
 
-    def isTrackedFile(self, fileName):
+    def isTrackedFile(self, fileName) -> bool:
         try:
             gitProcess = subprocess.Popen(["git", "ls-files", "--error-unmatch", "--", os.path.basename(fileName)],
                                           stdin=subprocess.PIPE,
@@ -334,7 +327,7 @@ class CodeFormat:
             cprint("[ERROR] Failed to run 'git ls-files --error-unmatch' for " + fileName, "red")
         return False
 
-    def isCleanGitRepo(self, gitRepo):
+    def isCleanGitRepo(self, gitRepo) -> bool:
         try:
             gitProcess = subprocess.Popen(["git", "diff-index", "--quiet", "HEAD", "--"],
                                           stdin=subprocess.PIPE,
@@ -348,7 +341,7 @@ class CodeFormat:
             cprint("[ERROR] Failed to run 'git diff-index --quiet HEAD --' for " + gitRepo, "red")
         return False
 
-    def gitUpdateIndexRefresh(self, gitRepo):
+    def gitUpdateIndexRefresh(self, gitRepo) -> bool:
         try:
             gitProcess = subprocess.Popen(["git", "update-index", "-q", "--ignore-submodules", "--refresh"],
                                           stdin=subprocess.PIPE,
@@ -362,18 +355,18 @@ class CodeFormat:
             cprint("[ERROR] Failed to run 'git update-index -q --ignore-submodules --refresh' for " + gitRepo, "red")
         return False
 
-    def verifyFormatterVersion(self):
+    def verifyFormatterVersion(self) -> None:
         for formatterInstance in self.codeFormatterInstances:
             if len(formatterInstance.inputFiles) > 0:
                 formatterInstance.verifyFormatterVersion()
 
-    def printMode(self):
+    def printMode(self) -> None:
         if self.args.verify:
             cprint("VERIFY MODE", attrs=["bold"])
         else:
             cprint("FORMAT MODE", attrs=["bold"])
 
-    def processFiles(self):
+    def processFiles(self) -> None:
         for formatterInstance in self.codeFormatterInstances:
             for fileName in formatterInstance.inputFiles:
                 if self.args.verify:
@@ -387,7 +380,7 @@ class CodeFormat:
             count += len(formatterInstance.inputFiles)
         return count
 
-    def confirmWithUser(self):
+    def confirmWithUser(self) -> None:
         if self.numberOfInputFiles() == 0:
             cprint("[WARN] No input files (or file endings unknown)", "yellow")
         elif (not self.args.verify) and (not self.args.yes) and self.numberOfInputFiles() > 1:
@@ -398,7 +391,7 @@ class CodeFormat:
                 sys.exit(1)
 
 
-def main():
+def main() -> None:
     codeFormat = CodeFormat()
     codeFormat.parseCommandLine()
     codeFormat.printMode()

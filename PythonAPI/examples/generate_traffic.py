@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import logging
 import time
 from dataclasses import dataclass, field
@@ -164,18 +165,13 @@ def get_actor_blueprints(
         int_generation = int(generation)
         # Check if generation is in available generations
         if int_generation in [1, 2, 3]:
-            bps = [
+            return [
                 x
                 for x in bps
                 if int(x.get_attribute("generation").as_int()) == int_generation
             ]
-            return bps
-        print(
-            "   Warning! Actor Generation is not valid. No actor will be spawned."
-        )
         return []
     except ValueError:
-        print("   Warning! Actor Generation is not valid. No actor will be spawned.")
         return []
 
 
@@ -197,21 +193,16 @@ def _cleanup(
             settings.synchronous_mode = False
             settings.no_rendering_mode = False
             settings.fixed_delta_seconds = None
-        print(f"restore world_settings {settings}")
         world.apply_settings(settings)
 
-    print(f"\ndestroying {len(state.vehicles)} vehicles")
     client.apply_batch([DestroyActor(x) for x in state.vehicles])
 
     # stop walker controllers (list is [controller, actor, controller, actor ...])
     for i in range(0, len(state.all_actor_ids), _WALKER_ACTOR_STEP):
         all_actors = world.get_actors(state.all_actor_ids)
-        try:
+        with contextlib.suppress(Exception):
             all_actors[i].stop()
-        except Exception:
-            pass
 
-    print(f"\ndestroying {len(state.walkers)} walkers")
     client.apply_batch([DestroyActor(x) for x in state.all_actor_ids])
 
     time.sleep(_CLEANUP_DELAY)
@@ -385,7 +376,7 @@ def main() -> None:
 
         traffic_manager = client.get_trafficmanager(config.tm_port)
         traffic_manager.set_global_distance_to_leading_vehicle(
-            _TM_GLOBAL_DISTANCE
+            _TM_GLOBAL_DISTANCE,
         )
         if config.respawn_vehicles:
             traffic_manager.set_respawn_dormant_vehicles(True)
@@ -396,7 +387,6 @@ def main() -> None:
             traffic_manager.set_random_device_seed(config.seed)
 
         original_world_settings = world.get_settings()
-        print(f"current_world_settings {original_world_settings}")
         settings = original_world_settings
         if not config.asynchronous:
             traffic_manager.set_synchronous_mode(True)
@@ -404,31 +394,25 @@ def main() -> None:
                 settings.synchronous_mode = True
                 settings.fixed_delta_seconds = _SYNC_DELTA
         else:
-            print(
-                "You are currently in asynchronous mode. If this is a traffic simulation, "
-                "you could experience some issues. If it's not working correctly, switch to synchronous "
-                "mode by using traffic_manager.set_synchronous_mode(True)"
-            )
+            pass
 
         if config.no_rendering:
             settings.no_rendering_mode = True
-        print(f"apply_world_settings {settings}")
         world.apply_settings(settings)
-        print("settings applied")
 
         blueprints = get_actor_blueprints(
-            world, config.vehicle_filter, config.vehicle_generation
+            world, config.vehicle_filter, config.vehicle_generation,
         )
         if not blueprints:
             raise ValueError(
-                "Couldn't find any vehicles with the specified filters"
+                "Couldn't find any vehicles with the specified filters",
             )
         blueprints_walkers = get_actor_blueprints(
-            world, config.walker_filter, config.walker_generation
+            world, config.walker_filter, config.walker_generation,
         )
         if not blueprints_walkers:
             raise ValueError(
-                "Couldn't find any walkers with the specified filters"
+                "Couldn't find any walkers with the specified filters",
             )
 
         if config.safe_mode:
@@ -450,7 +434,7 @@ def main() -> None:
                 "requested %d vehicles, but could only find %d spawn points"
             )
             logging.warning(
-                msg, config.vehicle_count, number_of_spawn_points
+                msg, config.vehicle_count, number_of_spawn_points,
             )
 
         # --------------
@@ -464,12 +448,12 @@ def main() -> None:
             blueprint = random.choice(blueprints)
             if blueprint.has_attribute("color"):
                 color = random.choice(
-                    blueprint.get_attribute("color").recommended_values
+                    blueprint.get_attribute("color").recommended_values,
                 )
                 blueprint.set_attribute("color", color)
             if blueprint.has_attribute("driver_id"):
                 driver_id = random.choice(
-                    blueprint.get_attribute("driver_id").recommended_values
+                    blueprint.get_attribute("driver_id").recommended_values,
                 )
                 blueprint.set_attribute("driver_id", driver_id)
             if hero:
@@ -481,8 +465,8 @@ def main() -> None:
             # spawn the cars and set their autopilot and light state all together
             batch.append(
                 SpawnActor(blueprint, transform).then(
-                    SetAutopilot(FutureActor, True, traffic_manager.get_port())
-                )
+                    SetAutopilot(FutureActor, True, traffic_manager.get_port()),
+                ),
             )
 
         for response in client.apply_batch_sync(batch, do_tick=True):
@@ -534,17 +518,16 @@ def main() -> None:
                     walker_speed.append(
                         walker_bp.get_attribute("speed").recommended_values[
                             _WALKER_RECOMMENDED_SPEED_WALK
-                        ]
+                        ],
                     )
                 else:
                     # running
                     walker_speed.append(
                         walker_bp.get_attribute("speed").recommended_values[
                             _WALKER_RECOMMENDED_SPEED_RUN
-                        ]
+                        ],
                     )
             else:
-                print("Walker has no speed")
                 walker_speed.append(_WALKER_DEFAULT_SPEED)
             batch.append(SpawnActor(walker_bp, spawn_point))
 
@@ -561,7 +544,7 @@ def main() -> None:
         # 3. we spawn the walker controller
         batch = []
         walker_controller_bp = world.get_blueprint_library().find(
-            "controller.ai.walker"
+            "controller.ai.walker",
         )
         for walker_entry in state.walkers:
             batch.append(
@@ -569,7 +552,7 @@ def main() -> None:
                     walker_controller_bp,
                     carla.Transform(),
                     walker_entry.walker_id,
-                )
+                ),
             )
         results = client.apply_batch_sync(batch, do_tick=True)
         for i, result in enumerate(results):
@@ -601,20 +584,17 @@ def main() -> None:
             all_actors[i].start()
             # set walk to random point
             all_actors[i].go_to_location(
-                world.get_random_location_from_navigation()
+                world.get_random_location_from_navigation(),
             )
             # max speed
             all_actors[i].set_max_speed(
-                float(walker_speed[int(i / 2)])
+                float(walker_speed[int(i / 2)]),
             )
 
-        print(
-            f"spawned {len(state.vehicles)} vehicles and {len(state.walkers)} walkers, press Ctrl+C to exit."
-        )
 
         # Example of how to use Traffic Manager parameters
         traffic_manager.global_percentage_speed_difference(
-            _TM_SPEED_PERCENTAGE
+            _TM_SPEED_PERCENTAGE,
         )
 
         while True:
@@ -624,7 +604,7 @@ def main() -> None:
                 world.wait_for_tick()
 
     except KeyboardInterrupt:
-        print("\nReceived keyboard interrupt")
+        pass
     finally:
         if world is not None:
             _cleanup(
@@ -642,4 +622,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        print("\ndone.")
+        pass

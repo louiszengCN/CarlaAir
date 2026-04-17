@@ -22,6 +22,7 @@ Output: ../trajectories/drone_<timestamp>_<nn>.json
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import threading
@@ -118,7 +119,7 @@ class DroneTrajectoryDict(BaseModel):
     delta_time: float = Field(gt=0, description="Simulation delta time")
     total_frames: int = Field(ge=0, description="Total frame count")
     coordinate_system: str = Field(
-        default="carla", description="Coordinate system used"
+        default="carla", description="Coordinate system used",
     )
     frames: list[DroneFrameDict]
 
@@ -210,7 +211,7 @@ def _find_drone_actor(
         if "drone" in actor.type_id.lower() or "airsim" in actor.type_id.lower():
             return actor
     raise SystemExit(
-        "Drone actor not found in CARLA. Is CarlaAir running?"
+        "Drone actor not found in CARLA. Is CarlaAir running?",
     )
 
 
@@ -267,13 +268,12 @@ def _save_segment(
         updated segment count
     """
     if not frames:
-        print("  (no frames)")
         return count
 
     count += 1
     ts = time.strftime("%Y%m%d_%H%M%S")
     filename = os.path.join(
-        output_dir, f"drone_{ts}_{count:02d}.json"
+        output_dir, f"drone_{ts}_{count:02d}.json",
     )
     data = DroneTrajectoryDict(
         type=_DRONE_TYPE,
@@ -285,9 +285,7 @@ def _save_segment(
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data.model_dump(), f, indent=2)
 
-    dur = len(frames) * dt
-    print(f"\n  Saved #{count}: {filename}")
-    print(f"  {len(frames)} frames, {dur:.1f}s")
+    len(frames) * dt
     return count
 
 
@@ -309,23 +307,18 @@ def _handle_terminal_command(
     if cmd in (TerminalCommand.HOME.value, TerminalCommand.HOME_SHORT.value):
         if ghost is not None:
             ghost.jump_home()
-            print("  Vehicle → frame 0")
         return False, False, False
     if cmd == TerminalCommand.SPEED_DOWN.value:
         if ghost is not None:
             ghost.halve_speed()
-            print(f"  Vehicle speed: {ghost.speed:.2f}x")
         return False, False, False
     if cmd == TerminalCommand.SPEED_UP.value:
         if ghost is not None:
             ghost.double_speed()
-            print(f"  Vehicle speed: {ghost.speed:.2f}x")
         return False, False, False
     if cmd == TerminalCommand.PAUSE.value:
         if ghost is not None:
-            paused = ghost.toggle_pause()
-            state = "PAUSED" if paused else "PLAYING"
-            print(f"  Vehicle: {state}")
+            ghost.toggle_pause()
         return False, False, False
     # Any other command toggles recording
     return False, True, False
@@ -339,7 +332,7 @@ def _handle_terminal_command(
 def main() -> None:
     """Main entry point for drone trajectory recording."""
     ap = argparse.ArgumentParser(
-        description="Record drone trajectory (terminal, zero AirSim)"
+        description="Record drone trajectory (terminal, zero AirSim)",
     )
     ap.add_argument("--host", default=_CARLA_HOST)
     ap.add_argument("--port", type=int, default=_CARLA_PORT)
@@ -374,20 +367,18 @@ def main() -> None:
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     out_dir = cfg.output_dir or os.path.join(
-        os.path.dirname(script_dir), _OUTPUT_SUBDIR
+        os.path.dirname(script_dir), _OUTPUT_SUBDIR,
     )
     os.makedirs(out_dir, exist_ok=True)
     dt = 1.0 / max(1.0, cfg.hz)
 
     # ── CARLA ──
-    print("Connecting to CARLA...")
     client = carla.Client(cfg.host, cfg.port)
     client.set_timeout(_CARLA_TIMEOUT)
     world = client.get_world()
     map_name = world.get_map().name.split("/")[-1]
 
     drone_actor = _find_drone_actor(world)
-    print(f"Drone: id={drone_actor.id} type={drone_actor.type_id}")
 
     # ── Ghost vehicle ──
     ghost_vehicle: carla.Actor | None = None
@@ -400,16 +391,12 @@ def main() -> None:
         vtraj = load_trajectory_json(cfg.loop_vehicle)
         if vtraj.get("type") != _GHOST_VEHICLE_TYPE:
             raise SystemExit(
-                f"--loop-vehicle JSON must have type '{_GHOST_VEHICLE_TYPE}'"
+                f"--loop-vehicle JSON must have type '{_GHOST_VEHICLE_TYPE}'",
             )
         veh_frames = vtraj["frames"]
         veh_dt = float(vtraj.get("delta_time", _GHOST_VEHICLE_DT))
         ghost_vehicle = spawn_ghost_vehicle(world, bp_lib, vtraj, carla)
         ghost = GhostVehicleState()
-        print(
-            f"Ghost vehicle: {len(veh_frames)} frames, "
-            f"{len(veh_frames) * veh_dt:.1f}s"
-        )
 
     # ── State ──
     saved_count = 0
@@ -448,7 +435,7 @@ def main() -> None:
                 break
             cmd = line.strip().lower()
             should_quit, should_toggle, _ = _handle_terminal_command(
-                cmd, ghost
+                cmd, ghost,
             )
             if should_quit:
                 if recording:
@@ -460,31 +447,13 @@ def main() -> None:
                 if not recording:
                     frames.clear()
                     recording = True
-                    print(
-                        f"\n  >>> Recording segment "
-                        f"#{saved_count + 1} ({1/dt:.0f} Hz) ..."
-                    )
                 else:
                     recording = False
                     # Save handled in main thread
-                    print(
-                        "  Enter=Record  h=Home  [/]=Speed  p=Pause  q=Quit"
-                    )
 
     has_ghost = ghost is not None
-    print(f"\n{_DIVIDER}")
-    print("  Drone Recorder (zero-intrusion mode)")
-    print(f"  Map: {map_name} | {1/dt:.0f} Hz")
-    print("  Reading from CARLA — no AirSim API — fly freely!")
-    print("")
-    print("  Enter       Start/Stop recording")
     if has_ghost:
-        print("  h / home    Vehicle jump to start")
-        print("  [ / ]       Vehicle speed (0.25x ~ 4x)")
-        print("  p           Vehicle pause/resume")
-    print("  q           Quit")
-    print(f"{_DIVIDER}")
-    print("\n  Ready. Fly to start position, then press Enter.\n")
+        pass
 
     threading.Thread(target=_input_loop, daemon=True).start()
 
@@ -507,12 +476,7 @@ def main() -> None:
                 if cfg.verbose and (now - last_print) >= _VERBOSE_INTERVAL:
                     last_print = now
                     if frames:
-                        p = frames[-1].transform
-                        print(
-                            f"  #{len(frames)}  "
-                            f"x={p['x']:.1f} y={p['y']:.1f} z={p['z']:.1f}  "
-                            f"yaw={p['yaw']:.0f}"
-                        )
+                        frames[-1].transform
 
             time.sleep(_SLEEP_RECORDING if recording else _SLEEP_IDLE)
 
@@ -522,21 +486,17 @@ def main() -> None:
     # Save final segment if recording
     if recording and frames:
         saved_count = _save_segment(
-            frames, map_name, dt, out_dir, saved_count
+            frames, map_name, dt, out_dir, saved_count,
         )
 
     if ghost_vehicle is not None:
-        try:
+        with contextlib.suppress(Exception):
             ghost_vehicle.destroy()
-        except Exception:
-            pass
 
     if saved_count:
-        print(
-            f"\n  Done. {saved_count} file(s) saved to {out_dir}"
-        )
+        pass
     else:
-        print("\n  No trajectories saved.")
+        pass
 
 
 if __name__ == "__main__":

@@ -86,33 +86,32 @@ def main() -> None:
     world = client.get_world()
     spectator = world.get_spectator()
     vehicle_blueprints = world.get_blueprint_library().filter(
-        _VEHICLE_FILTER
+        _VEHICLE_FILTER,
     )
 
     location = random.choice(
-        world.get_map().get_spawn_points()
+        world.get_map().get_spawn_points(),
     ).location
 
     for blueprint in vehicle_blueprints:
         transform = carla.Transform(
-            location, carla.Rotation(yaw=_ORBIT_INITIAL_YAW)
+            location, carla.Rotation(yaw=_ORBIT_INITIAL_YAW),
         )
         vehicle = world.spawn_actor(blueprint, transform)
 
         try:
-            print(vehicle.type_id)
 
             angle = 0.0
             while angle < _ORBIT_ANGLE_MAX:
                 timestamp = world.wait_for_tick(
-                    seconds=_WAIT_FOR_TICK_TIMEOUT
+                    seconds=_WAIT_FOR_TICK_TIMEOUT,
                 ).timestamp
                 angle += timestamp.delta_seconds * _ORBITAL_SPEED
                 spectator.set_transform(
                     get_transform(
                         vehicle.get_location(),
                         angle + _ORBIT_YAW_OFFSET,
-                    )
+                    ),
                 )
 
         finally:

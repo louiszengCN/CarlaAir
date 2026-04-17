@@ -33,19 +33,19 @@ import carla
 EDGES = [[0,1], [1,3], [3,2], [2,0], [0,4], [4,5], [5,1], [5,7], [7,6], [6,4], [6,2], [7,3]]
 
 # Map for CARLA semantic labels to class names and colors
-SEMANTIC_MAP = {0: ('unlabelled', (0,0,0)), 1: ('road', (128,64,0)),2: ('sidewalk', (244,35,232)),
-                3: ('building', (70,70,70)), 4: ('wall', (102,102,156)), 5: ('fence', (190,153,153)),
-                6: ('pole', (153,153,153)), 7: ('traffic light', (250,170,30)),
-                8: ('traffic sign', (220,220,0)), 9: ('vegetation', (107,142,35)),
-                10: ('terrain', (152,251,152)), 11: ('sky', (70,130,180)),
-                12: ('pedestrian', (220,20,60)), 13: ('rider', (255,0,0)),
-                14: ('car', (0,0,142)), 15: ('truck', (0,0,70)), 16: ('bus', (0,60,100)),
-                17: ('train', (0,80,100)), 18: ('motorcycle', (0,0,230)),
-                19: ('bicycle', (119,11,32)), 20: ('static', (110,190,160)),
-                21: ('dynamic', (170,120,50)), 22: ('other', (55,90,80)),
-                23: ('water', (45,60,150)), 24: ('road line', (157,234,50)),
-                25: ('ground', (81,0,81)), 26: ('bridge', (150,100,100)),
-                27: ('rail track', (230,150,140)), 28: ('guard rail', (180,165,180))}
+SEMANTIC_MAP = {0: ("unlabelled", (0,0,0)), 1: ("road", (128,64,0)),2: ("sidewalk", (244,35,232)),
+                3: ("building", (70,70,70)), 4: ("wall", (102,102,156)), 5: ("fence", (190,153,153)),
+                6: ("pole", (153,153,153)), 7: ("traffic light", (250,170,30)),
+                8: ("traffic sign", (220,220,0)), 9: ("vegetation", (107,142,35)),
+                10: ("terrain", (152,251,152)), 11: ("sky", (70,130,180)),
+                12: ("pedestrian", (220,20,60)), 13: ("rider", (255,0,0)),
+                14: ("car", (0,0,142)), 15: ("truck", (0,0,70)), 16: ("bus", (0,60,100)),
+                17: ("train", (0,80,100)), 18: ("motorcycle", (0,0,230)),
+                19: ("bicycle", (119,11,32)), 20: ("static", (110,190,160)),
+                21: ("dynamic", (170,120,50)), 22: ("other", (55,90,80)),
+                23: ("water", (45,60,150)), 24: ("road line", (157,234,50)),
+                25: ("ground", (81,0,81)), 26: ("bridge", (150,100,100)),
+                27: ("rail track", (230,150,140)), 28: ("guard rail", (180,165,180))}
 
 # Calculate the camera projection matrix
 def build_projection_matrix(w, h, fov, is_behind_camera=False):
@@ -101,9 +101,9 @@ def bbox_2d_for_actor(actor, actor_ids: np.ndarray, semantic_labels: np.ndarray)
     ys, xs = np.where(mask)
     xmin, xmax = xs.min(), xs.max()
     ymin, ymax = ys.min(), ys.max()
-    return {'actor_id': actor.id,
-            'semantic_label': actor.semantic_tags[0],
-            'bbox_2d': (xmin, ymin, xmax, ymax)}
+    return {"actor_id": actor.id,
+            "semantic_label": actor.semantic_tags[0],
+            "bbox_2d": (xmin, ymin, xmax, ymax)}
 
 # Generate a 3D bounding box for an actor from the simulation
 def bbox_3d_for_actor(actor, ego, camera_bp, camera):
@@ -153,22 +153,22 @@ def bbox_3d_for_actor(actor, ego, camera_bp, camera):
 
         projection.append((int(p1[0]), int(p1[1]), int(p2[0]), int(p2[1])))
 
-    return {'actor_id': actor.id,
-            'semantic_label': actor.semantic_tags[0],
-            'bbox_3d': {
-                'center': {
-                    'x': npc_loc_ego_space.x,
-                    'y': npc_loc_ego_space.y,
-                    'z': npc_loc_ego_space.z
+    return {"actor_id": actor.id,
+            "semantic_label": actor.semantic_tags[0],
+            "bbox_3d": {
+                "center": {
+                    "x": npc_loc_ego_space.x,
+                    "y": npc_loc_ego_space.y,
+                    "z": npc_loc_ego_space.z,
                 },
-                'dimensions': {
-                    'length': actor.bounding_box.extent.x*2,
-                    'width': actor.bounding_box.extent.y*2,
-                    'height': actor.bounding_box.extent.z*2,
+                "dimensions": {
+                    "length": actor.bounding_box.extent.x*2,
+                    "width": actor.bounding_box.extent.y*2,
+                    "height": actor.bounding_box.extent.z*2,
                 },
-                'rotation_yaw': radians(actor.get_transform().rotation.yaw - ego.get_transform().rotation.yaw)
+                "rotation_yaw": radians(actor.get_transform().rotation.yaw - ego.get_transform().rotation.yaw),
             },
-            'projection': projection
+            "projection": projection,
     }
 
 # Visualize 2D bounding boxes in Pygame
@@ -181,11 +181,11 @@ def visualize_2d_bboxes(surface, img, bboxes):
     font = pygame.font.SysFont("Arial", 18)
 
     for item in bboxes:
-        bbox = item['2d']
+        bbox = item["2d"]
         if bbox is not None:
-            xmin, ymin, xmax, ymax = [int(v) for v in bbox['bbox_2d']]
-            label = SEMANTIC_MAP[bbox['semantic_label']][0]
-            color = SEMANTIC_MAP[bbox['semantic_label']][1]
+            xmin, ymin, xmax, ymax = [int(v) for v in bbox["bbox_2d"]]
+            label = SEMANTIC_MAP[bbox["semantic_label"]][0]
+            color = SEMANTIC_MAP[bbox["semantic_label"]][1]
             pygame.draw.rect(surface, color, pygame.Rect(xmin, ymin, xmax-xmin, ymax-ymin), 2)
             text_surface = font.render(label, True, (255,255,255), color)
             text_rect = text_surface.get_rect(topleft=(xmin, ymin-20))
@@ -194,20 +194,20 @@ def visualize_2d_bboxes(surface, img, bboxes):
     return surface
 
 # Visualize 3D bounding boxes in Pygame
-def visualize_3d_bboxes(surface, img, bboxes):
+def visualize_3d_bboxes(surface, img, bboxes) -> None:
 
     rgb_img = img[:, :, :3][:, :, ::-1]
     frame_surface = pygame.surfarray.make_surface(np.transpose(rgb_img[..., 0:3], (1,0,2)))
     surface.blit(frame_surface, (0, 0))
 
     for item in bboxes:
-        bbox = item['3d']
-        color = SEMANTIC_MAP[bbox['semantic_label']][1]
+        bbox = item["3d"]
+        color = SEMANTIC_MAP[bbox["semantic_label"]][1]
 
         n = 0
         mean_x = 0
         mean_y = 0
-        for line in bbox['projection']:
+        for line in bbox["projection"]:
             mean_x += line[0]
             mean_y += line[1]
             n += 1
@@ -219,7 +219,7 @@ def visualize_3d_bboxes(surface, img, bboxes):
 
             # --- Render label ---
             font = pygame.font.SysFont("Arial", 18)
-            text_surface = font.render(SEMANTIC_MAP[bbox['semantic_label']][0], True, (255,255,255), color)  # black text, filled bg
+            text_surface = font.render(SEMANTIC_MAP[bbox["semantic_label"]][0], True, (255,255,255), color)  # black text, filled bg
             text_rect = text_surface.get_rect(topleft=(mean_x, mean_y))
             surface.blit(text_surface, text_rect)
 
@@ -230,9 +230,9 @@ def calculate_relative_velocity(actor, ego):
     vel_ego_frame = ego.get_transform().inverse_transform(rel_vel)
 
     return {
-        'x': vel_ego_frame.x,
-        'y': vel_ego_frame.y,
-        'z': vel_ego_frame.z
+        "x": vel_ego_frame.x,
+        "y": vel_ego_frame.y,
+        "z": vel_ego_frame.z,
     }
 
 def vehicle_light_state_to_dict(vehicle: carla.Vehicle):
@@ -251,35 +251,35 @@ def vehicle_light_state_to_dict(vehicle: carla.Vehicle):
         "special2":     bool(state & carla.VehicleLightState.Special2),
     }
 
-def main():
+def main() -> None:
 
     argparser = argparse.ArgumentParser(
-        description='CARLA bounding boxes')
+        description="CARLA bounding boxes")
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default="127.0.0.1",
+        help="IP of the host server (default: 127.0.0.1)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help="TCP port to listen to (default: 2000)")
     argparser.add_argument(
-        '-d', '--distance',
-        metavar='D',
+        "-d", "--distance",
+        metavar="D",
         default=50,
         type=int,
-        help='Actor distance threshold')
+        help="Actor distance threshold")
     argparser.add_argument(
-        '--res',
-        metavar='WIDTHxHEIGHT',
-        default='1280x720',
-        help='window resolution (default: 1280x720)')
+        "--res",
+        metavar="WIDTHxHEIGHT",
+        default="1280x720",
+        help="window resolution (default: 1280x720)")
     args = argparser.parse_args()
 
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = [int(x) for x in args.res.split("x")]
 
     pygame.init()
 
@@ -316,20 +316,20 @@ def main():
     spawn_points = world.get_map().get_spawn_points()
 
     # spawn vehicle
-    vehicle_bp =bp_lib.find('vehicle.lincoln.mkz_2020')
+    vehicle_bp =bp_lib.find("vehicle.lincoln.mkz_2020")
     ego_vehicle = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
 
     # spawn RGB camera
-    camera_bp = bp_lib.find('sensor.camera.rgb')
-    camera_bp.set_attribute('image_size_x', str(args.width))
-    camera_bp.set_attribute('image_size_y', str(args.height))
+    camera_bp = bp_lib.find("sensor.camera.rgb")
+    camera_bp.set_attribute("image_size_x", str(args.width))
+    camera_bp.set_attribute("image_size_y", str(args.height))
     camera_init_trans = carla.Transform(carla.Location(z=2))
     camera = world.spawn_actor(camera_bp, camera_init_trans, attach_to=ego_vehicle)
 
     # spawn instance segmentation camera
-    inst_camera_bp = bp_lib.find('sensor.camera.instance_segmentation')
-    inst_camera_bp.set_attribute('image_size_x', str(args.width))
-    inst_camera_bp.set_attribute('image_size_y', str(args.height))
+    inst_camera_bp = bp_lib.find("sensor.camera.instance_segmentation")
+    inst_camera_bp.set_attribute("image_size_x", str(args.width))
+    inst_camera_bp.set_attribute("image_size_y", str(args.height))
     camera_init_trans = carla.Transform(carla.Location(z=2))
     inst_camera = world.spawn_actor(inst_camera_bp, camera_init_trans, attach_to=ego_vehicle)
 
@@ -338,7 +338,7 @@ def main():
     # Add some traffic
     npcs = []
     for _i in range(100):
-        vehicle_bp = random.choice(bp_lib.filter('vehicle'))
+        vehicle_bp = random.choice(bp_lib.filter("vehicle"))
         npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
         if npc:
             npc.set_autopilot(True)
@@ -370,16 +370,16 @@ def main():
             snapshot = world.get_snapshot()
 
             json_frame_data = {
-                'frame_id': snapshot.frame,
-                'timestamp': snapshot.timestamp.elapsed_seconds,
-                'objects': []
+                "frame_id": snapshot.frame,
+                "timestamp": snapshot.timestamp.elapsed_seconds,
+                "objects": [],
             }
 
             image = image_queue.get()
             img = np.reshape(np.copy(image.raw_data), (image.height, image.width, 4))
 
             if record:
-                image.save_to_disk('_out/%08d' % image.frame)
+                image.save_to_disk("_out/%08d" % image.frame)
 
             inst_seg_image = inst_queue.get()
             inst_seg = np.reshape(np.copy(inst_seg_image.raw_data), (inst_seg_image.height, inst_seg_image.width, 4))
@@ -391,7 +391,7 @@ def main():
             frame_bboxes = []
 
             # Loop through the NPCs in the simulation
-            for npc in world.get_actors().filter('*vehicle*'):
+            for npc in world.get_actors().filter("*vehicle*"):
 
                 # Filter out the ego vehicle
                 if npc.id !=ego_vehicle.id:
@@ -411,21 +411,21 @@ def main():
                             npc_bbox_2d = bbox_2d_for_actor(npc, actor_ids, semantic_labels)
                             npc_bbox_3d = bbox_3d_for_actor(npc, ego_vehicle, camera_bp, camera)
 
-                            frame_bboxes.append({'3d': npc_bbox_3d, '2d': npc_bbox_2d})
+                            frame_bboxes.append({"3d": npc_bbox_3d, "2d": npc_bbox_2d})
 
-                            json_frame_data['objects'].append({
-                                'id': npc.id,
-                                'class': SEMANTIC_MAP[npc.semantic_tags[0]][0],
-                                'blueprint_id': npc.type_id,
-                                'velocity': calculate_relative_velocity(npc, ego_vehicle),
-                                'bbox_3d': npc_bbox_3d['bbox_3d'],
-                                'bbox_2d': {
-                                    'xmin': int(npc_bbox_2d['bbox_2d'][0]),
-                                    'ymin': int(npc_bbox_2d['bbox_2d'][1]),
-                                    'xmax': int(npc_bbox_2d['bbox_2d'][2]),
-                                    'ymax': int(npc_bbox_2d['bbox_2d'][3]),
+                            json_frame_data["objects"].append({
+                                "id": npc.id,
+                                "class": SEMANTIC_MAP[npc.semantic_tags[0]][0],
+                                "blueprint_id": npc.type_id,
+                                "velocity": calculate_relative_velocity(npc, ego_vehicle),
+                                "bbox_3d": npc_bbox_3d["bbox_3d"],
+                                "bbox_2d": {
+                                    "xmin": int(npc_bbox_2d["bbox_2d"][0]),
+                                    "ymin": int(npc_bbox_2d["bbox_2d"][1]),
+                                    "xmax": int(npc_bbox_2d["bbox_2d"][2]),
+                                    "ymax": int(npc_bbox_2d["bbox_2d"][3]),
                                 } if npc_bbox_2d else None,
-                                'light_state': vehicle_light_state_to_dict(npc)
+                                "light_state": vehicle_light_state_to_dict(npc),
 
                             })
 
@@ -438,7 +438,7 @@ def main():
             pygame.display.flip()
             clock.tick(30)  # 30 FPS
             if record:
-                with open(f"_out/{snapshot.frame}.json", 'w') as f:
+                with open(f"_out/{snapshot.frame}.json", "w") as f:
                     json.dump(json_frame_data, f)
 
     except KeyboardInterrupt:
@@ -467,13 +467,7 @@ def main():
 
         pygame.quit()
 
-        print('\ndone.')
 
 
-if __name__ == '__main__':
-    print('Bounding boxes script instructions:')
-    print('R    : toggle recording images as PNG and bounding boxes as JSON')
-    print('3    : view the bounding boxes in 3D')
-    print('2    : view the bounding boxes in 2D')
-    print('ESC  : quit')
+if __name__ == "__main__":
     main()

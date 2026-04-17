@@ -16,6 +16,8 @@ try:
 except ImportError:
     cv2 = None
 
+import contextlib
+
 from PIL import Image
 
 import carla
@@ -71,10 +73,10 @@ class HumanTrajectoryRunner:
         self._saved_speed_scale = float(speed_scale)
         self._ai_target_idx = 1
 
-    def set_speed_scale(self, scale: float):
+    def set_speed_scale(self, scale: float) -> None:
         self.speed_scale = float(max(self.min_speed_scale, min(self.max_speed_scale, scale)))
 
-    def adjust_speed_scale(self, delta: float):
+    def adjust_speed_scale(self, delta: float) -> None:
         self.set_speed_scale(self.speed_scale + delta)
         if not self._speed_zero:
             self._saved_speed_scale = float(self.speed_scale)
@@ -83,7 +85,7 @@ class HumanTrajectoryRunner:
         self.paused = not self.paused
         return self.paused
 
-    def reset_to_start(self):
+    def reset_to_start(self) -> None:
         if self.walker is None:
             return
         self._seg_idx = 0
@@ -117,7 +119,7 @@ class HumanTrajectoryRunner:
             pass
         return loc
 
-    def _ai_go_to_current_target(self):
+    def _ai_go_to_current_target(self) -> None:
         if self.controller is None or self.walker is None:
             return
         if len(self.traj) < 2:
@@ -132,10 +134,8 @@ class HumanTrajectoryRunner:
         p = self.traj[idx]
         tgt = carla.Location(x=float(p["x"]), y=float(p["y"]), z=float(p.get("z", 1.0)))
         tgt = self._project_to_nav(tgt)
-        try:
+        with contextlib.suppress(Exception):
             self.controller.go_to_location(tgt)
-        except Exception:
-            pass
 
     def spawn(self):
         p0 = self.traj[0]
@@ -157,9 +157,7 @@ class HumanTrajectoryRunner:
                 self.controller.set_max_speed(float(self.default_speed) * float(self.speed_scale))
                 self._ai_target_idx = 1
                 self._ai_go_to_current_target()
-                print("[HUMAN] AI controller enabled.")
-            except Exception as e:
-                print(f"[HUMAN][WARN] enable AI controller failed, fallback to manual: {e}")
+            except Exception:
                 self.use_ai = False
                 try:
                     if self.controller:
@@ -173,7 +171,7 @@ class HumanTrajectoryRunner:
         return self.walker
 
     def _draw_dashed_line(self, start: carla.Location, end: carla.Location, dash_length=0.6, gap_length=0.5,
-                          color=None, thickness=0.05, life_time=0.0):
+                          color=None, thickness=0.05, life_time=0.0) -> None:
         if color is None:
             color = carla.Color(50, 50, 0)
         dist = start.distance(end)
@@ -191,7 +189,7 @@ class HumanTrajectoryRunner:
                 p2 = end
             self.world.debug.draw_line(p1, p2, thickness=thickness, color=color, life_time=life_time)
 
-    def _visualize_full_trajectory(self):
+    def _visualize_full_trajectory(self) -> None:
         prev = None
         for _i, p in enumerate(self.traj):
             loc = carla.Location(x=float(p["x"]), y=float(p["y"]), z=float(p.get("z", 1.0)))
@@ -200,7 +198,7 @@ class HumanTrajectoryRunner:
                 self._draw_dashed_line(prev + carla.Location(z=0.1), loc + carla.Location(z=0.1), life_time=self.viz_life)
             prev = loc
 
-    def tick(self, dt: float):
+    def tick(self, dt: float) -> None:
         if self.walker is None:
             return
         if len(self.traj) < 2:
@@ -208,20 +206,16 @@ class HumanTrajectoryRunner:
         if self.paused or self.speed_scale <= 0.0:
             # Set speed to 0 in AI mode instead of full return (avoid controller state drift) (AI 模式下将速度压到 0，而不是完全 return（避免 controller 状态漂移）)
             if self.use_ai and self.controller is not None:
-                try:
+                with contextlib.suppress(Exception):
                     self.controller.set_max_speed(0.0)
-                except Exception:
-                    pass
             return
 
         # --- AI mode: controller.ai.walker (AI 模式：controller.ai.walker) ---
         if self.use_ai and self.controller is not None:
             # Update speed (更新速度)
             curr_speed = float(self.default_speed) * float(self.speed_scale)
-            try:
+            with contextlib.suppress(Exception):
                 self.controller.set_max_speed(curr_speed)
-            except Exception:
-                pass
 
             # Check if arrived at current target point (检查是否到达当前目标点)
             idx = self._ai_target_idx
@@ -329,7 +323,7 @@ def transform_to_dict(tf: carla.Transform):
 def mat_to_list(mat: np.ndarray, precision: int = 6):
     return [[round(float(x), precision) for x in row] for row in mat]
 
-def save_carla_image_png(image: carla.Image, path: str):
+def save_carla_image_png(image: carla.Image, path: str) -> None:
     """Save CARLA image to PNG quickly (no annotation)."""
     if image is None:
         return
@@ -340,7 +334,7 @@ def save_carla_image_png(image: carla.Image, path: str):
 
 
 def draw_frustum(world, tf: carla.Transform, fov_deg: float, img_w: int, img_h: int,
-                 life_time=15.0, color=None, near: float = 0.4, far: float = 8.0, thickness: float = 0.02):
+                 life_time=15.0, color=None, near: float = 0.4, far: float = 8.0, thickness: float = 0.02) -> None:
     """Draw a short, dim frustum in CARLA debug view."""
     if color is None:
         color = carla.Color(0, 90, 140)
@@ -392,7 +386,7 @@ def draw_frustum(world, tf: carla.Transform, fov_deg: float, img_w: int, img_h: 
             world.debug.draw_line(a, b, thickness=thickness * 1.4, color=color, life_time=life_time)
 
 
-def async_save_worker(q: Queue):
+def async_save_worker(q: Queue) -> None:
     while True:
         task = q.get()
         if task is None:
@@ -504,7 +498,7 @@ class DroneTrajectoryCollector:
     def __init__(self, host="localhost", port=2000, output_dir=None, img_w=1280, img_h=720, fov=120.0,
                  pitch_deg=-30.0, yaw_deg=0.0, roll_deg=0.0, lock_attitude=True,
                  viz_frustum_color=(0, 90, 140), viz_frustum_near=0.4, viz_frustum_far=0.5,
-                 viz_frustum_thickness=0.02, viz_frustum_life=15.0):
+                 viz_frustum_thickness=0.02, viz_frustum_life=15.0) -> None:
         self.client = carla.Client(host, port)
         self.client.set_timeout(10.0)
         self.world = self.client.get_world()
@@ -548,7 +542,7 @@ class DroneTrajectoryCollector:
         self._last_record_loc = None
         self._tick_count = 0
 
-    def _start_new_trace_dir(self):
+    def _start_new_trace_dir(self) -> None:
         """Start a new trace folder so consecutive runs don't connect/overwrite."""
         ts = time.strftime("%Y%m%d_%H%M%S")
         # If saving multiple times within same second, append counter to avoid conflict (如果同秒内多次保存，追加一个计数避免冲突)
@@ -564,16 +558,15 @@ class DroneTrajectoryCollector:
         self.trace_dir = trace_dir
         self.frames_dir = os.path.join(self.trace_dir, "frames")
         os.makedirs(self.frames_dir, exist_ok=True)
-        print(f"[TRACE] new trace dir: {self.trace_dir}")
 
-    def _reset_for_next_trace(self):
+    def _reset_for_next_trace(self) -> None:
         """Clear internal state so next R starts a brand-new polyline."""
         self.recorded = []
         self._last_record_loc = None
         # Open new directory to avoid writing next segment to old directory (开启新目录，避免把下一段写进旧目录)
         self._start_new_trace_dir()
 
-    def _ensure_sync_mode(self):
+    def _ensure_sync_mode(self) -> None:
         settings = self.world.get_settings()
         self.was_sync = settings.synchronous_mode
         if not settings.synchronous_mode:
@@ -583,7 +576,7 @@ class DroneTrajectoryCollector:
             tm = self.client.get_trafficmanager(8000)
             tm.set_synchronous_mode(True)
 
-    def _restore_settings(self):
+    def _restore_settings(self) -> None:
         try:
             if not self.was_sync:
                 settings = self.world.get_settings()
@@ -595,7 +588,7 @@ class DroneTrajectoryCollector:
         except Exception:
             pass
 
-    def _spawn(self):
+    def _spawn(self) -> None:
         drone_bp = None
         for bp_id in ["static.prop.drone", "static.prop.dji_inspire"]:
             try:
@@ -624,21 +617,20 @@ class DroneTrajectoryCollector:
         self.camera = self.world.spawn_actor(cam_bp, start_tf)
         self.actor_list.append(self.camera)
 
-    def _maybe_spawn_human(self):
+    def _maybe_spawn_human(self) -> None:
         if self.human_runner is None:
             return
         walker = self.human_runner.spawn()
         self.actor_list.append(walker)
-        print(f"[HUMAN] spawned walker id={walker.id}")
 
-    def _set_pose(self, loc: carla.Location, rot: carla.Rotation):
+    def _set_pose(self, loc: carla.Location, rot: carla.Rotation) -> None:
         tf = carla.Transform(loc, rot)
         if self.drone_actor:
             self.drone_actor.set_transform(tf)
         self.camera.set_transform(tf)
 
     def _draw_dashed_line(self, start: carla.Location, end: carla.Location, dash_length=0.8, gap_length=0.5,
-                          color=None, thickness=0.05, life_time=0.0):
+                          color=None, thickness=0.05, life_time=0.0) -> None:
         if color is None:
             color = carla.Color(60, 120, 120)
         dist = start.distance(end)
@@ -656,7 +648,7 @@ class DroneTrajectoryCollector:
                 p2 = end
             self.world.debug.draw_line(p1, p2, thickness=thickness, color=color, life_time=life_time)
 
-    def record_point(self, tick_count: int):
+    def record_point(self, tick_count: int) -> None:
         tf = self.camera.get_transform()
         world_to_camera = np.linalg.inv(get_matrix(tf))
         intrinsic = get_camera_intrinsic(self.img_w, self.img_h, self.fov)
@@ -732,7 +724,7 @@ class DroneTrajectoryCollector:
             color=carla.Color(*self.viz_frustum_color),
             near=self.viz_frustum_near,
             far=self.viz_frustum_far,
-            thickness=self.viz_frustum_thickness
+            thickness=self.viz_frustum_thickness,
         )
 
         # Asynchronously save current frame rgb + meta (corresponding to number) (异步保存当前帧 rgb + meta（与编号对应）)
@@ -741,17 +733,14 @@ class DroneTrajectoryCollector:
             "kind": "frame",
             "frame_dir": frame_dir,
             "image": self.last_image,
-            "meta": point_meta
+            "meta": point_meta,
         })
 
-        print(f"[REC] point={len(self.recorded)-1} pose={transform_to_dict(tf)}")
 
     def save(self):
         if not self.recorded:
-            print("No points recorded, skipping save (没有记录任何点，跳过保存)。")
             return None
         # Wait for current save queue to flush, avoid trajectory.json and frames inconsistency (等待当前保存队列刷完，避免 trajectory.json 和 frames 不一致)
-        print("[SAVE] flushing async queue...")
         self.save_queue.join()
 
         # postprocess nav uv/depth (ego(t+1) projected to ego(t))
@@ -793,10 +782,9 @@ class DroneTrajectoryCollector:
         # trajectory file async write too (fast, but keep consistent)
         self.save_queue.put({"kind": "trajectory", "path": filename, "data": out})
         self.save_queue.join()
-        print(f"[SAVE] {filename} points={len(self.recorded)}")
         return filename
 
-    def run(self):
+    def run(self) -> None:
         self._ensure_sync_mode()
         self.save_thread.start()
         pygame.init()
@@ -808,7 +796,7 @@ class DroneTrajectoryCollector:
         self._spawn()
         self._maybe_spawn_human()
 
-        def on_img(image: carla.Image):
+        def on_img(image: carla.Image) -> None:
             self.last_image = image
             array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
             array = array[:, :, ::-1]   # Added to fix RGB order issue (新增，解决 RGB 顺序问题)
@@ -821,22 +809,8 @@ class DroneTrajectoryCollector:
         tick_count = 0
         running = True
         try:
-            print("Drone collector controls:")
-            print("  Arrow Keys: move forward/back/left/right on fixed altitude (Z locked)")
-            print("  WASD: forward/back/left/right (camera frame, may change Z if pitch != 0)")
-            print("  E/Q: up/down (updates fixed altitude for Arrow Keys)")
-            print("  Mouse: yaw/pitch (when view unlocked)")
-            print("  L: toggle view lock (lock/unlock yaw&pitch updates)")
-            print("  MouseWheel: speed +/-")
-            print("  R: record point")
-            print("  Q (hold) is down; use SHIFT+Q? -> use ESC to quit, ENTER to save")
-            print("  ENTER: save trajectory json (with nav_waypoint uvd)")
-            print("  ESC: quit")
             if self.human_runner is not None:
-                print("  1/2: slow down / speed up human (human_speed_scale)")
-                print("  3: pause/resume human")
-                print("  4: reset human to start")
-                print("  0: toggle human speed_scale to 0 / restore")
+                pass
 
             while running:
                 clock.tick(60)
@@ -925,7 +899,7 @@ class DroneTrajectoryCollector:
                     new_loc = carla.Location(
                         x=tf.location.x + dx * step,
                         y=tf.location.y + dy * step,
-                        z=self.fixed_z
+                        z=self.fixed_z,
                     )
 
                 # If vertical movement occurred (E/Q), update fixed_z (如果发生了垂直移动（E/Q），更新 fixed_z)
@@ -943,44 +917,32 @@ class DroneTrajectoryCollector:
                         elif event.key == pygame.K_l:
                             self.lock_attitude = not self.lock_attitude
                             # Clear relative mouse movement once, avoid instant jump on switch (清一次相对鼠标移动，避免切换瞬间跳变)
-                            try:
+                            with contextlib.suppress(Exception):
                                 pygame.mouse.get_rel()
-                            except Exception:
-                                pass
-                            print(f"[VIEW] lock_attitude={'ON' if self.lock_attitude else 'OFF'} (L toggle)")
                         elif event.key == pygame.K_1 and self.human_runner is not None:
                             self.human_runner.adjust_speed_scale(-self.human_speed_step)
-                            print(f"[HUMAN] speed_scale={self.human_runner.speed_scale:.2f}")
                         elif event.key == pygame.K_2 and self.human_runner is not None:
                             self.human_runner.adjust_speed_scale(+self.human_speed_step)
-                            print(f"[HUMAN] speed_scale={self.human_runner.speed_scale:.2f}")
                         elif event.key == pygame.K_3 and self.human_runner is not None:
-                            paused = self.human_runner.toggle_pause()
-                            print(f"[HUMAN] paused={'ON' if paused else 'OFF'}")
+                            self.human_runner.toggle_pause()
                         elif event.key == pygame.K_4 and self.human_runner is not None:
                             self.human_runner.reset_to_start()
-                            print("[HUMAN] reset to start")
                         elif event.key == pygame.K_0 and self.human_runner is not None:
-                            scale = self.human_runner.toggle_speed_zero()
-                            print(f"[HUMAN] speed_scale={scale:.2f} (0 toggle)")
+                            self.human_runner.toggle_speed_zero()
                         elif event.key == pygame.K_r:
                             self.record_point(tick_count)
                         elif event.key == pygame.K_RETURN:
                             saved_path = self.save()
                             # Automatically start new trajectory segment after save, avoid next R still connecting to old point (保存后自动开启新轨迹段，避免下一次 R 仍然连到旧点)
                             if saved_path:
-                                print("[TRACE] saved. ready for next trace (state reset).")
                                 self._reset_for_next_trace()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 4:  # wheel up
                             self.move_speed = min(self.move_speed + 1.0, 20.0)
-                            print(f"[SPEED] {self.move_speed:.1f} m/s")
                         elif event.button == 5:  # wheel down
                             self.move_speed = max(self.move_speed - 1.0, 1.0)
-                            print(f"[SPEED] {self.move_speed:.1f} m/s")
 
         finally:
-            print("Cleaning up...")
             try:
                 if self.camera:
                     self.camera.stop()
@@ -993,10 +955,8 @@ class DroneTrajectoryCollector:
             except Exception:
                 pass
             for a in self.actor_list:
-                try:
+                with contextlib.suppress(Exception):
                     a.destroy()
-                except Exception:
-                    pass
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
@@ -1067,7 +1027,6 @@ if __name__ == "__main__":
             ai_arrival_dist=args.human_ai_arrival,
         )
         collector.human_speed_step = float(args.human_speed_step)
-        print(f"[HUMAN] initial speed_scale={collector.human_runner.speed_scale:.2f} (press 1/2 to adjust)")
     collector.run()
 
 

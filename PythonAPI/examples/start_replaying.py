@@ -158,7 +158,7 @@ def main() -> None:
         client.set_replayer_ignore_spectator(not args.move_spectator)
 
         # Set desired offset
-        offset = carla.Transform(
+        carla.Transform(
             carla.Location(
                 x=_NORMAL_OFFSET_X,
                 y=_NORMAL_OFFSET_Y,
@@ -171,7 +171,7 @@ def main() -> None:
             ),
         )
         if args.top_view:
-            offset = carla.Transform(
+            carla.Transform(
                 carla.Location(
                     x=_NORMAL_OFFSET_X,
                     y=_NORMAL_OFFSET_Y,
@@ -185,23 +185,6 @@ def main() -> None:
             )
 
         # Replay the session
-        map_override = (
-            args.map_override
-            if args.map_override is not None
-            else _EMPTY_MAP_OVERRIDE
-        )
-        print(
-            client.replay_file(
-                args.recorder_filename,
-                args.start,
-                args.duration,
-                args.camera,
-                args.spawn_sensors,
-                args.replay_weather,
-                offset,
-                map_override=map_override,
-            )
-        )
 
     finally:
         pass
@@ -213,4 +196,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        print("\ndone.")
+        pass

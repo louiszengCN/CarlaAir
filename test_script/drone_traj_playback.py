@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -515,7 +516,7 @@ def draw_frustum(
 
     for p in far_pts:
         world.debug.draw_line(
-            origin, _to_loc(p), thickness=thickness, color=color, life_time=life_time
+            origin, _to_loc(p), thickness=thickness, color=color, life_time=life_time,
         )
     for quad in (near_pts,):
         for i in range(4):
@@ -579,7 +580,7 @@ class DroneTrajectoryPlayback:
         )
 
         self._output_dir = os.path.abspath(
-            cfg.output_dir or os.path.dirname(cfg.traj_path)
+            cfg.output_dir or os.path.dirname(cfg.traj_path),
         )
         os.makedirs(self._output_dir, exist_ok=True)
 
@@ -607,7 +608,7 @@ class DroneTrajectoryPlayback:
 
         # Compute intrinsic matrix
         self._intrinsic = get_camera_intrinsic(
-            self._metadata.width, self._metadata.height, self._metadata.fov
+            self._metadata.width, self._metadata.height, self._metadata.fov,
         )
 
     @staticmethod
@@ -748,7 +749,7 @@ class DroneTrajectoryPlayback:
             if p2.distance(start) > dist:
                 p2 = end
             self._world.debug.draw_line(
-                p1, p2, thickness=thickness, color=color, life_time=life_time
+                p1, p2, thickness=thickness, color=color, life_time=life_time,
             )
 
     def _viz_full_trajectory(self, life_time: float = _TRAJ_VIZ_LIFE) -> None:
@@ -763,7 +764,7 @@ class DroneTrajectoryPlayback:
             pose = p["drone_pose"]
             loc = carla.Location(x=pose["x"], y=pose["y"], z=pose["z"])
             self._world.debug.draw_point(
-                loc, size=_TRAJ_POINT_SIZE, color=point_color, life_time=life_time
+                loc, size=_TRAJ_POINT_SIZE, color=point_color, life_time=life_time,
             )
             if prev is not None:
                 self._draw_dashed_line(prev, loc, life_time=life_time)
@@ -854,11 +855,11 @@ class DroneTrajectoryPlayback:
                         and s1 > s0
                     ):
                         seg_len = int(
-                            max(1, round((s1 - s0) / max(_SEGMENT_EPSILON, pacing.playback_speed)))
+                            max(1, round((s1 - s0) / max(_SEGMENT_EPSILON, pacing.playback_speed))),
                         )
                     else:
                         seg_len = int(
-                            max(1, round(pacing.ticks_per_point / max(_SEGMENT_EPSILON, pacing.playback_speed)))
+                            max(1, round(pacing.ticks_per_point / max(_SEGMENT_EPSILON, pacing.playback_speed))),
                         )
                     seg_len = max(min_seg, min(max_seg, seg_len))
 
@@ -910,7 +911,7 @@ class DroneTrajectoryPlayback:
                 image = self._last_image
                 if image is not None:
                     arr = np.frombuffer(
-                        image.raw_data, dtype=np.uint8
+                        image.raw_data, dtype=np.uint8,
                     ).reshape((image.height, image.width, 4))[:, :, :3]
 
                     # Draw navigation target cross
@@ -944,7 +945,7 @@ class DroneTrajectoryPlayback:
                 # Realtime pacing
                 if pacing.realtime:
                     time.sleep(
-                        max(_REALTIME_SLEEP_MIN, dt / max(_SEGMENT_EPSILON, pacing.playback_speed))
+                        max(_REALTIME_SLEEP_MIN, dt / max(_SEGMENT_EPSILON, pacing.playback_speed)),
                     )
 
         finally:
@@ -983,9 +984,7 @@ class DroneTrajectoryPlayback:
             )
             if vw.isOpened():
                 self._video_writer = vw
-                print(f"[INFO] video recording -> {self._video_path} codec={cc}")
                 return
-        print("[WARN] cannot open video writer; record disabled.")
         self._video_writer = None
 
     def _save_frame_capture(
@@ -1006,7 +1005,7 @@ class DroneTrajectoryPlayback:
             p0: current trajectory point
         """
         out_folder = os.path.join(
-            self._output_dir, f"frame_{point_idx:05d}"
+            self._output_dir, f"frame_{point_idx:05d}",
         )
         os.makedirs(out_folder, exist_ok=True)
         fmt = (self._cfg.capture.format.value or "webp").lower().lstrip(".")
@@ -1060,7 +1059,7 @@ class DroneTrajectoryPlayback:
             "nav_waypoint": nav,
         }
         with open(
-            os.path.join(out_folder, "meta.json"), "w", encoding="utf-8"
+            os.path.join(out_folder, "meta.json"), "w", encoding="utf-8",
         ) as f:
             json.dump(meta, f, indent=4, ensure_ascii=False)
 
@@ -1072,15 +1071,11 @@ class DroneTrajectoryPlayback:
         except Exception:
             pass
         if self._video_writer is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._video_writer.release()
-            except Exception:
-                pass
         for a in self._actor_list:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
         pygame.quit()
         self._restore_settings()
 
@@ -1213,7 +1208,7 @@ if __name__ == "__main__":
 
     # Build config from args
     frustum_color = parse_color(
-        args.viz_frustum_color, _DEFAULT_FRUSTUM_COLOR
+        args.viz_frustum_color, _DEFAULT_FRUSTUM_COLOR,
     )
 
     cfg = PlaybackConfig(
@@ -1252,5 +1247,5 @@ if __name__ == "__main__":
 
     pb = DroneTrajectoryPlayback(cfg)
     if cfg.video.enabled:
-        print(f"[INFO] video output -> {cfg.video.path or pb._video_path}")
+        pass
     pb.run()

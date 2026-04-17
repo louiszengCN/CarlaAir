@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from numpy import random
 
@@ -71,24 +70,16 @@ class TestDeterminism(SmokeTest):
         """
         record1_size = len(record1_list)
         record2_size = len(record2_list)
-        self.assertEqual(
-            record1_size, record2_size, msg="Record size missmatch"
-        )
+        assert record1_size == record2_size, "Record size missmatch"
 
         for i in range(record1_size):
             record1 = record1_list[i]
             record2 = record2_list[i]
-            self.assertEqual(
-                record1.frame, record2.frame, msg="Frame missmatch"
-            )
+            assert record1.frame == record2.frame, "Frame missmatch"
 
             num_actors1 = len(record1.vehicle_position_list)
             num_actors2 = len(record2.vehicle_position_list)
-            self.assertEqual(
-                num_actors1,
-                num_actors2,
-                msg="Number of actors mismatch",
-            )
+            assert num_actors1 == num_actors2, "Number of actors mismatch"
 
             for j in range(num_actors1):
                 loc1 = record1.vehicle_position_list[j]
@@ -151,8 +142,8 @@ class TestDeterminism(SmokeTest):
                         carla.command.FutureActor,
                         True,
                         traffic_manager.get_port(),
-                    )
-                )
+                    ),
+                ),
             )
 
         vehicle_actor_ids: list[carla.ActorId] = []
@@ -191,7 +182,6 @@ class TestDeterminism(SmokeTest):
 
     def test_determ(self) -> None:
         """Verify two simulation runs produce identical results."""
-        print("TestDeterminism.test_determ")
 
         self.client.load_world(_TEST_MAP)
         time.sleep(_RELOAD_DELAY)
@@ -217,12 +207,12 @@ class TestDeterminism(SmokeTest):
             blueprint = random.choice(blueprints)
             if blueprint.has_attribute("color"):
                 color = random.choice(
-                    blueprint.get_attribute("color").recommended_values
+                    blueprint.get_attribute("color").recommended_values,
                 )
                 blueprint.set_attribute("color", color)
             if blueprint.has_attribute("driver_id"):
                 driver_id = random.choice(
-                    blueprint.get_attribute("driver_id").recommended_values
+                    blueprint.get_attribute("driver_id").recommended_values,
                 )
                 blueprint.set_attribute("driver_id", driver_id)
             if hero:
@@ -242,7 +232,7 @@ class TestDeterminism(SmokeTest):
         traffic_manager.set_hybrid_physics_mode(True)
 
         vehicle_actor_list = self.spawn_vehicles(
-            world, blueprint_transform_list
+            world, blueprint_transform_list,
         )
         record_run1 = self.run_simulation(world, vehicle_actor_list)
         traffic_manager.shut_down()
@@ -257,7 +247,7 @@ class TestDeterminism(SmokeTest):
         traffic_manager.set_hybrid_physics_mode(True)
 
         vehicle_actor_list = self.spawn_vehicles(
-            world, blueprint_transform_list
+            world, blueprint_transform_list,
         )
         record_run2 = self.run_simulation(world, vehicle_actor_list)
         traffic_manager.shut_down()

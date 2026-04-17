@@ -17,11 +17,10 @@ from . import SmokeTest
 
 try:
     # python 3
-    from queue import Empty
-    from queue import Queue as Queue
+    from queue import Empty, Queue
 except ImportError:
     # python 2
-    from Queue import Queue as Queue
+    pass
 
 class DeterminismError(Exception):
     pass
@@ -31,7 +30,7 @@ FutureActor = carla.command.FutureActor
 ApplyTargetVelocity = carla.command.ApplyTargetVelocity
 
 class Scenario:
-    def __init__(self, client, world, save_snapshots_mode=False):
+    def __init__(self, client, world, save_snapshots_mode=False) -> None:
         self.world = world
         self.client = client
         self.actor_list = []
@@ -41,7 +40,7 @@ class Scenario:
         self.save_snapshots_mode = save_snapshots_mode
         self.snapshots = []
 
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         self.prefix = prefix
         self.actor_list = []
         self.active = True
@@ -53,7 +52,7 @@ class Scenario:
         snapshot = self.world.get_snapshot()
         self.init_timestamp = {"frame0" : snapshot.frame, "time0" : snapshot.timestamp.elapsed_seconds}
 
-    def add_actor(self, actor, actor_name="Actor"):
+    def add_actor(self, actor, actor_name="Actor") -> None:
         actor_idx = len(self.actor_list)
 
         name = str(actor_idx) + "_" + actor_name
@@ -63,17 +62,17 @@ class Scenario:
         if self.save_snapshots_mode:
             self.snapshots.append(np.empty((0,11), float))
 
-    def wait(self, frames=100):
+    def wait(self, frames=100) -> None:
         for _i in range(frames):
             self.world.tick()
 
-    def clear_scene(self):
+    def clear_scene(self) -> None:
         for actor in self.actor_list:
             actor[1].destroy()
 
         self.active = False
 
-    def reload_world(self, settings = None, spectator_tr = None):
+    def reload_world(self, settings = None, spectator_tr = None) -> None:
         if settings is not None:
             self.world.apply_settings(settings)
         self.wait(5)
@@ -84,29 +83,28 @@ class Scenario:
 
         self.wait(5)
 
-    def reset_spectator(self, spectator_tr):
+    def reset_spectator(self, spectator_tr) -> None:
         spectator = self.world.get_spectator()
         spectator.set_transform(spectator_tr)
 
     def save_snapshot(self, actor):
         snapshot = self.world.get_snapshot()
 
-        actor_snapshot = np.array([
+        return np.array([
                 float(snapshot.frame - self.init_timestamp["frame0"]), \
                 snapshot.timestamp.elapsed_seconds - self.init_timestamp["time0"], \
                 actor.get_velocity().x, actor.get_velocity().y, actor.get_velocity().z, \
                 actor.get_location().x, actor.get_location().y, actor.get_location().z, \
                 actor.get_angular_velocity().x, actor.get_angular_velocity().y, actor.get_angular_velocity().z])
-        return actor_snapshot
 
-    def save_snapshots(self):
+    def save_snapshots(self) -> None:
         if not self.save_snapshots_mode:
             return
 
         for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
-    def save_snapshots_to_disk(self):
+    def save_snapshots_to_disk(self) -> None:
         if not self.save_snapshots_mode:
             return
 
@@ -121,7 +119,7 @@ class Scenario:
     def get_filename(self, actor_id=None, frame=None):
         return self.get_filename_with_prefix(self.prefix, actor_id, frame)
 
-    def run_simulation(self, prefix, run_settings, spectator_tr, tics = 200):
+    def run_simulation(self, prefix, run_settings, spectator_tr, tics = 200) -> None:
         original_settings = self.world.get_settings()
 
         self.init_scene(prefix, run_settings, spectator_tr)
@@ -136,8 +134,8 @@ class Scenario:
 
 
 class TwoCarsHighSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
-        super(TwoCarsHighSpeedCollision, self).init_scene(prefix, settings, spectator_tr)
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+        super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
 
@@ -151,7 +149,7 @@ class TwoCarsHighSpeedCollision(Scenario):
             SpawnActor(vehicle00_bp, vehicle00_tr)
             .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(-50, 0, 0))),
             SpawnActor(vehicle01_bp, vehicle01_tr)
-            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(+50, 0, 0)))
+            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(+50, 0, 0))),
         ]
 
         responses = self.client.apply_batch_sync(batch)
@@ -160,7 +158,7 @@ class TwoCarsHighSpeedCollision(Scenario):
         veh_refs = [self.world.get_actor(x) for x in veh_ids]
 
         if (0 in veh_ids) or (None in veh_refs):
-            self.fail("%s: The test cars could not be correctly spawned" % (bp_veh.id))
+            self.fail(f"{bp_veh.id}: The test cars could not be correctly spawned")
 
         self.add_actor(veh_refs[0], "Car")
         self.add_actor(veh_refs[1], "Car")
@@ -169,8 +167,8 @@ class TwoCarsHighSpeedCollision(Scenario):
 
 
 class ThreeCarsSlowSpeedCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
-        super(ThreeCarsSlowSpeedCollision, self).init_scene(prefix, settings, spectator_tr)
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+        super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
 
@@ -188,7 +186,7 @@ class ThreeCarsSlowSpeedCollision(Scenario):
             SpawnActor(vehicle01_bp, vehicle01_tr)
             .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(+15, 0, 0))),
             SpawnActor(vehicle02_bp, vehicle02_tr)
-            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(0, -15, 0)))
+            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(0, -15, 0))),
         ]
 
         responses = self.client.apply_batch_sync(batch)
@@ -204,8 +202,8 @@ class ThreeCarsSlowSpeedCollision(Scenario):
 
 
 class CarBikeCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
-        super(CarBikeCollision, self).init_scene(prefix, settings, spectator_tr)
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+        super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
 
@@ -219,7 +217,7 @@ class CarBikeCollision(Scenario):
             SpawnActor(car_bp, car_tr)
             .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(30, 0, 0))),
             SpawnActor(bike_bp, bike_tr)
-            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(0, -12, 0)))
+            .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(0, -12, 0))),
         ]
 
         responses = self.client.apply_batch_sync(batch)
@@ -228,7 +226,7 @@ class CarBikeCollision(Scenario):
         veh_refs = [self.world.get_actor(x) for x in veh_ids]
 
         if (0 in veh_ids) or (None in veh_refs):
-            self.fail("%s: The test cars could not be correctly spawned" % (bp_veh.id))
+            self.fail(f"{bp_veh.id}: The test cars could not be correctly spawned")
 
         self.add_actor(veh_refs[0], "Car")
         self.add_actor(veh_refs[1], "Bike")
@@ -237,8 +235,8 @@ class CarBikeCollision(Scenario):
 
 
 class CarWalkerCollision(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
-        super(CarWalkerCollision, self).init_scene(prefix, settings, spectator_tr)
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+        super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
 
@@ -253,7 +251,7 @@ class CarWalkerCollision(Scenario):
         batch = [
             SpawnActor(car_bp, car_tr)
             .then(ApplyTargetVelocity(FutureActor, carla.Vector3D(20, 0, 0))),
-            SpawnActor(walker_bp, walker_tr)
+            SpawnActor(walker_bp, walker_tr),
         ]
 
         responses = self.client.apply_batch_sync(batch)
@@ -262,7 +260,7 @@ class CarWalkerCollision(Scenario):
         veh_refs = [self.world.get_actor(x) for x in veh_ids]
 
         if (0 in veh_ids) or (None in veh_refs):
-            self.fail("%s: The test cars could not be correctly spawned" % (bp_veh.id))
+            self.fail(f"{bp_veh.id}: The test cars could not be correctly spawned")
 
         self.wait(1)
 
@@ -273,7 +271,7 @@ class CarWalkerCollision(Scenario):
 
 
 class CollisionScenarioTester:
-    def __init__(self, scene, output_path):
+    def __init__(self, scene, output_path) -> None:
         self.scene = scene
         self.world = self.scene.world
         self.client = self.scene.client
@@ -318,7 +316,7 @@ class CollisionScenarioTester:
 
         return determinism_set
 
-    def save_simulations(self, rep_prefixes, prefix, max_idx, min_idx):
+    def save_simulations(self, rep_prefixes, prefix, max_idx, min_idx) -> None:
         for actor in self.scene.actor_list:
             actor_id = actor[0]
             reference_id = "reference_" + actor_id
@@ -343,7 +341,7 @@ class CollisionScenarioTester:
 
                 #os.remove(file_repetition)
 
-    def test_scenario(self, fps=20, fps_phys=100, repetitions=1, sim_tics=100):
+    def test_scenario(self, fps=20, fps_phys=100, repetitions=1, sim_tics=100) -> None:
         # Creating run features: prefix, settings and spectator options
         prefix = self.output_path + self.scenario_name + "_" + str(fps) + "_" + str(fps_phys)
 
@@ -369,8 +367,8 @@ class CollisionScenarioTester:
 
 
 class TestCollisionDeterminism(SmokeTest):
-    def setUp(self):
-        super(TestCollisionDeterminism, self).setUp()
+    def setUp(self) -> None:
+        super().setUp()
         self.world = self.client.get_world()
         self.settings = self.world.get_settings()
         settings = carla.WorldSettings(
@@ -380,16 +378,15 @@ class TestCollisionDeterminism(SmokeTest):
         self.world.apply_settings(settings)
         self.world.tick()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.settings.synchronous_mode = False
         self.world.apply_settings(self.settings)
         self.world.tick()
         self.settings = None
         self.world = None
-        super(TestCollisionDeterminism, self).tearDown()
+        super().tearDown()
 
-    def test_two_cars(self):
-        print("TestCollisionDeterminism.test_two_cars")
+    def test_two_cars(self) -> None:
 
         # Setting output temporal folder
         output_path = os.path.dirname(os.path.realpath(__file__))
@@ -414,8 +411,7 @@ class TestCollisionDeterminism(SmokeTest):
         # Remove all the output files
         shutil.rmtree(output_path)
 
-    def test_three_cars(self):
-        print("TestCollisionDeterminism.test_three_cars")
+    def test_three_cars(self) -> None:
 
         # Setting output temporal folder
         output_path = os.path.dirname(os.path.realpath(__file__))
@@ -440,8 +436,7 @@ class TestCollisionDeterminism(SmokeTest):
         # Remove all the output files
         shutil.rmtree(output_path)
 
-    def test_car_bike(self):
-        print("TestCollisionDeterminism.test_car_bike")
+    def test_car_bike(self) -> None:
 
         # Setting output temporal folder
         output_path = os.path.dirname(os.path.realpath(__file__))
@@ -466,8 +461,7 @@ class TestCollisionDeterminism(SmokeTest):
         # Remove all the output files
         shutil.rmtree(output_path)
 
-    def test_car_walker(self):
-        print("TestCollisionDeterminism.test_car_walker")
+    def test_car_walker(self) -> None:
 
         # Setting output temporal folder
         output_path = os.path.dirname(os.path.realpath(__file__))

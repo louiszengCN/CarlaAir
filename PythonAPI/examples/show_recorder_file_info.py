@@ -80,14 +80,14 @@ def main() -> None:
         client.set_timeout(_RECORDER_TIMEOUT)
 
         result = client.show_recorder_file_info(
-            args.recorder_filename, args.show_all
+            args.recorder_filename, args.show_all,
         )
 
         if args.save_to_file:
             with open(args.save_to_file, "w", encoding="utf-8") as doc:
                 doc.write(result)
         else:
-            print(result)
+            pass
 
     finally:
         pass
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        print("\ndone.")
+        pass

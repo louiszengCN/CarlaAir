@@ -16,6 +16,7 @@ methods to a vehicle.
 from __future__ import annotations
 
 import argparse
+import contextlib
 
 import carla
 
@@ -58,17 +59,10 @@ def print_step_info(
         world: CARLA world
         vehicle: vehicle actor
     """
-    snapshot = world.get_snapshot()
-    acc = vehicle.get_acceleration()
-    vel = vehicle.get_velocity()
-    loc = vehicle.get_location()
-    print(
-        f"{snapshot.frame} "
-        f"{snapshot.timestamp.elapsed_seconds:06.03f} "
-        f"{acc.x:+8.03f} {acc.y:+8.03f} {acc.z:+8.03f} "
-        f"{vel.x:+8.03f} {vel.y:+8.03f} {vel.z:+8.03f} "
-        f"{loc.x:+8.03f} {loc.y:+8.03f} {loc.z:+8.03f}"
-    )
+    world.get_snapshot()
+    vehicle.get_acceleration()
+    vehicle.get_velocity()
+    vehicle.get_location()
 
 
 def wait(
@@ -144,7 +138,7 @@ def main(args: argparse.Namespace) -> None:
         car_mass = physics_vehicle.mass
 
         spectator_transform = carla.Transform(
-            vehicle_transform.location, vehicle_transform.rotation
+            vehicle_transform.location, vehicle_transform.rotation,
         )
         spectator_transform.location += (
             vehicle_transform.get_forward_vector() * _SPECTATOR_DISTANCE
@@ -162,7 +156,6 @@ def main(args: argparse.Namespace) -> None:
         # Impulse/Force at the center of mass
         impulse = _IMPULSE_MULTIPLIER * car_mass
 
-        print(f"# Adding an Impulse of {impulse:f} N s")
         vehicle.add_impulse(carla.Vector3D(0, 0, impulse))
         wait(world)
 
@@ -170,9 +163,8 @@ def main(args: argparse.Namespace) -> None:
         vehicle.set_target_velocity(carla.Vector3D(0, 0, 0))
         wait(world)
 
-        print(f"# Adding a Force of {impulse / _FIXED_DELTA:f} N")
         vehicle.add_force(
-            carla.Vector3D(0, 0, impulse / _FIXED_DELTA)
+            carla.Vector3D(0, 0, impulse / _FIXED_DELTA),
         )
         wait(world)
 
@@ -189,7 +181,5 @@ def main(args: argparse.Namespace) -> None:
 
 if __name__ == "__main__":
     args = _parse_args()
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main(args)
-    except KeyboardInterrupt:
-        print(" - Exited by user.")

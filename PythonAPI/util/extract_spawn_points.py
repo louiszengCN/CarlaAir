@@ -82,10 +82,10 @@ def extract_spawn_points(
     spawn_points = map_inst.get_spawn_points()
     if not spawn_points:
         logging.info(
-            "There are no spawn points available in your map/town."
+            "There are no spawn points available in your map/town.",
         )
         logging.info(
-            "Please add some Vehicle Spawn Point to your UE4 scene."
+            "Please add some Vehicle Spawn Point to your UE4 scene.",
         )
         raise RuntimeError("No spawn points available")
 
@@ -106,7 +106,7 @@ def extract_spawn_points(
             file.write(record.to_csv_row() + "\n")
 
     logging.info(
-        "Extracted %d spawn points to %s", len(records), output_path
+        "Extracted %d spawn points to %s", len(records), output_path,
     )
     return records
 
@@ -114,7 +114,7 @@ def extract_spawn_points(
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="CARLA map spawn points extractor"
+        description="CARLA map spawn points extractor",
     )
     argparser.add_argument(
         "--host",
@@ -144,28 +144,26 @@ def main() -> None:
     args = _parse_args()
 
     if args.output_dir is None or not os.path.exists(args.output_dir):
-        print("output directory not found.")
         sys.exit(1)
 
     logging.basicConfig(format=_LOG_FORMAT, level=logging.INFO)
     logging.info("listening to server %s:%s", args.host, args.port)
 
-    print(__doc__)
 
     try:
         client = carla.Client(
-            args.host, args.port, worker_threads=_WORKER_THREADS
+            args.host, args.port, worker_threads=_WORKER_THREADS,
         )
         client.set_timeout(_CARLA_TIMEOUT)
         extract_spawn_points(client, args.output_dir)
     except RuntimeError:
-        print("\nAn error has occurred in extraction.")
+        pass
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nCancelled by user. Bye!")
-    except RuntimeError as e:
-        print(e)
+        pass
+    except RuntimeError:
+        pass

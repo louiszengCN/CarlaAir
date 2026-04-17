@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import logging
 import random
 import signal
@@ -481,10 +482,8 @@ def _cleanup() -> None:
         if _all_actor_ids and _world:
             all_actors = _world.get_actors(_all_actor_ids)
             for i in range(0, len(_all_actor_ids), _WALKER_ACTOR_STEP):
-                try:
+                with contextlib.suppress(Exception):
                     all_actors[i].stop()
-                except Exception:
-                    pass
 
         if _vehicles:
             _client.apply_batch(

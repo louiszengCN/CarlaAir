@@ -20,6 +20,7 @@ Controls:
 
 from __future__ import annotations
 
+import contextlib
 import math
 import time
 from dataclasses import dataclass
@@ -246,14 +247,10 @@ def _cleanup_sensors(world: carla.World) -> None:
         world: CARLA world
     """
     for sensor in world.get_actors().filter(_SENSOR_FILTER):
-        try:
+        with contextlib.suppress(Exception):
             sensor.stop()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             sensor.destroy()
-        except Exception:
-            pass
 
 
 def _cleanup_vehicles(world: carla.World) -> None:
@@ -263,10 +260,8 @@ def _cleanup_vehicles(world: carla.World) -> None:
         world: CARLA world
     """
     for vehicle in world.get_actors().filter(_VEHICLE_FILTER):
-        try:
+        with contextlib.suppress(Exception):
             vehicle.destroy()
-        except Exception:
-            pass
 
 
 def _render_panel(
@@ -299,7 +294,7 @@ def _render_panel(
 
     lbl = font.render(label, True, _WHITE_COLOR)
     bg = pygame.Surface(
-        (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y)
+        (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y),
     )
     bg.set_alpha(_LABEL_BG_ALPHA)
     bg.fill(_HUD_BG_COLOR)
@@ -350,7 +345,6 @@ def main() -> None:
     original_settings: carla.WorldSettings | None = None
 
     try:
-        print("\n  Connecting to CarlaAir...")
         client = carla.Client(_CARLA_HOST, _CARLA_PORT)
         client.set_timeout(_CARLA_TIMEOUT)
         world = client.get_world()
@@ -408,9 +402,9 @@ def main() -> None:
             lambda i: images.__setitem__(
                 "ground",
                 np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4)
+                    (i.height, i.width, 4),
                 )[:, :, :3][:, :, ::-1],
-            )
+            ),
         )
         actors.append(ground_cam)
         sensors.append(ground_cam)
@@ -425,9 +419,9 @@ def main() -> None:
             lambda i: images.__setitem__(
                 "drone",
                 np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4)
+                    (i.height, i.width, 4),
                 )[:, :, :3][:, :, ::-1],
-            )
+            ),
         )
         actors.append(drone_cam)
         sensors.append(drone_cam)
@@ -444,7 +438,7 @@ def main() -> None:
             airsim.Pose(
                 airsim.Vector3r(nx, ny, nz),
                 airsim.to_quaternion(
-                    0, 0, math.radians(sp.rotation.yaw)
+                    0, 0, math.radians(sp.rotation.yaw),
                 ),
             ),
             True,
@@ -462,12 +456,11 @@ def main() -> None:
         tm.auto_lane_change(vehicle, False)
         tm.ignore_lights_percentage(vehicle, 100)
         tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
-        print("  Ground vehicle + Drone — split screen ready!\n")
 
         # Pygame setup
         pygame.init()
         display = pygame.display.set_mode(
-            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS
+            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS,
         )
         pygame.display.set_caption(_DISPLAY_CAPTION)
         clock = pygame.time.Clock()
@@ -528,7 +521,7 @@ def main() -> None:
             display.fill(_DISPLAY_BG)
             for panel_key, px, label in PANELS:
                 _render_panel(
-                    display, images.get(panel_key), px, label, font_lg
+                    display, images.get(panel_key), px, label, font_lg,
                 )
 
             # Center divider
@@ -543,7 +536,7 @@ def main() -> None:
             # HUD
             vel = vehicle.get_velocity()
             spd = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2
+                vel.x**2 + vel.y**2 + vel.z**2,
             )
             state = SplitScreenState(
                 weather_name=weather_list[weather_idx].value[0],
@@ -555,38 +548,28 @@ def main() -> None:
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:
-        print(f"  Error: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
     finally:
         for s in sensors:
-            try:
+            with contextlib.suppress(Exception):
                 s.stop()
-            except Exception:
-                pass
         for a in actors:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
         if original_settings is not None:
-            try:
+            with contextlib.suppress(Exception):
                 world.apply_settings(original_settings)
-            except Exception:
-                pass
         if air_client is not None:
             try:
                 air_client.armDisarm(False)
                 air_client.enableApiControl(False)
             except Exception:
                 pass
-        try:
+        with contextlib.suppress(Exception):
             pygame.quit()
-        except Exception:
-            pass
-        print("  Done.\n")
 
 
 if __name__ == "__main__":

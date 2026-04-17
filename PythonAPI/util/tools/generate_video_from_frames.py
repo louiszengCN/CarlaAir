@@ -29,7 +29,7 @@ _FRAME_EXCLUDE_COUNT: int = 1  # exclude last frame
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="Generate a video from a folder of frames"
+        description="Generate a video from a folder of frames",
     )
     argparser.add_argument(
         "--frames",
@@ -61,7 +61,7 @@ def main() -> None:
 
     # Get all frames in folder
     image_files: list[str] = natsorted(
-        glob.glob(f"{frames_folder}/*")
+        glob.glob(f"{frames_folder}/*"),
     )
     # Exclude last frame, which sometimes has not been rendered correctly
     if _FRAME_EXCLUDE_COUNT > 0:

@@ -155,7 +155,7 @@ class Storm:
         ) * delta_seconds
         self._t = clamp(delta + self._t, _STORM_MIN_T, _STORM_MAX_T)
         self.clouds = clamp(
-            self._t + _STORM_CLOUDS_OFFSET, _STORM_MIN, _STORM_CLOUDS_MAX
+            self._t + _STORM_CLOUDS_OFFSET, _STORM_MIN, _STORM_CLOUDS_MAX,
         )
         self.rain = clamp(self._t, _STORM_MIN, _STORM_RAIN_MAX)
         delay = (
@@ -165,7 +165,7 @@ class Storm:
         )
         self.puddles = clamp(self._t + delay, _STORM_MIN, _STORM_PUDDLES_MAX)
         self.wetness = clamp(
-            self._t * _STORM_WETNESS_MULTIPLIER, _STORM_MIN, _STORM_WETNESS_MAX
+            self._t * _STORM_WETNESS_MULTIPLIER, _STORM_MIN, _STORM_WETNESS_MAX,
         )
         if self.clouds <= _STORM_WIND_LOW_THRESHOLD:
             self.wind = _STORM_WIND_LOW
@@ -267,7 +267,7 @@ def main() -> None:
 
     while True:
         timestamp = world.wait_for_tick(
-            seconds=_WAIT_FOR_TICK_TIMEOUT
+            seconds=_WAIT_FOR_TICK_TIMEOUT,
         ).timestamp
         elapsed_time += timestamp.delta_seconds
         if elapsed_time > update_freq:

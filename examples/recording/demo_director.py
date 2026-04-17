@@ -53,6 +53,7 @@ Usage:
 """
 
 import argparse
+import contextlib
 import glob
 import json
 import math
@@ -107,15 +108,12 @@ SENSOR_CONFIGS = [
 # ─── Trajectory Loading ───────────────────────────────────────────
 def load_trajectory(filepath):
     with open(filepath) as f:
-        data = json.load(f)
-    print(f"  [{data['type']:>7}] {os.path.basename(filepath)}: "
-          f"{data['total_frames']} frames, {data['total_frames']*data['delta_time']:.1f}s")
-    return data
+        return json.load(f)
 
 
 # ─── Replayer Classes ─────────────────────────────────────────────
 class WalkerReplayer:
-    def __init__(self, world, bp_lib, traj):
+    def __init__(self, world, bp_lib, traj) -> None:
         self.world = world
         self.traj = traj
         self.frames = traj["frames"]
@@ -126,16 +124,16 @@ class WalkerReplayer:
             walker_bp.set_attribute("is_invincible", "true")
         spawn_tf = carla.Transform(
             carla.Location(x=first["x"], y=first["y"], z=first["z"] + 0.5),
-            carla.Rotation(pitch=first["pitch"], yaw=first["yaw"], roll=first["roll"])
+            carla.Rotation(pitch=first["pitch"], yaw=first["yaw"], roll=first["roll"]),
         )
         self.actor = world.spawn_actor(walker_bp, spawn_tf)
 
-    def set_frame(self, idx):
+    def set_frame(self, idx) -> None:
         idx = min(idx, len(self.frames) - 1)
         t = self.frames[idx]["transform"]
         tf = carla.Transform(
             carla.Location(x=t["x"], y=t["y"], z=t["z"]),
-            carla.Rotation(pitch=t["pitch"], yaw=t["yaw"], roll=t["roll"])
+            carla.Rotation(pitch=t["pitch"], yaw=t["yaw"], roll=t["roll"]),
         )
         self.actor.set_transform(tf)
         f = self.frames[idx]
@@ -150,15 +148,13 @@ class WalkerReplayer:
     def get_location(self):
         return self.actor.get_location()
 
-    def destroy(self):
-        try:
+    def destroy(self) -> None:
+        with contextlib.suppress(Exception):
             self.actor.destroy()
-        except Exception:
-            pass
 
 
 class VehicleReplayer:
-    def __init__(self, world, bp_lib, traj):
+    def __init__(self, world, bp_lib, traj) -> None:
         self.world = world
         self.traj = traj
         self.frames = traj["frames"]
@@ -170,16 +166,16 @@ class VehicleReplayer:
         first = self.frames[0]["transform"]
         spawn_tf = carla.Transform(
             carla.Location(x=first["x"], y=first["y"], z=first["z"] + 0.3),
-            carla.Rotation(pitch=first["pitch"], yaw=first["yaw"], roll=first["roll"])
+            carla.Rotation(pitch=first["pitch"], yaw=first["yaw"], roll=first["roll"]),
         )
         self.actor = world.spawn_actor(vehicle_bp, spawn_tf)
 
-    def set_frame(self, idx):
+    def set_frame(self, idx) -> None:
         idx = min(idx, len(self.frames) - 1)
         t = self.frames[idx]["transform"]
         tf = carla.Transform(
             carla.Location(x=t["x"], y=t["y"], z=t["z"]),
-            carla.Rotation(pitch=t["pitch"], yaw=t["yaw"], roll=t["roll"])
+            carla.Rotation(pitch=t["pitch"], yaw=t["yaw"], roll=t["roll"]),
         )
         self.actor.set_transform(tf)
         f = self.frames[idx]
@@ -195,11 +191,9 @@ class VehicleReplayer:
     def get_location(self):
         return self.actor.get_location()
 
-    def destroy(self):
-        try:
+    def destroy(self) -> None:
+        with contextlib.suppress(Exception):
             self.actor.destroy()
-        except Exception:
-            pass
 
 
 class DroneReplayer:
@@ -207,7 +201,7 @@ class DroneReplayer:
       - airsim_ned: used directly (from old AirSim-based recordings)
       - transform only: CARLA coords, auto-calibrated at init
     """
-    def __init__(self, world, traj, airsim_port=41451):
+    def __init__(self, world, traj, airsim_port=41451) -> None:
         import airsim as _airsim
         from trajectory_helpers import wait_for_airsim
         self.airsim = _airsim
@@ -244,9 +238,8 @@ class DroneReplayer:
                 self.ox = ap.x_val - cl.x
                 self.oy = ap.y_val - cl.y
                 self.oz = ap.z_val - (-cl.z)
-                print(f"  Calibrated CARLA→AirSim: dx={self.ox:.1f} dy={self.oy:.1f} dz={self.oz:.1f}")
 
-    def set_frame(self, idx):
+    def set_frame(self, idx) -> None:
         idx = min(idx, len(self.frames) - 1)
         f = self.frames[idx]
         if self.use_carla_coords:
@@ -261,7 +254,7 @@ class DroneReplayer:
             p, r, y = float(ned.get("pitch",0)), float(ned.get("roll",0)), float(ned.get("yaw",0))
         pose = self.airsim.Pose(
             self.airsim.Vector3r(nx, ny, nz),
-            self.airsim.to_quaternion(math.radians(p), math.radians(r), math.radians(y))
+            self.airsim.to_quaternion(math.radians(p), math.radians(r), math.radians(y)),
         )
         self.client.simSetVehiclePose(pose, True)
 
@@ -274,7 +267,7 @@ class DroneReplayer:
         pos = state.kinematics_estimated.position
         return carla.Location(x=pos.x_val, y=pos.y_val, z=-pos.z_val)
 
-    def destroy(self):
+    def destroy(self) -> None:
         try:
             self.client.armDisarm(False)
             self.client.enableApiControl(False)
@@ -286,7 +279,7 @@ class DroneReplayer:
 class SensorPanelManager:
     """Manages sensor cameras attached to a target actor for visualization."""
 
-    def __init__(self, world, bp_lib, panel_w=320, panel_h=180):
+    def __init__(self, world, bp_lib, panel_w=320, panel_h=180) -> None:
         self.world = world
         self.bp_lib = bp_lib
         self.panel_w = panel_w
@@ -296,7 +289,7 @@ class SensorPanelManager:
         self.images = {}  # name -> numpy RGB array
         self._locks = {}
 
-    def attach_to(self, actor):
+    def attach_to(self, actor) -> None:
         """Attach sensor cameras to the given actor."""
         self.detach_all()
         self.target_actor = actor
@@ -312,7 +305,7 @@ class SensorPanelManager:
         # Semantic
         self._spawn_camera("Semantic", "sensor.camera.semantic_segmentation", cam_tf, actor)
 
-    def _spawn_camera(self, name, sensor_type, transform, parent):
+    def _spawn_camera(self, name, sensor_type, transform, parent) -> None:
         bp = self.bp_lib.find(sensor_type)
         bp.set_attribute("image_size_x", str(self.panel_w))
         bp.set_attribute("image_size_y", str(self.panel_h))
@@ -322,7 +315,7 @@ class SensorPanelManager:
         self.images[name] = None
 
         def make_callback(n):
-            def cb(image):
+            def cb(image) -> None:
                 arr = np.frombuffer(image.raw_data, dtype=np.uint8)
                 arr = arr.reshape((image.height, image.width, 4))[:, :, :3]
                 if n == "Depth":
@@ -356,16 +349,12 @@ class SensorPanelManager:
                     result[name] = self.images[name].copy()
         return result
 
-    def detach_all(self):
+    def detach_all(self) -> None:
         for _name, sensor in self.sensors:
-            try:
+            with contextlib.suppress(Exception):
                 sensor.stop()
-            except Exception:
-                pass
-            try:
+            with contextlib.suppress(Exception):
                 sensor.destroy()
-            except Exception:
-                pass
         self.sensors.clear()
         self.images.clear()
         self._locks.clear()
@@ -387,7 +376,7 @@ def plt_colormap(arr):
 
 
 # ─── Main ─────────────────────────────────────────────────────────
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="CarlaAir Demo Director — Replay, Direct & Film",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -424,7 +413,6 @@ Examples:
     os.makedirs(out_dir, exist_ok=True)
 
     # ── Connect CARLA ──
-    print("Connecting to CARLA...")
     client = carla.Client(args.host, args.port)
     client.set_timeout(30.0)
 
@@ -434,18 +422,16 @@ Examples:
         target = args.map
         matched = [m for m in available_maps if target.lower() in m.lower()]
         if matched:
-            print(f"Loading map: {matched[0]}...")
             client.load_world(matched[0])
             time.sleep(3.0)
         else:
-            print(f"Warning: Map '{target}' not found. Available: {available_maps}")
+            pass
 
     world = client.get_world()
     from trajectory_helpers import cleanup_world
     cleanup_world(world, restore_async=True)
     bp_lib = world.get_blueprint_library()
     map_name = world.get_map().name.split("/")[-1]
-    print(f"Map: {map_name}")
 
     # Save original settings
     original_settings = world.get_settings()
@@ -459,13 +445,12 @@ Examples:
     if args.weather:
         name_map = {
             "clear": 1, "cloudy": 2, "rain": 3, "storm": 4,
-            "fog": 5, "night": 6, "sunset": 7, "dawn": 8, "nightrain": 9
+            "fog": 5, "night": 6, "sunset": 7, "dawn": 8, "nightrain": 9,
         }
         key = name_map.get(args.weather.lower())
         if key and WEATHER_PRESETS[key][1] is not None:
             weather_name = WEATHER_PRESETS[key][0]
             world.set_weather(WEATHER_PRESETS[key][1])
-            print(f"Weather: {weather_name}")
 
     # ── Load Trajectories ──
     trajectories = []
@@ -480,23 +465,18 @@ Examples:
         all_files = sorted(set(all_files))
 
         if all_files:
-            print(f"\nLoading {len(all_files)} trajectory file(s):")
             for f in all_files:
-                try:
+                with contextlib.suppress(Exception):
                     trajectories.append(load_trajectory(f))
-                except Exception as e:
-                    print(f"  Error loading {f}: {e}")
 
     has_replay = len(trajectories) > 0
     max_frames = max((t["total_frames"] for t in trajectories), default=0)
     if has_replay:
-        print(f"\nReplay: {len(trajectories)} actor(s), {max_frames} frames, "
-              f"{max_frames*delta_time:.1f}s")
+        pass
 
     # ── Spawn Background Traffic ──
     bg_actors = []
     if args.traffic > 0:
-        print(f"Spawning {args.traffic} background vehicles...")
         vehicle_bps = bp_lib.filter("vehicle.*")
         spawn_points = world.get_map().get_spawn_points()
         import random
@@ -509,10 +489,8 @@ Examples:
                 bg_actors.append(v)
             except Exception:
                 pass
-        print(f"  Spawned {len(bg_actors)} vehicles")
 
     if args.walkers > 0:
-        print(f"Spawning {args.walkers} background walkers...")
         walker_bps = bp_lib.filter("walker.pedestrian.*")
         for _i in range(args.walkers):
             bp = __import__("random").choice(walker_bps)
@@ -532,8 +510,7 @@ Examples:
                     ctrl.set_max_speed(1.0 + __import__("random").random() * 1.5)
                 except Exception:
                     pass
-        walker_count = sum(1 for a in bg_actors if "walker" in getattr(a, "type_id", ""))
-        print(f"  Spawned {walker_count} walkers")
+        sum(1 for a in bg_actors if "walker" in getattr(a, "type_id", ""))
 
     world.tick()
 
@@ -542,7 +519,6 @@ Examples:
     cleanup_actors = list(bg_actors)
     try:
         if has_replay:
-            print("\nSpawning replay actors...")
             for traj in trajectories:
                 t = traj["type"]
                 try:
@@ -553,12 +529,10 @@ Examples:
                     elif t == "drone":
                         r = DroneReplayer(world, traj, args.airsim_port)
                     else:
-                        print(f"  Unknown type '{t}', skipping")
                         continue
                     replayers.append(r)
-                    print(f"  {r.label} ready")
-                except Exception as e:
-                    print(f"  Failed to create {t} replayer: {e}")
+                except Exception:
+                    pass
             world.tick()
 
         # ── Director Camera ──
@@ -574,7 +548,7 @@ Examples:
         latest_frame = [None]  # RGB for display
         rec_frame = [None]     # BGR for recording
 
-        def on_director_image(image):
+        def on_director_image(image) -> None:
             arr = np.frombuffer(image.raw_data, dtype=np.uint8)
             arr = arr.reshape((image.height, image.width, 4))[:, :, :3]
             rec_frame[0] = arr.copy()  # BGRA->BGR (OpenCV native)
@@ -621,34 +595,10 @@ Examples:
         weather_cycle_interval = 5.0  # seconds per weather in auto mode
         weather_cycle_idx = 0
 
-        def print_help():
-            print("""
-╔══════════════════════════════════════════════════╗
-║            CarlaAir Demo Director                ║
-╠══════════════════════════════════════════════════╣
-║  WASD        Move camera                         ║
-║  Mouse       Look around                         ║
-║  E/Space     Up  |  Shift/Q  Down                ║
-║  Scroll      Adjust speed                        ║
-║  C           Follow actor (cycle)                ║
-║  X           Free camera                         ║
-║                                                  ║
-║  P           Pause/Resume                        ║
-║  ←/→         Scrub ±50f (Shift=±200f)            ║
-║  [/]         Speed 0.25x~4x                      ║
-║  L           Loop mode                           ║
-║  Home        Jump to start                       ║
-║                                                  ║
-║  1-9         Weather presets  |  0  Auto cycle   ║
-║  Tab         Toggle sensor panels                ║
-║  F           Start/Stop recording                ║
-║  G           Screenshot                          ║
-║  H           Toggle HUD  |  ESC  Quit            ║
-╚══════════════════════════════════════════════════╝
-""")
+        def print_help() -> None:
+            pass
 
         print_help()
-        print("Ready! Press H to toggle HUD, F to record.\n")
 
         running = True
         while running:
@@ -664,11 +614,9 @@ Examples:
 
                     elif ev.key == pygame.K_p:
                         paused = not paused
-                        print(f"{'Paused' if paused else 'Playing'}")
 
                     elif ev.key == pygame.K_l:
                         loop_mode = not loop_mode
-                        print(f"Loop: {'ON' if loop_mode else 'OFF'}")
 
                     elif ev.key == pygame.K_h:
                         show_hud = not show_hud
@@ -681,13 +629,11 @@ Examples:
                             video_writer = cv2.VideoWriter(video_path, fourcc, args.fps, (rec_w, rec_h))
                             recording = True
                             rec_frame_count = 0
-                            print(f"Recording started: {video_path}")
                         else:
                             recording = False
                             if video_writer:
                                 video_writer.release()
                                 video_writer = None
-                            print(f"Recording stopped: {rec_frame_count} frames -> {video_path}")
 
                     elif ev.key == pygame.K_g:
                         # Screenshot
@@ -695,7 +641,6 @@ Examples:
                             ts = time.strftime("%Y%m%d_%H%M%S")
                             ss_path = os.path.join(out_dir, f"screenshot_{ts}.png")
                             cv2.imwrite(ss_path, rec_frame[0])
-                            print(f"Screenshot: {ss_path}")
 
                     elif ev.key == pygame.K_TAB:
                         show_sensors = not show_sensors
@@ -708,27 +653,21 @@ Examples:
                                     break
                             if target:
                                 sensor_mgr.attach_to(target)
-                                print(f"Sensor panels: ON (attached to {type(target).__name__})")
                             else:
-                                print("No actor to attach sensors to")
                                 show_sensors = False
                         elif not show_sensors:
                             sensor_mgr.detach_all()
-                            print("Sensor panels: OFF")
 
                     elif ev.key == pygame.K_c:
                         # Cycle follow target
                         if replayers:
                             follow_idx = (follow_idx + 1) % len(replayers)
-                            print(f"Following: {replayers[follow_idx].label}")
 
                     elif ev.key == pygame.K_x:
                         follow_idx = -1
-                        print("Free camera")
 
                     elif ev.key == pygame.K_HOME:
                         frame_idx = 0
-                        print("Jump to start")
 
                     elif ev.key == pygame.K_LEFT:
                         mods = pygame.key.get_mods()
@@ -742,11 +681,9 @@ Examples:
 
                     elif ev.key == pygame.K_LEFTBRACKET:
                         playback_speed = max(0.25, playback_speed / 2.0)
-                        print(f"Speed: {playback_speed}x")
 
                     elif ev.key == pygame.K_RIGHTBRACKET:
                         playback_speed = min(4.0, playback_speed * 2.0)
-                        print(f"Speed: {playback_speed}x")
 
                     # Weather presets (1-9, 0)
                     elif ev.key in (pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
@@ -755,14 +692,12 @@ Examples:
                         num = ev.key - pygame.K_0
                         if num == 0:
                             auto_weather = not auto_weather
-                            print(f"Auto weather cycle: {'ON' if auto_weather else 'OFF'}")
                         elif num in WEATHER_PRESETS:
                             auto_weather = False
                             wname, wparams = WEATHER_PRESETS[num]
                             if wparams is not None:
                                 world.set_weather(wparams)
                                 weather_name = wname
-                                print(f"Weather: {wname}")
 
                 elif ev.type == pygame.MOUSEBUTTONDOWN:
                     if ev.button == 4:  # scroll up = faster
@@ -853,7 +788,7 @@ Examples:
             # Update camera
             cam_tf = carla.Transform(
                 carla.Location(x=cam_loc.x, y=cam_loc.y, z=cam_loc.z),
-                carla.Rotation(pitch=look_pitch, yaw=look_yaw, roll=0)
+                carla.Rotation(pitch=look_pitch, yaw=look_yaw, roll=0),
             )
             spectator.set_transform(cam_tf)
             director_cam.set_transform(cam_tf)
@@ -869,7 +804,6 @@ Examples:
                     else:
                         frame_idx = max_frames - 1
                         paused = True
-                        print("Replay complete! (P to restart, L for loop)")
 
             # Set all replayer frames
             for r in replayers:
@@ -960,26 +894,20 @@ Examples:
 
         # ── Cleanup ──
     except KeyboardInterrupt:
-        print("\nInterrupted.")
+        pass
     finally:
-        print("\nCleaning up...")
 
         # Stop recording
         if recording and video_writer:
             video_writer.release()
-            print(f"Recording saved: {rec_frame_count} frames -> {video_path}")
 
         # Sensors
-        try:
+        with contextlib.suppress(Exception):
             sensor_mgr.detach_all()
-        except Exception:
-            pass
 
         # Director camera
-        try:
+        with contextlib.suppress(Exception):
             director_cam.stop()
-        except Exception:
-            pass
 
         # Replayers
         for r in replayers:
@@ -987,16 +915,12 @@ Examples:
 
         # Cleanup actors
         for a in cleanup_actors:
-            try:
+            with contextlib.suppress(Exception):
                 a.destroy()
-            except Exception:
-                pass
 
         # Restore settings
-        try:
+        with contextlib.suppress(Exception):
             world.apply_settings(original_settings)
-        except Exception:
-            pass
 
         # Pygame
         try:
@@ -1006,7 +930,6 @@ Examples:
         except Exception:
             pass
 
-        print("Done.")
 
 
 if __name__ == "__main__":

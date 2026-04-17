@@ -25,10 +25,10 @@ import carla
 
 
 def get_ip(host):
-    if host in ['localhost', '127.0.0.1']:
+    if host in ["localhost", "127.0.0.1"]:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            sock.connect(('10.255.255.255', 1))
+            sock.connect(("10.255.255.255", 1))
             host = sock.getsockname()[0]
         except RuntimeError:
             pass
@@ -38,151 +38,128 @@ def get_ip(host):
 
 
 def find_weather_presets():
-    presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
+    presets = [x for x in dir(carla.WeatherParameters) if re.match("[A-Z].+", x)]
     return [(getattr(carla.WeatherParameters, x), x) for x in presets]
 
 
-def list_options(client):
-    maps = [m.replace('/Game/Carla/Maps/', '') for m in client.get_available_maps()]
-    indent = 4 * ' '
+def list_options(client) -> None:
+    [m.replace("/Game/Carla/Maps/", "") for m in client.get_available_maps()]
+    indent = 4 * " "
     def wrap(text):
-        return '\n'.join(textwrap.wrap(text, initial_indent=indent, subsequent_indent=indent))
-    print('weather presets:\n')
-    print(wrap(', '.join(x for _, x in find_weather_presets())) + '.\n')
-    print('available maps:\n')
-    print(wrap(', '.join(sorted(maps))) + '.\n')
+        return "\n".join(textwrap.wrap(text, initial_indent=indent, subsequent_indent=indent))
 
 
-def list_blueprints(world, bp_filter):
+def list_blueprints(world, bp_filter) -> None:
     blueprint_library = world.get_blueprint_library()
     blueprints = [bp.id for bp in blueprint_library.filter(bp_filter)]
-    print(f'available blueprints (filter {bp_filter!r}):\n')
-    for bp in sorted(blueprints):
-        print('    ' + bp)
-    print('')
+    for _bp in sorted(blueprints):
+        pass
 
 
-def inspect(args, client):
-    address = '%s:%d' % (get_ip(args.host), args.port)
+def inspect(args, client) -> None:
+    "%s:%d" % (get_ip(args.host), args.port)
 
     world = client.get_world()
     elapsed_time = world.get_snapshot().timestamp.elapsed_seconds
     elapsed_time = datetime.timedelta(seconds=int(elapsed_time))
 
-    actors = world.get_actors()
+    world.get_actors()
     s = world.get_settings()
 
-    weather = 'Custom'
     current_weather = world.get_weather()
-    for preset, name in find_weather_presets():
+    for preset, _name in find_weather_presets():
         if current_weather == preset:
-            weather = name
+            pass
 
     if s.fixed_delta_seconds is None:
-        frame_rate = 'variable'
+        pass
     else:
-        frame_rate = '%.2f ms (%d FPS)' % (
+        "%.2f ms (%d FPS)" % (
             1000.0 * s.fixed_delta_seconds,
             1.0 / s.fixed_delta_seconds)
 
-    print('-' * 34)
-    print('address:% 26s' % address)
-    print('version:% 26s\n' % client.get_server_version())
-    print('map:        % 22s' % world.get_map().name)
-    print('weather:    % 22s\n' % weather)
-    print('time:       % 22s\n' % elapsed_time)
-    print('frame rate: % 22s' % frame_rate)
-    print('rendering:  % 22s' % ('disabled' if s.no_rendering_mode else 'enabled'))
-    print('sync mode:  % 22s\n' % ('disabled' if not s.synchronous_mode else 'enabled'))
-    print('actors:     % 22d' % len(actors))
-    print('  * spectator:% 20d' % len(actors.filter('spectator')))
-    print('  * static:   % 20d' % len(actors.filter('static.*')))
-    print('  * traffic:  % 20d' % len(actors.filter('traffic.*')))
-    print('  * vehicles: % 20d' % len(actors.filter('vehicle.*')))
-    print('  * walkers:  % 20d' % len(actors.filter('walker.*')))
-    print('-' * 34)
 
 
-def main():
+def main() -> None:
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='localhost',
-        help='IP of the host CARLA Simulator (default: localhost)')
+        "--host",
+        metavar="H",
+        default="localhost",
+        help="IP of the host CARLA Simulator (default: localhost)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port of CARLA Simulator (default: 2000)')
+        help="TCP port of CARLA Simulator (default: 2000)")
     argparser.add_argument(
-        '-d', '--default',
-        action='store_true',
-        help='set default settings')
+        "-d", "--default",
+        action="store_true",
+        help="set default settings")
     argparser.add_argument(
-        '-m', '--map',
-        help='load a new map, use --list to see available maps')
+        "-m", "--map",
+        help="load a new map, use --list to see available maps")
     argparser.add_argument(
-        '-r', '--reload-map',
-        action='store_true',
-        help='reload current map')
+        "-r", "--reload-map",
+        action="store_true",
+        help="reload current map")
     argparser.add_argument(
-        '--delta-seconds',
-        metavar='S',
+        "--delta-seconds",
+        metavar="S",
         type=float,
-        help='set fixed delta seconds, zero for variable frame rate')
+        help="set fixed delta seconds, zero for variable frame rate")
     argparser.add_argument(
-        '--fps',
-        metavar='N',
+        "--fps",
+        metavar="N",
         type=float,
-        help='set fixed FPS, zero for variable FPS (similar to --delta-seconds)')
+        help="set fixed FPS, zero for variable FPS (similar to --delta-seconds)")
     argparser.add_argument(
-        '--rendering',
-        action='store_true',
-        help='enable rendering')
+        "--rendering",
+        action="store_true",
+        help="enable rendering")
     argparser.add_argument(
-        '--no-rendering',
-        action='store_true',
-        help='disable rendering')
+        "--no-rendering",
+        action="store_true",
+        help="disable rendering")
     argparser.add_argument(
-        '--no-sync',
-        action='store_true',
-        help='disable synchronous mode')
+        "--no-sync",
+        action="store_true",
+        help="disable synchronous mode")
     argparser.add_argument(
-        '--weather',
-        help='set weather preset, use --list to see available presets')
+        "--weather",
+        help="set weather preset, use --list to see available presets")
     argparser.add_argument(
-        '-i', '--inspect',
-        action='store_true',
-        help='inspect simulation')
+        "-i", "--inspect",
+        action="store_true",
+        help="inspect simulation")
     argparser.add_argument(
-        '-l', '--list',
-        action='store_true',
-        help='list available options')
+        "-l", "--list",
+        action="store_true",
+        help="list available options")
     argparser.add_argument(
-        '-b', '--list-blueprints',
-        metavar='FILTER',
-        help='list available blueprints matching FILTER (use \'*\' to list them all)')
+        "-b", "--list-blueprints",
+        metavar="FILTER",
+        help="list available blueprints matching FILTER (use '*' to list them all)")
     argparser.add_argument(
-        '-x', '--xodr-path',
-        metavar='XODR_FILE_PATH',
-        help='load a new map with a minimum physical road representation of the provided OpenDRIVE')
+        "-x", "--xodr-path",
+        metavar="XODR_FILE_PATH",
+        help="load a new map with a minimum physical road representation of the provided OpenDRIVE")
     argparser.add_argument(
-        '--osm-path',
-        metavar='OSM_FILE_PATH',
-        help='load a new map with a minimum physical road representation of the provided OpenStreetMaps')
+        "--osm-path",
+        metavar="OSM_FILE_PATH",
+        help="load a new map with a minimum physical road representation of the provided OpenStreetMaps")
     argparser.add_argument(
-        '--tile-stream-distance',
-        metavar='N',
+        "--tile-stream-distance",
+        metavar="N",
         type=float,
-        help='Set tile streaming distance (large maps only)')
+        help="Set tile streaming distance (large maps only)")
     argparser.add_argument(
-        '--actor-active-distance',
-        metavar='N',
+        "--actor-active-distance",
+        metavar="N",
         type=float,
-        help='Set actor active distance (large maps only)')
+        help="Set actor active distance (large maps only)")
     if len(sys.argv) < 2:
         argparser.print_help()
         return
@@ -195,24 +172,20 @@ def main():
     if args.default:
         args.rendering = True
         args.delta_seconds = 0.0
-        args.weather = 'Default'
+        args.weather = "Default"
         args.no_sync = True
 
     if args.map is not None:
-        print(f'load map {args.map!r}.')
         world = client.load_world(args.map)
     elif args.reload_map:
-        print('reload map.')
         world = client.reload_world()
     elif args.xodr_path is not None:
         if os.path.exists(args.xodr_path):
-            with open(args.xodr_path, encoding='utf-8') as od_file:
+            with open(args.xodr_path, encoding="utf-8") as od_file:
                 try:
                     data = od_file.read()
                 except OSError:
-                    print('file could not be readed.')
                     sys.exit()
-            print(f'load opendrive map {os.path.basename(args.xodr_path)!r}.')
             vertex_distance = 2.0  # in meters
             max_road_length = 500.0 # in meters
             wall_height = 1.0      # in meters
@@ -226,18 +199,15 @@ def main():
                     smooth_junctions=True,
                     enable_mesh_visibility=True))
         else:
-            print('file not found.')
+            pass
     elif args.osm_path is not None:
         if os.path.exists(args.osm_path):
-            with open(args.osm_path, encoding='utf-8') as od_file:
+            with open(args.osm_path, encoding="utf-8") as od_file:
                 try:
                     data = od_file.read()
                 except OSError:
-                    print('file could not be readed.')
                     sys.exit()
-            print('Converting OSM data to opendrive')
             xodr_data = carla.Osm2Odr.convert(data)
-            print('load opendrive map.')
             vertex_distance = 2.0  # in meters
             max_road_length = 500.0 # in meters
             wall_height = 0.0      # in meters
@@ -251,7 +221,7 @@ def main():
                     smooth_junctions=True,
                     enable_mesh_visibility=True))
         else:
-            print('file not found.')
+            pass
 
     else:
         world = client.get_world()
@@ -259,14 +229,11 @@ def main():
     settings = world.get_settings()
 
     if args.no_rendering:
-        print('disable rendering.')
         settings.no_rendering_mode = True
     elif args.rendering:
-        print('enable rendering.')
         settings.no_rendering_mode = False
 
     if args.no_sync:
-        print('disable synchronous mode.')
         settings.synchronous_mode = False
 
     if args.delta_seconds is not None:
@@ -276,11 +243,8 @@ def main():
 
     if args.delta_seconds is not None or args.fps is not None:
         if settings.fixed_delta_seconds > 0.0:
-            print('set fixed frame rate %.2f milliseconds (%d FPS)' % (
-                1000.0 * settings.fixed_delta_seconds,
-                1.0 / settings.fixed_delta_seconds))
+            pass
         else:
-            print('set variable frame rate.')
             settings.fixed_delta_seconds = None
 
     if args.tile_stream_distance is not None:
@@ -292,9 +256,8 @@ def main():
 
     if args.weather is not None:
         if not hasattr(carla.WeatherParameters, args.weather):
-            print(f'ERROR: weather preset {args.weather!r} not found.')
+            pass
         else:
-            print(f'set weather preset {args.weather!r}.')
             world.set_weather(getattr(carla.WeatherParameters, args.weather))
 
     if args.inspect:
@@ -305,13 +268,13 @@ def main():
         list_blueprints(world, args.list_blueprints)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     try:
 
         main()
 
     except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
-    except RuntimeError as e:
-        print(e)
+        pass
+    except RuntimeError:
+        pass

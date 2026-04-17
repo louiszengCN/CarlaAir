@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import math
 import socket
-import sys
 import time
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
@@ -113,26 +113,13 @@ def wait_for_airsim(
     while time.time() < deadline:
         try:
             with socket.create_connection(
-                (host, port), timeout=_AIRSIM_SOCKET_TIMEOUT
+                (host, port), timeout=_AIRSIM_SOCKET_TIMEOUT,
             ):
                 return True
         except OSError:
             if first:
-                print(
-                    f"  Waiting for AirSim RPC at {host}:{port} "
-                    f"(up to {timeout:.0f}s)...\n"
-                    "  Ensure CarlaAir is running with AirSim enabled.\n",
-                    file=sys.stderr,
-                )
                 first = False
             time.sleep(interval)
-    print(
-        f"\n  ERROR:AirSim port {host}:{port} not reachable "
-        f"after {timeout:.0f}s.\n"
-        "  Check: ss -tlnp | grep " + str(port) + "\n"
-        "  CarlaAir may need restart, or AirSim component crashed.\n",
-        file=sys.stderr,
-    )
     return False
 
 
@@ -156,10 +143,8 @@ def cleanup_world(
     count = 0
 
     for s in sensors:
-        try:
+        with contextlib.suppress(Exception):
             s.stop()
-        except Exception:
-            pass
         try:
             s.destroy()
             count += 1
@@ -174,11 +159,7 @@ def cleanup_world(
             pass
 
     if count:
-        print(
-            f"  Cleaned up {count} leftover actors "
-            f"({len(sensors)} sensors, {len(vehicles)} vehicles, "
-            f"{len(walkers)} walkers)"
-        )
+        pass
 
     if restore_async:
         settings = world.get_settings()
@@ -219,14 +200,14 @@ def vehicle_apply_frame_transform(
     actor.set_transform(
         carla_mod.Transform(
             carla_mod.Location(
-                x=float(t["x"]), y=float(t["y"]), z=float(t["z"])
+                x=float(t["x"]), y=float(t["y"]), z=float(t["z"]),
             ),
             carla_mod.Rotation(
                 pitch=float(t["pitch"]),
                 yaw=float(t["yaw"]),
                 roll=float(t["roll"]),
             ),
-        )
+        ),
     )
 
 
@@ -309,7 +290,7 @@ def spawn_ghost_vehicle(
     t0 = frames[0]["transform"]
     tf = carla_mod.Transform(
         carla_mod.Location(
-            x=float(t0["x"]), y=float(t0["y"]), z=float(t0["z"])
+            x=float(t0["x"]), y=float(t0["y"]), z=float(t0["z"]),
         ),
         carla_mod.Rotation(
             pitch=float(t0["pitch"]),
@@ -323,7 +304,7 @@ def spawn_ghost_vehicle(
     for dz in _GHOST_VEHICLE_Z_NUDGES:
         nudged = carla_mod.Transform(
             carla_mod.Location(
-                x=tf.location.x, y=tf.location.y, z=tf.location.z + dz
+                x=tf.location.x, y=tf.location.y, z=tf.location.z + dz,
             ),
             tf.rotation,
         )
@@ -336,12 +317,10 @@ def spawn_ghost_vehicle(
     if actor is None:
         raise RuntimeError(
             f"Cannot spawn ghost vehicle — collision at all offsets near "
-            f"({tf.location.x:.1f}, {tf.location.y:.1f}, {tf.location.z:.1f})"
+            f"({tf.location.x:.1f}, {tf.location.y:.1f}, {tf.location.z:.1f})",
         )
 
-    try:
+    with contextlib.suppress(Exception):
         actor.set_simulate_physics(False)
-    except Exception:
-        pass
 
     return actor

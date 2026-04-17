@@ -16,6 +16,7 @@ Uses:
 """
 
 import argparse
+import contextlib
 import time
 
 import numpy as np
@@ -25,7 +26,7 @@ import carla
 
 class VehicleControlStop:
     def __init__(self, x_min = -100000, x_max = +100000, y_min = -100000, y_max = +100000,
-            yaw_min = -500, yaw_max = +500, speed_min = -1, speed_max = +100000):
+            yaw_min = -500, yaw_max = +500, speed_min = -1, speed_max = +100000) -> None:
 
         self.x_min = x_min
         self.x_max = x_max
@@ -120,15 +121,10 @@ def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_swe
 
     return physics_control
 
-def print_step_info(world, vehicle):
-    snapshot = world.get_snapshot()
-    print("%d %06.03f %+8.03f %+8.03f %+8.03f %+8.03f %+8.03f %+8.03f %+8.03f %+8.03f %+8.03f" %
-            (snapshot.frame, snapshot.timestamp.elapsed_seconds, \
-            vehicle.get_acceleration().x, vehicle.get_acceleration().y, vehicle.get_acceleration().z, \
-            vehicle.get_velocity().x, vehicle.get_velocity().y, vehicle.get_velocity().z, \
-            vehicle.get_location().x, vehicle.get_location().y, vehicle.get_location().z))
+def print_step_info(world, vehicle) -> None:
+    world.get_snapshot()
 
-def wait(world, frames=100):
+def wait(world, frames=100) -> None:
     for _i in range(frames):
         world.tick()
 
@@ -136,13 +132,13 @@ def norm(vec):
     return np.sqrt(vec.x*vec.x + vec.y*vec.y + vec.z*vec.z)
 
 class TelemetryPoint:
-    def __init__(self, curr_time=None, location=None, rotation=None, velocity=None):
+    def __init__(self, curr_time=None, location=None, rotation=None, velocity=None) -> None:
         self.time = curr_time
         self.location = location
         self.rotation = rotation
         self.velocity = velocity
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.time:.2f} {self.location!s} {self.rotation!s} {self.velocity!s}"
 
     def __sub__(self, other):
@@ -153,21 +149,21 @@ class TelemetryPoint:
         return TelemetryPoint(t, loc_diff, r, v)
 
 class TelemetryData:
-    def __init__(self, curr_time, vehicle):
+    def __init__(self, curr_time, vehicle) -> None:
         self.list_of_telemetries = []
         location = vehicle.get_location()
         rotation = vehicle.get_transform().rotation
         velocity = vehicle.get_velocity()
         self.list_of_telemetries.append(TelemetryPoint(curr_time, location, rotation, velocity))
 
-    def __str__(self):
+    def __str__(self) -> str:
         ret_str = ""
         for idx, val in enumerate(self.list_of_telemetries):
             ret_str += "%d: %s\n" % (idx, str(val))
 
         return ret_str
 
-    def add_telemetry(self, curr_time, vehicle):
+    def add_telemetry(self, curr_time, vehicle) -> None:
         location = vehicle.get_location()
         rotation = vehicle.get_transform().rotation
         velocity = vehicle.get_velocity()
@@ -238,14 +234,14 @@ def run_scenario(world, bp_veh, init_loc, init_speed = 0.0, init_frames=10,
 
     return data
 
-def brake_scenario(world, bp_veh, speed):
+def brake_scenario(world, bp_veh, speed) -> None:
 
     spectator_transform = carla.Transform(carla.Location(20, -190, 10), carla.Rotation(yaw=67, pitch=-13))
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
     except Exception:
-        print("No spectator")
+        pass
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
 
@@ -254,18 +250,17 @@ def brake_scenario(world, bp_veh, speed):
 
     data = run_scenario(world, bp_veh, init_loc, init_speed=speed/3.6, controls=controls)
 
-    delta = data.get_scalar_delta(1)
+    data.get_scalar_delta(1)
     3.6*norm(data.get_telemetry(2).velocity)
-    print(f"  {speed:.0f} -> 0 km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
-def accel_scenario(world, bp_veh, max_vel):
+def accel_scenario(world, bp_veh, max_vel) -> None:
 
     spectator_transform = carla.Transform(carla.Location(20, -190, 10), carla.Rotation(yaw=67, pitch=-13))
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
     except Exception:
-        print("No spectator")
+        pass
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
 
@@ -274,11 +269,10 @@ def accel_scenario(world, bp_veh, max_vel):
 
     data = run_scenario(world, bp_veh, init_loc=init_loc, controls=controls)
 
-    delta = data.get_scalar_delta(1)
+    data.get_scalar_delta(1)
     3.6*norm(data.get_telemetry(2).velocity)
-    print(f"  0 -> {max_vel:.0f} km/h: ({delta[0]:.1f} s, {delta[1]:.1f} m)", end="")
 
-def uturn_scenario(world, bp_veh):
+def uturn_scenario(world, bp_veh) -> None:
 
     spectator_transform = carla.Transform(carla.Location(30, -180, 20), carla.Rotation(yaw=-140, pitch=-36))
     try:
@@ -291,13 +285,13 @@ def uturn_scenario(world, bp_veh):
     controls = [
         (1000, carla.VehicleControl(throttle=1.0), VehicleControlStop(x_max=19)),
         (1000, carla.VehicleControl(throttle=0.25, steer=-0.4), VehicleControlStop(yaw_min=-170)),
-        (100, carla.VehicleControl(throttle=0.4), VehicleControlStop(x_min =10))
+        (100, carla.VehicleControl(throttle=0.4), VehicleControlStop(x_min =10)),
         ]
 
     data = run_scenario(world, bp_veh, init_loc=init_pos, controls=controls)
     3.6*norm(data.get_telemetry(3).velocity)
 
-def highspeed_turn_scenario(world, bp_veh, steer):
+def highspeed_turn_scenario(world, bp_veh, steer) -> None:
     spectator_transform = carla.Transform(carla.Location(70, -200, 15), carla.Rotation(yaw=0, pitch=-12))
 
     try:
@@ -317,7 +311,7 @@ def highspeed_turn_scenario(world, bp_veh, steer):
 
     time.sleep(1)
 
-def main(arg):
+def main(arg) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(30.0)
@@ -337,16 +331,12 @@ def main(arg):
             client.load_world("Town05", False)
 
         for bp_veh in world.get_blueprint_library().filter(args.filter):
-            print("-------------------------------------------")
-            print(bp_veh.id, end="", flush=True)
 
             if args.show_physics_control:
                 try:
                     veh_transf = carla.Transform()
                     veh_transf.location.z = 100
                     vehicle = world.spawn_actor(bp_veh, veh_transf)
-                    print()
-                    print(vehicle.get_physics_control())
                     vehicle.destroy()
                 except Exception:
                     pass
@@ -368,9 +358,7 @@ def main(arg):
             if args.turn or args.all:
                 highspeed_turn_scenario(world, bp_veh, 0.2)
 
-            print()
 
-        print("-------------------------------------------")
 
 
     finally:
@@ -383,69 +371,67 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='localhost',
-        help='IP of the host CARLA Simulator (default: localhost)')
+        "--host",
+        metavar="H",
+        default="localhost",
+        help="IP of the host CARLA Simulator (default: localhost)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port of CARLA Simulator (default: 2000)')
+        help="TCP port of CARLA Simulator (default: 2000)")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='vehicle.*',
+        "--filter",
+        metavar="PATTERN",
+        default="vehicle.*",
         help='actor filter (default: "vehicle.*")')
     argparser.set_defaults(accel=False)
     argparser.add_argument(
-        '--accel',
-        dest='accel',
-        action='store_true',
-        help='Execute accel scenarios')
+        "--accel",
+        dest="accel",
+        action="store_true",
+        help="Execute accel scenarios")
     argparser.set_defaults(brake=False)
     argparser.add_argument(
-        '--brake',
-        dest='brake',
-        action='store_true',
-        help='Execute brake scenarios')
+        "--brake",
+        dest="brake",
+        action="store_true",
+        help="Execute brake scenarios")
     argparser.set_defaults(uturn=False)
     argparser.add_argument(
-        '--uturn',
-        dest='uturn',
-        action='store_true',
-        help='Execute brake scenarios')
+        "--uturn",
+        dest="uturn",
+        action="store_true",
+        help="Execute brake scenarios")
     argparser.set_defaults(turn=False)
     argparser.add_argument(
-        '--turn',
-        dest='turn',
-        action='store_true',
-        help='Execute basic scenarios')
+        "--turn",
+        dest="turn",
+        action="store_true",
+        help="Execute basic scenarios")
     argparser.set_defaults(all=True)
     argparser.add_argument(
-        '--all',
-        dest='all',
-        action='store_true',
-        help='Execute all scenarios')
+        "--all",
+        dest="all",
+        action="store_true",
+        help="Execute all scenarios")
     argparser.set_defaults(none=False)
     argparser.add_argument(
-        '--none',
-        dest='none',
-        action='store_true',
-        help='Do not execute any scenarios')
+        "--none",
+        dest="none",
+        action="store_true",
+        help="Do not execute any scenarios")
     argparser.set_defaults(show_physics_control=False)
     argparser.add_argument(
-        '--show_physics_control',
-        dest='show_physics_control',
-        action='store_true',
-        help='Show default physics control of cars')
+        "--show_physics_control",
+        dest="show_physics_control",
+        action="store_true",
+        help="Show default physics control of cars")
 
     args = argparser.parse_args()
     if args.accel or args.brake or args.uturn or args.turn:
         args.all = False
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main(args)
-    except KeyboardInterrupt:
-        print(' - Exited by user.')

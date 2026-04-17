@@ -218,7 +218,7 @@ class PIDLongitudinalController:
         current_speed = get_speed(self._vehicle)
 
         if debug:
-            print(f"Current speed = {current_speed}")
+            pass
 
         return self._pid_control(target_speed, current_speed)
 

@@ -37,7 +37,7 @@ _ENABLED_KEY: str = "Enabled"
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="Edit uproject file to enable/disable CarSim plugin"
+        description="Edit uproject file to enable/disable CarSim plugin",
     )
     argparser.add_argument(
         "-f",
@@ -91,7 +91,7 @@ def _edit_plugin(
                 _NAME_KEY: _CARSIM_PLUGIN_NAME,
                 "MarketplaceURL": _CARSIM_MARKETPLACE_URL,
                 _ENABLED_KEY: True,
-            }
+            },
         )
 
     return should_do_changes
@@ -113,7 +113,7 @@ def main() -> None:
                     uproject_json,
                     indent=_JSON_INDENT,
                     sort_keys=True,
-                )
+                ),
             )
 
 

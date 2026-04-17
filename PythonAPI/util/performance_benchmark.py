@@ -48,14 +48,14 @@ def define_weather():
   list_weather = []
 
   if args.tm:
-    weather00 = { 'parameter' : carla.WeatherParameters.ClearNoon, 'name': 'ClearNoon'}
+    weather00 = { "parameter" : carla.WeatherParameters.ClearNoon, "name": "ClearNoon"}
 
     list_weather.append(weather00)
 
   else:
-    weather00 = { 'parameter' : carla.WeatherParameters.ClearNoon, 'name' : 'ClearNoon'}
-    weather01 = { 'parameter' : carla.WeatherParameters.CloudyNoon, 'name' : 'CloudyNoon'}
-    weather02 = { 'parameter' : carla.WeatherParameters.SoftRainSunset, 'name' : 'SoftRainSunset'}
+    weather00 = { "parameter" : carla.WeatherParameters.ClearNoon, "name" : "ClearNoon"}
+    weather01 = { "parameter" : carla.WeatherParameters.CloudyNoon, "name" : "CloudyNoon"}
+    weather02 = { "parameter" : carla.WeatherParameters.SoftRainSunset, "name" : "SoftRainSunset"}
 
     list_weather.append(weather00)
     list_weather.append(weather01)
@@ -66,7 +66,7 @@ def define_weather():
         new_list = [list_weather[int(i)] for i in args.weather]
         list_weather = new_list
       except IndexError:
-        print("Warning!! The list of types of weather introduced is not valid. Using all available.")
+        pass
 
   return list_weather
 
@@ -75,44 +75,44 @@ def define_sensors():
   list_sensor_specs = []
 
   if args.tm:
-    sensors00 = [{'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0,
-                'width': 300, 'height': 200, 'fov': 100, 'label': '0. cam-300x200'}]
+    sensors00 = [{"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 0.0,
+                "width": 300, "height": 200, "fov": 100, "label": "0. cam-300x200"}]
 
     list_sensor_specs.append(sensors00)
 
   else:
-    sensors00 = [{'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': '0. cam-1920x1080'}]
+    sensors00 = [{"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 0.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "0. cam-1920x1080"}]
 
-    sensors01 = [{'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': '1. cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 180.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'}]
+    sensors01 = [{"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 0.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "1. cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 180.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"}]
 
-    sensors02 = [{'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': '2. cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 90.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 180.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'}]
+    sensors02 = [{"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 0.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "2. cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 90.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 180.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"}]
 
-    sensors03 = [{'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': '3. cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 90.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 180.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'},
-                  {'type': 'sensor.camera.rgb', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'roll': 0.0, 'pitch': 0.0, 'yaw': 270.0,
-                  'width': 1920, 'height': 1080, 'fov': 100, 'label': 'cam-1920x1080'}]
+    sensors03 = [{"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 0.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "3. cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 90.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 180.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"},
+                  {"type": "sensor.camera.rgb", "x": 0.7, "y": 0.0, "z": 1.60, "roll": 0.0, "pitch": 0.0, "yaw": 270.0,
+                  "width": 1920, "height": 1080, "fov": 100, "label": "cam-1920x1080"}]
 
-    sensors04 = [{'type': 'sensor.lidar.ray_cast', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'yaw': 0.0, 'pitch': 0.0, 'roll': 0.0,
-                  'pts_per_sec': '100000', 'label': '4. LIDAR: 100k'}]
+    sensors04 = [{"type": "sensor.lidar.ray_cast", "x": 0.7, "y": 0.0, "z": 1.60, "yaw": 0.0, "pitch": 0.0, "roll": 0.0,
+                  "pts_per_sec": "100000", "label": "4. LIDAR: 100k"}]
 
-    sensors05 = [{'type': 'sensor.lidar.ray_cast', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'yaw': 0.0, 'pitch': 0.0, 'roll': 0.0,
-                  'pts_per_sec': '500000', 'label': '5. LIDAR: 500k'}]
+    sensors05 = [{"type": "sensor.lidar.ray_cast", "x": 0.7, "y": 0.0, "z": 1.60, "yaw": 0.0, "pitch": 0.0, "roll": 0.0,
+                  "pts_per_sec": "500000", "label": "5. LIDAR: 500k"}]
 
-    sensors06 = [{'type': 'sensor.lidar.ray_cast', 'x': 0.7, 'y': 0.0, 'z': 1.60, 'yaw': 0.0, 'pitch': 0.0, 'roll': 0.0,
-                  'pts_per_sec': '1000000', 'label': '6. LIDAR: 1M'}]
+    sensors06 = [{"type": "sensor.lidar.ray_cast", "x": 0.7, "y": 0.0, "z": 1.60, "yaw": 0.0, "pitch": 0.0, "roll": 0.0,
+                  "pts_per_sec": "1000000", "label": "6. LIDAR: 1M"}]
 
     list_sensor_specs.append(sensors00)
     list_sensor_specs.append(sensors01)
@@ -127,7 +127,7 @@ def define_sensors():
         new_list = [list_sensor_specs[int(i)] for i in args.sensors]
         list_sensor_specs = new_list
       except IndexError:
-        print("Warning!! The list of sensors introduced is not valid. Using all available.")
+        pass
 
   return list_sensor_specs
 
@@ -135,10 +135,10 @@ def define_environments():
   list_env_specs = []
 
   if args.tm:
-    env00 = {'vehicles': 10, 'walkers': 0}
-    env01 = {'vehicles': 50, 'walkers': 50}
-    env02 = {'vehicles': 250, 'walkers': 0}
-    env03 = {'vehicles': 150, 'walkers': 50}
+    env00 = {"vehicles": 10, "walkers": 0}
+    env01 = {"vehicles": 50, "walkers": 50}
+    env02 = {"vehicles": 250, "walkers": 0}
+    env03 = {"vehicles": 150, "walkers": 50}
 
     list_env_specs.append(env00)
     list_env_specs.append(env01)
@@ -146,14 +146,14 @@ def define_environments():
     list_env_specs.append(env03)
 
   else:
-    env00 = {'vehicles': 1, 'walkers': 0}
+    env00 = {"vehicles": 1, "walkers": 0}
 
     list_env_specs.append(env00)
 
   return list_env_specs
 
 def define_maps(client):
-  maps = ['Town01', 'Town01_Opt', 'Town02', 'Town02_Opt', 'Town03', 'Town03_Opt', 'Town04', 'Town04_Opt', 'Town05', 'Town05_Opt', 'Town10HD', 'Town10HD_Opt']
+  maps = ["Town01", "Town01_Opt", "Town02", "Town02_Opt", "Town03", "Town03_Opt", "Town04", "Town04_Opt", "Town05", "Town05_Opt", "Town10HD", "Town10HD_Opt"]
   maps = sorted(maps)
 
   if args.maps is not None:
@@ -161,11 +161,11 @@ def define_maps(client):
     if all_good:
       maps = sorted(args.maps)
     else:
-      print("Warning!! The list of maps introduced is not valid. Using all available.")
+      pass
 
   return maps
 class CallBack:
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = threading.Lock()
         self._pygame_clock = pygame.time.Clock()
         self._current_fps = 0
@@ -186,39 +186,39 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
 
   # setup sensors
   for sensor_spec in sensors:
-    bp = blueprint_library.find(sensor_spec['type'])
+    bp = blueprint_library.find(sensor_spec["type"])
 
-    if sensor_spec['type'].startswith('sensor.camera'):
-      bp.set_attribute('image_size_x', str(sensor_spec['width']))
-      bp.set_attribute('image_size_y', str(sensor_spec['height']))
-      bp.set_attribute('fov', str(sensor_spec['fov']))
+    if sensor_spec["type"].startswith("sensor.camera"):
+      bp.set_attribute("image_size_x", str(sensor_spec["width"]))
+      bp.set_attribute("image_size_y", str(sensor_spec["height"]))
+      bp.set_attribute("fov", str(sensor_spec["fov"]))
       sensor_location = carla.Location(
-        x=sensor_spec['x'],
-        y=sensor_spec['y'],
-        z=sensor_spec['z'])
+        x=sensor_spec["x"],
+        y=sensor_spec["y"],
+        z=sensor_spec["z"])
       sensor_rotation = carla.Rotation(
-        pitch=sensor_spec['pitch'],
-        roll=sensor_spec['roll'],
-        yaw=sensor_spec['yaw'])
+        pitch=sensor_spec["pitch"],
+        roll=sensor_spec["roll"],
+        yaw=sensor_spec["yaw"])
 
-    elif sensor_spec['type'].startswith('sensor.lidar'):
-      bp.set_attribute('range', '200')
-      bp.set_attribute('rotation_frequency', '10')
-      bp.set_attribute('channels', '32')
-      bp.set_attribute('upper_fov', '15')
-      bp.set_attribute('lower_fov', '-30')
-      bp.set_attribute('points_per_second', str(sensor_spec['pts_per_sec']))
+    elif sensor_spec["type"].startswith("sensor.lidar"):
+      bp.set_attribute("range", "200")
+      bp.set_attribute("rotation_frequency", "10")
+      bp.set_attribute("channels", "32")
+      bp.set_attribute("upper_fov", "15")
+      bp.set_attribute("lower_fov", "-30")
+      bp.set_attribute("points_per_second", str(sensor_spec["pts_per_sec"]))
       sensor_location = carla.Location(
-        x=sensor_spec['x'],
-        y=sensor_spec['y'],
-        z=sensor_spec['z'])
+        x=sensor_spec["x"],
+        y=sensor_spec["y"],
+        z=sensor_spec["z"])
       sensor_rotation = carla.Rotation(
-        pitch=sensor_spec['pitch'],
-        roll=sensor_spec['roll'],
-        yaw=sensor_spec['yaw'])
+        pitch=sensor_spec["pitch"],
+        roll=sensor_spec["roll"],
+        yaw=sensor_spec["yaw"])
 
-    elif sensor_spec['type'].startswith('sensor.other.gnss'):
-      sensor_location = carla.Location(x=sensor_spec['x'], y=sensor_spec['y'], z=sensor_spec['z'])
+    elif sensor_spec["type"].startswith("sensor.other.gnss"):
+      sensor_location = carla.Location(x=sensor_spec["x"], y=sensor_spec["y"], z=sensor_spec["z"])
       sensor_rotation = carla.Rotation()
 
     # create sensor
@@ -236,7 +236,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
   walkers_list = []
   all_id = []
 
-  blueprint = world.get_blueprint_library().filter('vehicle.audi.a2')[0]
+  blueprint = world.get_blueprint_library().filter("vehicle.audi.a2")[0]
   walker_bp = world.get_blueprint_library().filter("walker.pedestrian.0001")[0]
 
   # @todo cannot import these directly.
@@ -251,7 +251,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
   for num, transform in enumerate(spawn_points):
     if num >= n_vehicles:
       break
-    blueprint.set_attribute('role_name', 'autopilot')
+    blueprint.set_attribute("role_name", "autopilot")
     batch.append(SpawnActor(blueprint, transform).then(SetAutopilot(FutureActor, True)))
 
   for response in client.apply_batch_sync(batch, False):
@@ -279,14 +279,13 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     walker_speed = []
     for spawn_point in spawn_points:
       # set as not invincible
-      if walker_bp.has_attribute('is_invincible'):
-        walker_bp.set_attribute('is_invincible', 'false')
+      if walker_bp.has_attribute("is_invincible"):
+        walker_bp.set_attribute("is_invincible", "false")
       # set the max speed
-      if walker_bp.has_attribute('speed'):
+      if walker_bp.has_attribute("speed"):
         # walking
-        walker_speed.append(walker_bp.get_attribute('speed').recommended_values[1])
+        walker_speed.append(walker_bp.get_attribute("speed").recommended_values[1])
       else:
-        print("Walker has no speed")
         walker_speed.append(0.0)
       batch.append(SpawnActor(walker_bp, spawn_point))
     results = client.apply_batch_sync(batch, True)
@@ -300,7 +299,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     walker_speed = walker_speed2
     # 3. we spawn the walker controller
     batch = []
-    walker_controller_bp = world.get_blueprint_library().find('controller.ai.walker')
+    walker_controller_bp = world.get_blueprint_library().find("controller.ai.walker")
     for i in range(len(walkers_list)):
       batch.append(SpawnActor(walker_controller_bp, carla.Transform(), walkers_list[i]["id"]))
     results = client.apply_batch_sync(batch, True)
@@ -330,7 +329,6 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     # max speed
     all_actors[i].set_max_speed(float(walker_speed[int(i/2)]))
 
-  print('Spawned %d vehicles and %d walkers.' % (len(vehicles_list), len(walkers_list)))
 
 
   return vehicles_list, walkers_list, all_id, all_actors, sensors_ret
@@ -340,7 +338,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
 # -- Benchmarking functions --------------------------------------------------------------------------------------------
 # ======================================================================================================================
 
-def set_world_settings(world, args = None):
+def set_world_settings(world, args = None) -> None:
 
   if args is None:
     settings = world.get_settings()
@@ -366,7 +364,7 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
   tick = world.tick if args.sync else world.wait_for_tick
   set_world_settings(world, args)
 
-  vehicles_list, walkers_list, all_id, all_actors, sensors_ret = create_environment(world, sensors, n, n_walkers, spawn_points, client, tick)
+  vehicles_list, _walkers_list, all_id, all_actors, sensors_ret = create_environment(world, sensors, n, n_walkers, spawn_points, client, tick)
 
   if sensors_ret:
     sensor_list = sensors_ret
@@ -379,9 +377,9 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
   while ticks < int(args.ticks):
     _ = tick()
     if debug:
-      print(f"== Samples {ticks + 1} / {args.ticks}")
+      pass
 
-    min_fps = float('inf')
+    min_fps = float("inf")
     for sc in sensors_callback:
       fps = sc.get_fps()
       min_fps = min(min_fps, fps)
@@ -396,14 +394,12 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
     sensor.destroy()
   sensors_callback.clear()
 
-  print('Destroying %d vehicles.\n' % len(vehicles_list))
   client.apply_batch([carla.command.DestroyActor(x) for x in vehicles_list])
 
   # stop walker controllers (list is [controller, actor, controller, actor ...])
   for i in range(0, len(all_id), 2):
     all_actors[i].stop()
 
-  print('\ndestroying %d walkers' % len(walkers_list))
   client.apply_batch([carla.command.DestroyActor(x) for x in all_id])
 
   set_world_settings(world)
@@ -420,8 +416,8 @@ def compute_mean_std(list_values):
     return mean, std
 
 
-def serialize_records(records, system_specs, filename):
-  with open(filename, 'w+') as fd:
+def serialize_records(records, system_specs, filename) -> None:
+  with open(filename, "w+") as fd:
     s = "| Town | Sensors | Weather | # of Vehicles | # of Walkers | Samples | Mean FPS | Std FPS |\n"
     s += "| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |\n"
     fd.write(s)
@@ -429,14 +425,14 @@ def serialize_records(records, system_specs, filename):
     for sensor_key in sorted(records.keys()):
       list_records = records[sensor_key]
       for record in list_records:
-        s = "| {} | {} | {} | {} | {} | {} | {:03.2f} | {:03.2f} |\n".format(record['town'],
-                                                                    record['sensors'],
-                                                                    record['weather'],
-                                                                    record['n_vehicles'],
-                                                                    record['n_walkers'],
-                                                                    record['samples'],
-                                                                    record['fps_mean'],
-                                                                    record['fps_std'])
+        s = "| {} | {} | {} | {} | {} | {} | {:03.2f} | {:03.2f} |\n".format(record["town"],
+                                                                    record["sensors"],
+                                                                    record["weather"],
+                                                                    record["n_vehicles"],
+                                                                    record["n_walkers"],
+                                                                    record["samples"],
+                                                                    record["fps_mean"],
+                                                                    record["fps_std"])
         fd.write(s)
 
     s = "\n| Global mean FPS | Global std FPS |\n"
@@ -449,15 +445,15 @@ def serialize_records(records, system_specs, filename):
 
 def get_total(records):
   record_vals = [item for sublist in records.values() for item in sublist]
-  total_mean_fps = sum([r['fps_mean'] for r in record_vals]) / len(record_vals)
-  total_mean_std = sum([r['fps_std'] for r in record_vals]) / len(record_vals)
+  total_mean_fps = sum([r["fps_mean"] for r in record_vals]) / len(record_vals)
+  total_mean_std = sum([r["fps_std"] for r in record_vals]) / len(record_vals)
   return total_mean_fps, total_mean_std
 
 
 def get_system_specs():
   str_system = ""
   cpu_info = cpuinfo.get_cpu_info()
-  str_system += "CPU {} {}. ".format(cpu_info.get('brand', 'Unknown'), cpu_info.get('family', 'Unknown'))
+  str_system += "CPU {} {}. ".format(cpu_info.get("brand", "Unknown"), cpu_info.get("family", "Unknown"))
 
   memory_info = psutil.virtual_memory()
   str_system += f"{memory_info.total / (1024 * 1024 * 1024):03.2f} GB RAM memory. "
@@ -471,25 +467,20 @@ def get_system_specs():
   return str_system
 
 
-def show_benchmark_scenarios(maps):
-  print("Available maps")
-  for map_name in sorted(maps):
-    print(f"  - {map_name}")
-  print("Available sensors")
+def show_benchmark_scenarios(maps) -> None:
+  for _map_name in sorted(maps):
+    pass
   for _,sensors in enumerate(define_sensors()):
     sensor_str = ""
     for sensor in sensors:
-      sensor_str += (sensor['label'] + " ")
-    print(f'  - {sensor_str}')
-  print("Available types of weather")
-  for i,weather in enumerate(define_weather()):
-    print('  - %i: %s' % (i, weather['name']))
-  print("Available Enviroments")
-  for i,env in enumerate(define_environments()):
-    print('  - %i: %s' % (i, str(env)))
+      sensor_str += (sensor["label"] + " ")
+  for _i,_weather in enumerate(define_weather()):
+    pass
+  for _i,_env in enumerate(define_environments()):
+    pass
 
 
-def main(args):
+def main(args) -> None:
 
   try:
     client = carla.Client(args.host, int(args.port))
@@ -524,17 +515,17 @@ def main(args):
             mean, std = compute_mean_std(list_fps)
             sensor_str = ""
             for sensor in sensors:
-              sensor_str += (sensor['label'] + " ")
+              sensor_str += (sensor["label"] + " ")
 
             record = {
-              'town': town,
-              'sensors': sensor_str,
-              'weather': weather["name"],
-              'n_vehicles': env["vehicles"],
-              'n_walkers': env["walkers"],
-              'samples': args.ticks,
-              'fps_mean': mean,
-              'fps_std': std
+              "town": town,
+              "sensors": sensor_str,
+              "weather": weather["name"],
+              "n_vehicles": env["vehicles"],
+              "n_walkers": env["walkers"],
+              "samples": args.ticks,
+              "fps_mean": mean,
+              "fps_std": std,
             }
 
             env_str = str(env["vehicles"]) + str(env["walkers"])
@@ -542,7 +533,6 @@ def main(args):
             if env_str not in records:
               records[env_str] = []
             records[env_str].append(record)
-            print(record)
 
     system_specs = get_system_specs()
     serialize_records(records, system_specs, args.file)
@@ -551,27 +541,26 @@ def main(args):
   except KeyboardInterrupt:
       set_world_settings(world)
       client.reload_world()
-      print('\nCancelled by user. Bye!')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   description = "Benchmark CARLA performance in your platform for different towns and sensor or traffic configurations.\n"
 
   parser = argparse.ArgumentParser(description=description)
-  parser.add_argument('--host', default='localhost', help='IP of the host server (default: localhost)')
-  parser.add_argument('--port', default='2000', help='TCP port to listen to (default: 2000)')
-  parser.add_argument('--file', type=str, help='Write results into a txt file', default="benchmark.md")
-  parser.add_argument('--tm', action='store_true', help='Switch to traffic manager benchmark')
-  parser.add_argument('--ticks', default=100, help='Number of ticks for each scenario (default: 100)')
-  parser.add_argument('--sync', default=True, action='store_true', help='Synchronous mode execution (default)')
-  parser.add_argument('--async', dest='sync', action='store_false', help='Asynchronous mode execution')
-  parser.add_argument('--fixed_dt', type=float, default=0.05, help='Time interval for the simulator in synchronous mode (default: 0.05)')
-  parser.add_argument('--render_mode', dest='no_render_mode', action='store_false', help='Execute with spectator')
-  parser.add_argument('--no_render_mode', default=True, action='store_true', help='Execute in no rendering mode (default)')
-  parser.add_argument('--show_scenarios', default=False, action='store_true', help='Show the scenarios to benchmark and return (default=False)')
-  parser.add_argument('--sensors', nargs="+", default=None, help='List of sensors to benchmark, by default all defined ones')
-  parser.add_argument('--maps', nargs="+", default=None, help='List of maps to benchmark, by default all defined ones')
-  parser.add_argument('--weather', nargs="+", default=None, help='List of weather types to benchmark, by default all defined ones')
+  parser.add_argument("--host", default="localhost", help="IP of the host server (default: localhost)")
+  parser.add_argument("--port", default="2000", help="TCP port to listen to (default: 2000)")
+  parser.add_argument("--file", type=str, help="Write results into a txt file", default="benchmark.md")
+  parser.add_argument("--tm", action="store_true", help="Switch to traffic manager benchmark")
+  parser.add_argument("--ticks", default=100, help="Number of ticks for each scenario (default: 100)")
+  parser.add_argument("--sync", default=True, action="store_true", help="Synchronous mode execution (default)")
+  parser.add_argument("--async", dest="sync", action="store_false", help="Asynchronous mode execution")
+  parser.add_argument("--fixed_dt", type=float, default=0.05, help="Time interval for the simulator in synchronous mode (default: 0.05)")
+  parser.add_argument("--render_mode", dest="no_render_mode", action="store_false", help="Execute with spectator")
+  parser.add_argument("--no_render_mode", default=True, action="store_true", help="Execute in no rendering mode (default)")
+  parser.add_argument("--show_scenarios", default=False, action="store_true", help="Show the scenarios to benchmark and return (default=False)")
+  parser.add_argument("--sensors", nargs="+", default=None, help="List of sensors to benchmark, by default all defined ones")
+  parser.add_argument("--maps", nargs="+", default=None, help="List of maps to benchmark, by default all defined ones")
+  parser.add_argument("--weather", nargs="+", default=None, help="List of weather types to benchmark, by default all defined ones")
 
   args = parser.parse_args()
 

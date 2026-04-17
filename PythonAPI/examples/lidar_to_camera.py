@@ -11,6 +11,7 @@ Lidar projection on RGB camera example
 """
 
 import argparse
+import contextlib
 import os
 import sys
 from queue import Empty, Queue
@@ -22,17 +23,17 @@ import carla
 try:
     import numpy as np
 except ImportError:
-    raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+    raise RuntimeError("cannot import numpy, make sure numpy package is installed")
 
 try:
     from PIL import Image
 except ImportError:
     raise RuntimeError('cannot import PIL, make sure "Pillow" package is installed')
 
-VIRIDIS = np.array(cm._colormaps.get_cmap('viridis').colors)
+VIRIDIS = np.array(cm._colormaps.get_cmap("viridis").colors)
 VID_RANGE = np.linspace(0.0, 1.0, VIRIDIS.shape[0])
 
-def sensor_callback(data, queue):
+def sensor_callback(data, queue) -> None:
     """
     This simple callback just stores the data on a thread safe Python Queue
     to be retrieved from the "main thread".
@@ -40,7 +41,7 @@ def sensor_callback(data, queue):
     queue.put(data)
 
 
-def tutorial(args):
+def tutorial(args) -> None:
     """
     This function is intended to be a tutorial on how to retrieve data in a
     synchronous way, and project 3D points from a lidar to a 2D camera.
@@ -65,8 +66,8 @@ def tutorial(args):
     lidar = None
 
     try:
-        if not os.path.isdir('_out'):
-            os.mkdir('_out')
+        if not os.path.isdir("_out"):
+            os.mkdir("_out")
         # Search the desired blueprints
         vehicle_bp = bp_lib.filter("vehicle.lincoln.mkz_2017")[0]
         camera_bp = bp_lib.filter("sensor.camera.rgb")[0]
@@ -77,14 +78,14 @@ def tutorial(args):
         camera_bp.set_attribute("image_size_y", str(args.height))
 
         if args.no_noise:
-            lidar_bp.set_attribute('dropoff_general_rate', '0.0')
-            lidar_bp.set_attribute('dropoff_intensity_limit', '1.0')
-            lidar_bp.set_attribute('dropoff_zero_intensity', '0.0')
-        lidar_bp.set_attribute('upper_fov', str(args.upper_fov))
-        lidar_bp.set_attribute('lower_fov', str(args.lower_fov))
-        lidar_bp.set_attribute('channels', str(args.channels))
-        lidar_bp.set_attribute('range', str(args.range))
-        lidar_bp.set_attribute('points_per_second', str(args.points_per_second))
+            lidar_bp.set_attribute("dropoff_general_rate", "0.0")
+            lidar_bp.set_attribute("dropoff_intensity_limit", "1.0")
+            lidar_bp.set_attribute("dropoff_zero_intensity", "0.0")
+        lidar_bp.set_attribute("upper_fov", str(args.upper_fov))
+        lidar_bp.set_attribute("lower_fov", str(args.lower_fov))
+        lidar_bp.set_attribute("channels", str(args.channels))
+        lidar_bp.set_attribute("range", str(args.range))
+        lidar_bp.set_attribute("points_per_second", str(args.points_per_second))
 
         # Spawn the blueprints
         vehicle = world.spawn_actor(
@@ -132,13 +133,12 @@ def tutorial(args):
                 image_data = image_queue.get(True, 1.0)
                 lidar_data = lidar_queue.get(True, 1.0)
             except Empty:
-                print("[Warning] Some sensor data has been missed")
                 continue
 
             assert image_data.frame == lidar_data.frame == world_frame
             # At this point, we have the synchronized information from the 2 sensors.
             sys.stdout.write("\r(%d/%d) Simulation: %d Camera: %d Lidar: %d" %
-                (frame, args.frames, world_frame, image_data.frame, lidar_data.frame) + ' ')
+                (frame, args.frames, world_frame, image_data.frame, lidar_data.frame) + " ")
             sys.stdout.flush()
 
             # Get the raw BGRA buffer and convert it to an array of RGB of
@@ -149,7 +149,7 @@ def tutorial(args):
 
             # Get the lidar data and convert it to a numpy array.
             p_cloud_size = len(lidar_data)
-            p_cloud = np.copy(np.frombuffer(lidar_data.raw_data, dtype=np.dtype('f4')))
+            p_cloud = np.copy(np.frombuffer(lidar_data.raw_data, dtype=np.dtype("f4")))
             p_cloud = np.reshape(p_cloud, (p_cloud_size, 4))
 
             # Lidar intensity array of shape (p_cloud_size,) but, for now, let's
@@ -262,83 +262,81 @@ def tutorial(args):
             vehicle.destroy()
 
 
-def main():
+def main() -> None:
     """Start function"""
     argparser = argparse.ArgumentParser(
-        description='CARLA Sensor sync and projection tutorial')
+        description="CARLA Sensor sync and projection tutorial")
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default="127.0.0.1",
+        help="IP of the host server (default: 127.0.0.1)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help="TCP port to listen to (default: 2000)")
     argparser.add_argument(
-        '--res',
-        metavar='WIDTHxHEIGHT',
-        default='680x420',
-        help='window resolution (default: 1280x720)')
+        "--res",
+        metavar="WIDTHxHEIGHT",
+        default="680x420",
+        help="window resolution (default: 1280x720)")
     argparser.add_argument(
-        '-f', '--frames',
-        metavar='N',
+        "-f", "--frames",
+        metavar="N",
         default=500,
         type=int,
-        help='number of frames to record (default: 500)')
+        help="number of frames to record (default: 500)")
     argparser.add_argument(
-        '-d', '--dot-extent',
-        metavar='SIZE',
+        "-d", "--dot-extent",
+        metavar="SIZE",
         default=2,
         type=int,
-        help='visualization dot extent in pixels (Recomended [1-4]) (default: 2)')
+        help="visualization dot extent in pixels (Recomended [1-4]) (default: 2)")
     argparser.add_argument(
-        '--no-noise',
-        action='store_true',
-        help='remove the drop off and noise from the normal (non-semantic) lidar')
+        "--no-noise",
+        action="store_true",
+        help="remove the drop off and noise from the normal (non-semantic) lidar")
     argparser.add_argument(
-        '--upper-fov',
-        metavar='F',
+        "--upper-fov",
+        metavar="F",
         default=30.0,
         type=float,
-        help='lidar\'s upper field of view in degrees (default: 15.0)')
+        help="lidar's upper field of view in degrees (default: 15.0)")
     argparser.add_argument(
-        '--lower-fov',
-        metavar='F',
+        "--lower-fov",
+        metavar="F",
         default=-25.0,
         type=float,
-        help='lidar\'s lower field of view in degrees (default: -25.0)')
+        help="lidar's lower field of view in degrees (default: -25.0)")
     argparser.add_argument(
-        '-c', '--channels',
-        metavar='C',
+        "-c", "--channels",
+        metavar="C",
         default=64.0,
         type=float,
-        help='lidar\'s channel count (default: 64)')
+        help="lidar's channel count (default: 64)")
     argparser.add_argument(
-        '-r', '--range',
-        metavar='R',
+        "-r", "--range",
+        metavar="R",
         default=100.0,
         type=float,
-        help='lidar\'s maximum range in meters (default: 100.0)')
+        help="lidar's maximum range in meters (default: 100.0)")
     argparser.add_argument(
-        '--points-per-second',
-        metavar='N',
-        default='100000',
+        "--points-per-second",
+        metavar="N",
+        default="100000",
         type=int,
-        help='lidar points per second (default: 100000)')
+        help="lidar points per second (default: 100000)")
     args = argparser.parse_args()
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = [int(x) for x in args.res.split("x")]
     args.dot_extent -= 1
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         tutorial(args)
 
-    except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()

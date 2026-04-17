@@ -67,14 +67,13 @@ def main() -> None:
         bp = random.choice(blueprint_library.filter(_VEHICLE_FILTER))
         if bp.has_attribute("color"):
             color = random.choice(
-                bp.get_attribute("color").recommended_values
+                bp.get_attribute("color").recommended_values,
             )
             bp.set_attribute("color", color)
 
         transform = world.get_map().get_spawn_points()[0]
         vehicle = world.spawn_actor(bp, transform)
         actor_list.append(vehicle)
-        print(f"created {vehicle.type_id}")
 
         # Enable autopilot
         vehicle.set_autopilot(True)
@@ -84,19 +83,18 @@ def main() -> None:
         camera_bp.set_attribute("image_size_x", _CAMERA_WIDTH)
         camera_bp.set_attribute("image_size_y", _CAMERA_HEIGHT)
         camera_transform = carla.Transform(
-            carla.Location(x=_CAMERA_X, z=_CAMERA_Z)
+            carla.Location(x=_CAMERA_X, z=_CAMERA_Z),
         )
         camera = world.spawn_actor(
-            camera_bp, camera_transform, attach_to=vehicle
+            camera_bp, camera_transform, attach_to=vehicle,
         )
         actor_list.append(camera)
-        print(f"created {camera.type_id}")
 
         # Register callback for final color
         camera.listen(
             lambda image: image.save_to_disk(
-                _OUTPUT_PATTERN % image.frame
-            )
+                _OUTPUT_PATTERN % image.frame,
+            ),
         )
 
         # Enable gbuffer textures
@@ -123,19 +121,17 @@ def main() -> None:
             camera.listen_to_gbuffer(
                 gbuffer_id,
                 lambda image, n=name: image.save_to_disk(
-                    _GBUFFER_PATTERN % (n, image.frame)
+                    _GBUFFER_PATTERN % (n, image.frame),
                 ),
             )
 
         time.sleep(_SIMULATION_DURATION)
 
     finally:
-        print("destroying actors")
         camera.destroy()
         client.apply_batch(
-            [carla.command.DestroyActor(x) for x in actor_list]
+            [carla.command.DestroyActor(x) for x in actor_list],
         )
-        print("done.")
 
 
 if __name__ == "__main__":

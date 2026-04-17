@@ -75,7 +75,7 @@ def get_8bit_texture(
             b = int(color[_CHANNEL_B])
             a = int(color[_CHANNEL_A])
             texture.set(
-                x, height - y - 1, carla.Color(r, g, b, a)
+                x, height - y - 1, carla.Color(r, g, b, a),
             )
 
     return texture
@@ -107,7 +107,7 @@ def get_float_texture(
             b = int(color[_CHANNEL_B]) / _NORMALIZATION_DIVISOR * _HDR_MULTIPLIER
             a = _ALPHA_DEFAULT
             texture_float.set(
-                x, height - y - 1, carla.FloatColor(r, g, b, a)
+                x, height - y - 1, carla.FloatColor(r, g, b, a),
             )
 
     return texture_float
@@ -121,7 +121,7 @@ def get_float_texture(
 def _parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     argparser = argparse.ArgumentParser(
-        description="Apply textures to CARLA objects"
+        description="Apply textures to CARLA objects",
     )
     argparser.add_argument(
         "--host",
@@ -183,12 +183,11 @@ def main() -> None:
 
     if args.list:
         names = world.get_names_of_all_objects()
-        for name in names:
-            print(name)
+        for _name in names:
+            pass
         return
 
     if not args.object_name:
-        print("Error: missing object name to apply texture")
         return
 
     diffuse: npt.NDArray[np.uint8] | None = None

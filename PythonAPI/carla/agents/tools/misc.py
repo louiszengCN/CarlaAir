@@ -134,7 +134,7 @@ def is_within_distance(
         [
             target_transform.location.x - reference_transform.location.x,
             target_transform.location.y - reference_transform.location.y,
-        ]
+        ],
     )
     norm_target = float(np.linalg.norm(target_vector))
 
@@ -184,7 +184,7 @@ def compute_magnitude_angle(
         [
             target_location.x - current_location.x,
             target_location.y - current_location.y,
-        ]
+        ],
     )
     norm_target = float(np.linalg.norm(target_vector))
 
@@ -192,7 +192,7 @@ def compute_magnitude_angle(
         [
             math.cos(math.radians(orientation)),
             math.sin(math.radians(orientation)),
-        ]
+        ],
     )
     d_angle = math.degrees(
         math.acos(
@@ -266,8 +266,7 @@ def compute_distance(location_1: carla.Location, location_2: carla.Location) -> 
     x = location_2.x - location_1.x
     y = location_2.y - location_1.y
     z = location_2.z - location_1.z
-    norm = float(np.linalg.norm([x, y, z])) + _EPS
-    return norm
+    return float(np.linalg.norm([x, y, z])) + _EPS
 
 
 def positive(num: float) -> float:

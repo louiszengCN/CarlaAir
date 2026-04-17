@@ -31,12 +31,12 @@ try:
     import pygame
     from pygame.locals import K_ESCAPE, K_SPACE, K_a, K_d, K_s, K_w
 except ImportError:
-    raise RuntimeError('cannot import pygame, make sure pygame package is installed')
+    raise RuntimeError("cannot import pygame, make sure pygame package is installed")
 
 try:
     import numpy as np
 except ImportError:
-    raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+    raise RuntimeError("cannot import numpy, make sure numpy package is installed")
 
 VIEW_WIDTH = 1920//2
 VIEW_HEIGHT = 1080//2
@@ -63,11 +63,10 @@ class ClientSideBoundingBoxes:
 
         bounding_boxes = [ClientSideBoundingBoxes.get_bounding_box(vehicle, camera) for vehicle in vehicles]
         # filter objects behind camera
-        bounding_boxes = [bb for bb in bounding_boxes if all(bb[:, 2] > 0)]
-        return bounding_boxes
+        return [bb for bb in bounding_boxes if all(bb[:, 2] > 0)]
 
     @staticmethod
-    def draw_bounding_boxes(display, bounding_boxes):
+    def draw_bounding_boxes(display, bounding_boxes) -> None:
         """
         Draws bounding boxes on pygame display.
         """
@@ -105,8 +104,7 @@ class ClientSideBoundingBoxes:
         cords_x_y_z = ClientSideBoundingBoxes._vehicle_to_sensor(bb_cords, vehicle, camera)[:3, :]
         cords_y_minus_z_x = np.concatenate([cords_x_y_z[1, :], -cords_x_y_z[2, :], cords_x_y_z[0, :]])
         bbox = np.transpose(np.dot(camera.calibration, cords_y_minus_z_x))
-        camera_bbox = np.concatenate([bbox[:, 0] / bbox[:, 2], bbox[:, 1] / bbox[:, 2], bbox[:, 2]], axis=1)
-        return camera_bbox
+        return np.concatenate([bbox[:, 0] / bbox[:, 2], bbox[:, 1] / bbox[:, 2], bbox[:, 2]], axis=1)
 
     @staticmethod
     def _create_bb_points(vehicle):
@@ -133,8 +131,7 @@ class ClientSideBoundingBoxes:
         """
 
         world_cord = ClientSideBoundingBoxes._vehicle_to_world(cords, vehicle)
-        sensor_cord = ClientSideBoundingBoxes._world_to_sensor(world_cord, sensor)
-        return sensor_cord
+        return ClientSideBoundingBoxes._world_to_sensor(world_cord, sensor)
 
     @staticmethod
     def _vehicle_to_world(cords, vehicle):
@@ -146,8 +143,7 @@ class ClientSideBoundingBoxes:
         bb_vehicle_matrix = ClientSideBoundingBoxes.get_matrix(bb_transform)
         vehicle_world_matrix = ClientSideBoundingBoxes.get_matrix(vehicle.get_transform())
         bb_world_matrix = np.dot(vehicle_world_matrix, bb_vehicle_matrix)
-        world_cords = np.dot(bb_world_matrix, np.transpose(cords))
-        return world_cords
+        return np.dot(bb_world_matrix, np.transpose(cords))
 
     @staticmethod
     def _world_to_sensor(cords, sensor):
@@ -157,8 +153,7 @@ class ClientSideBoundingBoxes:
 
         sensor_world_matrix = ClientSideBoundingBoxes.get_matrix(sensor.get_transform())
         world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
-        sensor_cords = np.dot(world_sensor_matrix, cords)
-        return sensor_cords
+        return np.dot(world_sensor_matrix, cords)
 
     @staticmethod
     def get_matrix(transform):
@@ -200,7 +195,7 @@ class BasicSynchronousClient:
     Basic implementation of a synchronous client.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = None
         self.world = None
         self.camera = None
@@ -215,13 +210,13 @@ class BasicSynchronousClient:
         Returns camera blueprint.
         """
 
-        camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
-        camera_bp.set_attribute('image_size_x', str(VIEW_WIDTH))
-        camera_bp.set_attribute('image_size_y', str(VIEW_HEIGHT))
-        camera_bp.set_attribute('fov', str(VIEW_FOV))
+        camera_bp = self.world.get_blueprint_library().find("sensor.camera.rgb")
+        camera_bp.set_attribute("image_size_x", str(VIEW_WIDTH))
+        camera_bp.set_attribute("image_size_y", str(VIEW_HEIGHT))
+        camera_bp.set_attribute("fov", str(VIEW_FOV))
         return camera_bp
 
-    def set_synchronous_mode(self, synchronous_mode):
+    def set_synchronous_mode(self, synchronous_mode) -> None:
         """
         Sets synchronous mode.
         """
@@ -230,16 +225,16 @@ class BasicSynchronousClient:
         settings.synchronous_mode = synchronous_mode
         self.world.apply_settings(settings)
 
-    def setup_car(self):
+    def setup_car(self) -> None:
         """
         Spawns actor-vehicle to be controled.
         """
 
-        car_bp = self.world.get_blueprint_library().filter('vehicle.*')[0]
+        car_bp = self.world.get_blueprint_library().filter("vehicle.*")[0]
         location = random.choice(self.world.get_map().get_spawn_points())
         self.car = self.world.spawn_actor(car_bp, location)
 
-    def setup_camera(self):
+    def setup_camera(self) -> None:
         """
         Spawns actor-camera to be used to render view.
         Sets calibration for client-side boxes rendering.
@@ -256,7 +251,7 @@ class BasicSynchronousClient:
         calibration[0, 0] = calibration[1, 1] = VIEW_WIDTH / (2.0 * np.tan(VIEW_FOV * np.pi / 360.0))
         self.camera.calibration = calibration
 
-    def control(self, car):
+    def control(self, car) -> bool:
         """
         Applies control to main car based on pygame pressed keys.
         Will return True If ESCAPE is hit, otherwise False to end main loop.
@@ -286,7 +281,7 @@ class BasicSynchronousClient:
         return False
 
     @staticmethod
-    def set_image(weak_self, img):
+    def set_image(weak_self, img) -> None:
         """
         Sets image coming from camera sensor.
         The self.capture flag is a mean of synchronization - once the flag is
@@ -298,7 +293,7 @@ class BasicSynchronousClient:
             self.image = img
             self.capture = False
 
-    def render(self, display):
+    def render(self, display) -> None:
         """
         Transforms image from camera sensor and blits it to main pygame display.
         """
@@ -311,7 +306,7 @@ class BasicSynchronousClient:
             surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
             display.blit(surface, (0, 0))
 
-    def game_loop(self):
+    def game_loop(self) -> None:
         """
         Main program loop.
         """
@@ -319,7 +314,7 @@ class BasicSynchronousClient:
         try:
             pygame.init()
 
-            self.client = carla.Client('127.0.0.1', 2000)
+            self.client = carla.Client("127.0.0.1", 2000)
             self.client.set_timeout(2.0)
             self.world = self.client.get_world()
 
@@ -330,7 +325,7 @@ class BasicSynchronousClient:
             pygame_clock = pygame.time.Clock()
 
             self.set_synchronous_mode(True)
-            vehicles = self.world.get_actors().filter('vehicle.*')
+            vehicles = self.world.get_actors().filter("vehicle.*")
 
             while True:
                 self.world.tick()
@@ -360,7 +355,7 @@ class BasicSynchronousClient:
 # ==============================================================================
 
 
-def main():
+def main() -> None:
     """
     Initializes the client-side bounding box demo.
     """
@@ -369,8 +364,8 @@ def main():
         client = BasicSynchronousClient()
         client.game_loop()
     finally:
-        print('EXIT')
+        pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

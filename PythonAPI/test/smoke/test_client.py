@@ -14,8 +14,4 @@ class TestClient(SmokeTest):
 
     def test_version(self) -> None:
         """Verify client and server versions match."""
-        print("TestClient.test_version")
-        self.assertEqual(
-            self.client.get_client_version(),
-            self.client.get_server_version(),
-        )
+        assert self.client.get_client_version() == self.client.get_server_version()

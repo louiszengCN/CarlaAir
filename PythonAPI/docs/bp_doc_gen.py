@@ -11,15 +11,15 @@ import sys
 
 import carla
 
-COLOR_LIST = '#498efc'
+COLOR_LIST = "#498efc"
 
 
-def join(elem, separator=''):
+def join(elem, separator=""):
     return separator.join(elem)
 
 
 def color(col, buf):
-    return join(['<font color="', col, '">', buf, '</font>'])
+    return join(['<font color="', col, '">', buf, "</font>"])
 
 
 def valid_dic_val(dic, value):
@@ -27,91 +27,90 @@ def valid_dic_val(dic, value):
 
 
 def italic(buf):
-    return join(['_', buf, '_'])
+    return join(["_", buf, "_"])
 
 
 def bold(buf):
-    return join(['**', buf, '**'])
+    return join(["**", buf, "**"])
 
 
 def parentheses(buf):
-    return join(['(', buf, ')'])
+    return join(["(", buf, ")"])
 
 
 def sub(buf):
-    return join(['<sub>', buf, '</sub>'])
+    return join(["<sub>", buf, "</sub>"])
 
 
 def code(buf):
-    return join(['`', buf, '`'])
+    return join(["`", buf, "`"])
 
 
 class MarkdownFile:
-    def __init__(self):
+    def __init__(self) -> None:
         self._data = ""
         self._list_depth = 0
-        self.endl = '  \n'
+        self.endl = "  \n"
 
     def data(self):
         return self._data
 
-    def list_push(self, buf=''):
+    def list_push(self, buf="") -> None:
         if buf:
             self.text(join([
-                '    ' * self._list_depth if self._list_depth != 0 else '', '- ', buf]))
+                "    " * self._list_depth if self._list_depth != 0 else "", "- ", buf]))
         self._list_depth = (self._list_depth + 1)
 
-    def list_pushn(self, buf):
+    def list_pushn(self, buf) -> None:
         self.list_push(join([buf, self.endl]))
 
-    def list_pop(self):
+    def list_pop(self) -> None:
         self._list_depth = max(self._list_depth - 1, 0)
 
-    def list_popn(self):
+    def list_popn(self) -> None:
         self.list_pop()
-        self._data = join([self._data, '\n'])
+        self._data = join([self._data, "\n"])
 
     def list_depth(self):
-        if self._data.strip()[-1:] != '\n' or self._list_depth == 0:
-            return ''
-        return join(['    ' * self._list_depth])
+        if self._data.strip()[-1:] != "\n" or self._list_depth == 0:
+            return ""
+        return join(["    " * self._list_depth])
 
-    def text(self, buf):
+    def text(self, buf) -> None:
         self._data = join([self._data, buf])
 
-    def textn(self, buf):
+    def textn(self, buf) -> None:
         self._data = join([self._data, self.list_depth(), buf, self.endl])
 
-    def not_title(self, buf):
+    def not_title(self, buf) -> None:
         self._data = join([
-            self._data, '\n', self.list_depth(), '#', buf, '\n'])
+            self._data, "\n", self.list_depth(), "#", buf, "\n"])
 
-    def title(self, strongness, buf):
+    def title(self, strongness, buf) -> None:
         self._data = join([
-            self._data, '\n', self.list_depth(), '#' * strongness, ' ', buf, '\n'])
+            self._data, "\n", self.list_depth(), "#" * strongness, " ", buf, "\n"])
 
-    def new_line(self):
+    def new_line(self) -> None:
         self._data = join([self._data, self.endl])
 
-    def code_block(self, buf, language=''):
-        return join(['```', language, '\n', self.list_depth(), buf, '\n', self.list_depth(), '```\n'])
+    def code_block(self, buf, language=""):
+        return join(["```", language, "\n", self.list_depth(), buf, "\n", self.list_depth(), "```\n"])
 
 
 def generate_pb_docs():
     """Generates markdown file"""
 
-    print('Generating API blueprint documentation...')
-    client = carla.Client('127.0.0.1', 2000)
+    client = carla.Client("127.0.0.1", 2000)
     client.set_timeout(2.0)
     world = client.get_world()
 
     bp_dict = {}
-    blueprints = list(world.get_blueprint_library().filter('*')) # Returns list of all blueprints
-    blueprint_ids = [bp.id for bp in world.get_blueprint_library().filter('*')] # Returns list of all blueprint ids
+    blueprints = list(world.get_blueprint_library().filter("*")) # Returns list of all blueprints
+    blueprint_ids = [bp.id for bp in world.get_blueprint_library().filter("*")] # Returns list of all blueprint ids
 
     # Creates a dict key = walker, static, prop, vehicle, sensor, controller; value = [bp_id, blueprint]
     for bp_id in sorted(blueprint_ids):
-        bp_type = bp_id.split('.')[0]
+        bp_type = bp_id.split(".")[0]
         value = []
         for bp in blueprints:
             if bp.id == bp_id:
@@ -123,7 +122,7 @@ def generate_pb_docs():
 
     # Actual documentation
     md = MarkdownFile()
-    md.not_title('Blueprint Library')
+    md.not_title("Blueprint Library")
     md.textn(
         "The Blueprint Library ([`carla.BlueprintLibrary`](../python_api/#carlablueprintlibrary-class)) " +
         "is a summary of all [`carla.ActorBlueprint`](../python_api/#carla.ActorBlueprint) " +
@@ -142,12 +141,12 @@ def generate_pb_docs():
         md.title(3, key) # Key = walker, static, controller, sensor, vehicle
         for bp in sorted(value): # Value = bp[0]= name bp[1]= blueprint
             md.list_pushn(bold(color(COLOR_LIST, bp[0]))) # bp name
-            md.list_push(bold('Attributes:') + '\n')
+            md.list_push(bold("Attributes:") + "\n")
             for attr in sorted(bp[1], key=lambda x: x.id): # for attribute in blueprint
                 md.list_push(code(attr.id))
-                md.text(' ' + parentheses(italic(str(attr.type))))
+                md.text(" " + parentheses(italic(str(attr.type))))
                 if attr.is_modifiable:
-                    md.text(' ' + sub(italic('- Modifiable')))
+                    md.text(" " + sub(italic("- Modifiable")))
                 md.list_popn()
             md.list_pop()
             md.list_pop()
@@ -155,7 +154,7 @@ def generate_pb_docs():
     return md.data()
 
 
-def main():
+def main() -> None:
 
     script_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -163,16 +162,11 @@ def main():
         docs = generate_pb_docs()
 
     except RuntimeError:
-        print("\n  [ERROR] Can't establish connection with the simulator")
-        print("  .---------------------------------------------------.")
-        print("  |       Make sure the simulator is connected!       |")
-        print("  '---------------------------------------------------'\n")
         # We don't provide an error to prvent Travis checks failing
         sys.exit(0)
 
-    with open(os.path.join(script_path, '../../Docs/bp_library.md'), 'w') as md_file:
+    with open(os.path.join(script_path, "../../Docs/bp_library.md"), "w") as md_file:
         md_file.write(docs)
-    print("Done!")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

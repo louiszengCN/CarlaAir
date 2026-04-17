@@ -9,40 +9,40 @@
 import os
 import re
 
-COLOR_METHOD = '#7fb800'
-COLOR_PARAM = '#00a6ed'
-COLOR_INSTANCE_VAR = '#f8805a'
-COLOR_NOTE = '#8E8E8E'
-COLOR_WARNING = '#ED2F2F'
+COLOR_METHOD = "#7fb800"
+COLOR_PARAM = "#00a6ed"
+COLOR_INSTANCE_VAR = "#f8805a"
+COLOR_NOTE = "#8E8E8E"
+COLOR_WARNING = "#ED2F2F"
 
-QUERY = re.compile(r'([cC]arla(\.[a-zA-Z0-9_]+)+)')
+QUERY = re.compile(r"([cC]arla(\.[a-zA-Z0-9_]+)+)")
 
 
 def create_hyperlinks(text):
-    return re.sub(QUERY, r'[\1](#\1)', text)
+    return re.sub(QUERY, r"[\1](#\1)", text)
 
 def create_getter_setter_hyperlinks(text):
-    return re.sub(QUERY, r'[\1](#\1)', text)
+    return re.sub(QUERY, r"[\1](#\1)", text)
 
-def join(elem, separator=''):
+def join(elem, separator=""):
     return separator.join(elem)
 
 
 class MarkdownFile:
-    def __init__(self):
+    def __init__(self) -> None:
         self._data = ""
         self._list_depth = 0
-        self.endl = '  \n'
+        self.endl = "  \n"
 
     def data(self):
         return self._data
 
     def list_depth(self):
-        if self._data.strip()[-1:] != '\n' or self._list_depth == 0:
-            return ''
-        return join(['    ' * self._list_depth])
+        if self._data.strip()[-1:] != "\n" or self._list_depth == 0:
+            return ""
+        return join(["    " * self._list_depth])
 
-    def textn(self, buf):
+    def textn(self, buf) -> None:
         self._data = join([self._data, self.list_depth(), buf, self.endl])
 
 
@@ -50,9 +50,9 @@ class MarkdownFile:
 class Documentation:
     """Main documentation class"""
 
-    def __init__(self, path, images_path):
-        self._snipets_path = os.path.join(os.path.dirname(path), 'snipets')
-        self._files = [f for f in os.listdir(self._snipets_path) if f.endswith('.py')]
+    def __init__(self, path, images_path) -> None:
+        self._snipets_path = os.path.join(os.path.dirname(path), "snipets")
+        self._files = [f for f in os.listdir(self._snipets_path) if f.endswith(".py")]
         self._snipets = []
         for snipet_file in self._files:
             current_snipet_path = os.path.join(self._snipets_path, snipet_file)
@@ -123,21 +123,19 @@ class Documentation:
 
     def gen_markdown(self):
         """Generates the whole markdown file"""
-        return join([self.gen_body()], '\n').strip()
+        return join([self.gen_body()], "\n").strip()
 
 
-def main():
+def main() -> None:
     """Main function"""
-    print("Generating PythonAPI snipets...")
-    script_path = os.path.dirname(os.path.abspath(__file__)+'/snipets')
+    script_path = os.path.dirname(os.path.abspath(__file__)+"/snipets")
     snipets_images_path = os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__)))) + '/Docs/img/snipets_images'
+        os.path.abspath(__file__)))) + "/Docs/img/snipets_images"
     docs = Documentation(script_path, snipets_images_path)
     snipets_md_path = os.path.join(os.path.dirname(os.path.dirname(
-        os.path.dirname(script_path))), 'Docs/python_api_snipets.md')
-    with open(snipets_md_path, 'w') as md_file:
+        os.path.dirname(script_path))), "Docs/python_api_snipets.md")
+    with open(snipets_md_path, "w") as md_file:
         md_file.write(docs.gen_markdown())
-    print("Done snipets!")
 
 
 if __name__ == "__main__":

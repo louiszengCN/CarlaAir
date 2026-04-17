@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import carla
 
@@ -57,7 +57,6 @@ class TestSynchronousMode(SyncSmokeTest):
 
     def test_reloading_map(self) -> None:
         """Verify map reload works correctly in sync mode."""
-        print("TestSynchronousMode.test_reloading_map")
         settings = carla.WorldSettings(
             no_rendering_mode=False,
             synchronous_mode=True,
@@ -71,10 +70,9 @@ class TestSynchronousMode(SyncSmokeTest):
 
     def _test_camera_on_synchronous_mode(self) -> None:
         """Verify camera frames sync correctly with world ticks."""
-        print("TestSynchronousMode.test_camera_on_synchronous_mode")
 
         cam_bp = self.world.get_blueprint_library().find(
-            "sensor.camera.rgb"
+            "sensor.camera.rgb",
         )
         t = carla.Transform(carla.Location(z=_CAMERA_Z))
         camera = self.world.spawn_actor(cam_bp, t)
@@ -90,31 +88,30 @@ class TestSynchronousMode(SyncSmokeTest):
                 ts = self.world.get_snapshot().timestamp
 
                 if frame is not None:
-                    self.assertEqual(ts.frame, frame + 1)
+                    assert ts.frame == frame + 1
 
                 frame = ts.frame
 
                 image = image_queue.get()
-                self.assertEqual(image.frame, ts.frame)
-                self.assertEqual(image.timestamp, ts.elapsed_seconds)
+                assert image.frame == ts.frame
+                assert image.timestamp == ts.elapsed_seconds
 
         finally:
             camera.destroy()
 
     def test_sensor_transform_on_synchronous_mode(self) -> None:
         """Verify sensor transforms match snapshot in sync mode."""
-        print("TestSynchronousMode.test_sensor_transform_on_synchronous_mode")
         bp_lib = self.world.get_blueprint_library()
 
         spawn_points = self.world.get_map().get_spawn_points()
-        self.assertNotEqual(len(spawn_points), 0)
+        assert len(spawn_points) != 0
 
         car_bp = bp_lib.find(_SENSOR_CAR_BLUEPRINT)
         car = self.world.spawn_actor(car_bp, spawn_points[0])
 
         sensor_bps = [bp_lib.find(n) for n in _SENSOR_IDS]
         trans = carla.Transform(
-            carla.Location(x=_SENSOR_X_OFFSET, z=_SENSOR_Z_OFFSET)
+            carla.Location(x=_SENSOR_X_OFFSET, z=_SENSOR_Z_OFFSET),
         )
         sensors = [
             self.world.spawn_actor(sensor, trans, car)
@@ -124,7 +121,7 @@ class TestSynchronousMode(SyncSmokeTest):
         car.apply_control(carla.VehicleControl(_VEHICLE_THROTTLE))
 
         def _sensor_callback(
-            data: Any, name: str, queue: Any
+            data: Any, name: str, queue: Any,
         ) -> None:
             queue.put((data, name))
 
@@ -132,8 +129,8 @@ class TestSynchronousMode(SyncSmokeTest):
             for i in range(len(sensors)):
                 sensors[i].listen(
                     lambda data, i=i: _sensor_callback(
-                        data, _SENSOR_IDS[i], queues[i]
-                    )
+                        data, _SENSOR_IDS[i], queues[i],
+                    ),
                 )
 
             local_frame = 0
@@ -146,17 +143,13 @@ class TestSynchronousMode(SyncSmokeTest):
                     # Get the data once it's received
                     for queue in queues:
                         sensors_data.append(
-                            queue.get(True, _SENSOR_QUEUE_TIMEOUT)
+                            queue.get(True, _SENSOR_QUEUE_TIMEOUT),
                         )
                 except Empty:  # type: ignore[name-defined]
-                    print("[Warning] Some sensor data has been missed")
+                    pass
 
                 for i in range(len(queues)):
-                    self.assertEqual(
-                        queues[i].qsize(),
-                        0,
-                        f"\nQueue {_SENSOR_IDS[i]} oversized",
-                    )
+                    assert queues[i].qsize() == 0, f"\nQueue {_SENSOR_IDS[i]} oversized"
 
                 # Just in case some sensors do not have the correct
                 # transform the same frame they are spawned, like IMU.
@@ -164,31 +157,16 @@ class TestSynchronousMode(SyncSmokeTest):
                     continue
 
                 # All the data has been correctly retrieved
-                self.assertEqual(len(sensors_data), len(sensor_bps))
+                assert len(sensors_data) == len(sensor_bps)
 
                 # All the sensor frame numbers are the same
                 for sensor_data in sensors_data:
-                    self.assertEqual(
-                        sensor_data[0].frame, snapshot_frame
-                    )
+                    assert sensor_data[0].frame == snapshot_frame
 
                 # All the sensor transforms match in the snapshot
                 # and the callback
                 for i in range(len(sensors_data)):
-                    self.assertEqual(
-                        sensors_data[i][0].transform,
-                        sensors[i].get_transform(),
-                        (
-                            f"\n\nThe sensor and sensor_data "
-                            f"transforms from '{sensors_data[i][1]}' "
-                            f"do not match in the same frame! "
-                            f"({local_frame})\n"
-                            f"Sensor Data:\n  "
-                            f"{sensors_data[i][0].transform}\n"
-                            f"Sensor Transform:\n  "
-                            f"{sensors[i].get_transform()}"
-                        ),
-                    )
+                    assert sensors_data[i][0].transform == sensors[i].get_transform(), f"\n\nThe sensor and sensor_data " f"transforms from '{sensors_data[i][1]}' " f"do not match in the same frame! " f"({local_frame})\n" f"Sensor Data:\n  " f"{sensors_data[i][0].transform}\n" f"Sensor Transform:\n  " f"{sensors[i].get_transform()}"
                 local_frame += 1
 
         finally:
@@ -200,7 +178,7 @@ class TestSynchronousMode(SyncSmokeTest):
                 car.destroy()
 
     def _batch_scenario(
-        self, batch_tick: bool, after_tick: bool
+        self, batch_tick: bool, after_tick: bool,
     ) -> tuple[int, int]:
         """Run a batch spawn scenario and return frame numbers.
 
@@ -212,7 +190,7 @@ class TestSynchronousMode(SyncSmokeTest):
             tuple of (initial frame, final frame)
         """
         bp_veh = self.world.get_blueprint_library().filter(
-            "vehicle.*"
+            "vehicle.*",
         )[0]
         veh_transf = self.world.get_map().get_spawn_points()[0]
 
@@ -227,7 +205,7 @@ class TestSynchronousMode(SyncSmokeTest):
         if len(responses) != 1 or responses[0].error:
             self.fail(
                 f"{bp_veh.id}: The test car could not be "
-                f"correctly spawned"
+                f"correctly spawned",
             )
 
         vehicle_id = responses[0].actor_id
@@ -235,41 +213,19 @@ class TestSynchronousMode(SyncSmokeTest):
         frame_after = self.world.get_snapshot().frame
 
         self.client.apply_batch_sync(
-            [carla.command.DestroyActor(vehicle_id)]
+            [carla.command.DestroyActor(vehicle_id)],
         )
 
         return frame_init, frame_after
 
     def test_apply_batch_sync(self) -> None:
         """Verify apply_batch_sync frame behavior."""
-        print("TestSynchronousMode.test_apply_batch_sync")
 
         a_t0, a_t1 = self._batch_scenario(False, False)
-        self.assertEqual(
-            a_t0,
-            a_t1,
-            (
-                "Something has failed with the apply_batch_sync. "
-                f"These frames should be equal: {a_t0} {a_t1}"
-            ),
-        )
+        assert a_t0 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be equal: {a_t0} {a_t1}"
 
         a_t0, a_t1 = self._batch_scenario(True, False)
-        self.assertEqual(
-            a_t0 + 1,
-            a_t1,
-            (
-                "Something has failed with the apply_batch_sync. "
-                f"These frames should be consecutive: {a_t0} {a_t1}"
-            ),
-        )
+        assert a_t0 + 1 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be consecutive: {a_t0} {a_t1}"
 
         a_t0, a_t1 = self._batch_scenario(False, True)
-        self.assertEqual(
-            a_t0 + 1,
-            a_t1,
-            (
-                "Something has failed with the apply_batch_sync. "
-                f"These frames should be consecutive: {a_t0} {a_t1}"
-            ),
-        )
+        assert a_t0 + 1 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be consecutive: {a_t0} {a_t1}"

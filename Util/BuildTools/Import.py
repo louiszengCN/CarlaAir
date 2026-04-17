@@ -27,7 +27,7 @@ SCRIPT_NAME = os.path.basename(__file__)
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Go two directories above the current script
-CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + '/../..')
+CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + "/../..")
 
 
 def get_packages_json_list(folder):
@@ -77,27 +77,27 @@ def generate_json_package(folder, package_name, use_carla_materials):
         # build all the maps in .json format
         json_maps = []
         for map_name in maps:
-            path = map_name[0].replace('\\', '/')
+            path = map_name[0].replace("\\", "/")
             name = map_name[1]
             tiles = map_name[2]
             tiles = [f"{path}/{x}" for x in tiles]
             map_dict = {
-                'name': name,
-                'xodr':   f'{path}/{name}.xodr',
-                'use_carla_materials': use_carla_materials
+                "name": name,
+                "xodr":   f"{path}/{name}.xodr",
+                "use_carla_materials": use_carla_materials,
             }
             # check for only one 'source' or map in 'tiles'
             if (len(tiles) == 1):
-                map_dict['source'] = tiles[0]
+                map_dict["source"] = tiles[0]
             else:
-                map_dict['tile_size'] = 2000
-                map_dict['tiles'] = tiles
+                map_dict["tile_size"] = 2000
+                map_dict["tiles"] = tiles
 
             # write
             json_maps.append(map_dict)
         # build and write the .json
         with open(f"{folder}/{package_name}.json", "w") as f:
-            my_json = {'maps': json_maps, 'props': []}
+            my_json = {"maps": json_maps, "props": []}
             serialized = json.dumps(my_json, sort_keys=False, indent=3)
             f.write(serialized)
         # add
@@ -105,7 +105,7 @@ def generate_json_package(folder, package_name, use_carla_materials):
 
     return json_files
 
-def generate_decals_file(folder):
+def generate_decals_file(folder) -> None:
 
     # search for all .fbx and .xodr pair of files
     maps = []
@@ -131,60 +131,60 @@ def generate_decals_file(folder):
 
             #create the decals default config file
             json_decals.append({
-                'map_name' : name,
-                'drip1': '10',
-                'drip3': '10',
-                'dirt1': '10',
-                'dirt3' : '10',
-                'dirt4' : '10',
-                'dirt5': '10',
-                'roadline1': '20',
-                'roadline5': '20',
-                'tiremark1': '20',
-                'tiremark3': '20',
-                'tarsnake1': '10',
-                'tarsnake3': '20',
-                'tarsnake4': '10',
-                'tarsnake5': '20',
-                'tarsnake11': '20',
-                'cracksbig1': '10',
-                'cracksbig3': '10',
-                'cracksbig5': '10',
-                'cracksbig8': '10',
-                'mud1' : '10',
-                'mud5' : '10',
-                'oilsplat1' : '20',
-                'oilsplat2' : '20',
-                'oilsplat3' : '20',
-                'oilsplat4' : '20',
-                'oilsplat5' : '20',
-                'gum' : '30',
-                'crack1': '10',
-                'crack3' : '10',
-                'crack4' : '10',
-                'crack5' : '10',
-                'crack8': '10',
-                'decal_scale' : {
-                'x_axis' : '1.0',
-                'y_axis' : '1.0',
-                'z_axis' : '1.0'},
-                'fixed_decal_offset': {
-                'x_axis' : '15.0',
-                'y_axis' : '15.0',
-                'z_axis' : '0.0'},
-                'decal_min_scale' : '0.3',
-                'decal_max_scale' : '0.7',
-                'decal_random_yaw' : '360.0',
-                'random_offset' : '50.0'
+                "map_name" : name,
+                "drip1": "10",
+                "drip3": "10",
+                "dirt1": "10",
+                "dirt3" : "10",
+                "dirt4" : "10",
+                "dirt5": "10",
+                "roadline1": "20",
+                "roadline5": "20",
+                "tiremark1": "20",
+                "tiremark3": "20",
+                "tarsnake1": "10",
+                "tarsnake3": "20",
+                "tarsnake4": "10",
+                "tarsnake5": "20",
+                "tarsnake11": "20",
+                "cracksbig1": "10",
+                "cracksbig3": "10",
+                "cracksbig5": "10",
+                "cracksbig8": "10",
+                "mud1" : "10",
+                "mud5" : "10",
+                "oilsplat1" : "20",
+                "oilsplat2" : "20",
+                "oilsplat3" : "20",
+                "oilsplat4" : "20",
+                "oilsplat5" : "20",
+                "gum" : "30",
+                "crack1": "10",
+                "crack3" : "10",
+                "crack4" : "10",
+                "crack5" : "10",
+                "crack8": "10",
+                "decal_scale" : {
+                "x_axis" : "1.0",
+                "y_axis" : "1.0",
+                "z_axis" : "1.0"},
+                "fixed_decal_offset": {
+                "x_axis" : "15.0",
+                "y_axis" : "15.0",
+                "z_axis" : "0.0"},
+                "decal_min_scale" : "0.3",
+                "decal_max_scale" : "0.7",
+                "decal_random_yaw" : "360.0",
+                "random_offset" : "50.0",
             })
 
         # build and write the .json
-        with open("{}/{}.json".format(folder, 'roadpainter_decals'), "w") as f:
-            my_json = {'decals': json_decals}
+        with open("{}/{}.json".format(folder, "roadpainter_decals"), "w") as f:
+            my_json = {"decals": json_decals}
             serialized = json.dumps(my_json, sort_keys=False, indent=3)
             f.write(serialized)
 
-def invoke_commandlet(name, arguments):
+def invoke_commandlet(name, arguments) -> None:
     """Generic function for running a commandlet with its arguments."""
     ue4_path = os.environ["UE4_ROOT"]
     uproject_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "CarlaUE4.uproject")
@@ -195,13 +195,11 @@ def invoke_commandlet(name, arguments):
         editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
         command = [editor_path, uproject_path, run]
         command.extend(arguments)
-        print("Commandlet:", command)
         subprocess.check_call(command, shell=True)
     elif os.name == "posix":
         sys_name = "Linux"
         editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
         full_command = "{} {} {} {}".format(editor_path, uproject_path, run, " ".join(arguments))
-        print("Commandlet:", full_command)
         subprocess.call([full_command], shell=True)
 
 
@@ -233,8 +231,8 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
                 "bCombineMeshes": 0,
                 "bConvertSceneUnit": 1,
                 "bForceVerticesRelativeToTile": do_tiles,
-                "TileSize": tile_size
-            }
+                "TileSize": tile_size,
+            },
         }
 
         for prop in props:
@@ -246,7 +244,7 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
                 "FactoryName": "FbxFactory",
                 "DestinationPath": props_dest,
                 "bReplaceExisting": "true",
-                "FileNames": file_names
+                "FileNames": file_names,
             })
 
         for umap in maps:
@@ -261,7 +259,7 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
                 "FactoryName": "FbxFactory",
                 "DestinationPath": maps_dest,
                 "bReplaceExisting": "true",
-                "FileNames": tiles
+                "FileNames": tiles,
             })
 
         fh.write(json.dumps({"ImportGroups": import_groups}))
@@ -269,7 +267,7 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
     return importfile
 
 
-def generate_package_file(package_name, props, maps):
+def generate_package_file(package_name, props, maps) -> None:
     """Creates the PackageName.Package.json file for the package."""
     output_json = {}
 
@@ -277,11 +275,11 @@ def generate_package_file(package_name, props, maps):
     for prop in props:
         name = prop["name"]
         size = prop["size"]
-        source_name = os.path.basename(prop["source"]).split('.')
+        source_name = os.path.basename(prop["source"]).split(".")
         if len(source_name) < 2:
-            print("[Warning] File name '" + prop["source"] + "' contains multiple dots ('.')")
+            pass
 
-        source_name = '.'.join([source_name[0], source_name[0]])
+        source_name = ".".join([source_name[0], source_name[0]])
 
         path = "/" + "/".join(["Game", package_name, "Static", prop["tag"], prop["name"], source_name])
 
@@ -298,7 +296,7 @@ def generate_package_file(package_name, props, maps):
         output_json["maps"].append({
             "name": umap["name"],
             "path": path,
-            "use_carla_materials": use_carla_materials
+            "use_carla_materials": use_carla_materials,
         })
 
     package_config_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Config")
@@ -313,7 +311,7 @@ def generate_package_file(package_name, props, maps):
         json.dump(output_json, fh, indent=4)
 
 
-def copy_roadpainter_config_files(package_name):
+def copy_roadpainter_config_files(package_name) -> None:
     """Copies roadpainter configuration files into Unreal content folder"""
 
     two_directories_up = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -329,7 +327,7 @@ def copy_roadpainter_config_files(package_name):
         shutil.copy(final_path, package_config_path)
 
 
-def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, batch_size):
+def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, batch_size) -> None:
     """Same commandlet is used for importing assets and also maps."""
     commandlet_name = "ImportAssets"
 
@@ -337,9 +335,9 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
         for umap in maps:
             # import groups of tiles to prevent unreal from using too much memory
             map_template = {}
-            map_template = {key: value for key, value in umap.items() if key != 'tiles'}
-            map_template['tiles'] = []
-            tiles = umap['tiles']
+            map_template = {key: value for key, value in umap.items() if key != "tiles"}
+            map_template["tiles"] = []
+            tiles = umap["tiles"]
             tiles.sort()
             total_tiles = len(tiles)
             int(total_tiles / batch_size)
@@ -349,7 +347,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             current_batch_map = copy.deepcopy(map_template)
             # get groups of tiles
             while current_tile < total_tiles:
-                current_batch_map['tiles'].append(tiles[current_tile])
+                current_batch_map["tiles"].append(tiles[current_tile])
                 file_path = os.path.join(json_dirname, tiles[current_tile])
                 current_batch_size += os.path.getsize(file_path)/1000000.0
                 current_tile += 1
@@ -383,7 +381,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
             # Make sure the `.xodr` file have the same name than the `.umap`
             xodr_path = os.path.abspath(os.path.join(json_dirname, umap["xodr"]))
             umap_name = umap["name"]
-            xodr_name = '.'.join([umap_name, "xodr"])
+            xodr_name = ".".join([umap_name, "xodr"])
 
             xodr_folder_destin = os.path.join(
                 CARLA_ROOT_PATH,
@@ -402,14 +400,13 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
                 xodr_folder_destin,
                 xodr_name)
 
-            print('Copying "' + xodr_path + '" to "' + xodr_path_destin + '"')
             shutil.copy2(xodr_path, xodr_path_destin)
 
     # Create package file
     generate_package_file(package_name, props, maps)
 
 
-def import_assets_from_json_list(json_list, batch_size):
+def import_assets_from_json_list(json_list, batch_size) -> None:
     maps = []
     package_name = ""
     for dirname, filename in json_list:
@@ -440,7 +437,6 @@ def import_assets_from_json_list(json_list, batch_size):
                 import_assets(package_name, dirname, props, maps, 0, 0, 0)
 
             if not package_name:
-                print("No Packages JSONs found, nothing to import. Skipping package.")
                 continue
 
             # First we only move the meshes to the tagged folders for semantic segmentation
@@ -454,19 +450,19 @@ def import_assets_from_json_list(json_list, batch_size):
             thr.join()
 
 
-def load_asset_materials_commandlet(package_name):
+def load_asset_materials_commandlet(package_name) -> None:
     commandlet_name = "LoadAssetMaterials"
     commandlet_arguments = [f"-PackageName={package_name}"]
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
-def prepare_maps_commandlet_for_cooking(package_name, only_prepare_maps):
+def prepare_maps_commandlet_for_cooking(package_name, only_prepare_maps) -> None:
     commandlet_name = "PrepareAssetsForCooking"
     commandlet_arguments = [f"-PackageName={package_name}"]
     commandlet_arguments.append("-OnlyPrepareMaps=%d" % only_prepare_maps)
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 
-def move_assets_commandlet(package_name, maps):
+def move_assets_commandlet(package_name, maps) -> None:
     commandlet_name = "MoveAssets"
     commandlet_arguments = [f"-PackageName={package_name}"]
 
@@ -478,7 +474,7 @@ def move_assets_commandlet(package_name, maps):
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 # build the binary file for navigation of pedestrians for that map
-def build_binary_for_navigation(package_name, dirname, maps):
+def build_binary_for_navigation(package_name, dirname, maps) -> None:
     folder = os.path.join(CARLA_ROOT_PATH, "Util", "DockerUtils", "dist")
 
     # process each map
@@ -504,7 +500,6 @@ def build_binary_for_navigation(package_name, dirname, maps):
             xodr_path_source = os.path.abspath(os.path.join(dirname, umap["xodr"]))
             xodr_path_target = os.path.join(folder, xodr_filename)
             # copy
-            print('Copying "' + xodr_path_source + '" to "' + xodr_path_target + '"')
             shutil.copy2(xodr_path_source, xodr_path_target)
 
         for tile in tiles:
@@ -519,7 +514,6 @@ def build_binary_for_navigation(package_name, dirname, maps):
                 fbx_path_source = os.path.abspath(os.path.join(dirname, tile))
                 fbx_path_target = os.path.join(folder, fbx_filename)
                 # copy
-                print('Copying "' + fbx_path_source + '" to "' + fbx_path_target + '"')
                 shutil.copy2(fbx_path_source, fbx_path_target)
 
             # rename the xodr with the same name of the source/tile
@@ -542,7 +536,6 @@ def build_binary_for_navigation(package_name, dirname, maps):
                 if not os.path.exists(nav_folder_target):
                     os.makedirs(nav_folder_target)
                 nav_path_target = os.path.join(nav_folder_target, f"{fbx_name_no_ext}.bin")
-                print('Copying "' + nav_path_source + '" to "' + nav_path_target + '"')
                 shutil.copy2(nav_path_source, nav_path_target)
 
             # remove files
@@ -556,7 +549,7 @@ def build_binary_for_navigation(package_name, dirname, maps):
             os.remove(xodr_path_target)
 
 
-def build_binary_for_tm(package_name, dirname, maps):
+def build_binary_for_tm(package_name, dirname, maps) -> None:
 
     xodrs = {
         (m["name"], m["xodr"]) for m in maps if "xodr" in m}
@@ -583,26 +576,26 @@ def build_binary_for_tm(package_name, dirname, maps):
         m.cook_in_memory_map(str(os.path.join(tm_folder_target, f"{target_name}.bin")))
 
 
-def main():
+def main() -> None:
     argparser = argparse.ArgumentParser(description=__doc__)
     argparser.add_argument(
-        '--package',
-        metavar='P',
-        default='map_package',
-        help='Name of the imported package')
+        "--package",
+        metavar="P",
+        default="map_package",
+        help="Name of the imported package")
     argparser.add_argument(
-        '--no-carla-materials',
-        action='store_false',
-        help='user Carla materials')
+        "--no-carla-materials",
+        action="store_false",
+        help="user Carla materials")
     argparser.add_argument(
-        '--json-only',
-        action='store_true',
-        help='Create JSON files only')
+        "--json-only",
+        action="store_true",
+        help="Create JSON files only")
     argparser.add_argument(
-        '--batch-size',
+        "--batch-size",
         type=float,
         default=300,
-        help='Max batch size in MB')
+        help="Max batch size in MB")
     args = argparser.parse_known_args()[0]
 
     import_folder = os.path.join(CARLA_ROOT_PATH, "Import")
@@ -619,5 +612,5 @@ def main():
         copy_roadpainter_config_files(args.package)
         import_assets_from_json_list(json_list, args.batch_size)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

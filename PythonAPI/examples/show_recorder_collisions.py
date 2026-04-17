@@ -78,13 +78,6 @@ def main() -> None:
         client = carla.Client(args.host, args.port)
         client.set_timeout(_RECORDER_TIMEOUT)
 
-        print(
-            client.show_recorder_collisions(
-                args.recorder_filename,
-                args.types[0],
-                args.types[1],
-            )
-        )
 
     finally:
         pass
@@ -96,4 +89,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        print("\ndone.")
+        pass

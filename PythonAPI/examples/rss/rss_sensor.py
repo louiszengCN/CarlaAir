@@ -18,7 +18,7 @@ EVALUATOR_NONE_STATE = ad.rss.state.RssStateEvaluator.names["None"]
 
 class RssStateInfo:
 
-    def __init__(self, rss_state, ego_dynamics_on_route, world_model):
+    def __init__(self, rss_state, ego_dynamics_on_route, world_model) -> None:
         # type: (ad.rss.state.RssState, carla.RssEgoDynamicsOnRoute, ad.rss.world.WorldModel) -> None
         self.rss_state = rss_state
         self.distance = -1
@@ -59,13 +59,13 @@ class RssStateInfo:
             return None  # "Border Right"
         return world.get_actor(self.rss_state.objectId)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "RssStateInfo: object=" + str(self.rss_state.objectId) + " dangerous=" + str(self.is_dangerous)
 
 
 class RssSensor:
 
-    def __init__(self, parent_actor, world, unstructured_scene_visualizer, bounding_box_visualizer, state_visualizer, routing_targets=None):
+    def __init__(self, parent_actor, world, unstructured_scene_visualizer, bounding_box_visualizer, state_visualizer, routing_targets=None) -> None:
         #  type: (carla.Actor, carla.World, RssUnstructuredSceneVisualizer, RssBoundingBoxVisualizer, RssStateVisualizer, list[carla.Transform]) -> None
         self.sensor = None
         self.unstructured_scene_visualizer = unstructured_scene_visualizer
@@ -94,7 +94,7 @@ class RssSensor:
         self._max_steer_angle = math.radians(self._max_steer_angle)
 
         world = self._parent.get_world()
-        bp = world.get_blueprint_library().find('sensor.other.rss')
+        bp = world.get_blueprint_library().find("sensor.other.rss")
         self.sensor = world.spawn_actor(bp, carla.Transform(carla.Location(x=0.0, z=0.0)), attach_to=self._parent)
         # We need to pass the lambda a weak reference to self to avoid circular
         # reference.
@@ -155,7 +155,7 @@ class RssSensor:
                     #   print ( "ego-{} on lane of lane type {} => road".format(actor_id, lane.type))
                     ego_on_routeable_road = True
 
-            if 'walker.pedestrian' in actor_constellation_data.other_actor.type_id:
+            if "walker.pedestrian" in actor_constellation_data.other_actor.type_id:
                 # determine if the pedestrian is walking on the sidewalk or on the road
                 pedestrian_on_the_road = False
                 pedestrian_on_the_sidewalk = False
@@ -181,7 +181,7 @@ class RssSensor:
                     actor_constellation_result.rss_calculation_mode = ad.rss.map.RssMode.Unstructured
                 actor_constellation_result.actor_object_type = ad.rss.world.ObjectType.Pedestrian
                 actor_constellation_result.actor_dynamics = self.get_pedestrian_parameters()
-            elif 'vehicle' in actor_constellation_data.other_actor.type_id:
+            elif "vehicle" in actor_constellation_data.other_actor.type_id:
                 actor_constellation_result.actor_object_type = ad.rss.world.ObjectType.OtherVehicle
 
                 # set the response time of others vehicles to 2 seconds; the rest stays the same
@@ -287,42 +287,36 @@ class RssSensor:
         # actor_type_id), str(actor_constellation_result))
         return actor_constellation_result
 
-    def destroy(self):
+    def destroy(self) -> None:
         if self.sensor:
-            print("Stopping RSS sensor")
             self.sensor.stop()
-            print("Deleting Scene Visualizer")
             self.unstructured_scene_visualizer = None
-            print("Destroying RSS sensor")
             self.sensor.destroy()
-            print("Destroyed RSS sensor")
 
-    def toggle_debug_visualization_mode(self):
+    def toggle_debug_visualization_mode(self) -> None:
         self.debug_visualizer.toggleMode()
 
-    def increase_log_level(self):
-        print(f"increase {self.log_level}")
+    def increase_log_level(self) -> None:
         if self.log_level < carla.RssLogLevel.off:
             self.log_level = carla.RssLogLevel.values[self.log_level + 1]
         self.sensor.set_log_level(self.log_level)
 
-    def decrease_log_level(self):
-        print(f"decrease {self.log_level}")
+    def decrease_log_level(self) -> None:
         if self.log_level > carla.RssLogLevel.trace:
             self.log_level = carla.RssLogLevel.values[self.log_level - 1]
         self.sensor.set_log_level(self.log_level)
 
-    def increase_map_log_level(self):
+    def increase_map_log_level(self) -> None:
         if self.map_log_level < carla.RssLogLevel.off:
             self.map_log_level = carla.RssLogLevel.values[self.map_log_level + 1]
         self.sensor.set_map_log_level(self.map_log_level)
 
-    def decrease_map_log_level(self):
+    def decrease_map_log_level(self) -> None:
         if self.map_log_level > carla.RssLogLevel.trace:
             self.map_log_level = carla.RssLogLevel.values[self.map_log_level - 1]
         self.sensor.set_map_log_level(self.map_log_level)
 
-    def drop_route(self):
+    def drop_route(self) -> None:
         self.sensor.drop_route()
 
     @staticmethod
@@ -354,8 +348,7 @@ class RssSensor:
         ego_dynamics.unstructuredSettings.pedestrianBackIntermediateHeadingChangeRatioSteps = 0
         return ego_dynamics
 
-    def set_default_parameters(self):
-        print("Use 'default' RSS Parameters")
+    def set_default_parameters(self) -> None:
         self.current_vehicle_parameters = self.get_default_parameters()
 
     @staticmethod
@@ -394,7 +387,7 @@ class RssSensor:
              (float(self.ego_dynamics_on_route.ego_heading) - float(heading_range.end)) / self._max_steer_angle)
             for heading_range in self._allowed_heading_ranges]
 
-    def _on_rss_response(self, response):
+    def _on_rss_response(self, response) -> None:
         if not self or not response:
             return
         delta_time = 0.1
@@ -440,4 +433,4 @@ class RssSensor:
                                        self.individual_rss_states, self.ego_dynamics_on_route)
 
         else:
-            print(f"ignore outdated RSS response {delta_time}")
+            pass

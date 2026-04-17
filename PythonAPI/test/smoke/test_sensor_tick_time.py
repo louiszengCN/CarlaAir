@@ -62,10 +62,10 @@ class _Sensor:
         self.bp_sensor = bp_sensor
         bp_sensor.set_attribute(_SENSOR_TICK_ATTR, str(sensor_tick))
         self.sensor = world.spawn_actor(
-            bp_sensor, carla.Transform()
+            bp_sensor, carla.Transform(),
         )
         self.sensor.listen(
-            lambda sensor_data: self._on_tick()
+            lambda sensor_data: self._on_tick(),
         )
         self.num_ticks: int = 0
 
@@ -83,7 +83,6 @@ class TestSensorTickTime(SyncSmokeTest):
 
     def test_sensor_tick_time(self) -> None:
         """Verify sensors tick at the expected rate."""
-        print("TestSensorTickTime.test_sensor_tick_time")
 
         bp_lib = self.world.get_blueprint_library()
         spawned_sensors: list[_Sensor] = []
@@ -93,7 +92,7 @@ class TestSensorTickTime(SyncSmokeTest):
                 continue
             if bp_sensor.has_attribute(_SENSOR_TICK_ATTR):
                 spawned_sensors.append(
-                    _Sensor(self.world, bp_sensor, _SENSOR_TICK)
+                    _Sensor(self.world, bp_sensor, _SENSOR_TICK),
                 )
 
         for _ in range(_NUM_TICKS):
@@ -105,9 +104,5 @@ class TestSensorTickTime(SyncSmokeTest):
         num_sensor_ticks = math.ceil(total_time / _SENSOR_TICK)
 
         for sensor in spawned_sensors:
-            self.assertEqual(
-                sensor.num_ticks,
-                num_sensor_ticks,
-                f"\n\n{sensor.bp_sensor.id} does not match tick count",
-            )
+            assert sensor.num_ticks == num_sensor_ticks, f"\n\n{sensor.bp_sensor.id} does not match tick count"
             sensor.destroy()

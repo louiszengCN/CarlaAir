@@ -22,15 +22,15 @@ class TestGeom(unittest.TestCase):
     def test_vector3d(self) -> None:
         """Verify Vector3D creation and unit vector generation."""
         c = carla.Vector3D(1.0, 2.0, 3.0)
-        self.assertEqual(c.x, 1.0)
-        self.assertEqual(c.y, 2.0)
-        self.assertEqual(c.z, 3.0)
+        assert c.x == 1.0
+        assert c.y == 2.0
+        assert c.z == 3.0
 
         c_unit = c.make_unit_vector()
         # c should not be modified by make_unit_vector
-        self.assertEqual(c.x, 1.0)
-        self.assertEqual(c.y, 2.0)
-        self.assertEqual(c.z, 3.0)
+        assert c.x == 1.0
+        assert c.y == 2.0
+        assert c.z == 3.0
 
         # the length of c_unit should be 1.0
         length = (c_unit.x ** 2 + c_unit.y ** 2 + c_unit.z ** 2) ** 0.5
@@ -39,6 +39,6 @@ class TestGeom(unittest.TestCase):
         # Test epsilon handling for small vectors
         large = carla.Vector3D(_SMALL_VECTOR_LENGTH, 0.0, 0.0)
         large_unit = large.make_unit_vector(epsilon=_SMALL_EPSILON)
-        self.assertEqual(large_unit.x, 1.0)
-        self.assertEqual(large_unit.y, 0.0)
-        self.assertEqual(large_unit.z, 0.0)
+        assert large_unit.x == 1.0
+        assert large_unit.y == 0.0
+        assert large_unit.z == 0.0

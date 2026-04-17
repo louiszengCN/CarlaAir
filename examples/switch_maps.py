@@ -139,7 +139,7 @@ def cleanup_world(world: carla.World) -> int:
         except Exception:
             pass
     if count:
-        print(f"  Cleaned up {count} actors", flush=True)
+        pass
     return count
 
 
@@ -154,7 +154,6 @@ def ensure_async_mode(world: carla.World) -> None:
         settings.synchronous_mode = False
         settings.fixed_delta_seconds = None
         world.apply_settings(settings)
-        print("  Reset to async mode", flush=True)
         time.sleep(_READY_CHECK_INTERVAL)
 
 
@@ -207,46 +206,31 @@ def switch_map(
         world = client.get_world()
         current = world.get_map().name.split("/")[-1]
         if current == map_name:
-            print(
-                f"  Already on {map_name}, reloading...",
-                flush=True,
-            )
+            pass
         cleanup_world(world)
         ensure_async_mode(world)
-    except Exception as e:
-        print(f"  Warning during prep: {e}", flush=True)
+    except Exception:
+        pass
 
     # Set extended timeout for slow load_world
     client.set_timeout(timeout)
 
     # Switch
-    print(
-        f"  Loading {map_name} (this may take a few minutes)...",
-        flush=True,
-    )
     t0 = time.time()
 
     try:
         client.load_world(map_name)
-    except RuntimeError as e:
-        print(f"  load_world raised: {e}", flush=True)
-        print("  Checking if map loaded anyway...", flush=True)
+    except RuntimeError:
         time.sleep(_FALLBACK_CHECK_SEC)
 
     # Wait for ready
     try:
         result = wait_world_ready(client, timeout=_READY_TIMEOUT)
     except TimeoutError:
-        print("  ERROR: World not ready after loading!", flush=True)
         return None
 
-    loaded = result.world.get_map().name.split("/")[-1]
-    elapsed = time.time() - t0
-    print(
-        f"  Loaded {loaded} in {elapsed:.1f}s "
-        f"({len(result.spawn_points)} spawn points)",
-        flush=True,
-    )
+    result.world.get_map().name.split("/")[-1]
+    time.time() - t0
 
     # Stabilize
     time.sleep(_STABILIZE_SEC)
@@ -280,7 +264,7 @@ def orbit_spectator(
         cz = center.z + _ORBIT_HEIGHT
 
         look_yaw = math.degrees(
-            math.atan2(center.y - cy, center.x - cx)
+            math.atan2(center.y - cy, center.x - cx),
         )
         tf = carla.Transform(
             carla.Location(x=cx, y=cy, z=cz),
@@ -301,7 +285,7 @@ def get_available_maps(client: carla.Client) -> list[str]:
     """
     all_maps = client.get_available_maps()
     names = sorted(
-        {m.split("/")[-1] for m in all_maps}
+        {m.split("/")[-1] for m in all_maps},
     )
     return [
         m
@@ -376,29 +360,21 @@ def main() -> None:
     cfg = _parse_args()
 
     # Connect
-    print("Connecting to CarlaAir...", flush=True)
     client = carla.Client(cfg.host, cfg.port)
     client.set_timeout(_DEFAULT_TIMEOUT)
 
     try:
         world = client.get_world()
         current = world.get_map().name.split("/")[-1]
-        print(f"  Current map: {current}", flush=True)
-    except Exception as e:
-        print(
-            f"  ERROR: Cannot connect to CarlaAir: {e}",
-            flush=True,
-        )
+    except Exception:
         sys.exit(1)
 
     maps = get_available_maps(client)
 
     # --list
     if cfg.list_only:
-        print(f"\nAvailable maps ({len(maps)}):", flush=True)
-        for m in maps:
-            marker = " <-- current" if m == current else ""
-            print(f"  {m}{marker}", flush=True)
+        for _m in maps:
+            pass
         return
 
     # Determine targets
@@ -409,47 +385,22 @@ def main() -> None:
         query = cfg.map_name.lower()
         matched = [m for m in maps if query in m.lower()]
         if not matched:
-            print(
-                f"  ERROR: No map matching '{cfg.map_name}'",
-                flush=True,
-            )
-            print(
-                f"  Available: {', '.join(maps)}",
-                flush=True,
-            )
             sys.exit(1)
         targets = matched[:1]
     else:
         # No map specified: randomly switch to a different map
         others = [m for m in maps if m != current]
         if not others:
-            print(
-                "  Only one map available, nothing to switch to.",
-                flush=True,
-            )
             return
         pick = random.choice(others)
-        print(
-            f"  No map specified, randomly picking: {pick}",
-            flush=True,
-        )
         targets = [pick]
 
     # Switch
     try:
-        for i, map_name in enumerate(targets):
-            print(
-                f"\n[{i + 1}/{len(targets)}] "
-                f"Switching to {map_name}...",
-                flush=True,
-            )
+        for _i, map_name in enumerate(targets):
             world = switch_map(client, map_name)
 
             if world is None:
-                print(
-                    f"  FAILED to load {map_name}, skipping.",
-                    flush=True,
-                )
                 continue
 
             if cfg.orbit or cfg.tour_all:
@@ -458,20 +409,14 @@ def main() -> None:
                     sps[len(sps) // 2].location
                     if sps
                     else carla.Location(
-                        0, 0, _FALLBACK_CENTER_Z
+                        0, 0, _FALLBACK_CENTER_Z,
                     )
-                )
-                print(
-                    f"  Orbiting for {cfg.stay_seconds}s "
-                    f"(watch in CarlaAir window)...",
-                    flush=True,
                 )
                 orbit_spectator(world, center, cfg.stay_seconds)
 
-        print("\nDone!", flush=True)
 
     except KeyboardInterrupt:
-        print("\nInterrupted.", flush=True)
+        pass
 
 
 if __name__ == "__main__":

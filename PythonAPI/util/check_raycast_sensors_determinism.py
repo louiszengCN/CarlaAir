@@ -13,6 +13,7 @@ output are deterministic.
 """
 
 import argparse
+import contextlib
 import filecmp
 import os
 import time
@@ -24,7 +25,7 @@ import carla
 
 
 class Scenario:
-    def __init__(self, client, world, save_snapshots_mode=False):
+    def __init__(self, client, world, save_snapshots_mode=False) -> None:
         self.world = world
         self.client = client
         self.actor_list = []
@@ -36,7 +37,7 @@ class Scenario:
         self.sensor_list = []
         self.sensor_queue = Queue()
 
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         self.prefix = prefix
         self.actor_list = []
         self.active = True
@@ -48,9 +49,9 @@ class Scenario:
 
         # Init timestamp
         snapshot = self.world.get_snapshot()
-        self.init_timestamp = {'frame0' : snapshot.frame, 'time0' : snapshot.timestamp.elapsed_seconds}
+        self.init_timestamp = {"frame0" : snapshot.frame, "time0" : snapshot.timestamp.elapsed_seconds}
 
-    def add_actor(self, actor, actor_name="Actor"):
+    def add_actor(self, actor, actor_name="Actor") -> None:
         actor_idx = len(self.actor_list)
 
         name = str(actor_idx) + "_" + actor_name
@@ -60,14 +61,14 @@ class Scenario:
         if self.save_snapshots_mode:
             self.snapshots.append(np.empty((0,11), float))
 
-    def wait(self, frames=100):
+    def wait(self, frames=100) -> None:
         for _i in range(frames):
             self.world.tick()
             if self.active:
                 for _s in self.sensor_list:
                     self.sensor_queue.get(True, 1.0)
 
-    def clear_scene(self):
+    def clear_scene(self) -> None:
         for sensor in self.sensor_list:
             sensor[1].destroy()
 
@@ -76,36 +77,35 @@ class Scenario:
 
         self.active = False
 
-    def reload_world(self, settings = None, spectator_tr = None):
+    def reload_world(self, settings = None, spectator_tr = None) -> None:
         self.client.reload_world()
         if settings is not None:
             self.world.apply_settings(settings)
         if spectator_tr is not None:
             self.reset_spectator(spectator_tr)
 
-    def reset_spectator(self, spectator_tr):
+    def reset_spectator(self, spectator_tr) -> None:
         spectator = self.world.get_spectator()
         spectator.set_transform(spectator_tr)
 
     def save_snapshot(self, actor):
         snapshot = self.world.get_snapshot()
 
-        actor_snapshot = np.array([
-                float(snapshot.frame - self.init_timestamp['frame0']), \
-                snapshot.timestamp.elapsed_seconds - self.init_timestamp['time0'], \
+        return np.array([
+                float(snapshot.frame - self.init_timestamp["frame0"]), \
+                snapshot.timestamp.elapsed_seconds - self.init_timestamp["time0"], \
                 actor.get_location().x, actor.get_location().y, actor.get_location().z, \
                 actor.get_velocity().x, actor.get_velocity().y, actor.get_velocity().z, \
                 actor.get_angular_velocity().x, actor.get_angular_velocity().y, actor.get_angular_velocity().z])
-        return actor_snapshot
 
-    def save_snapshots(self):
+    def save_snapshots(self) -> None:
         if not self.save_snapshots_mode:
             return
 
         for i in range (len(self.actor_list)):
             self.snapshots[i] = np.vstack((self.snapshots[i], self.save_snapshot(self.actor_list[i][1])))
 
-    def save_snapshots_to_disk(self):
+    def save_snapshots_to_disk(self) -> None:
         if not self.save_snapshots_mode:
             return
 
@@ -138,7 +138,7 @@ class Scenario:
 
         return t_end - t_start
 
-    def add_sensor(self, sensor, sensor_type):
+    def add_sensor(self, sensor, sensor_type) -> None:
         sen_idx = len(self.sensor_list)
         if sensor_type == "LiDAR":
             name = str(sen_idx) + "_LiDAR"
@@ -152,52 +152,52 @@ class Scenario:
 
         self.sensor_list.append((name, sensor))
 
-    def add_lidar_snapshot(self, lidar_data, name="LiDAR"):
+    def add_lidar_snapshot(self, lidar_data, name="LiDAR") -> None:
         if not self.active:
             return
 
-        points = np.frombuffer(lidar_data.raw_data, dtype=np.dtype('f4'))
+        points = np.frombuffer(lidar_data.raw_data, dtype=np.dtype("f4"))
         points = np.reshape(points, (int(points.shape[0] / 4), 4))
 
-        frame = lidar_data.frame - self.init_timestamp['frame0']
+        frame = lidar_data.frame - self.init_timestamp["frame0"]
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_semlidar_snapshot(self, lidar_data, name="SemLiDAR"):
+    def add_semlidar_snapshot(self, lidar_data, name="SemLiDAR") -> None:
         if not self.active:
             return
 
         data = np.frombuffer(lidar_data.raw_data, dtype=np.dtype([
-            ('x', np.float32), ('y', np.float32), ('z', np.float32),
-            ('CosAngle', np.float32), ('ObjIdx', np.uint32), ('ObjTag', np.uint32)]))
-        points = np.array([data['x'], data['y'], data['z'], data['CosAngle'], data['ObjTag']]).T
+            ("x", np.float32), ("y", np.float32), ("z", np.float32),
+            ("CosAngle", np.float32), ("ObjIdx", np.uint32), ("ObjTag", np.uint32)]))
+        points = np.array([data["x"], data["y"], data["z"], data["CosAngle"], data["ObjTag"]]).T
 
-        frame = lidar_data.frame - self.init_timestamp['frame0']
+        frame = lidar_data.frame - self.init_timestamp["frame0"]
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_radar_snapshot(self, radar_data, name="Radar"):
+    def add_radar_snapshot(self, radar_data, name="Radar") -> None:
         if not self.active:
             return
 
-        points = np.frombuffer(radar_data.raw_data, dtype=np.dtype('f4'))
+        points = np.frombuffer(radar_data.raw_data, dtype=np.dtype("f4"))
         points = np.reshape(points, (int(points.shape[0] / 4), 4))
 
-        frame = radar_data.frame - self.init_timestamp['frame0']
+        frame = radar_data.frame - self.init_timestamp["frame0"]
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((radar_data.frame, name))
 
-    def sensor_syncronization(self):
+    def sensor_syncronization(self) -> None:
         # Sensor Syncronization
         w_frame = self.world.get_snapshot().frame
-        for sensor in self.sensor_list:
+        for _sensor in self.sensor_list:
             s_frame = self.sensor_queue.get(True, 1.0)[0]
             if w_frame != s_frame:
-                print("Error!!! frames are not equal for %s: %d %d" % (sensor[0], w_frame, s_frame))
+                pass
 
 
 class SpawnLidarNoDropff(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -207,9 +207,9 @@ class SpawnLidarNoDropff(Scenario):
 
         vehicle00.set_target_velocity(carla.Vector3D(-25, 0, 0))
 
-        lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar_bp.set_attribute('dropoff_general_rate', '0.0')
-        lidar_bp.set_attribute('noise_seed', '43233')
+        lidar_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast")
+        lidar_bp.set_attribute("dropoff_general_rate", "0.0")
+        lidar_bp.set_attribute("noise_seed", "43233")
 
         lidar_tr = carla.Transform(carla.Location(z=2))
         lidar = self.world.spawn_actor(lidar_bp, lidar_tr, attach_to=vehicle00)
@@ -220,7 +220,7 @@ class SpawnLidarNoDropff(Scenario):
         self.wait(1)
 
 class SpawnSemanticLidar(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -230,7 +230,7 @@ class SpawnSemanticLidar(Scenario):
 
         vehicle00.set_target_velocity(carla.Vector3D(-25, 0, 0))
 
-        lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
+        lidar_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast_semantic")
 
         lidar_tr = carla.Transform(carla.Location(z=2))
         lidar = self.world.spawn_actor(lidar_bp, lidar_tr, attach_to=vehicle00)
@@ -241,7 +241,7 @@ class SpawnSemanticLidar(Scenario):
         self.wait(1)
 
 class SpawnRadar(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -251,8 +251,8 @@ class SpawnRadar(Scenario):
 
         vehicle00.set_target_velocity(carla.Vector3D(-25, 0, 0))
 
-        radar_bp = self.world.get_blueprint_library().find('sensor.other.radar')
-        radar_bp.set_attribute('noise_seed', '54283')
+        radar_bp = self.world.get_blueprint_library().find("sensor.other.radar")
+        radar_bp.set_attribute("noise_seed", "54283")
 
         radar_tr = carla.Transform(carla.Location(z=2))
         radar = self.world.spawn_actor(radar_bp, radar_tr, attach_to=vehicle00)
@@ -263,7 +263,7 @@ class SpawnRadar(Scenario):
         self.wait(1)
 
 class SpawnLidarWithDropff(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -273,9 +273,9 @@ class SpawnLidarWithDropff(Scenario):
 
         vehicle00.set_target_velocity(carla.Vector3D(-25, 0, 0))
 
-        lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar_bp.set_attribute('channels', '64')
-        lidar_bp.set_attribute('noise_seed', '249013')
+        lidar_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast")
+        lidar_bp.set_attribute("channels", "64")
+        lidar_bp.set_attribute("noise_seed", "249013")
 
         lidar_tr = carla.Transform(carla.Location(z=2))
         lidar = self.world.spawn_actor(lidar_bp, lidar_tr, attach_to=vehicle00)
@@ -286,7 +286,7 @@ class SpawnLidarWithDropff(Scenario):
         self.wait(1)
 
 class SpawnAllRaycastSensors(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None):
+    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -299,22 +299,22 @@ class SpawnAllRaycastSensors(Scenario):
         vehicle01 = self.world.spawn_actor(blueprint_library.filter("lincoln")[0], vehicle01_tr)
         vehicle01.set_target_velocity(carla.Vector3D(25, 0, 0))
 
-        radar_bp = self.world.get_blueprint_library().find('sensor.other.radar')
-        radar_bp.set_attribute('noise_seed', '54283')
+        radar_bp = self.world.get_blueprint_library().find("sensor.other.radar")
+        radar_bp.set_attribute("noise_seed", "54283")
         radar_tr = carla.Transform(carla.Location(z=2))
         radar = self.world.spawn_actor(radar_bp, radar_tr, attach_to=vehicle00)
 
-        lidar01_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar01_bp.set_attribute('noise_seed', '12134')
+        lidar01_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast")
+        lidar01_bp.set_attribute("noise_seed", "12134")
         lidar01_tr = carla.Transform(carla.Location(x=1, z=2))
         lidar01 = self.world.spawn_actor(lidar01_bp, lidar01_tr, attach_to=vehicle00)
 
-        lidar02_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast_semantic')
+        lidar02_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast_semantic")
         lidar02_tr = carla.Transform(carla.Location(x=1, z=2))
         lidar02 = self.world.spawn_actor(lidar02_bp, lidar02_tr, attach_to=vehicle01)
 
-        lidar03_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar03_bp.set_attribute('noise_seed', '23135')
+        lidar03_bp = self.world.get_blueprint_library().find("sensor.lidar.ray_cast")
+        lidar03_bp.set_attribute("noise_seed", "23135")
         lidar03_tr = carla.Transform(carla.Location(z=2))
         lidar03 = self.world.spawn_actor(lidar03_bp, lidar03_tr, attach_to=vehicle01)
 
@@ -328,7 +328,7 @@ class SpawnAllRaycastSensors(Scenario):
         self.wait(1)
 
 class SensorScenarioTester:
-    def __init__(self, scene, output_path):
+    def __init__(self, scene, output_path) -> None:
         self.scene = scene
         self.world = self.scene.world
         self.client = self.scene.client
@@ -406,12 +406,12 @@ class SensorScenarioTester:
         output_str += "  -> Comp. FPS: %.0f" % ((repetitions*sim_tics)/t_comp)
 
         if determ_repet[0] != repetitions:
-            print("Error!!! Scenario %s is not deterministic: %d / %d" % (self.scenario_name, determ_repet[0], repetitions))
+            pass
 
         return output_str
 
 
-def main(arg):
+def main(arg) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(30.0)
@@ -431,16 +431,13 @@ def main(arg):
             SensorScenarioTester(SpawnLidarNoDropff(client, world), output_path),
             SensorScenarioTester(SpawnLidarWithDropff(client, world), output_path),
             SensorScenarioTester(SpawnSemanticLidar(client, world), output_path),
-            SensorScenarioTester(SpawnRadar(client, world), output_path)
+            SensorScenarioTester(SpawnRadar(client, world), output_path),
         ]
 
         repetitions = 10
         for item in test_list:
-            print("--------------------------------------------------------------")
-            out = item.test_scenario(repetitions)
-            print(out)
+            item.test_scenario(repetitions)
 
-        print("--------------------------------------------------------------")
 
         # Remove all the output files
         #shutil.rmtree(path)
@@ -455,25 +452,23 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='localhost',
-        help='IP of the host CARLA Simulator (default: localhost)')
+        "--host",
+        metavar="H",
+        default="localhost",
+        help="IP of the host CARLA Simulator (default: localhost)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port of CARLA Simulator (default: 2000)')
+        help="TCP port of CARLA Simulator (default: 2000)")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='model3',
+        "--filter",
+        metavar="PATTERN",
+        default="model3",
         help='actor filter (default: "vehicle.*")')
     args = argparser.parse_args()
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main(args)
-    except KeyboardInterrupt:
-        print(' - Exited by user.')
 

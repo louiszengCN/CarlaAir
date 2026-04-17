@@ -65,7 +65,6 @@ class TestStreamming(SmokeTest):
 
     def test_multistream(self) -> None:
         """Test multiple clients streaming GNSS data concurrently."""
-        print("TestStreamming.test_multistream")
         # Create the sensor
         world = self.client.get_world()
         bp = world.get_blueprint_library().find(_GNSS_SENSOR)

@@ -163,14 +163,9 @@ def main() -> None:
         spawn_points = world.get_map().get_spawn_points()
         random.shuffle(spawn_points)
 
-        print(f"found {len(spawn_points)} spawn points.")
 
         count = args.number_of_vehicles
 
-        print(
-            "Recording on file: "
-            f"{client.start_recorder(name=args.recorder_filename)}"
-        )
 
         if args.safe:
             blueprints = _filter_safe_vehicles(blueprints)
@@ -196,14 +191,14 @@ def main() -> None:
             blueprint = random.choice(blueprints)
             if blueprint.has_attribute("color"):
                 color = random.choice(
-                    blueprint.get_attribute("color").recommended_values
+                    blueprint.get_attribute("color").recommended_values,
                 )
                 blueprint.set_attribute("color", color)
             blueprint.set_attribute("role_name", _VEHICLE_ROLE_NAME)
             batch.append(
                 SpawnActor(blueprint, transform).then(
-                    SetAutopilot(FutureActor, True)
-                )
+                    SetAutopilot(FutureActor, True),
+                ),
             )
 
         for response in client.apply_batch_sync(batch):
@@ -212,10 +207,6 @@ def main() -> None:
             else:
                 actor_list.append(response.actor_id)
 
-        print(
-            f"spawned {len(actor_list)} vehicles, "
-            f"press Ctrl+C to exit."
-        )
 
         if args.recorder_time > 0:
             time.sleep(args.recorder_time)
@@ -224,12 +215,10 @@ def main() -> None:
                 world.wait_for_tick()
 
     finally:
-        print(f"\ndestroying {len(actor_list)} actors")
         client.apply_batch_sync(
-            [DestroyActor(x) for x in actor_list]
+            [DestroyActor(x) for x in actor_list],
         )
 
-        print("Stop recording")
         client.stop_recorder()
 
 
@@ -239,4 +228,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        print("\ndone.")
+        pass

@@ -6,7 +6,6 @@
 
 """Test CARLA client version matching."""
 
-import sys
 import unittest
 from subprocess import check_output
 
@@ -34,20 +33,18 @@ class TestClient(unittest.TestCase):
 
         out = ""
         branch = check_output(_GIT_BRANCH_CMD)
-        if sys.version_info > (3, 0):
-            branch = branch.decode("utf8").strip()
+        branch = branch.decode("utf8").strip()
 
         if branch.startswith(_UE4_BRANCH_PREFIX):
             out = branch.split("/")[1]
         else:
             commit = check_output(_GIT_COMMIT_CMD)
             dirty = check_output(_GIT_DIRTY_CMD)
-            if sys.version_info > (3, 0):
-                commit = commit.decode("utf8").strip()
-                dirty = dirty.decode("utf8").strip()
+            commit = commit.decode("utf8").strip()
+            dirty = dirty.decode("utf8").strip()
 
             out = commit
             if dirty:
                 out += "-dirty"
 
-        self.assertEqual(str(v), str(out))
+        assert str(v) == str(out)

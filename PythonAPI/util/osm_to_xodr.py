@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import os
 
 import carla
@@ -115,15 +116,12 @@ def main() -> None:
     args = _parse_args()
 
     if args.input_path is None or not os.path.exists(args.input_path):
-        print("input file not found.")
         return
     if args.output_path is None:
-        print("output file path not found.")
         return
 
-    print(__doc__)
 
-    try:
+    with contextlib.suppress(RuntimeError):
         convert(
             args.input_path,
             args.output_path,
@@ -132,14 +130,12 @@ def main() -> None:
             all_junctions_lights=args.all_junctions_lights,
             center_map=args.center_map,
         )
-    except RuntimeError:
-        print("\nAn error has occurred in conversion.")
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nCancelled by user. Bye!")
-    except RuntimeError as e:
-        print(e)
+        pass
+    except RuntimeError:
+        pass

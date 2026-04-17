@@ -10,49 +10,48 @@ import sys
 import carla
 
 SUN_PRESETS = {
-    'day': (45.0, 0.0),
-    'night': (-90.0, 0.0),
-    'sunset': (0.5, 0.0)}
+    "day": (45.0, 0.0),
+    "night": (-90.0, 0.0),
+    "sunset": (0.5, 0.0)}
 
 WEATHER_PRESETS = {
-    'clear': [10.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.0331, 0.0],
-    'overcast': [80.0, 0.0, 0.0, 50.0, 2.0, 0.75, 0.1, 10.0, 0.0, 0.03, 0.0331, 0.0],
-    'rain': [100.0, 80.0, 90.0, 100.0, 7.0, 0.75, 0.1, 100.0, 0.0, 0.03, 0.0331, 0.0]}
+    "clear": [10.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.0331, 0.0],
+    "overcast": [80.0, 0.0, 0.0, 50.0, 2.0, 0.75, 0.1, 10.0, 0.0, 0.03, 0.0331, 0.0],
+    "rain": [100.0, 80.0, 90.0, 100.0, 7.0, 0.75, 0.1, 100.0, 0.0, 0.03, 0.0331, 0.0]}
 
 CAR_LIGHTS = {
-    'None' : [carla.VehicleLightState.NONE],
-    'Position' : [carla.VehicleLightState.Position],
-    'LowBeam' : [carla.VehicleLightState.LowBeam],
-    'HighBeam' : [carla.VehicleLightState.HighBeam],
-    'Brake' : [carla.VehicleLightState.Brake],
-    'RightBlinker' : [carla.VehicleLightState.RightBlinker],
-    'LeftBlinker' : [carla.VehicleLightState.LeftBlinker],
-    'Reverse' : [carla.VehicleLightState.Reverse],
-    'Fog' : [carla.VehicleLightState.Fog],
-    'Interior' : [carla.VehicleLightState.Interior],
-    'Special1' : [carla.VehicleLightState.Special1],
-    'Special2' : [carla.VehicleLightState.Special2],
-    'All' : [carla.VehicleLightState.All]}
+    "None" : [carla.VehicleLightState.NONE],
+    "Position" : [carla.VehicleLightState.Position],
+    "LowBeam" : [carla.VehicleLightState.LowBeam],
+    "HighBeam" : [carla.VehicleLightState.HighBeam],
+    "Brake" : [carla.VehicleLightState.Brake],
+    "RightBlinker" : [carla.VehicleLightState.RightBlinker],
+    "LeftBlinker" : [carla.VehicleLightState.LeftBlinker],
+    "Reverse" : [carla.VehicleLightState.Reverse],
+    "Fog" : [carla.VehicleLightState.Fog],
+    "Interior" : [carla.VehicleLightState.Interior],
+    "Special1" : [carla.VehicleLightState.Special1],
+    "Special2" : [carla.VehicleLightState.Special2],
+    "All" : [carla.VehicleLightState.All]}
 
 LIGHT_GROUP = {
-    'None' : [carla.LightGroup.NONE],
+    "None" : [carla.LightGroup.NONE],
     # 'Vehicle' : [carla.LightGroup.Vehicle],
-    'Street' : [carla.LightGroup.Street],
-    'Building' : [carla.LightGroup.Building],
-    'Other' : [carla.LightGroup.Other]}
+    "Street" : [carla.LightGroup.Street],
+    "Building" : [carla.LightGroup.Building],
+    "Other" : [carla.LightGroup.Other]}
 
-def apply_sun_presets(args, weather):
+def apply_sun_presets(args, weather) -> None:
     """Uses sun presets to set the sun position"""
     if args.sun is not None:
         if args.sun in SUN_PRESETS:
             weather.sun_altitude_angle = SUN_PRESETS[args.sun][0]
             weather.sun_azimuth_angle = SUN_PRESETS[args.sun][1]
         else:
-            print("[ERROR]: Command [--sun | -s] '" + args.sun + "' not known")
             sys.exit(1)
 
 
-def apply_weather_presets(args, weather):
+def apply_weather_presets(args, weather) -> None:
     """Uses weather presets to set the weather parameters"""
     if args.weather is not None:
         if args.weather in WEATHER_PRESETS:
@@ -69,11 +68,10 @@ def apply_weather_presets(args, weather):
             weather.rayleigh_scattering_scale = WEATHER_PRESETS[args.weather][10]
             weather.dust_storm = WEATHER_PRESETS[args.weather][11]
         else:
-            print("[ERROR]: Command [--weather | -w] '" + args.weather + "' not known")
             sys.exit(1)
 
 
-def apply_weather_values(args, weather):
+def apply_weather_values(args, weather) -> None:
     """Set weather values individually"""
     if args.azimuth is not None:
         weather.sun_azimuth_angle = args.azimuth
@@ -105,7 +103,7 @@ def apply_weather_values(args, weather):
         weather.dust_storm = args.dust_storm
 
 
-def apply_lights_to_cars(args, world):
+def apply_lights_to_cars(args, world) -> None:
     if args.cars is None:
         return
 
@@ -119,11 +117,11 @@ def apply_lights_to_cars(args, world):
         if "vehicle." in ve.type_id:
             ve.set_light_state(carla.VehicleLightState(light_mask))
 
-def apply_lights_manager(args, light_manager):
+def apply_lights_manager(args, light_manager) -> None:
     if args.lights is None:
         return
 
-    light_group = 'None'
+    light_group = "None"
     if args.lightgroup is not None:
         light_group = args.lightgroup
 
@@ -151,135 +149,135 @@ def apply_lights_manager(args, light_manager):
         i += 1
 
 
-def main():
+def main() -> None:
     """Start function"""
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default="127.0.0.1",
+        help="IP of the host server (default: 127.0.0.1)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help="TCP port to listen to (default: 2000)")
     argparser.add_argument(
-        '--sun',
+        "--sun",
         default=None,
         type=str,
-        help='Sun position presets [' + ' | '.join(list(SUN_PRESETS)) + ']')
+        help="Sun position presets [" + " | ".join(list(SUN_PRESETS)) + "]")
     argparser.add_argument(
-        '--weather',
+        "--weather",
         default=None,
         type=str,
-        help='Weather condition presets [' + ' | '.join(list(WEATHER_PRESETS)) + ']')
+        help="Weather condition presets [" + " | ".join(list(WEATHER_PRESETS)) + "]")
     argparser.add_argument(
-        '--altitude', '-alt',
-        metavar='A',
+        "--altitude", "-alt",
+        metavar="A",
         default=None,
         type=float,
-        help='Sun altitude [-90.0, 90.0]')
+        help="Sun altitude [-90.0, 90.0]")
     argparser.add_argument(
-        '--azimuth', '-azm',
-        metavar='A',
+        "--azimuth", "-azm",
+        metavar="A",
         default=None,
         type=float,
-        help='Sun azimuth [0.0, 360.0]')
+        help="Sun azimuth [0.0, 360.0]")
     argparser.add_argument(
-        '--clouds', '-c',
-        metavar='C',
+        "--clouds", "-c",
+        metavar="C",
         default=None,
         type=float,
-        help='Clouds amount [0.0, 100.0]')
+        help="Clouds amount [0.0, 100.0]")
     argparser.add_argument(
-        '--rain', '-r',
-        metavar='R',
+        "--rain", "-r",
+        metavar="R",
         default=None,
         type=float,
-        help='Rain amount [0.0, 100.0]')
+        help="Rain amount [0.0, 100.0]")
     argparser.add_argument(
-        '--puddles', '-pd',
-        metavar='Pd',
+        "--puddles", "-pd",
+        metavar="Pd",
         default=None,
         type=float,
-        help='Puddles amount [0.0, 100.0]')
+        help="Puddles amount [0.0, 100.0]")
     argparser.add_argument(
-        '--wind', '-w',
-        metavar='W',
+        "--wind", "-w",
+        metavar="W",
         default=None,
         type=float,
-        help='Wind intensity [0.0, 100.0]')
+        help="Wind intensity [0.0, 100.0]")
     argparser.add_argument(
-        '--fog', '-f',
-        metavar='F',
+        "--fog", "-f",
+        metavar="F",
         default=None,
         type=float,
-        help='Fog intensity [0.0, 100.0]')
+        help="Fog intensity [0.0, 100.0]")
     argparser.add_argument(
-        '--fogdist', '-fd',
-        metavar='Fd',
+        "--fogdist", "-fd",
+        metavar="Fd",
         default=None,
         type=float,
-        help='Fog Distance [0.0, 100.0)')
+        help="Fog Distance [0.0, 100.0)")
     argparser.add_argument(
-        '--fogfalloff', '-fo',
-        metavar='Fo',
+        "--fogfalloff", "-fo",
+        metavar="Fo",
         default=None,
         type=float,
-        help='Fog Falloff [0.0, inf)')
+        help="Fog Falloff [0.0, inf)")
     argparser.add_argument(
-        '--wetness', '-wet',
-        metavar='Wet',
+        "--wetness", "-wet",
+        metavar="Wet",
         default=None,
         type=float,
-        help='Wetness intensity [0.0, 100.0]')
+        help="Wetness intensity [0.0, 100.0]")
     argparser.add_argument(
-        '--scatteringintensity', '-si',
-        metavar='si',
+        "--scatteringintensity", "-si",
+        metavar="si",
         default=None,
         type=float,
-        help='Scattering intensity [0.0, inf]')
+        help="Scattering intensity [0.0, inf]")
     argparser.add_argument(
-        '--rayleighscatteringscale', '-rss',
-        metavar='rss',
+        "--rayleighscatteringscale", "-rss",
+        metavar="rss",
         default=None,
         type=float,
-        help='Rayleigh scattering scale [0.0, 2.0]')
+        help="Rayleigh scattering scale [0.0, 2.0]")
     argparser.add_argument(
-        '--miescatteringscale', '-mss',
-        metavar='mss',
+        "--miescatteringscale", "-mss",
+        metavar="mss",
         default=None,
         type=float,
-        help='Mie scattering scale [0.0, 5.0]')
+        help="Mie scattering scale [0.0, 5.0]")
     argparser.add_argument(
-        '--dust_storm', '-ds',
-        metavar='ds',
+        "--dust_storm", "-ds",
+        metavar="ds",
         default=None,
         type=float,
-        help='Dust storm strength [0.0, 100.0]')
+        help="Dust storm strength [0.0, 100.0]")
     argparser.add_argument(
-        '--cars',
-        metavar='Cars',
+        "--cars",
+        metavar="Cars",
         default=None,
         type=str,
-        nargs='+',
-        help='Light Cars [' + ' | '.join(list(CAR_LIGHTS)) + ']')
+        nargs="+",
+        help="Light Cars [" + " | ".join(list(CAR_LIGHTS)) + "]")
     argparser.add_argument(
-        '--lights', '-l',
-        metavar='Lights',
+        "--lights", "-l",
+        metavar="Lights",
         default=None,
         type=str,
-        nargs='+',
-        help='Street Lights []')
+        nargs="+",
+        help="Street Lights []")
     argparser.add_argument(
-        '--lightgroup', '-lg',
-        metavar='LightGroup',
+        "--lightgroup", "-lg",
+        metavar="LightGroup",
         default=None,
         type=str,
-        help='Light Group [' + ' | '.join(list(LIGHT_GROUP)) + ']')
+        help="Light Group [" + " | ".join(list(LIGHT_GROUP)) + "]")
     args = argparser.parse_args()
 
     # since all the arguments are None by default
@@ -287,7 +285,7 @@ def main():
     # we can check if all the arguments have been provided
     arg_values = [v for _, v in args.__dict__.items()][2:]
     if all(i is (None) for i in arg_values):
-        argparser.error('No arguments provided.')
+        argparser.error("No arguments provided.")
 
     client = carla.Client(args.host, args.port)
     client.set_timeout(2.0)
@@ -312,5 +310,5 @@ def main():
     world.wait_for_tick()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

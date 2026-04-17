@@ -106,11 +106,11 @@ class PlaybackConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     normal_arrival_threshold: float = Field(
-        default=_NORMAL_ARRIVAL_THRESHOLD, gt=0
+        default=_NORMAL_ARRIVAL_THRESHOLD, gt=0,
     )
     jump_arrival_threshold: float = Field(default=_JUMP_ARRIVAL_THRESHOLD, gt=0)
     stuck_distance_increment: float = Field(
-        default=_STUCK_DISTANCE_INCREMENT, gt=0
+        default=_STUCK_DISTANCE_INCREMENT, gt=0,
     )
     stuck_frame_threshold: int = Field(default=_STUCK_FRAME_THRESHOLD, gt=0)
     stuck_distance_max: float = Field(default=_STUCK_DISTANCE_MAX, gt=0)
@@ -120,7 +120,7 @@ class PlaybackConfig(BaseModel):
     default_speed: float = Field(default=_DEFAULT_SPEED, gt=0)
     velocity_threshold: float = Field(default=_VELOCITY_THRESHOLD, gt=0)
     blend_to_target: float = Field(
-        default=_BLEND_TO_TARGET, ge=0, le=1
+        default=_BLEND_TO_TARGET, ge=0, le=1,
     )
     blend_recorded: float = Field(default=_BLEND_RECORDED, ge=0, le=1)
 
@@ -135,7 +135,7 @@ class VideoConfig(BaseModel):
     fps: float = Field(default=_VIDEO_FPS, gt=0)
     default_codec: str = Field(default=_DEFAULT_RECORD_NAME, min_length=1)
     codecs_to_try: list[str] = Field(
-        default_factory=lambda: list(_VIDEO_CODECS)
+        default_factory=lambda: list(_VIDEO_CODECS),
     )
 
 
@@ -145,10 +145,10 @@ class CameraConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     resolution_x: str = Field(
-        default=_CAMERA_RESOLUTION_X, min_length=1
+        default=_CAMERA_RESOLUTION_X, min_length=1,
     )
     resolution_y: str = Field(
-        default=_CAMERA_RESOLUTION_Y, min_length=1
+        default=_CAMERA_RESOLUTION_Y, min_length=1,
     )
     fov: str = Field(default=_CAMERA_FOV, min_length=1)
     chase_offset_x: float = Field(default=_CHASE_CAMERA_X)
@@ -264,7 +264,7 @@ class TrajectoryPlayback:
             maximum building height plus buffer
         """
         all_buildings = self._world.get_environment_objects(
-            carla.CityObjectLabel.Buildings
+            carla.CityObjectLabel.Buildings,
         )
         if not all_buildings:
             return _DEBUG_BUILDING_BUFFER
@@ -303,11 +303,7 @@ class TrajectoryPlayback:
                 (self._video_cfg.width, self._video_cfg.height),
             )
             if writer.isOpened():
-                print(
-                    f"Video recording enabled, codec (视频录制启用，编码) {codec}, output (输出) {self._record_path}"
-                )
                 return writer
-        print(f"Video writer open failed, close recording (视频写入器打开失败，关闭录制): {self._record_path}")
         return None
 
     def spawn_playback_player(self) -> None:
@@ -327,10 +323,10 @@ class TrajectoryPlayback:
         # Chase camera
         camera_bp = self._blueprint_library.find("sensor.camera.rgb")
         camera_bp.set_attribute(
-            "image_size_x", self._camera_cfg.resolution_x
+            "image_size_x", self._camera_cfg.resolution_x,
         )
         camera_bp.set_attribute(
-            "image_size_y", self._camera_cfg.resolution_y
+            "image_size_y", self._camera_cfg.resolution_y,
         )
         camera_bp.set_attribute("fov", self._camera_cfg.fov)
 
@@ -342,19 +338,18 @@ class TrajectoryPlayback:
             carla.Rotation(pitch=self._camera_cfg.chase_pitch),
         )
         self._camera = self._world.spawn_actor(
-            camera_bp, camera_transform, attach_to=self._walker
+            camera_bp, camera_transform, attach_to=self._walker,
         )
         self._actor_list.append(self._camera)
 
     def run(self) -> None:
         """Main playback loop."""
         if not self._trajectory:
-            print("Trajectory is empty, exit (轨迹为空，退出)。")
             return
 
         pygame.init()
         display = pygame.display.set_mode(
-            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS
+            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS,
         )
 
         self.spawn_playback_player()
@@ -383,7 +378,6 @@ class TrajectoryPlayback:
         clock = pygame.time.Clock()
         running = True
 
-        print(f"Starting playback, total (开始回放，总计) {len(self._trajectory)} points (个点)...")
 
         try:
             while running and current_target_idx < len(self._trajectory):
@@ -392,7 +386,7 @@ class TrajectoryPlayback:
 
                 target = self._trajectory[current_target_idx]
                 target_loc = carla.Location(
-                    x=target["x"], y=target["y"], z=target["z"]
+                    x=target["x"], y=target["y"], z=target["z"],
                 )
 
                 if self._walker is None:
@@ -403,7 +397,7 @@ class TrajectoryPlayback:
 
                 # Only consider horizontal movement (X, Y), ignore Z
                 direction_2d = carla.Vector3D(
-                    x=direction.x, y=direction.y, z=0
+                    x=direction.x, y=direction.y, z=0,
                 )
                 distance_2d = direction_2d.length()
 
@@ -446,15 +440,11 @@ class TrajectoryPlayback:
                         distance_2d = arrival_threshold
 
                 if distance_2d <= arrival_threshold:
-                    print(
-                        f"Arrived at point (到达点) {current_target_idx}/{len(self._trajectory)-1}"
-                    )
                     current_target_idx += 1
                     self._prev_distance = None
                     self._stuck_frames = 0
                     self._jump_hold_frames = 0
                     if current_target_idx >= len(self._trajectory):
-                        print("Arrived at trajectory end (已到达轨迹终点)。")
                         break
 
                 if self._walker is not None:
@@ -467,7 +457,6 @@ class TrajectoryPlayback:
                     ):
                         running = False
         finally:
-            print(f"Playback ended, waiting (回放结束，等待) {_EXIT_DELAY:.0f} seconds before exit (秒后退出)...")
             time.sleep(_EXIT_DELAY)
             self._cleanup()
 
@@ -492,7 +481,7 @@ class TrajectoryPlayback:
             direction_2d / distance_2d if distance_2d > 0 else carla.Vector3D(0, 0, 0)
         )
         recorded_dir = carla.Vector3D(
-            x=target.get("vx", 0.0), y=target.get("vy", 0.0), z=0.0
+            x=target.get("vx", 0.0), y=target.get("vy", 0.0), z=0.0,
         )
         recorded_len = recorded_dir.length()
 
@@ -573,7 +562,7 @@ class TrajectoryPlayback:
                     z=prev_p["z"] + _DEBUG_Z_OFFSET,
                 )
                 self._draw_dashed_line(
-                    prev_loc, loc + carla.Location(z=_DEBUG_Z_OFFSET)
+                    prev_loc, loc + carla.Location(z=_DEBUG_Z_OFFSET),
                 )
 
     def _draw_dashed_line(
@@ -639,10 +628,7 @@ class TrajectoryPlayback:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(
-            "Please provide trajectory file path: python trajectory_playback.py (请提供轨迹文件路径：python trajectory_playback.py) "
-            "<trajectory_file.json> [--record output.mp4] [--style walker|drone]"
-        )
+        pass
     else:
         try:
             trajectory_file = sys.argv[1]
@@ -677,5 +663,5 @@ if __name__ == "__main__":
                 visual_style=visual_style,
             )
             playback.run()
-        except Exception as e:
-            print(f"Playback error (回放出错): {e}")
+        except Exception:
+            pass

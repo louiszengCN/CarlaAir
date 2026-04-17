@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING
 
 import carla
 
@@ -73,10 +72,9 @@ class TestSpawnpoints(SyncSmokeTest):
 
     def test_spawn_points(self) -> None:
         """Verify spawn points work correctly on all maps."""
-        print("TestSpawnpoints.test_spawn_points")
         self.world = self.client.get_world()
         blueprints = self.world.get_blueprint_library().filter(
-            _VEHICLE_FILTER
+            _VEHICLE_FILTER,
         )
         blueprints = self.filter_vehicles_for_old_towns(blueprints)
 
@@ -111,13 +109,13 @@ class TestSpawnpoints(SyncSmokeTest):
                     carla.command.SpawnActor(*args) for args in batch
                 ]
                 response = self.client.apply_batch_sync(
-                    batch, do_tick=False
+                    batch, do_tick=False,
                 )
 
                 # Collect detailed spawn errors
                 spawn_errors: list[str] = []
                 for i, (resp, (bp, t)) in enumerate(
-                    zip(response, [(vehicle, t) for t in spawn_points])
+                    zip(response, [(vehicle, t) for t in spawn_points]),
                 ):
                     if resp.error:
                         spawn_errors.append(
@@ -130,7 +128,7 @@ class TestSpawnpoints(SyncSmokeTest):
                             f"rot=({t.rotation.pitch:.2f},"
                             f"{t.rotation.yaw:.2f},"
                             f"{t.rotation.roll:.2f}), "
-                            f"error={resp.error}"
+                            f"error={resp.error}",
                         )
                         self.world.get_spectator().set_transform(t)
 
@@ -138,64 +136,24 @@ class TestSpawnpoints(SyncSmokeTest):
                     error_details = "\n".join(
                         f"  - {e}" for e in spawn_errors
                     )
-                    self.assertFalse(
-                        True,
-                        f"Spawn errors detected:\n{error_details}",
-                    )
+                    assert not True, f"Spawn errors detected:\n{error_details}"
 
                 ids = [x.actor_id for x in response]
-                self.assertEqual(
-                    len(ids),
-                    len(spawn_points),
-                    (
-                        "Mismatch in number of spawned actors.\n"
-                        f"Expected (spawn points): {len(spawn_points)}\n"
-                        f"Got (actor ids): {len(ids)}\n"
-                        f"IDs: {ids}"
-                    ),
-                )
+                assert len(ids) == len(spawn_points), "Mismatch in number of spawned actors.\n" f"Expected (spawn points): {len(spawn_points)}\n" f"Got (actor ids): {len(ids)}\n" f"IDs: {ids}"
 
                 frame = self.world.tick()
                 snapshot = self.world.get_snapshot()
-                self.assertEqual(
-                    frame,
-                    snapshot.timestamp.frame,
-                    (
-                        "Frame mismatch between world.tick() and "
-                        f"snapshot.\n"
-                        f"tick frame={frame}, "
-                        f"snapshot frame={snapshot.timestamp.frame}"
-                    ),
-                )
+                assert frame == snapshot.timestamp.frame, "Frame mismatch between world.tick() and " f"snapshot.\n" f"tick frame={frame}, " f"snapshot frame={snapshot.timestamp.frame}"
 
                 actors = self.world.get_actors()
                 missing = [
                     a.id for a in actors if not snapshot.has_actor(a.id)
                 ]
-                self.assertTrue(
-                    not missing,
-                    (
-                        "Some actors are missing from snapshot.\n"
-                        f"Missing IDs: {missing}\n"
-                        f"Total actors in world: {len(actors)}"
-                    ),
-                )
+                assert not missing, "Some actors are missing from snapshot.\n" f"Missing IDs: {missing}\n" f"Total actors in world: {len(actors)}"
 
                 for actor_id, t0 in zip(ids, spawn_points):
                     actor_snapshot = snapshot.find(actor_id)
-                    self.assertIsNotNone(
-                        actor_snapshot,
-                        (
-                            "Actor not found in snapshot.\n"
-                            f"actor_id={actor_id}\n"
-                            f"spawn loc=({t0.location.x:.4f},"
-                            f"{t0.location.y:.4f},"
-                            f"{t0.location.z:.4f}), "
-                            f"rot=({t0.rotation.pitch:.2f},"
-                            f"{t0.rotation.yaw:.2f},"
-                            f"{t0.rotation.roll:.2f})"
-                        ),
-                    )
+                    assert actor_snapshot is not None, "Actor not found in snapshot.\n" f"actor_id={actor_id}\n" f"spawn loc=({t0.location.x:.4f}," f"{t0.location.y:.4f}," f"{t0.location.z:.4f}), " f"rot=({t0.rotation.pitch:.2f}," f"{t0.rotation.yaw:.2f}," f"{t0.rotation.roll:.2f})"
                     if actor_snapshot:
                         t1 = actor_snapshot.get_transform()
 
@@ -265,10 +223,7 @@ class TestSpawnpoints(SyncSmokeTest):
                     error_details = "\n".join(
                         f"  - {e}" for e in destroy_errors
                     )
-                    self.assertFalse(
-                        True,
-                        f"Errors while destroying actors:\n{error_details}",
-                    )
+                    assert not True, f"Errors while destroying actors:\n{error_details}"
 
                 self.world.tick()
                 self.world.tick()

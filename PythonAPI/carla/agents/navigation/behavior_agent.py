@@ -126,7 +126,7 @@ class BehaviorAgent(BasicAgent):
         self._look_ahead_steps = int(self._speed_limit / _LOOK_AHEAD_SPEED_DIVISOR)
 
         self._incoming_waypoint, self._incoming_direction = self._local_planner.get_incoming_waypoint_and_direction(
-            steps=self._look_ahead_steps
+            steps=self._look_ahead_steps,
         )
         if self._incoming_direction is None:
             self._incoming_direction = RoadOption.LANEFOLLOW
@@ -175,7 +175,6 @@ class BehaviorAgent(BasicAgent):
                     lane_offset=1,
                 )
                 if not new_vehicle_state:
-                    print("Tailgating, moving to the right!")
                     end_waypoint = self._local_planner.target_waypoint
                     self._behavior.tailgate_counter = _TAILGATING_COUNTER_INIT
                     self.set_destination(
@@ -194,7 +193,6 @@ class BehaviorAgent(BasicAgent):
                     lane_offset=-1,
                 )
                 if not new_vehicle_state:
-                    print("Tailgating, moving to the left!")
                     end_waypoint = self._local_planner.target_waypoint
                     self._behavior.tailgate_counter = _TAILGATING_COUNTER_INIT
                     self.set_destination(

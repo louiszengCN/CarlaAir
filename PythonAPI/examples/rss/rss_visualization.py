@@ -31,20 +31,20 @@ EVALUATOR_NONE_STATE = RssStateEvaluator.names["None"]
 
 class RssStateVisualizer:
 
-    def __init__(self, display_dimensions, font, world):
+    def __init__(self, display_dimensions, font, world) -> None:
         # type: (tuple[int, int] | list[int], pygame.font.Font, carla.World) -> None
         self._surface = None
         self._display_dimensions = display_dimensions
         self._font = font
         self._world = world
 
-    def tick(self, individual_rss_states):
+    def tick(self, individual_rss_states) -> None:
         state_surface = pygame.Surface((220, self._display_dimensions[1]))
-        state_surface.set_colorkey(pygame.Color('black'))
+        state_surface.set_colorkey(pygame.Color("black"))
         v_offset = 0
 
         if individual_rss_states:
-            surface = self._font.render('RSS States:', True, Color.white)
+            surface = self._font.render("RSS States:", True, Color.white)
             state_surface.blit(surface, (8, v_offset))
             v_offset += 26
         for state in individual_rss_states:
@@ -70,7 +70,7 @@ class RssStateVisualizer:
                 mode = "U"
             elif state.actor_calculation_mode == ad.rss.map.RssMode.NotRelevant:
                 mode = "-"
-            item = '%4s % 2dm %8s' % (mode, state.distance, object_name)
+            item = "%4s % 2dm %8s" % (mode, state.distance, object_name)
 
             surface = self._font.render(item, True, Color.white)
             state_surface.blit(surface, (5, v_offset))
@@ -126,7 +126,7 @@ class RssStateVisualizer:
             v_offset += 14
             self._surface = state_surface
 
-    def render(self, display, v_offset):
+    def render(self, display, v_offset) -> None:
         if self._surface:
             display.blit(self._surface, (0, v_offset))
 
@@ -144,7 +144,7 @@ class RssUnstructuredSceneVisualizerMode(Enum):
 class RssUnstructuredSceneVisualizer:
     """Provides a top-view over the setting?"""
 
-    def __init__(self, parent_actor, world, display_dimensions):
+    def __init__(self, parent_actor, world, display_dimensions) -> None:
         # type: (carla.Actor, carla.World, tuple[int, int] | list[int]) -> None
         self._last_rendered_frame = -1
         self._surface = None
@@ -158,13 +158,13 @@ class RssUnstructuredSceneVisualizer:
 
         self.restart(RssUnstructuredSceneVisualizerMode.window)
 
-    def destroy(self):
+    def destroy(self) -> None:
         if self._camera:
             self._camera.stop()
             self._camera.destroy()
             self._camera = None
 
-    def restart(self, mode):
+    def restart(self, mode) -> None:
         # setup up top down camera
         self.destroy()
         self._mode = mode
@@ -187,9 +187,9 @@ class RssUnstructuredSceneVisualizer:
             (2.0 * np.tan(90.0 * np.pi / 360.0))  # fov default: 90.0
 
             bp_library = self._world.get_blueprint_library()
-            bp = bp_library.find('sensor.camera.rgb')
-            bp.set_attribute('image_size_x', str(self._dim[0]))
-            bp.set_attribute('image_size_y', str(self._dim[1]))
+            bp = bp_library.find("sensor.camera.rgb")
+            bp.set_attribute("image_size_x", str(self._dim[0]))
+            bp.set_attribute("image_size_y", str(self._dim[1]))
 
             self._camera = self._world.spawn_actor(
                 bp,
@@ -200,7 +200,7 @@ class RssUnstructuredSceneVisualizer:
             weak_self = weakref.ref(self)
             self._camera.listen(lambda image: self._parse_image(weak_self, image))
 
-    def update_surface(self, cam_frame, rss_frame):
+    def update_surface(self, cam_frame, rss_frame) -> None:
         if self._mode == RssUnstructuredSceneVisualizerMode.disabled:
             return
         render = False
@@ -224,8 +224,7 @@ class RssUnstructuredSceneVisualizer:
             pygame.draw.rect(surface, Color.black, rect, 0)
             self._surface = surface
 
-    def toggle_camera(self):
-        print("Toggle RssUnstructuredSceneVisualizer")
+    def toggle_camera(self) -> None:
         if self._mode == RssUnstructuredSceneVisualizerMode.window:
             self.restart(RssUnstructuredSceneVisualizerMode.fullscreen)
         elif self._mode == RssUnstructuredSceneVisualizerMode.fullscreen:
@@ -234,7 +233,7 @@ class RssUnstructuredSceneVisualizer:
             self.restart(RssUnstructuredSceneVisualizerMode.window)
 
     @staticmethod
-    def _parse_image(weak_self, image):
+    def _parse_image(weak_self, image) -> None:
         self = weak_self()
         if not self:
             return
@@ -262,11 +261,11 @@ class RssUnstructuredSceneVisualizer:
 
         return qx, qy
 
-    def tick(self, frame, rss_response, allowed_heading_ranges):
+    def tick(self, frame, rss_response, allowed_heading_ranges) -> None:
         if not self._camera:
             return
         surface = pygame.Surface(self._dim)
-        surface.set_colorkey(pygame.Color('black'))
+        surface.set_colorkey(pygame.Color("black"))
         surface.set_alpha(180)
         try:
             lines = RssUnstructuredSceneVisualizer.get_trajectory_sets(
@@ -285,12 +284,12 @@ class RssUnstructuredSceneVisualizer:
 
             RssUnstructuredSceneVisualizer.draw_lines(surface, lines)
             RssUnstructuredSceneVisualizer.draw_polygons(surface, polygons)
-        except RuntimeError as e:
-            print(f"ERROR {e}")
+        except RuntimeError:
+            pass
         self._current_rss_surface = (frame, surface)
         self.update_surface(None, frame)
 
-    def render(self, display):
+    def render(self, display) -> None:
         if self._surface:
             display.blit(self._surface, (display.get_width() - self._dim[0], 0))
 
@@ -327,7 +326,7 @@ class RssUnstructuredSceneVisualizer:
              Color.red),
             (RssUnstructuredSceneVisualizer.transform_points(RssUnstructuredSceneVisualizer._get_trajectory_set_points(
                 rss_state_snapshot.unstructuredSceneEgoInformation.continueForwardTrajectorySet), camera_transform, calibration),
-             Color.green)
+             Color.green),
             ]
 
         # others
@@ -344,7 +343,7 @@ class RssUnstructuredSceneVisualizer:
         return trajectory_sets
 
     @staticmethod
-    def draw_lines(surface, lines):
+    def draw_lines(surface, lines) -> None:
         """
         Draws lines on pygame display.
         """
@@ -353,7 +352,7 @@ class RssUnstructuredSceneVisualizer:
                 pygame.draw.lines(surface, color, True, line, 2)
 
     @staticmethod
-    def draw_polygons(surface, polygons):
+    def draw_polygons(surface, polygons) -> None:
         """
         Draws polygons on pygame display.
         """
@@ -409,7 +408,7 @@ class RssUnstructuredSceneVisualizer:
 
 class RssBoundingBoxVisualizer:
 
-    def __init__(self, display_dimensions, world, camera):
+    def __init__(self, display_dimensions, world, camera) -> None:
         self._last_camera_frame = 0
         self._surface_for_frame = []
         self._world = world
@@ -421,7 +420,7 @@ class RssBoundingBoxVisualizer:
             (2.0 * np.tan(90.0 * np.pi / 360.0))  # fov default: 90.0
         self._camera = camera
 
-    def tick(self, frame, individual_rss_states):
+    def tick(self, frame, individual_rss_states) -> None:
         if len(self._surface_for_frame) > 0:
             try:
                 while self._surface_for_frame[0][0] < self._last_camera_frame:
@@ -434,7 +433,7 @@ class RssBoundingBoxVisualizer:
             return
 
         surface = pygame.Surface(self._dim)
-        surface.set_colorkey(pygame.Color('black'))
+        surface.set_colorkey(pygame.Color("black"))
         surface.set_alpha(80)
         try:
             bounding_boxes = RssBoundingBoxVisualizer.get_bounding_boxes(
@@ -444,7 +443,7 @@ class RssBoundingBoxVisualizer:
         except RuntimeError:
             pass
 
-    def render(self, display, current_camera_frame):
+    def render(self, display, current_camera_frame) -> None:
         rendered = False
         boxes_to_render = 0
         for frame, surface, box_count in self._surface_for_frame:
@@ -454,7 +453,7 @@ class RssBoundingBoxVisualizer:
                 rendered = True
                 break
         if not rendered and boxes_to_render > 0:
-            print(f"Warning: {boxes_to_render} bounding boxes were not drawn.")
+            pass
         self._last_camera_frame = current_camera_frame
 
     @staticmethod
@@ -473,9 +472,9 @@ class RssBoundingBoxVisualizer:
         return [bb for bb in bounding_boxes if all(bb[:, 2] > 0)]
 
     @staticmethod
-    def draw_bounding_boxes(surface, bounding_boxes, color=None):
+    def draw_bounding_boxes(surface, bounding_boxes, color=None) -> None:
         if color is None:
-            color = pygame.Color('red')
+            color = pygame.Color("red")
         """
         Draws bounding boxes on pygame display.
         """
@@ -579,7 +578,7 @@ class RssDebugVisualizationMode(Enum):
 
 class RssDebugVisualizer:
 
-    def __init__(self, player, world, visualization_mode=RssDebugVisualizationMode.Off):
+    def __init__(self, player, world, visualization_mode=RssDebugVisualizationMode.Off) -> None:
         self._world = world
         self._player = player
         if isinstance(visualization_mode, str):
@@ -588,7 +587,7 @@ class RssDebugVisualizer:
             visualization_mode = RssDebugVisualizationMode(visualization_mode)
         self._visualization_mode = visualization_mode
 
-    def toggleMode(self):
+    def toggleMode(self) -> None:
         if self._visualization_mode == RssDebugVisualizationMode.All:
             self._visualization_mode = RssDebugVisualizationMode.Off
         elif self._visualization_mode == RssDebugVisualizationMode.Off:
@@ -599,9 +598,8 @@ class RssDebugVisualizer:
             self._visualization_mode = RssDebugVisualizationMode.VehicleStateAndRoute
         elif self._visualization_mode == RssDebugVisualizationMode.VehicleStateAndRoute:
             self._visualization_mode = RssDebugVisualizationMode.All
-        print(f"New Debug Visualizer Mode {self._visualization_mode}")
 
-    def tick(self, route, dangerous, individual_rss_states, ego_dynamics_on_route):
+    def tick(self, route, dangerous, individual_rss_states, ego_dynamics_on_route) -> None:
         if self._visualization_mode in {RssDebugVisualizationMode.RouteOnly,
                                 RssDebugVisualizationMode.VehicleStateAndRoute,
                                 RssDebugVisualizationMode.All}:
@@ -615,7 +613,7 @@ class RssDebugVisualizer:
         if self._visualization_mode == RssDebugVisualizationMode.All:
             self.visualize_ego_dynamics(ego_dynamics_on_route)
 
-    def visualize_route(self, dangerous, route):
+    def visualize_route(self, dangerous, route) -> None:
         if not route:
             return
         right_lane_edges = {}
@@ -645,12 +643,12 @@ class RssDebugVisualizer:
 
                 self.visualize_enu_edge(edge, color, self._player.get_location().z)
 
-    def visualize_enu_edge(self, edge, color, z_offset):
+    def visualize_enu_edge(self, edge, color, z_offset) -> None:
         for point in edge:
             carla_point = carla.Location(x=float(point.x), y=-1. * float(point.y), z=float(point.z) + z_offset)
             self._world.debug.draw_point(carla_point, 0.1, color, 0.1, False)
 
-    def visualize_rss_results(self, state_snapshot):
+    def visualize_rss_results(self, state_snapshot) -> None:
         for state in state_snapshot:
             other_actor = state.get_actor(self._world)
             if not other_actor:
@@ -694,7 +692,7 @@ class RssDebugVisualizer:
             point.z += 3.
             self._world.debug.draw_point(point, 0.2, indicator_color, 0.02, False)
 
-    def visualize_ego_dynamics(self, ego_dynamics_on_route):
+    def visualize_ego_dynamics(self, ego_dynamics_on_route) -> None:
 
         sin_heading = math.sin(float(ego_dynamics_on_route.route_heading))
         cos_heading = math.cos(float(ego_dynamics_on_route.route_heading))

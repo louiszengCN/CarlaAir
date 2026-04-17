@@ -44,6 +44,7 @@ Use ARROWS or WASD keys for control.
 
 
 import argparse
+import contextlib
 import logging
 import math
 import os
@@ -51,6 +52,7 @@ import random
 import signal
 import sys
 import weakref
+from typing import Optional
 
 from rss_sensor import RssSensor  # pylint: disable=relative-import
 from rss_visualization import (  # pylint: disable=relative-import
@@ -104,12 +106,12 @@ try:
         K_z,
     )
 except ImportError:
-    raise RuntimeError('cannot import pygame, make sure pygame package is installed')
+    raise RuntimeError("cannot import pygame, make sure pygame package is installed")
 
 try:
     import numpy as np
 except ImportError:
-    raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+    raise RuntimeError("cannot import numpy, make sure numpy package is installed")
 
 
 # ==============================================================================
@@ -119,17 +121,14 @@ except ImportError:
 
 class World:
 
-    def __init__(self, carla_world, args):
+    def __init__(self, carla_world, args) -> None:
         self.world = carla_world
         self.sync = args.sync
         self.actor_role_name = args.rolename
         self.dim = (args.width, args.height)
         try:
             self.map = self.world.get_map()
-        except RuntimeError as error:
-            print(f'RuntimeError: {error}')
-            print('  The server could not send the OpenDRIVE (.xodr) file:')
-            print('  Make sure it exists, has the same name of your town, and is correct.')
+        except RuntimeError:
             sys.exit(1)
         self.external_actor = args.externalActor
 
@@ -144,17 +143,16 @@ class World:
         self.rss_bounding_box_visualizer = None
         self._actor_filter = args.filter
         if not self._actor_filter.startswith("vehicle."):
-            print('Error: RSS only supports vehicles as ego.')
             sys.exit(1)
 
         self.restart()
         self.world_tick_id = self.world.on_tick(self.hud.on_world_tick)
 
-    def toggle_pause(self):
+    def toggle_pause(self) -> None:
         settings = self.world.get_settings()
         self.pause_simulation(not settings.synchronous_mode)
 
-    def pause_simulation(self, pause):
+    def pause_simulation(self, pause) -> None:
         settings = self.world.get_settings()
         if pause and not settings.synchronous_mode:
             settings.synchronous_mode = True
@@ -165,26 +163,26 @@ class World:
             settings.fixed_delta_seconds = None
             self.world.apply_settings(settings)
 
-    def restart(self):
+    def restart(self) -> None:
 
         if self.external_actor:
             # Check whether there is already an actor with defined role name
             for actor in self.world.get_actors():
-                if actor.attributes.get('role_name') == self.actor_role_name:
+                if actor.attributes.get("role_name") == self.actor_role_name:
                     self.player = actor
                     break
         else:
             # Get a random blueprint.
             blueprint = random.choice(self.world.get_blueprint_library().filter(self._actor_filter))
-            blueprint.set_attribute('role_name', self.actor_role_name)
-            if blueprint.has_attribute('color'):
-                color = random.choice(blueprint.get_attribute('color').recommended_values)
-                blueprint.set_attribute('color', color)
-            if blueprint.has_attribute('driver_id'):
-                driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)
-                blueprint.set_attribute('driver_id', driver_id)
-            if blueprint.has_attribute('is_invincible'):
-                blueprint.set_attribute('is_invincible', 'true')
+            blueprint.set_attribute("role_name", self.actor_role_name)
+            if blueprint.has_attribute("color"):
+                color = random.choice(blueprint.get_attribute("color").recommended_values)
+                blueprint.set_attribute("color", color)
+            if blueprint.has_attribute("driver_id"):
+                driver_id = random.choice(blueprint.get_attribute("driver_id").recommended_values)
+                blueprint.set_attribute("driver_id", driver_id)
+            if blueprint.has_attribute("is_invincible"):
+                blueprint.set_attribute("is_invincible", "true")
             # Spawn the player.
             if self.player is not None:
                 spawn_point = self.player.get_transform()
@@ -195,8 +193,6 @@ class World:
                 self.player = self.world.try_spawn_actor(blueprint, spawn_point)
             while self.player is None:
                 if not self.map.get_spawn_points():
-                    print('There are no spawn points available in your map/town.')
-                    print('Please add some Vehicle Spawn Point to your UE4 scene.')
                     sys.exit(1)
                 spawn_points = self.map.get_spawn_points()
                 spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
@@ -224,10 +220,10 @@ class World:
         else:
             self.world.wait_for_tick()
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         self.hud.tick(self.player, clock)
 
-    def toggle_recording(self):
+    def toggle_recording(self) -> None:
         if not self.recording:
             dir_name = "_out%04d" % self.recording_dir_num
             while os.path.exists(dir_name):
@@ -236,11 +232,11 @@ class World:
             self.recording_frame_num = 0
             os.mkdir(dir_name)
         else:
-            self.hud.notification('Recording finished (folder: _out%04d)' % self.recording_dir_num)
+            self.hud.notification("Recording finished (folder: _out%04d)" % self.recording_dir_num)
 
         self.recording = not self.recording
 
-    def render(self, display):
+    def render(self, display) -> None:
         self.camera.render(display)
         self.rss_bounding_box_visualizer.render(display, self.camera.current_frame)
         self.rss_unstructured_scene_visualizer.render(display)
@@ -250,7 +246,7 @@ class World:
             pygame.image.save(display, "_out%04d/%08d.bmp" % (self.recording_dir_num, self.recording_frame_num))
             self.recording_frame_num += 1
 
-    def destroy(self):
+    def destroy(self) -> None:
         # stop from ticking
         if self.world_tick_id:
             self.world.remove_on_tick(self.world_tick_id)
@@ -271,14 +267,14 @@ class World:
 
 class Camera:
 
-    def __init__(self, parent_actor, display_dimensions):
+    def __init__(self, parent_actor, display_dimensions) -> None:
         self.surface = None
         self._parent = parent_actor
         self.current_frame = None
         bp_library = self._parent.get_world().get_blueprint_library()
-        bp = bp_library.find('sensor.camera.rgb')
-        bp.set_attribute('image_size_x', str(display_dimensions[0]))
-        bp.set_attribute('image_size_y', str(display_dimensions[1]))
+        bp = bp_library.find("sensor.camera.rgb")
+        bp.set_attribute("image_size_x", str(display_dimensions[0]))
+        bp.set_attribute("image_size_y", str(display_dimensions[1]))
         self.sensor = self._parent.get_world().spawn_actor(bp, carla.Transform(carla.Location(
             x=-5.5, z=2.5), carla.Rotation(pitch=8.0)), attach_to=self._parent, attachment_type=carla.AttachmentType.SpringArmGhost)
 
@@ -287,17 +283,17 @@ class Camera:
         weak_self = weakref.ref(self)
         self.sensor.listen(lambda image: Camera._parse_image(weak_self, image))
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.sensor.stop()
         self.sensor.destroy()
         self.sensor = None
 
-    def render(self, display):
+    def render(self, display) -> None:
         if self.surface is not None:
             display.blit(self.surface, (0, 0))
 
     @staticmethod
-    def _parse_image(weak_self, image):
+    def _parse_image(weak_self, image) -> None:
         self = weak_self()
         if not self:
             return
@@ -321,7 +317,7 @@ class VehicleControl:
 
     """Class that handles keyboard input."""
 
-    def __init__(self, world, start_in_autopilot):
+    def __init__(self, world, start_in_autopilot) -> None:
         self._autopilot_enabled = start_in_autopilot
         self._world = world
         self._control = carla.VehicleControl()
@@ -334,7 +330,7 @@ class VehicleControl:
         self._mouse_steering_center = None
 
         self._surface = pygame.Surface((self.MOUSE_STEERING_RANGE * 2, self.MOUSE_STEERING_RANGE * 2))
-        self._surface.set_colorkey(pygame.Color('black'))
+        self._surface.set_colorkey(pygame.Color("black"))
         self._surface.set_alpha(60)
 
         line_width = 2
@@ -346,36 +342,34 @@ class VehicleControl:
                                 (self.MOUSE_STEERING_RANGE * 2 - line_width,
                                  self.MOUSE_STEERING_RANGE * 2 - line_width),
                                 (self.MOUSE_STEERING_RANGE * 2 - line_width, 0),
-                                (0, 0)
+                                (0, 0),
                             ], line_width)
         pygame.draw.polygon(self._surface,
                             (0, 0, 255),
                             [
                                 (0, self.MOUSE_STEERING_RANGE),
-                                (self.MOUSE_STEERING_RANGE * 2, self.MOUSE_STEERING_RANGE)
+                                (self.MOUSE_STEERING_RANGE * 2, self.MOUSE_STEERING_RANGE),
                             ], line_width)
         pygame.draw.polygon(self._surface,
                             (0, 0, 255),
                             [
                                 (self.MOUSE_STEERING_RANGE, 0),
-                                (self.MOUSE_STEERING_RANGE, self.MOUSE_STEERING_RANGE * 2)
+                                (self.MOUSE_STEERING_RANGE, self.MOUSE_STEERING_RANGE * 2),
                             ], line_width)
 
         world.hud.notification("Press 'H' or '?' for help.", seconds=4.0)
 
-    def render(self, display):
+    def render(self, display) -> None:
         if self._mouse_steering_center:
             display.blit(
                 self._surface, (self._mouse_steering_center[0] - self.MOUSE_STEERING_RANGE, self._mouse_steering_center[1] - self.MOUSE_STEERING_RANGE))
 
     @staticmethod
-    def signal_handler(signum, _):
-        print(f'\nReceived signal {signum}. Trigger stopping...')
+    def signal_handler(signum, _) -> None:
         VehicleControl.signal_received = True
 
-    def parse_events(self, world, clock, sync_mode):
+    def parse_events(self, world, clock, sync_mode) -> Optional[bool]:
         if VehicleControl.signal_received:
-            print('\nAccepted signal. Stopping loop...')
             return True
         if isinstance(self._control, carla.VehicleControl):
             current_lights = self._lights
@@ -423,10 +417,8 @@ class VehicleControl:
                     if self._world and self._world.rss_sensor:
                         if self._world.rss_sensor.sensor.road_boundaries_mode == carla.RssRoadBoundariesMode.Off:
                             self._world.rss_sensor.sensor.road_boundaries_mode = carla.RssRoadBoundariesMode.On
-                            print("carla.RssRoadBoundariesMode.On")
                         else:
                             self._world.rss_sensor.sensor.road_boundaries_mode = carla.RssRoadBoundariesMode.Off
-                            print("carla.RssRoadBoundariesMode.Off")
                 elif event.key == K_g and self._world and self._world.rss_sensor:
                     self._world.rss_sensor.drop_route()
                 if isinstance(self._control, carla.VehicleControl):
@@ -436,7 +428,7 @@ class VehicleControl:
                         self._autopilot_enabled = not self._autopilot_enabled
                         world.player.set_autopilot(self._autopilot_enabled)
                         world.hud.notification(
-                            'Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))
+                            "Autopilot %s" % ("On" if self._autopilot_enabled else "Off"))
                     elif event.key == K_l and pygame.key.get_mods() & KMOD_CTRL:
                         current_lights ^= carla.VehicleLightState.Special1
                     elif event.key == K_l and pygame.key.get_mods() & KMOD_SHIFT:
@@ -516,7 +508,7 @@ class VehicleControl:
             world.player.apply_control(vehicle_control)
         return None
 
-    def _parse_vehicle_keys(self, keys, milliseconds):
+    def _parse_vehicle_keys(self, keys, milliseconds) -> None:
         if keys[K_UP] or keys[K_w]:
             self._control.throttle = min(self._control.throttle + 0.2, 1)
         else:
@@ -549,7 +541,7 @@ class VehicleControl:
         self._control.steer = round(self._steer_cache, 1)
         self._control.hand_brake = keys[K_SPACE]
 
-    def _parse_mouse(self, pos):
+    def _parse_mouse(self, pos) -> None:
         if not self._mouse_steering_center:
             return
 
@@ -578,17 +570,17 @@ class VehicleControl:
 
 class HUD:
 
-    def __init__(self, width, height, world):
+    def __init__(self, width, height, world) -> None:
         self.dim = (width, height)
         self._world = world
         self.map_name = world.get_map().name
         font = pygame.font.Font(pygame.font.get_default_font(), 20)
-        font_name = 'courier' if os.name == 'nt' else 'mono'
+        font_name = "courier" if os.name == "nt" else "mono"
         fonts = [x for x in pygame.font.get_fonts() if font_name in x]
-        default_font = 'ubuntumono'
+        default_font = "ubuntumono"
         mono = default_font if default_font in fonts else fonts[0]
         mono = pygame.font.match_font(mono)
-        self._font_mono = pygame.font.Font(mono, 12 if os.name == 'nt' else 14)
+        self._font_mono = pygame.font.Font(mono, 12 if os.name == "nt" else 14)
         self._notifications = FadingText(font, (width, 40), (0, height - 40))
         self.help = HelpText(pygame.font.Font(mono, 16), width, height)
         self.server_fps = 0
@@ -602,13 +594,13 @@ class HUD:
         self._server_clock = pygame.time.Clock()
         self.rss_state_visualizer = RssStateVisualizer(self.dim, self._font_mono, self._world)
 
-    def on_world_tick(self, timestamp):
+    def on_world_tick(self, timestamp) -> None:
         self._server_clock.tick()
         self.server_fps = self._server_clock.get_fps()
         self.frame = timestamp.frame
         self.simulation_time = timestamp.elapsed_seconds
 
-    def tick(self, player, clock):
+    def tick(self, player, clock) -> None:
         self._notifications.tick(clock)
         if not self._show_info:
             return
@@ -617,36 +609,36 @@ class HUD:
         c = player.get_control()
 
         self._info_text = [
-            f'Server:  {self.server_fps: 16.0f} FPS',
-            f'Client:  {clock.get_fps(): 16.0f} FPS',
-            'Map:     % 20s' % self.map_name,
-            '',
-            'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
-            'Location:% 20s' % (f'({t.location.x: 5.1f}, {t.location.y: 5.1f})'),
-            f'Heading: {math.radians(t.rotation.yaw): 20.2f}',
-            '']
+            f"Server:  {self.server_fps: 16.0f} FPS",
+            f"Client:  {clock.get_fps(): 16.0f} FPS",
+            "Map:     % 20s" % self.map_name,
+            "",
+            "Speed:   % 15.0f km/h" % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
+            "Location:% 20s" % (f"({t.location.x: 5.1f}, {t.location.y: 5.1f})"),
+            f"Heading: {math.radians(t.rotation.yaw): 20.2f}",
+            ""]
         if self.original_vehicle_control:
             orig_control = self.original_vehicle_control
             restricted_control = self.restricted_vehicle_control
             allowed_steering_ranges = self.allowed_steering_ranges
             self._info_text += [
-                ('Throttle:', orig_control.throttle, 0.0, 1.0, restricted_control.throttle),
-                ('Steer:', orig_control.steer, -1.0, 1.0, restricted_control.steer, allowed_steering_ranges),
-                ('Brake:', orig_control.brake, 0.0, 1.0, restricted_control.brake)]
+                ("Throttle:", orig_control.throttle, 0.0, 1.0, restricted_control.throttle),
+                ("Steer:", orig_control.steer, -1.0, 1.0, restricted_control.steer, allowed_steering_ranges),
+                ("Brake:", orig_control.brake, 0.0, 1.0, restricted_control.brake)]
         self._info_text += [
-            ('Reverse:', c.reverse),
-            '']
+            ("Reverse:", c.reverse),
+            ""]
 
-    def toggle_info(self):
+    def toggle_info(self) -> None:
         self._show_info = not self._show_info
 
-    def notification(self, text, seconds=2.0):
+    def notification(self, text, seconds=2.0) -> None:
         self._notifications.set_text(text, seconds=seconds)
 
-    def error(self, text):
-        self._notifications.set_text(f'Error: {text}', (255, 0, 0))
+    def error(self, text) -> None:
+        self._notifications.set_text(f"Error: {text}", (255, 0, 0))
 
-    def render(self, display):
+    def render(self, display) -> None:
         if self._show_info:
             info_surface = pygame.Surface((220, self.dim[1]))
             info_surface.set_alpha(100)
@@ -721,26 +713,26 @@ class HUD:
 
 class FadingText:
 
-    def __init__(self, font, dim, pos):
+    def __init__(self, font, dim, pos) -> None:
         self.font = font
         self.dim = dim
         self.pos = pos
         self.seconds_left = 0
         self.surface = pygame.Surface(self.dim)
 
-    def set_text(self, text, color=(255, 255, 255), seconds=2.0):
+    def set_text(self, text, color=(255, 255, 255), seconds=2.0) -> None:
         text_texture = self.font.render(text, True, color)
         self.surface = pygame.Surface(self.dim)
         self.seconds_left = seconds
         self.surface.fill((0, 0, 0, 0))
         self.surface.blit(text_texture, (10, 11))
 
-    def tick(self, clock):
+    def tick(self, clock) -> None:
         delta_seconds = 1e-3 * clock.get_time()
         self.seconds_left = max(0.0, self.seconds_left - delta_seconds)
         self.surface.set_alpha(500.0 * self.seconds_left)
 
-    def render(self, display):
+    def render(self, display) -> None:
         display.blit(self.surface, self.pos)
 
 
@@ -753,8 +745,8 @@ class HelpText:
 
     """Helper class to handle text output using pygame"""
 
-    def __init__(self, font, width, height):
-        lines = __doc__.split('\n')
+    def __init__(self, font, width, height) -> None:
+        lines = __doc__.split("\n")
         self.font = font
         self.line_space = 18
         self.dim = (780, len(lines) * self.line_space + 12)
@@ -768,10 +760,10 @@ class HelpText:
             self._render = False
         self.surface.set_alpha(220)
 
-    def toggle(self):
+    def toggle(self) -> None:
         self._render = not self._render
 
-    def render(self, display):
+    def render(self, display) -> None:
         if self._render:
             display.blit(self.surface, self.pos)
 
@@ -780,7 +772,7 @@ class HelpText:
 # ==============================================================================
 
 
-def game_loop(args):
+def game_loop(args) -> None:
     pygame.init()
     pygame.font.init()
     world = None
@@ -823,9 +815,7 @@ def game_loop(args):
     finally:
 
         if world is not None:
-            print('Destroying the world...')
             world.destroy()
-            print('Destroyed!')
 
         pygame.quit()
 
@@ -834,72 +824,69 @@ def game_loop(args):
 # -- main() --------------------------------------------------------------------
 # ==============================================================================
 
-def main():
+def main() -> None:
     argparser = argparse.ArgumentParser(
-        description='CARLA Manual Control Client RSS')
+        description="CARLA Manual Control Client RSS")
     argparser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
-        dest='debug',
-        help='print debug information')
+        "-v", "--verbose",
+        action="store_true",
+        dest="debug",
+        help="print debug information")
     argparser.add_argument(
-        '--host',
-        metavar='H',
-        default='127.0.0.1',
-        help='IP of the host server (default: 127.0.0.1)')
+        "--host",
+        metavar="H",
+        default="127.0.0.1",
+        help="IP of the host server (default: 127.0.0.1)")
     argparser.add_argument(
-        '-p', '--port',
-        metavar='P',
+        "-p", "--port",
+        metavar="P",
         default=2000,
         type=int,
-        help='TCP port to listen to (default: 2000)')
+        help="TCP port to listen to (default: 2000)")
     argparser.add_argument(
-        '-a', '--autopilot',
-        action='store_true',
-        help='enable autopilot')
+        "-a", "--autopilot",
+        action="store_true",
+        help="enable autopilot")
     argparser.add_argument(
-        '--res',
-        metavar='WIDTHxHEIGHT',
-        default='1280x720',
-        help='window resolution (default: 1280x720)')
+        "--res",
+        metavar="WIDTHxHEIGHT",
+        default="1280x720",
+        help="window resolution (default: 1280x720)")
     argparser.add_argument(
-        '--filter',
-        metavar='PATTERN',
-        default='vehicle.*',
+        "--filter",
+        metavar="PATTERN",
+        default="vehicle.*",
         help='actor filter (default: "vehicle.*")')
     argparser.add_argument(
-        '--rolename',
-        metavar='NAME',
-        default='hero',
+        "--rolename",
+        metavar="NAME",
+        default="hero",
         help='actor role name (default: "hero")')
     argparser.add_argument(
-        '--externalActor',
-        action='store_true',
-        help='attaches to externally created actor by role name')
+        "--externalActor",
+        action="store_true",
+        help="attaches to externally created actor by role name")
     argparser.add_argument(
-        '--sync',
-        action='store_true',
-        help='Activate synchronous mode execution')
+        "--sync",
+        action="store_true",
+        help="Activate synchronous mode execution")
     args = argparser.parse_args()
 
-    args.width, args.height = [int(x) for x in args.res.split('x')]
+    args.width, args.height = [int(x) for x in args.res.split("x")]
 
     log_level = logging.DEBUG if args.debug else logging.INFO
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
 
-    logging.info('listening to server %s:%s', args.host, args.port)
+    logging.info("listening to server %s:%s", args.host, args.port)
 
-    print(__doc__)
 
     signal.signal(signal.SIGINT, VehicleControl.signal_handler)
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         game_loop(args)
 
-    except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()
