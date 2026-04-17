@@ -370,7 +370,7 @@ public:
   UFUNCTION(BlueprintCallable)
   bool ReadPixels(TArray<FColor> &BitMap) const
   {
-    check(CaptureRenderTarget != nullptr);
+    ensure(CaptureRenderTarget != nullptr);
     return FPixelReader::WritePixelsToArray(*CaptureRenderTarget, BitMap);
   }
 
@@ -378,7 +378,7 @@ public:
   UFUNCTION(BlueprintCallable)
   void SaveCaptureToDisk(const FString &FilePath) const
   {
-    check(CaptureRenderTarget != nullptr);
+    ensure(CaptureRenderTarget != nullptr);
     FPixelReader::SavePixelsToDisk(*CaptureRenderTarget, FilePath);
   }
 

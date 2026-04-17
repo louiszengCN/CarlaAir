@@ -127,7 +127,7 @@ public:
   /// Retrieve the data stored at a given pixel.
   FRoadMapPixelData GetDataAt(uint32 PixelX, uint32 PixelY) const
   {
-    check(IsValid());
+    ensure(IsValid());
     return FRoadMapPixelData(RoadMapData[GetIndex(PixelX, PixelY)]);
   }
 
