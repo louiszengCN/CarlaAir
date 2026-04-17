@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 # -- Parse arguments -----------------------------------------------------------
@@ -36,7 +36,7 @@ BUILD_RSS_VARIANT=false
 USE_PYTORCH=false
 USE_ROS2=false
 
-OPTS=`getopt -o h --long help,rebuild,server,client,clean,debug,release,rss,pytorch,carsim,ros2,chrono,chrono-path: -n 'parse-options' -- "$@"`
+OPTS=$(getopt -o h --long help,rebuild,server,client,clean,debug,release,rss,pytorch,carsim,ros2,chrono,chrono-path: -n 'parse-options' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -88,7 +88,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-source $(dirname "$0")/Environment.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")/Environment.sh"
 
 function get_source_code_checksum {
   local EXCLUDE='*__pycache__*'
@@ -111,9 +112,9 @@ if ${REMOVE_INTERMEDIATE} ; then
 
   log "Cleaning intermediate files and folders."
 
-  rm -Rf ${LIBCARLA_BUILD_SERVER_FOLDER}* ${LIBCARLA_BUILD_CLIENT_FOLDER}*
-  rm -Rf ${LIBCARLA_BUILD_PYTORCH_FOLDER}* ${LIBCARLA_BUILD_PYTORCH_FOLDER}*
-  rm -Rf ${LIBCARLA_INSTALL_SERVER_FOLDER} ${LIBCARLA_INSTALL_CLIENT_FOLDER}
+  rm -Rf "${LIBCARLA_BUILD_SERVER_FOLDER}"* "${LIBCARLA_BUILD_CLIENT_FOLDER}"*
+  rm -Rf "${LIBCARLA_BUILD_PYTORCH_FOLDER}"* "${LIBCARLA_BUILD_PYTORCH_FOLDER}"*
+  rm -Rf "${LIBCARLA_INSTALL_SERVER_FOLDER}" "${LIBCARLA_INSTALL_CLIENT_FOLDER}"
 
 fi
 
@@ -129,36 +130,36 @@ function build_libcarla {
 
   CMAKE_EXTRA_OPTIONS=''
 
-  if [ $1 == Server ] ; then
-    M_TOOLCHAIN=${LIBCPP_TOOLCHAIN_FILE}
-    M_BUILD_FOLDER=${LIBCARLA_BUILD_SERVER_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    M_INSTALL_FOLDER=${LIBCARLA_INSTALL_SERVER_FOLDER}
-  elif [ $1 == Client ] ; then
-    M_TOOLCHAIN=${LIBSTDCPP_TOOLCHAIN_FILE}
-    M_BUILD_FOLDER=${LIBCARLA_BUILD_CLIENT_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    M_INSTALL_FOLDER=${LIBCARLA_INSTALL_CLIENT_FOLDER}
-  elif [ $1 == Pytorch ] ; then
-    M_TOOLCHAIN=${LIBSTDCPP_TOOLCHAIN_FILE}
-    M_BUILD_FOLDER=${LIBCARLA_BUILD_PYTORCH_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    M_INSTALL_FOLDER=${LIBCARLA_INSTALL_SERVER_FOLDER}
-  elif [ $1 == ros2 ] ; then
-    M_TOOLCHAIN=${LIBCPP_TOOLCHAIN_FILE}
-    M_BUILD_FOLDER=${LIBCARLA_FASTDDS_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    M_INSTALL_FOLDER=${LIBCARLA_INSTALL_SERVER_FOLDER}
-  elif [ $1 == ClientRSS ] ; then
+  if [ "$1" == Server ] ; then
+    M_TOOLCHAIN="${LIBCPP_TOOLCHAIN_FILE}"
+    M_BUILD_FOLDER="${LIBCARLA_BUILD_SERVER_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    M_INSTALL_FOLDER="${LIBCARLA_INSTALL_SERVER_FOLDER}"
+  elif [ "$1" == Client ] ; then
+    M_TOOLCHAIN="${LIBSTDCPP_TOOLCHAIN_FILE}"
+    M_BUILD_FOLDER="${LIBCARLA_BUILD_CLIENT_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    M_INSTALL_FOLDER="${LIBCARLA_INSTALL_CLIENT_FOLDER}"
+  elif [ "$1" == Pytorch ] ; then
+    M_TOOLCHAIN="${LIBSTDCPP_TOOLCHAIN_FILE}"
+    M_BUILD_FOLDER="${LIBCARLA_BUILD_PYTORCH_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    M_INSTALL_FOLDER="${LIBCARLA_INSTALL_SERVER_FOLDER}"
+  elif [ "$1" == ros2 ] ; then
+    M_TOOLCHAIN="${LIBCPP_TOOLCHAIN_FILE}"
+    M_BUILD_FOLDER="${LIBCARLA_FASTDDS_FOLDER}.$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    M_INSTALL_FOLDER="${LIBCARLA_INSTALL_SERVER_FOLDER}"
+  elif [ "$1" == ClientRSS ] ; then
     BUILD_TYPE='Client'
-    M_TOOLCHAIN=${LIBSTDCPP_TOOLCHAIN_FILE}
-    M_BUILD_FOLDER=${LIBCARLA_BUILD_CLIENT_FOLDER}.rss.$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    M_INSTALL_FOLDER=${LIBCARLA_INSTALL_CLIENT_FOLDER}
+    M_TOOLCHAIN="${LIBSTDCPP_TOOLCHAIN_FILE}"
+    M_BUILD_FOLDER="${LIBCARLA_BUILD_CLIENT_FOLDER}.rss.$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    M_INSTALL_FOLDER="${LIBCARLA_INSTALL_CLIENT_FOLDER}"
     CMAKE_EXTRA_OPTIONS="${CMAKE_EXTRA_OPTIONS:+${CMAKE_EXTRA_OPTIONS} }-DBUILD_RSS_VARIANT=ON -DADRSS_INSTALL_DIR=${CARLA_BUILD_FOLDER}/ad-rss-4.4.4/install"
   else
     fatal_error "Invalid build configuration \"$1\""
   fi
 
-  if [ $2 == Debug ] ; then
+  if [ "$2" == Debug ] ; then
     M_DEBUG=ON
     M_RELEASE=OFF
-  elif [ $2 == Release ] ; then
+  elif [ "$2" == Release ] ; then
     M_DEBUG=OFF
     M_RELEASE=ON
   else
@@ -167,14 +168,14 @@ function build_libcarla {
 
   log "Building LibCarla \"$1.$2\" configuration."
 
-  mkdir -p ${M_BUILD_FOLDER}
+  mkdir -p "${M_BUILD_FOLDER}"
   pushd "${M_BUILD_FOLDER}" >/dev/null
 
   CHECKSUM_FILE=checksum.txt
 
   if [ ! -f "${CHECKSUM_FILE}" ] ; then
     NEEDS_CMAKE=true
-  elif [ "$(cat ${CHECKSUM_FILE})" != "$(get_source_code_checksum)" ] ; then
+  elif [ "$(cat "${CHECKSUM_FILE}")" != "$(get_source_code_checksum)" ] ; then
     log "Re-running cmake, some files were added or removed."
     NEEDS_CMAKE=true
   else
@@ -188,13 +189,13 @@ function build_libcarla {
         -DCMAKE_BUILD_TYPE=${BUILD_TYPE:-$1} \
         -DLIBCARLA_BUILD_DEBUG=${M_DEBUG} \
         -DLIBCARLA_BUILD_RELEASE=${M_RELEASE} \
-        -DCMAKE_TOOLCHAIN_FILE=${M_TOOLCHAIN} \
-        -DCMAKE_INSTALL_PREFIX=${M_INSTALL_FOLDER} \
+        -DCMAKE_TOOLCHAIN_FILE="${M_TOOLCHAIN}" \
+        -DCMAKE_INSTALL_PREFIX="${M_INSTALL_FOLDER}" \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
         ${CMAKE_EXTRA_OPTIONS} \
         ${CARLA_ROOT_FOLDER}
 
-    get_source_code_checksum > ${CHECKSUM_FILE}
+    get_source_code_checksum > "${CHECKSUM_FILE}"
 
   fi
 
@@ -229,7 +230,7 @@ if { ${BUILD_SERVER} && ${BUILD_OPTION_RELEASE}; }; then
 fi
 
 CLIENT_VARIANT='Client'
-if [ $BUILD_RSS_VARIANT == true ] ; then
+if [ "${BUILD_RSS_VARIANT}" == true ] ; then
   CLIENT_VARIANT='ClientRSS'
 fi
 
