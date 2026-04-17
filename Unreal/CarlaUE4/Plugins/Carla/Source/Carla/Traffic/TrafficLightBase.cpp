@@ -103,7 +103,7 @@ void ATrafficLightBase::SetGreenTime(float InGreenTime)
   {
     UTrafficLightController* TrafficLightController =
         TrafficLightComponent->GetController();
-    check(TrafficLightController)
+    if (!TrafficLightController) { return; }
     TrafficLightController->SetGreenTime(InGreenTime);
     AddTimeToRecorder();
   }
@@ -114,7 +114,7 @@ float ATrafficLightBase::GetGreenTime() const
   if (TrafficLightComponent)
   {
     auto* Controller = TrafficLightComponent->GetController();
-    check(Controller);
+    if (!Controller) { return 0; }
     return Controller->GetGreenTime();
   }
   else
@@ -129,7 +129,7 @@ void ATrafficLightBase::SetYellowTime(float InYellowTime)
   {
     UTrafficLightController* TrafficLightController =
       TrafficLightComponent->GetController();
-    check(TrafficLightController)
+    if (!TrafficLightController) { return; }
     TrafficLightController->SetYellowTime(InYellowTime);
     AddTimeToRecorder();
   }
@@ -140,7 +140,7 @@ float ATrafficLightBase::GetYellowTime() const
   if (TrafficLightComponent)
   {
     auto* Controller = TrafficLightComponent->GetController();
-    check(Controller);
+    if (!Controller) { return 0; }
     return Controller->GetYellowTime();
   }
   else
@@ -155,7 +155,7 @@ void ATrafficLightBase::SetRedTime(float InRedTime)
   {
     UTrafficLightController* TrafficLightController =
       TrafficLightComponent->GetController();
-    check(TrafficLightController)
+    if (!TrafficLightController) { return; }
     TrafficLightController->SetRedTime(InRedTime);
     AddTimeToRecorder();
   }
@@ -166,7 +166,7 @@ float ATrafficLightBase::GetRedTime() const
   if (TrafficLightComponent)
   {
     auto* Controller = TrafficLightComponent->GetController();
-    check(Controller);
+    if (!Controller) { return 0; }
     return Controller->GetRedTime();
   }
   else
@@ -180,7 +180,7 @@ float ATrafficLightBase::GetElapsedTime() const
   if (TrafficLightComponent)
   {
     auto* Controller = TrafficLightComponent->GetController();
-    check(Controller);
+    if (!Controller) { return 0; }
     return Controller->GetElapsedTime();
   }
   else
@@ -194,7 +194,7 @@ void ATrafficLightBase::SetElapsedTime(float InElapsedTime)
   if (TrafficLightComponent)
   {
     auto* Controller = TrafficLightComponent->GetController();
-    check(Controller);
+    if (!Controller) { return; }
     return Controller->SetElapsedTime(InElapsedTime);
   }
 }
@@ -212,7 +212,7 @@ bool ATrafficLightBase::GetTimeIsFrozen() const
   if(TrafficLightComponent)
   {
     auto* Group = TrafficLightComponent->GetGroup();
-    check(Group);
+    if (!Group) { return false; }
     return Group->IsFrozen();
   }
   return false;
@@ -235,7 +235,7 @@ TArray<ATrafficLightBase *> ATrafficLightBase::GetGroupTrafficLights() const
     TArray<ATrafficLightBase *> result;
 
     ATrafficLightGroup* Group = TrafficLightComponent->GetGroup();
-    check(Group)
+    if (!Group) { return GroupTrafficLights; }
 
     for(auto& Controller : Group->GetControllers())
     {
