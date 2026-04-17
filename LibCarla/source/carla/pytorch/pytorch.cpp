@@ -5,6 +5,7 @@
 #define _GLIBCXX_USE_CXX11_ABI 0
 
 #include "pytorch.h"
+#include "../Logging.h"
 
 #include <torch/torch.h>
 #include <torch/script.h>
@@ -27,8 +28,8 @@ namespace learning {
   void test_learning()
   {
     std::ostringstream ss;
-    std::cout << "cuda version " << cluster::cuda_version() << std::endl;
-    std::cout << "cuda version " << scatter::cuda_version() << std::endl;
+    log_info("cuda cluster version:", cluster::cuda_version());
+    log_info("cuda scatter version:", scatter::cuda_version());
     // torch::Tensor tensor = torch::eye(3);
     // std::cout << tensor << std::endl;
   }
@@ -162,16 +163,16 @@ namespace learning {
   void NeuralModel::LoadModel(char* filename, int device) {
     torch::jit::setTensorExprFuserEnabled(false);
     std::string filename_str(filename);
-    std::cout << "loading " << filename_str << std::endl;
+    log_info("loading", filename_str);
     try {
       Model->module = torch::jit::load(filename_str);
       std::string cuda_str = "cuda:" + std::to_string(device);
       // std::cout << "Using CUDA device " << cuda_str << std::endl;
       // Model->module.to(at::Device(cuda_str));
     } catch (const c10::Error& e) {
-      std::cout << "Error loading model: " << e.msg() << std::endl;
+      log_error("Error loading model:", e.msg());
     }
-    std::cout << "loaded " << filename_str <<  std::endl;
+    log_info("loaded", filename_str);
   }
 
   void NeuralModel::SetInputs(Inputs input) {
@@ -197,7 +198,7 @@ namespace learning {
     try {
       Output = Model->module.forward(TorchInputs);
     } catch (const c10::Error& e) {
-      std::cout << "Error running model: " << e.msg() << std::endl;
+      log_error("Error running model:", e.msg());
     }
 
     std::vector<torch::jit::IValue> Tensors =  Output.toTuple()->elements();
@@ -231,7 +232,7 @@ namespace learning {
       try {
         Output = Model->module.forward(TorchInputs);
       } catch (const c10::Error& e) {
-        std::cout << "Error running model: " << e.msg() << std::endl;
+        log_error("Error running model:", e.msg());
       }
 
       std::vector<torch::jit::IValue> Tensors =  Output.toTuple()->elements();
@@ -269,7 +270,7 @@ namespace learning {
     try {
       Output = Model->module.forward(TorchInputs);
     } catch (const c10::Error& e) {
-      std::cout << "Error running model: " << e.msg() << std::endl;
+      log_error("Error running model:", e.msg());
     }
 
     std::vector<torch::jit::IValue> Tensors =  Output.toTuple()->elements();
