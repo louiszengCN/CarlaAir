@@ -27,7 +27,7 @@ APIPCamera::APIPCamera(const FObjectInitializer& ObjectInitializer)
     static ConstructorHelpers::FObjectFinder<UMaterial> dist_mat_finder(TEXT("Material'/AirSim/HUDAssets/CameraDistortion.CameraDistortion'"));
     if (dist_mat_finder.Succeeded()) {
         distortion_material_static_ = dist_mat_finder.Object;
-        distortion_param_collection_ = Cast<UMaterialParameterCollection>(StaticLoadObject(UMaterialParameterCollection::StaticClass(), NULL, TEXT("'/AirSim/HUDAssets/DistortionParams.DistortionParams'")));
+        distortion_param_collection_ = Cast<UMaterialParameterCollection>(StaticLoadObject(UMaterialParameterCollection::StaticClass(), nullptr, TEXT("'/AirSim/HUDAssets/DistortionParams.DistortionParams'")));
     }
     else
         UAirBlueprintLib::LogMessageString("Cannot create distortion material for the PIPCamera",

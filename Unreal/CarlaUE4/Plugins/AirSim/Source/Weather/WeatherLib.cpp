@@ -11,7 +11,7 @@ UMaterialParameterCollectionInstance* UWeatherLib::getWeatherMaterialCollectionI
 {
     //UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
     if (World) {
-        UMaterialParameterCollection* WeatherParameterCollection = Cast<UMaterialParameterCollection>(StaticLoadObject(UMaterialParameterCollection::StaticClass(), NULL, getWeatherParamsObjectPath()));
+        UMaterialParameterCollection* WeatherParameterCollection = Cast<UMaterialParameterCollection>(StaticLoadObject(UMaterialParameterCollection::StaticClass(), nullptr, getWeatherParamsObjectPath()));
 
         //UWorld* World = GetWorld();
         if (WeatherParameterCollection) {
@@ -31,7 +31,7 @@ UMaterialParameterCollectionInstance* UWeatherLib::getWeatherMaterialCollectionI
         UE_LOG(LogTemp, Warning, TEXT("Warning, WeatherAPI could NOT get World!"));
     }
 
-    return NULL;
+    return nullptr;
 }
 void UWeatherLib::initWeather(UWorld* World, TArray<AActor*> ActorsToAttachTo)
 {
@@ -250,14 +250,14 @@ UWorld* UWeatherLib::widgetGetWorld(UUserWidget* Widget)
     if (Widget) {
         return Widget->GetWorld();
     }
-    return NULL;
+    return nullptr;
 }
 UWorld* UWeatherLib::actorGetWorld(AActor* Actor)
 {
     if (Actor) {
         return Actor->GetWorld();
     }
-    return NULL;
+    return nullptr;
 }
 void UWeatherLib::setWeatherFog(AExponentialHeightFog* fog)
 {
