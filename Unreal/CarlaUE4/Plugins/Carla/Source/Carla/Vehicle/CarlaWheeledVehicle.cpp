@@ -393,9 +393,14 @@ void ACarlaWheeledVehicle::SetWheelsFrictionScale(TArray<float> &WheelsFrictionS
   UChaosWheeledVehicleMovementComponent* Movement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
   if (Movement)
   {
-    check(Movement->Wheels.Num() == WheelsFrictionScale.Num());
-
-    for (int32 i = 0; i < Movement->Wheels.Num(); ++i)
+    // Soft guard: in shipping check() is stripped; clamp loop to the smaller count to prevent OOB
+    if (Movement->Wheels.Num() != WheelsFrictionScale.Num())
+    {
+      UE_LOG(LogCarla, Warning, TEXT("SetWheelsFrictionScale: wheel count mismatch (%d vs %d)"),
+             Movement->Wheels.Num(), WheelsFrictionScale.Num());
+    }
+    const int32 Count = FMath::Min(Movement->Wheels.Num(), WheelsFrictionScale.Num());
+    for (int32 i = 0; i < Count; ++i)
     {
       // UE5: TireConfig->SetFrictionScale() replaced by UChaosVehicleWheel friction
       Movement->Wheels[i]->FrictionForceMultiplier = WheelsFrictionScale[i];

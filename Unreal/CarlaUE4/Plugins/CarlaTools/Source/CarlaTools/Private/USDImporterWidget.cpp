@@ -895,11 +895,26 @@ void UUSDImporterWidget::CopyCollisionToPhysicsAsset(
 {
   UE_LOG(LogCarlaTools, Log, TEXT("Num bodysetups %d"), PhysicsAssetToEdit->SkeletalBodySetups.Num());
   // UE5: SkeletalBodySetups holds TObjectPtr<USkeletalBodySetup>; upcast to UBodySetup* (requires complete type)
-  UBodySetup* BodySetupPhysicsAsset =
-      PhysicsAssetToEdit->SkeletalBodySetups[
-          PhysicsAssetToEdit->FindBodyIndex(FName("Vehicle_Base"))].Get();
+  // Bug fix: FindBodyIndex returns -1 if body not found — guard against out-of-bounds array access
+  const int32 BodyIdx = PhysicsAssetToEdit->FindBodyIndex(FName("Vehicle_Base"));
+  if (BodyIdx < 0 || BodyIdx >= PhysicsAssetToEdit->SkeletalBodySetups.Num())
+  {
+    UE_LOG(LogCarlaTools, Error, TEXT("CopyCollisionToPhysicsAsset: body 'Vehicle_Base' not found in physics asset"));
+    return;
+  }
+  UBodySetup* BodySetupPhysicsAsset = PhysicsAssetToEdit->SkeletalBodySetups[BodyIdx].Get();
+  if (!BodySetupPhysicsAsset)
+  {
+    UE_LOG(LogCarlaTools, Error, TEXT("CopyCollisionToPhysicsAsset: SkeletalBodySetups[%d] is null"), BodyIdx);
+    return;
+  }
   // UE5: StaticMesh->BodySetup is private; use GetBodySetup()
   UBodySetup* BodySetupStaticMesh = StaticMesh->GetBodySetup();
+  if (!BodySetupStaticMesh)
+  {
+    UE_LOG(LogCarlaTools, Error, TEXT("CopyCollisionToPhysicsAsset: StaticMesh has no BodySetup"));
+    return;
+  }
   // MUST clear existing simple collision, or bCreatedPhysicsMeshes is still enabled and won't get the valid ConvexMesh
   BodySetupPhysicsAsset->RemoveSimpleCollision();
   BodySetupPhysicsAsset->AggGeom = BodySetupStaticMesh->AggGeom;
