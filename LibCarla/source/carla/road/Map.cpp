@@ -6,6 +6,7 @@
 
 #include "carla/road/Map.h"
 #include "carla/Exception.h"
+#include "carla/Logging.h"
 #include "carla/geom/Math.h"
 #include "carla/geom/Vector3D.h"
 #include "carla/road/MeshFactory.h"
@@ -1343,7 +1344,7 @@ namespace road {
     num_threads = num_threads > 1 ? num_threads : 1;
     std::vector<std::thread> workers;
     std::mutex write_mutex;
-    std::cout << "Generating " << std::to_string(num_roads) << " roads" << std::endl;
+    log_info("Generating", num_roads, "roads");
 
     for ( size_t i = 0; i < num_threads; ++i ) {
       std::thread neworker(
@@ -1387,7 +1388,7 @@ namespace road {
         road_out_mesh_list[pair.first] = std::move(pair.second);
       }
     }
-    std::cout << "Generated " << std::to_string(num_roads) << " roads" << std::endl;
+    log_info("Generated", num_roads, "roads");
 
     return road_out_mesh_list;
   }
@@ -1533,7 +1534,7 @@ namespace road {
         mesh_factory.GenerateAllOrderedWithMaxLen(road, out);
       }
     }
-    std::cout << "Generated roads from " + std::to_string(index * number_of_roads_per_thread) + " to " + std::to_string((index+1) * number_of_roads_per_thread ) << std::endl;
+    log_debug("Generated roads from", index * number_of_roads_per_thread, "to", (index+1) * number_of_roads_per_thread);
     return out;
   }
 
@@ -1546,7 +1547,7 @@ namespace road {
 
     std::vector<JuncId> JunctionsToGenerate = FilterJunctionsByPosition(minpos, maxpos);
     size_t num_junctions = JunctionsToGenerate.size();
-    std::cout << "Generating " << std::to_string(num_junctions) << " junctions" << std::endl;
+    log_info("Generating", num_junctions, "junctions");
     size_t junctionindex = 0;
     size_t num_junctions_per_thread = 5;
     size_t num_threads = (num_junctions / num_junctions_per_thread) + 1;
@@ -1566,7 +1567,7 @@ namespace road {
         }else{
           minimum = num_junctions;
         }
-        std::cout << "Generating Junctions between  " << std::to_string(i * num_junctions_per_thread) << " and " << std::to_string(minimum) << std::endl;
+        log_debug("Generating Junctions between", i * num_junctions_per_thread, "and", minimum);
 
         for ( size_t junctionindex = i * num_junctions_per_thread;
                         junctionindex < minimum;
@@ -1574,7 +1575,7 @@ namespace road {
         {
           GenerateSingleJunction(mesh_factory, JunctionsToGenerate[junctionindex], &junctionsofthisthread);
         }
-        std::cout << "Generated Junctions between  " << std::to_string(i * num_junctions_per_thread) << " and " << std::to_string(minimum) << std::endl;
+        log_debug("Generated Junctions between", i * num_junctions_per_thread, "and", minimum);
         std::lock_guard<std::mutex> guard(write_mutex);
         for ( auto&& pair : junctionsofthisthread ) {
           if ((*junction_out_mesh_list).find(pair.first) != (*junction_out_mesh_list).end()) {
@@ -1603,7 +1604,7 @@ namespace road {
   std::vector<JuncId> Map::FilterJunctionsByPosition( const geom::Vector3D& minpos,
     const geom::Vector3D& maxpos ) const {
 
-    std::cout << "Filtered from " + std::to_string(_data.GetJunctions().size() ) + " junctions " << std::endl;
+    log_debug("Filtered from", _data.GetJunctions().size(), "junctions");
     std::vector<JuncId> ToReturn;
     for( auto& junction : _data.GetJunctions() ){
       geom::Location junctionLocation = junction.second.GetBoundingBox().location;
@@ -1612,7 +1613,7 @@ namespace road {
         ToReturn.push_back(junction.first);
       }
     }
-    std::cout << "To " + std::to_string(ToReturn.size() ) + " junctions " << std::endl;
+    log_debug("To", ToReturn.size(), "junctions");
 
     return ToReturn;
   }
@@ -1621,7 +1622,7 @@ namespace road {
     const geom::Vector3D& maxpos ) const {
 
     std::vector<RoadId> ToReturn;
-    std::cout << "Filtered from " + std::to_string(_data.GetRoads().size() ) + " roads " << std::endl;
+    log_debug("Filtered from", _data.GetRoads().size(), "roads");
     for( auto& road : _data.GetRoads() ){
       auto &&lane_section = (*road.second.GetLaneSections().begin());
       const road::Lane* lane = road.second.IsRHT() ? lane_section.GetLane(-1) : lane_section.GetLane(1);
@@ -1634,7 +1635,7 @@ namespace road {
         }
       }
     }
-    std::cout << "To " + std::to_string(ToReturn.size() ) + " roads " << std::endl;
+    log_debug("To", ToReturn.size(), "roads");
     return ToReturn;
   }
 

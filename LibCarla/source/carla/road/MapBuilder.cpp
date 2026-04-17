@@ -4,6 +4,7 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+#include "carla/Logging.h"
 #include "carla/StringUtil.h"
 #include "carla/road/MapBuilder.h"
 #include "carla/road/element/RoadInfoElevation.h"
@@ -851,12 +852,12 @@ namespace road {
     for (auto &road : _map_data._roads) {
       for (auto &section : road.second._lane_sections) {
         for (auto &lane : section.second._lanes) {
-          std::cout << "\nLane: " << road.first << "_" << section.first << "_" << lane.first << std::endl;
+          log_debug("Lane:", road.first, "_", section.first, "_", lane.first);
           for (auto next_lane : lane.second._next_lanes) {
-            std::cout << "Next lane: " << next_lane->GetRoad()->GetId() << "_" << next_lane->GetLaneSection()->_id << "_" << next_lane->_id << std::endl;
+            log_debug("Next lane:", next_lane->GetRoad()->GetId(), "_", next_lane->GetLaneSection()->_id, "_", next_lane->_id);
           }
           for (auto prev_lanes : lane.second._prev_lanes) {
-            std::cout << "Prev lane: " << prev_lanes->GetRoad()->GetId() << "_" << prev_lanes->GetLaneSection()->_id << "_" << prev_lanes->_id << std::endl;
+            log_debug("Prev lane:", prev_lanes->GetRoad()->GetId(), "_", prev_lanes->GetLaneSection()->_id, "_", prev_lanes->_id);
           }
         }
       }
