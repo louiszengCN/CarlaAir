@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # carla_air.sh — CarlaAir 一键启动脚本（Shipping 构建版）
 # 用法:
 #   ./carla_air.sh                    # 默认: Town10HD, 1280x720
@@ -7,7 +7,7 @@
 #   ./carla_air.sh --kill             # 停止运行中的实例
 #   ./carla_air.sh --help             # 帮助
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 MAP="${1:-Town10HD}"
@@ -108,13 +108,13 @@ echo "============================================"
 echo ""
 
 "$SCRIPT_DIR/CarlaUE4.sh" \
-    /Game/Carla/Maps/$MAP \
+    "/Game/Carla/Maps/${MAP}" \
     -nosound \
-    -carla-rpc-port=$PORT \
+    "-carla-rpc-port=${PORT}" \
     -windowed \
-    -ResX=$RESX \
-    -ResY=$RESY \
-    -quality-level=$QUALITY &
+    "-ResX=${RESX}" \
+    "-ResY=${RESY}" \
+    "-quality-level=${QUALITY}" &
 
 PID=$!
 echo "PID: $PID"
