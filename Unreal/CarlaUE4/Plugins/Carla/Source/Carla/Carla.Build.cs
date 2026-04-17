@@ -299,12 +299,35 @@ public class Carla : ModuleRules
             "/usr/local/cuda/lib64/libnvrtc.so",
             "/usr/local/cuda/lib64/libnvToolsExt.so",
             "/usr/local/cuda/lib64/libcudart.so",
-            "/usr/lib/llvm-10/lib/libgomp.so",
-            "/usr/lib/x86_64-linux-gnu/libpython3.9.so",
           };
           foreach (string lib in CudaLibs)
           {
             if (File.Exists(lib)) PublicAdditionalLibraries.Add(lib);
+          }
+          // libgomp: try LLVM 14 (Ubuntu 22.04), 13, 12, 10 (Ubuntu 20.04)
+          string[] GompCandidates = {
+            "/usr/lib/llvm-14/lib/libgomp.so",
+            "/usr/lib/llvm-13/lib/libgomp.so",
+            "/usr/lib/llvm-12/lib/libgomp.so",
+            "/usr/lib/llvm-10/lib/libgomp.so",
+            "/usr/lib/x86_64-linux-gnu/libgomp.so.1",
+            "/usr/lib/aarch64-linux-gnu/libgomp.so.1",
+          };
+          foreach (string g in GompCandidates)
+          {
+            if (File.Exists(g)) { PublicAdditionalLibraries.Add(g); break; }
+          }
+          // libpython: try 3.10 (Ubuntu 22.04), 3.9, 3.8 — both x86_64 and ARM64
+          string[] PythonCandidates = {
+            "/usr/lib/x86_64-linux-gnu/libpython3.10.so",
+            "/usr/lib/aarch64-linux-gnu/libpython3.10.so",
+            "/usr/lib/x86_64-linux-gnu/libpython3.9.so",
+            "/usr/lib/aarch64-linux-gnu/libpython3.9.so",
+            "/usr/lib/x86_64-linux-gnu/libpython3.8.so",
+          };
+          foreach (string py in PythonCandidates)
+          {
+            if (File.Exists(py)) { PublicAdditionalLibraries.Add(py); break; }
           }
           PublicAdditionalLibraries.Add("stdc++");
           string[] CudaRt = {
@@ -332,10 +355,20 @@ public class Carla : ModuleRules
         }
       }
 
-      // OsmToODR — Linux uses libc.so explicitly; macOS links libc automatically.
+      // OsmToODR — some linkers need libc.so mentioned explicitly.
+      // Use the multiarch path so this works on both x86_64 and ARM64 Debian/Ubuntu.
+      // File.Exists guard prevents hard failure when the path varies (non-Debian distros, etc.).
       if (Target.Platform == UnrealTargetPlatform.Linux)
       {
-        PublicAdditionalLibraries.Add("/usr/lib/x86_64-linux-gnu/libc.so");
+        string[] LibcCandidates = {
+          "/usr/lib/x86_64-linux-gnu/libc.so",   // Debian/Ubuntu x86_64
+          "/usr/lib/aarch64-linux-gnu/libc.so",  // Debian/Ubuntu ARM64
+          "/usr/lib/arm-linux-gnueabihf/libc.so",// Debian/Ubuntu ARMv7
+        };
+        foreach (string libc in LibcCandidates)
+        {
+          if (File.Exists(libc)) { PublicAdditionalLibraries.Add(libc); break; }
+        }
       }
       // sqlite3: Linux uses .so, macOS uses system sqlite or .a
       string Sqlite3Lib = Path.Combine(LibCarlaInstallPath, "lib", "libsqlite3.so");

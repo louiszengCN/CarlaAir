@@ -117,10 +117,13 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="$CARLA_DEPS"
           cmake --build "$BUILD_DIR/libcarla-build" --parallel "$(nproc)" --target install
 
-          # System libs expected by Carla.Build.cs
-          cp /usr/lib/x86_64-linux-gnu/libsqlite3.so "$CARLA_DEPS/lib/" || true
-          cp /usr/lib/x86_64-linux-gnu/libxerces-c.a "$CARLA_DEPS/lib/libxerces-c.a" 2>/dev/null || true
-          cp /usr/lib/x86_64-linux-gnu/libproj.a    "$CARLA_DEPS/lib/libproj.a"    2>/dev/null || true
+          # System libs expected by Carla.Build.cs.
+          # Use dpkg-architecture to get the correct multiarch lib path
+          # (x86_64-linux-gnu on x86_64, aarch64-linux-gnu on ARM64, etc.)
+          MULTIARCH="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+          cp "/usr/lib/$MULTIARCH/libsqlite3.so" "$CARLA_DEPS/lib/" 2>/dev/null || true
+          cp "/usr/lib/$MULTIARCH/libxerces-c.a" "$CARLA_DEPS/lib/libxerces-c.a" 2>/dev/null || true
+          cp "/usr/lib/$MULTIARCH/libproj.a"     "$CARLA_DEPS/lib/libproj.a"     2>/dev/null || true
 
       - name: Build CarlaUE4Editor (Linux Development)
         run: |
