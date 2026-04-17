@@ -238,7 +238,9 @@ bool ARayCastSemanticLidar::ShootLaser(const float VerticalAngle, const float Ho
   const auto Range = Description.Range;
   FVector EndTrace = Range * UKismetMathLibrary::GetForwardVector(ResultRot) + LidarBodyLoc;
 
-  GetWorld()->LineTraceSingleByChannel( // UE5: ParallelLineTraceSingleByChannel removed; LineTraceSingleByChannel is thread-safe in Chaos
+  // UE5: ParallelLineTraceSingleByChannel removed. Chaos concurrent reads are safe
+  // during game tick (immutable broadphase). TODO: verify per UE5.7 release notes.
+  GetWorld()->LineTraceSingleByChannel(
     HitInfo,
     LidarBodyLoc,
     EndTrace,

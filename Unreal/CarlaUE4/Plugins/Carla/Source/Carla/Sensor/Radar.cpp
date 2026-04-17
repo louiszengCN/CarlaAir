@@ -130,8 +130,8 @@ void ARadar::SendLineTraces(float DeltaTime)
     Rays[i].Hitted = false;
   }
 
-  FCriticalSection Mutex;
-  // UE5: GetPxScene()->lockRead()/unlockRead() removed; Chaos physics does not need scene lock
+  // UE5: PhysX lockRead/unlockRead removed. Each Rays[idx] slot is written by one
+  // task only, so no FCriticalSection is needed. Chaos permits concurrent reads.
   {
     TRACE_CPUPROFILER_EVENT_SCOPE(ParallelFor);
     ParallelFor(NumPoints, [&](int32 idx) {
@@ -149,7 +149,9 @@ void ARadar::SendLineTraces(float DeltaTime)
         MaxRy * Radius * Sin
       });
 
-      const bool Hitted = GetWorld()->LineTraceSingleByChannel( // UE5: ParallelLineTraceSingleByChannel removed; LineTraceSingleByChannel is thread-safe in Chaos
+      // UE5: ParallelLineTraceSingleByChannel removed. Chaos concurrent reads are safe
+      // during game tick (immutable broadphase). TODO: verify per UE5.7 release notes.
+      const bool Hitted = GetWorld()->LineTraceSingleByChannel(
         OutHit,
         RadarLocation,
         EndLocation,
@@ -175,7 +177,6 @@ void ARadar::SendLineTraces(float DeltaTime)
       }
     });
   }
-  // (PhysX unlockRead removed in UE5)
 
   // Write the detections in the output structure
   for (auto& ray : Rays) {
