@@ -7,7 +7,6 @@
 
 #include <limits>
 #include <stdint.h>
-#include <iostream>
 #include <vector>
 
 #define SQUARE(a) ((a) * (a))

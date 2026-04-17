@@ -14,7 +14,6 @@
 
 #include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <mutex>
 
 namespace carla {

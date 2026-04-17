@@ -14,7 +14,6 @@
 #include <ad/rss/situation/SituationSnapshot.hpp>
 #include <ad/rss/state/ProperResponse.hpp>
 #include <ad/rss/state/RssStateSnapshot.hpp>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include "carla/client/ActorList.h"
