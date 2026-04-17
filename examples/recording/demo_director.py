@@ -361,11 +361,11 @@ class SensorPanelManager:
             try:
                 sensor.stop()
             except Exception:
-            pass
+                pass
             try:
                 sensor.destroy()
             except Exception:
-            pass
+                pass
         self.sensors.clear()
         self.images.clear()
         self._locks.clear()
@@ -461,7 +461,7 @@ Examples:
             "clear": 1, "cloudy": 2, "rain": 3, "storm": 4,
             "fog": 5, "night": 6, "sunset": 7, "dawn": 8, "nightrain": 9
         }
-        key = name_map.get(args.weather.lower(), None)
+        key = name_map.get(args.weather.lower())
         if key and WEATHER_PRESETS[key][1] is not None:
             weather_name = WEATHER_PRESETS[key][0]
             world.set_weather(WEATHER_PRESETS[key][1])
@@ -514,7 +514,7 @@ Examples:
     if args.walkers > 0:
         print(f"Spawning {args.walkers} background walkers...")
         walker_bps = bp_lib.filter("walker.pedestrian.*")
-        for i in range(args.walkers):
+        for _i in range(args.walkers):
             bp = __import__("random").choice(walker_bps)
             loc = world.get_random_location_from_navigation()
             if loc:

@@ -4,3 +4,9 @@ repos:
     hooks:
       - id: shellcheck
         args: ["-f", "gcc"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff
+        args: [--config, PythonAPI/carla/pyproject.toml]

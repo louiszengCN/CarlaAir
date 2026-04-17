@@ -103,6 +103,14 @@ ignore = [
     "E501",    # Line too long (many upstream files exceed 120 chars)
     "N802",    # Function name should be lowercase (CARLA naming convention)
     "N806",    # Variable name should be lowercase (CARLA naming convention)
+    "N813",    # camelcase imported as lowercase (CARLA convention: import ColorConverter as cc)
+    "UP031",   # printf-string-formatting (131 instances in upstream example scripts; not worth mass conversion)
+    "PLW2901", # redefined-loop-name (intentional pattern in CARLA scripts: for x in ...: x = transform(x))
+    "PLW0108", # unnecessary-lambda (upstream utility code)
+    "ANN001",  # Missing type annotation for function argument (legacy upstream scripts)
+    "ANN201",  # Missing return type for public function (legacy upstream scripts)
+    "ANN202",  # Missing return type for private function (legacy upstream scripts)
+    "ANN204",  # Missing return type for __init__ (legacy upstream scripts)
 ]
 
 [tool.ruff.lint.per-file-ignores]

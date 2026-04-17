@@ -10,18 +10,21 @@ jobs:
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install ShellCheck
-        run: sudo apt-get install -y shellcheck
-
-      - name: Run ShellCheck
-        run: |
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y shellcheck
+      - run: |
           shellcheck -f gcc \
             build_carla_deps_macos.sh \
             carlaAir.sh \
             env_setup/setup_env.sh \
             PythonAPI/examples/ros2/run_rviz.sh
+
+  ruff:
+    name: Ruff (Python lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: check --config PythonAPI/carla/pyproject.toml
