@@ -33,7 +33,7 @@ void AProceduralBuildingUtilities::GenerateImpostorTexture(const FVector& Buildi
   Camera->OnComponentCreated();
   Camera->RegisterComponent();
 
-  check(Camera!=nullptr);
+  if (!IsValid(Camera)) { return; }
 
   Camera->ProjectionType = ECameraProjectionMode::Orthographic;
   Camera->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
@@ -46,7 +46,7 @@ void AProceduralBuildingUtilities::GenerateImpostorTexture(const FVector& Buildi
 
   SetTargetTextureToSceneCaptureComponent(Camera);
 
-  check(Camera->TextureTarget != nullptr);
+  if (!Camera->TextureTarget) { return; }
 
   // FRONT View
   RenderImpostorView(Camera, BuildingSize, EBuildingCameraView::FRONT);
@@ -74,7 +74,7 @@ UProceduralMeshComponent* AProceduralBuildingUtilities::GenerateImpostorGeometry
   Mesh->OnComponentCreated();
   Mesh->RegisterComponent();
 
-  check(Mesh != nullptr)
+  if (!IsValid(Mesh)) { return; }
 
   // FRONT View
   CreateBuildingImpostorGeometryForView(Mesh, BuildingSize, EBuildingCameraView::FRONT);
@@ -116,7 +116,7 @@ void AProceduralBuildingUtilities::CookProceduralBuildingToMesh(const FString& D
 
   FString PackageName = DestinationPath + FileName;
   UPackage* NewPackage = CreatePackage(*PackageName);
-  check(NewPackage);
+  if (!NewPackage) { return; }
 
   const IMeshMergeUtilities& MeshUtilities = FModuleManager::Get().LoadModuleChecked<IMeshMergeModule>("MeshMergeUtilities").GetUtilities();
   MeshUtilities.MergeComponentsToStaticMesh(
@@ -150,7 +150,7 @@ void AProceduralBuildingUtilities::CookProceduralMeshToMesh(
 
   FString PackageName = DestinationPath + FileName;
   UPackage* NewPackage = CreatePackage(*PackageName);
-  check(NewPackage);
+  if (!NewPackage) { return; }
 
   UStaticMesh* StaticMesh = NewObject<UStaticMesh>(NewPackage, *FileName, RF_Public | RF_Standalone);
   StaticMesh->InitResources();
@@ -220,7 +220,7 @@ UMaterialInstanceConstant* AProceduralBuildingUtilities::GenerateBuildingMateria
 
   UMaterialInstanceConstant* ParentMaterial = LoadObject<UMaterialInstanceConstant>(nullptr, *BaseMaterialSearchPath);
 
-  check(ParentMaterial != nullptr);
+  if (!IsValid(ParentMaterial)) { return; }
 
   UPackage* NewPackage = CreatePackage(*PackageName);
   FObjectDuplicationParameters Parameters(ParentMaterial, NewPackage);
