@@ -150,27 +150,27 @@ namespace geom {
     std::stringstream out;
     out << std::fixed; // Avoid using scientific notation
 
-    out << "# List of geometric vertices, with (x, y, z) coordinates." << std::endl;
+    out << "# List of geometric vertices, with (x, y, z) coordinates." << '\n';
     for (auto &v : _vertices) {
-      out << "v " << v.x << " " << v.y << " " << v.z << std::endl;
+      out << "v " << v.x << " " << v.y << " " << v.z << '\n';
     }
 
     if (!_uvs.empty()) {
-      out << std::endl << "# List of texture coordinates, in (u, v) coordinates, these will vary between 0 and 1." << std::endl;
+      out << '\n' << "# List of texture coordinates, in (u, v) coordinates, these will vary between 0 and 1." << '\n';
       for (auto &vt : _uvs) {
-        out << "vt " << vt.x << " " << vt.y << std::endl;
+        out << "vt " << vt.x << " " << vt.y << '\n';
       }
     }
 
     if (!_normals.empty()) {
-      out << std::endl << "# List of vertex normals in (x, y, z) form; normals might not be unit vectors." << std::endl;
+      out << '\n' << "# List of vertex normals in (x, y, z) form; normals might not be unit vectors." << '\n';
       for (auto &vn : _normals) {
-        out << "vn " << vn.x << " " << vn.y << " " << vn.z << std::endl;
+        out << "vn " << vn.x << " " << vn.y << " " << vn.z << '\n';
       }
     }
 
     if (!_indexes.empty()) {
-      out << std::endl << "# Polygonal face element." << std::endl;
+      out << '\n' << "# Polygonal face element." << '\n';
       auto it_m = _materials.begin();
       auto it = _indexes.begin();
       size_t index_counter = 0u;
@@ -183,14 +183,14 @@ namespace geom {
           }
           // If the current material start at this index
           if (it_m->index_start == index_counter) {
-            out << "\nusemtl " << it_m->name << std::endl;
+            out << "\nusemtl " << it_m->name << '\n';
           }
         }
 
         // Add the actual face using the 3 consecutive indices
         out << "f " << *it; ++it;
         out << " " << *it; ++it;
-        out << " " << *it << std::endl; ++it;
+        out << " " << *it << '\n'; ++it;
 
         index_counter += 3;
       }
@@ -206,14 +206,14 @@ namespace geom {
     std::stringstream out;
     out << std::fixed; // Avoid using scientific notation
 
-    out << "# List of geometric vertices, with (x, y, z) coordinates." << std::endl;
+    out << "# List of geometric vertices, with (x, y, z) coordinates." << '\n';
     for (auto &v : _vertices) {
       // Switched "y" and "z" for Recast library
-      out << "v " << v.x << " " << v.z << " " << v.y << std::endl;
+      out << "v " << v.x << " " << v.z << " " << v.y << '\n';
     }
 
     if (!_indexes.empty()) {
-      out << std::endl << "# Polygonal face element." << std::endl;
+      out << '\n' << "# Polygonal face element." << '\n';
       auto it_m = _materials.begin();
       auto it = _indexes.begin();
       size_t index_counter = 0u;
@@ -226,7 +226,7 @@ namespace geom {
           }
           // If the current material start at this index
           if (it_m->index_start == index_counter) {
-            out << "\nusemtl " << it_m->name << std::endl;
+            out << "\nusemtl " << it_m->name << '\n';
           }
         }
         // Add the actual face using the 3 consecutive indices
@@ -235,7 +235,7 @@ namespace geom {
         out << "f " << *it; ++it;
         const auto i_2 = *it; ++it;
         const auto i_3 = *it; ++it;
-        out << " " << i_3 << " " << i_2 << std::endl;
+        out << " " << i_3 << " " << i_2 << '\n';
         index_counter += 3;
       }
     }

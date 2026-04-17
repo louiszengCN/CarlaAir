@@ -312,11 +312,11 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
     double const time_since_epoch_check_start_ms =
         std::chrono::duration<double, std::milli>(std::chrono::system_clock::now().time_since_epoch()).count();
 #if DEBUG_TIMING
-    std::cout << "--- time: " << timestamp.frame << ", " << timestamp.elapsed_seconds << std::endl;
+    std::cout << "--- time: " << timestamp.frame << ", " << timestamp.elapsed_seconds << '\n';
     auto t_start = std::chrono::high_resolution_clock::now();
     auto t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> SC " << std::chrono::duration<double, std::milli>(t_end - t_start).count() << " start checkObjects"
-              << std::endl;
+              << '\n';
 #endif
 
     const auto carla_ego_vehicle = boost::dynamic_pointer_cast<carla::client::Vehicle>(carla_ego_actor);
@@ -327,7 +327,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> ME " << std::chrono::duration<double, std::milli>(t_end - t_start).count()
-              << " before  MapMatching" << std::endl;
+              << " before  MapMatching" << '\n';
 #endif
 
     // allow the vehicle to be at least 2.0 m away form the route to not lose
@@ -353,7 +353,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> ME " << std::chrono::duration<double, std::milli>(t_end - t_start).count()
-              << " after ego MapMatching" << std::endl;
+              << " after ego MapMatching" << '\n';
 #endif
 
     UpdateRoute(_carla_rss_state);
@@ -361,7 +361,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> RU " << std::chrono::duration<double, std::milli>(t_end - t_start).count()
-              << " after route update " << std::endl;
+              << " after route update " << '\n';
 #endif
 
     _carla_rss_state.ego_dynamics_on_route = CalculateEgoDynamicsOnRoute(
@@ -376,7 +376,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> WM " << std::chrono::duration<double, std::milli>(t_end - t_start).count()
-              << " after create world model " << std::endl;
+              << " after create world model " << '\n';
 #endif
 
     result = PerformCheck(_carla_rss_state);
@@ -384,7 +384,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> CH " << std::chrono::duration<double, std::milli>(t_end - t_start).count() << " end RSS check"
-              << std::endl;
+              << '\n';
 #endif
 
     AnalyseCheckResults(_carla_rss_state);
@@ -392,7 +392,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> AN " << std::chrono::duration<double, std::milli>(t_end - t_start).count()
-              << " end analyze results" << std::endl;
+              << " end analyze results" << '\n';
 #endif
 
     _carla_rss_state.ego_dynamics_on_route.time_since_epoch_check_end_ms =
@@ -413,7 +413,7 @@ bool RssCheck::CheckObjects(carla::client::Timestamp const &timestamp,
 #if DEBUG_TIMING
     t_end = std::chrono::high_resolution_clock::now();
     std::cout << "-> EC " << std::chrono::duration<double, std::milli>(t_end - t_start).count() << " end check objects"
-              << std::endl;
+              << '\n';
 #endif
   } catch (...) {
     _logger->error("Exception -> Check failed");

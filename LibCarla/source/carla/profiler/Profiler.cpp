@@ -62,7 +62,7 @@ namespace detail {
         std::lock_guard<std::mutex> guard(MUTEX);
         std::ofstream file(_filename, mode);
         write_csv_to_stream(file, std::forward<Args>(args)...);
-        file << std::endl;
+        file << '\n';
       }
     }
 
