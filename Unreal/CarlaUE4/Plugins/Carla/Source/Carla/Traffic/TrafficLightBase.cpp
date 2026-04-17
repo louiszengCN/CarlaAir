@@ -14,9 +14,9 @@
 // -- Static local methods -----------------------------------------------------
 // =============================================================================
 
-static bool IsValid(const ACarlaWheeledVehicle *Vehicle)
+static bool IsVehicleValid(const ACarlaWheeledVehicle *Vehicle)
 {
-  return ((Vehicle != nullptr) && IsValid(Vehicle));
+  return ((Vehicle != nullptr) && ::IsValid(Vehicle));
 }
 
 static ETrafficSignState ToTrafficSignState(ETrafficLightState State)
@@ -72,7 +72,7 @@ void ATrafficLightBase::SetTrafficLightState(const ETrafficLightState InState)
 
 void ATrafficLightBase::NotifyWheeledVehicle(ACarlaWheeledVehicle *Vehicle)
 {
-  if (IsValid(Vehicle))
+  if (IsVehicleValid(Vehicle))
   {
     auto Controller = Cast<AWheeledVehicleAIController>(Vehicle->GetController());
     if (Controller != nullptr)
@@ -86,7 +86,7 @@ void ATrafficLightBase::NotifyWheeledVehicle(ACarlaWheeledVehicle *Vehicle)
 
 void ATrafficLightBase::UnNotifyWheeledVehicle(ACarlaWheeledVehicle *Vehicle)
 {
-  if (IsValid(Vehicle))
+  if (IsVehicleValid(Vehicle))
   {
     auto Controller = Cast<AWheeledVehicleAIController>(Vehicle->GetController());
     if (Controller != nullptr)

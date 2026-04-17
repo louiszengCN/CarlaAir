@@ -193,6 +193,8 @@ void ACarlaRecorder::AddActorPosition(FCarlaActor *CarlaActor)
 void ACarlaRecorder::AddVehicleAnimation(FCarlaActor *CarlaActor)
 {
   check(CarlaActor != nullptr);
+  if (!CarlaActor->GetActor() || !IsValid(CarlaActor->GetActor()))
+    return;
 
   FVehicleControl Control;
   CarlaActor->GetVehicleControl(Control);

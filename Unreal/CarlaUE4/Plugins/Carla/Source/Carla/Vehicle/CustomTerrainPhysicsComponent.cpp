@@ -1380,7 +1380,11 @@ void UCustomTerrainPhysicsComponent::BuildLandscapeHeightMapDataAasset(ALandscap
   // FAssetRegistryModule::AssetCreated(NewTexture);
 
   FString PackageFileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
-  UPackage::Save(Package, nullptr, *PackageFileName, FSavePackageArgs());
+  FSavePackageArgs SaveArgs;
+  SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+  SaveArgs.Error = GError;
+  SaveArgs.SaveFlags = SAVE_NoError;
+  UPackage::Save(Package, HeightMapAsset, *PackageFileName, SaveArgs);
 }
 
 
