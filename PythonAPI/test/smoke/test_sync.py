@@ -8,8 +8,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import time
-from typing import Any
+from queue import Empty, Queue
 
 import carla
 
@@ -78,7 +79,7 @@ class TestSynchronousMode(SyncSmokeTest):
         camera = self.world.spawn_actor(cam_bp, t)
 
         try:
-            image_queue: Any = Queue()  # type: ignore[name-defined]
+            image_queue: Queue[object] = Queue()
             camera.listen(image_queue.put)
 
             frame: int | None = None
@@ -117,11 +118,11 @@ class TestSynchronousMode(SyncSmokeTest):
             self.world.spawn_actor(sensor, trans, car)
             for sensor in sensor_bps
         ]
-        queues: list[Any] = [Queue() for _ in sensor_bps]  # type: ignore[name-defined]
-        car.apply_control(carla.VehicleControl(_VEHICLE_THROTTLE))
+        queues: list[Queue[tuple[object, str]]] = [Queue() for _ in sensor_bps]
+        car.apply_control(carla.VehicleControl(throttle=_VEHICLE_THROTTLE))
 
         def _sensor_callback(
-            data: Any, name: str, queue: Any,
+            data: object, name: str, queue: Queue[tuple[object, str]],
         ) -> None:
             queue.put((data, name))
 
@@ -137,16 +138,14 @@ class TestSynchronousMode(SyncSmokeTest):
             for _ in range(_SENSOR_TICK_COUNT):
                 self.world.tick()
                 snapshot_frame = self.world.get_snapshot().frame
-                sensors_data: list[tuple[Any, str]] = []
+                sensors_data: list[tuple[object, str]] = []
 
-                try:
+                with contextlib.suppress(Empty):
                     # Get the data once it's received
-                    for queue in queues:
-                        sensors_data.append(
-                            queue.get(True, _SENSOR_QUEUE_TIMEOUT),
-                        )
-                except Empty:  # type: ignore[name-defined]
-                    pass
+                    sensors_data.extend(
+                        queue.get(block=True, timeout=_SENSOR_QUEUE_TIMEOUT)
+                        for queue in queues
+                    )
 
                 for i in range(len(queues)):
                     assert queues[i].qsize() == 0, f"\nQueue {_SENSOR_IDS[i]} oversized"
@@ -166,7 +165,9 @@ class TestSynchronousMode(SyncSmokeTest):
                 # All the sensor transforms match in the snapshot
                 # and the callback
                 for i in range(len(sensors_data)):
-                    assert sensors_data[i][0].transform == sensors[i].get_transform(), f"\n\nThe sensor and sensor_data " f"transforms from '{sensors_data[i][1]}' " f"do not match in the same frame! " f"({local_frame})\n" f"Sensor Data:\n  " f"{sensors_data[i][0].transform}\n" f"Sensor Transform:\n  " f"{sensors[i].get_transform()}"
+                    assert sensors_data[i][0].transform == sensors[i].get_transform(), (
+                        f"Sensor '{sensors_data[i][1]}' transform mismatch at frame {local_frame}"
+                    )
                 local_frame += 1
 
         finally:
@@ -178,7 +179,7 @@ class TestSynchronousMode(SyncSmokeTest):
                 car.destroy()
 
     def _batch_scenario(
-        self, batch_tick: bool, after_tick: bool,
+        self, *, batch_tick: bool, after_tick: bool,
     ) -> tuple[int, int]:
         """Run a batch spawn scenario and return frame numbers.
 
@@ -221,11 +222,17 @@ class TestSynchronousMode(SyncSmokeTest):
     def test_apply_batch_sync(self) -> None:
         """Verify apply_batch_sync frame behavior."""
 
-        a_t0, a_t1 = self._batch_scenario(False, False)
-        assert a_t0 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be equal: {a_t0} {a_t1}"
+        a_t0, a_t1 = self._batch_scenario(batch_tick=False, after_tick=False)
+        assert a_t0 == a_t1, (
+            f"Frames should be equal: {a_t0} {a_t1}"
+        )
 
-        a_t0, a_t1 = self._batch_scenario(True, False)
-        assert a_t0 + 1 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be consecutive: {a_t0} {a_t1}"
+        a_t0, a_t1 = self._batch_scenario(batch_tick=True, after_tick=False)
+        assert a_t0 + 1 == a_t1, (
+            f"Frames should be consecutive: {a_t0} {a_t1}"
+        )
 
-        a_t0, a_t1 = self._batch_scenario(False, True)
-        assert a_t0 + 1 == a_t1, "Something has failed with the apply_batch_sync. " f"These frames should be consecutive: {a_t0} {a_t1}"
+        a_t0, a_t1 = self._batch_scenario(batch_tick=False, after_tick=True)
+        assert a_t0 + 1 == a_t1, (
+            f"Frames should be consecutive: {a_t0} {a_t1}"
+        )

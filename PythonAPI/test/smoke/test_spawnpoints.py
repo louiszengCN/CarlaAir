@@ -136,77 +136,51 @@ class TestSpawnpoints(SyncSmokeTest):
                     error_details = "\n".join(
                         f"  - {e}" for e in spawn_errors
                     )
-                    assert not True, f"Spawn errors detected:\n{error_details}"
+                    assert not spawn_errors, f"Spawn errors detected:\n{error_details}"
 
                 ids = [x.actor_id for x in response]
-                assert len(ids) == len(spawn_points), "Mismatch in number of spawned actors.\n" f"Expected (spawn points): {len(spawn_points)}\n" f"Got (actor ids): {len(ids)}\n" f"IDs: {ids}"
+                assert len(ids) == len(spawn_points), (
+                    f"Mismatch: expected {len(spawn_points)}, got {len(ids)}"
+                )
 
                 frame = self.world.tick()
                 snapshot = self.world.get_snapshot()
-                assert frame == snapshot.timestamp.frame, "Frame mismatch between world.tick() and " f"snapshot.\n" f"tick frame={frame}, " f"snapshot frame={snapshot.timestamp.frame}"
+                assert frame == snapshot.timestamp.frame, (
+                    f"Frame mismatch: tick={frame}, snapshot={snapshot.timestamp.frame}"
+                )
 
                 actors = self.world.get_actors()
                 missing = [
                     a.id for a in actors if not snapshot.has_actor(a.id)
                 ]
-                assert not missing, "Some actors are missing from snapshot.\n" f"Missing IDs: {missing}\n" f"Total actors in world: {len(actors)}"
+                assert not missing, (
+                    f"Missing actors from snapshot: {missing}"
+                )
 
                 for actor_id, t0 in zip(ids, spawn_points):
                     actor_snapshot = snapshot.find(actor_id)
-                    assert actor_snapshot is not None, "Actor not found in snapshot.\n" f"actor_id={actor_id}\n" f"spawn loc=({t0.location.x:.4f}," f"{t0.location.y:.4f}," f"{t0.location.z:.4f}), " f"rot=({t0.rotation.pitch:.2f}," f"{t0.rotation.yaw:.2f}," f"{t0.rotation.roll:.2f})"
+                    assert actor_snapshot is not None, (
+                        f"Actor {actor_id} not found in snapshot"
+                    )
                     if actor_snapshot:
                         t1 = actor_snapshot.get_transform()
+                        tol = 10 ** (-_ASSERTION_PLACES)
 
                         # Ignore Z because vehicle is falling.
-                        self.assertAlmostEqual(
-                            t0.location.x,
-                            t1.location.x,
-                            places=_ASSERTION_PLACES,
-                            msg=(
-                                "X position mismatch.\n"
-                                f"actor_id={actor_id}\n"
-                                f"{self.diff_msg('x', t0.location.x, t1.location.x)}"
-                            ),
+                        assert abs(t0.location.x - t1.location.x) < tol, (
+                            self.diff_msg("x", t0.location.x, t1.location.x)
                         )
-                        self.assertAlmostEqual(
-                            t0.location.y,
-                            t1.location.y,
-                            places=_ASSERTION_PLACES,
-                            msg=(
-                                "Y position mismatch.\n"
-                                f"actor_id={actor_id}\n"
-                                f"{self.diff_msg('y', t0.location.y, t1.location.y)}"
-                            ),
+                        assert abs(t0.location.y - t1.location.y) < tol, (
+                            self.diff_msg("y", t0.location.y, t1.location.y)
                         )
-                        self.assertAlmostEqual(
-                            t0.rotation.pitch,
-                            t1.rotation.pitch,
-                            places=_ASSERTION_PLACES,
-                            msg=(
-                                "Pitch mismatch.\n"
-                                f"actor_id={actor_id}\n"
-                                f"{self.diff_msg('pitch', t0.rotation.pitch, t1.rotation.pitch)}"
-                            ),
+                        assert abs(t0.rotation.pitch - t1.rotation.pitch) < tol, (
+                            self.diff_msg("pitch", t0.rotation.pitch, t1.rotation.pitch)
                         )
-                        self.assertAlmostEqual(
-                            t0.rotation.yaw,
-                            t1.rotation.yaw,
-                            places=_ASSERTION_PLACES,
-                            msg=(
-                                "Yaw mismatch.\n"
-                                f"actor_id={actor_id}\n"
-                                f"{self.diff_msg('yaw', t0.rotation.yaw, t1.rotation.yaw)}"
-                            ),
+                        assert abs(t0.rotation.yaw - t1.rotation.yaw) < tol, (
+                            self.diff_msg("yaw", t0.rotation.yaw, t1.rotation.yaw)
                         )
-                        self.assertAlmostEqual(
-                            t0.rotation.roll,
-                            t1.rotation.roll,
-                            places=_ASSERTION_PLACES,
-                            msg=(
-                                "Roll mismatch.\n"
-                                f"actor_id={actor_id}\n"
-                                f"{self.diff_msg('roll', t0.rotation.roll, t1.rotation.roll)}"
-                            ),
+                        assert abs(t0.rotation.roll - t1.rotation.roll) < tol, (
+                            self.diff_msg("roll", t0.rotation.roll, t1.rotation.roll)
                         )
 
                 # Destroy actors
@@ -223,7 +197,7 @@ class TestSpawnpoints(SyncSmokeTest):
                     error_details = "\n".join(
                         f"  - {e}" for e in destroy_errors
                     )
-                    assert not True, f"Errors while destroying actors:\n{error_details}"
+                    assert not destroy_errors, f"Destroy errors:\n{error_details}"
 
                 self.world.tick()
                 self.world.tick()

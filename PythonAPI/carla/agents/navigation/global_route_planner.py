@@ -1,4 +1,4 @@
-# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Copyright (c) 2018-2020 CVC.
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
@@ -506,16 +506,9 @@ class GlobalRoutePlanner:
                     )
                     if not cross_list:
                         cross_list.append(_ZERO_CROSS_VALUE)
-                    if deviation < threshold:
-                        decision = RoadOption.STRAIGHT
-                    elif cross_list and next_cross < min(cross_list):
-                        decision = RoadOption.LEFT
-                    elif cross_list and next_cross > max(cross_list):
-                        decision = RoadOption.RIGHT
-                    elif next_cross < _ZERO_CROSS_VALUE:
-                        decision = RoadOption.LEFT
-                    elif next_cross > _ZERO_CROSS_VALUE:
-                        decision = RoadOption.RIGHT
+                    decision = self._classify_turn(
+                        deviation, threshold, next_cross, cross_list,
+                    )
                 else:
                     decision = next_edge["road_option"]
 
@@ -524,6 +517,36 @@ class GlobalRoutePlanner:
 
         self._previous_decision = decision
         return decision
+
+    @staticmethod
+    def _classify_turn(
+        deviation: float,
+        threshold: float,
+        next_cross: float,
+        cross_list: list[float],
+    ) -> RoadOption:
+        """Classify a turn based on deviation angle and cross-product values.
+
+        Args:
+            deviation: angle deviation in radians
+            threshold: angle threshold in radians
+            next_cross: cross product of current and next vectors
+            cross_list: list of cross products for neighboring edges
+
+        Returns:
+            RoadOption for the classified turn
+        """
+        if deviation < threshold:
+            return RoadOption.STRAIGHT
+        if cross_list and next_cross < min(cross_list):
+            return RoadOption.LEFT
+        if cross_list and next_cross > max(cross_list):
+            return RoadOption.RIGHT
+        if next_cross < _ZERO_CROSS_VALUE:
+            return RoadOption.LEFT
+        if next_cross > _ZERO_CROSS_VALUE:
+            return RoadOption.RIGHT
+        return RoadOption.STRAIGHT
 
     def _find_closest_in_list(
         self,

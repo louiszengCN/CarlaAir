@@ -1,4 +1,4 @@
-# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Copyright (c) 2018-2020 CVC.
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
@@ -20,9 +20,9 @@ from agents.tools.misc import get_speed
 class PIDArgs(TypedDict):
     """Typed dictionary for PID controller arguments."""
 
-    K_P: float
-    K_I: float
-    K_D: float
+    k_p: float
+    k_i: float
+    k_d: float
     dt: float
 
 
@@ -41,6 +41,7 @@ _ZERO_ACCELERATION: float = 0.0
 _ZERO_STEERING_THRESHOLD: float = 0.0
 _ZERO_Z_COMPONENT: float = 0.0
 _ZERO_PID_INITIAL: float = 0.0
+_MIN_ERROR_BUFFER_FOR_DERIVATIVE: int = 2
 _PARALLEL_DOT_PRODUCT: float = 1.0
 _DOT_PRODUCT_SIGN_FLIP: float = -1.0
 
@@ -167,8 +168,8 @@ class VehiclePIDController:
         self._lat_controller.set_offset(offset)
 
     # Backward-compatible aliases
-    change_longitudinal_PID = change_longitudinal_pid
-    change_lateral_PID = change_lateral_pid
+    change_longitudinal_pid_legacy = change_longitudinal_pid
+    change_lateral_pid_legacy = change_lateral_pid
 
 
 class PIDLongitudinalController:
@@ -184,28 +185,28 @@ class PIDLongitudinalController:
     def __init__(
         self,
         vehicle: carla.Vehicle,
-        K_P: float = 1.0,
-        K_I: float = _ZERO_PID_INITIAL,
-        K_D: float = _ZERO_PID_INITIAL,
+        k_p: float = 1.0,
+        k_i: float = _ZERO_PID_INITIAL,
+        k_d: float = _ZERO_PID_INITIAL,
         dt: float = _DEFAULT_DT,
     ) -> None:
         """Constructor.
 
         Args:
             vehicle: actor to apply to local planner logic onto
-            K_P: Proportional term
-            K_I: Integral term
-            K_D: Differential term
+            k_p: Proportional term
+            k_i: Integral term
+            k_d: Differential term
             dt: time differential in seconds
         """
         self._vehicle = vehicle
-        self._k_p = K_P
-        self._k_i = K_I
-        self._k_d = K_D
+        self._k_p = k_p
+        self._k_i = k_i
+        self._k_d = k_d
         self._dt = dt
         self._error_buffer = deque(maxlen=_ERROR_BUFFER_MAXLEN)
 
-    def run_step(self, target_speed: float, debug: bool = False) -> float:
+    def run_step(self, target_speed: float, *, debug: bool = False) -> float:
         """Execute one step of longitudinal control.
 
         Args:
@@ -235,7 +236,7 @@ class PIDLongitudinalController:
         error = target_speed - current_speed
         self._error_buffer.append(error)
 
-        if len(self._error_buffer) >= 2:
+        if len(self._error_buffer) >= _MIN_ERROR_BUFFER_FOR_DERIVATIVE:
             derivative = (self._error_buffer[-1] - self._error_buffer[-2]) / self._dt
             integral = sum(self._error_buffer) * self._dt
         else:
@@ -250,18 +251,18 @@ class PIDLongitudinalController:
             ),
         )
 
-    def change_parameters(self, K_P: float, K_I: float, K_D: float, dt: float) -> None:
+    def change_parameters(self, k_p: float, k_i: float, k_d: float, dt: float) -> None:
         """Change the PID parameters.
 
         Args:
-            K_P: new proportional term
-            K_I: new integral term
-            K_D: new differential term
+            k_p: new proportional term
+            k_i: new integral term
+            k_d: new differential term
             dt: new time differential
         """
-        self._k_p = K_P
-        self._k_i = K_I
-        self._k_d = K_D
+        self._k_p = k_p
+        self._k_i = k_i
+        self._k_d = k_d
         self._dt = dt
 
 
@@ -280,9 +281,9 @@ class PIDLateralController:
         self,
         vehicle: carla.Vehicle,
         offset: float = _DEFAULT_OFFSET,
-        K_P: float = 1.0,
-        K_I: float = _ZERO_PID_INITIAL,
-        K_D: float = _ZERO_PID_INITIAL,
+        k_p: float = 1.0,
+        k_i: float = _ZERO_PID_INITIAL,
+        k_d: float = _ZERO_PID_INITIAL,
         dt: float = _DEFAULT_DT,
     ) -> None:
         """Constructor.
@@ -290,15 +291,15 @@ class PIDLateralController:
         Args:
             vehicle: actor to apply to local planner logic onto
             offset: distance to center line
-            K_P: Proportional term
-            K_I: Integral term
-            K_D: Differential term
+            k_p: Proportional term
+            k_i: Integral term
+            k_d: Differential term
             dt: time differential in seconds
         """
         self._vehicle = vehicle
-        self._k_p = K_P
-        self._k_i = K_I
-        self._k_d = K_D
+        self._k_p = k_p
+        self._k_i = k_i
+        self._k_d = k_d
         self._dt = dt
         self._offset = offset
         self._e_buffer = deque(maxlen=_ERROR_BUFFER_MAXLEN)
@@ -363,7 +364,7 @@ class PIDLateralController:
             dot_product *= _DOT_PRODUCT_SIGN_FLIP
 
         self._e_buffer.append(dot_product)
-        if len(self._e_buffer) >= 2:
+        if len(self._e_buffer) >= _MIN_ERROR_BUFFER_FOR_DERIVATIVE:
             derivative = (self._e_buffer[-1] - self._e_buffer[-2]) / self._dt
             integral = sum(self._e_buffer) * self._dt
         else:
@@ -378,16 +379,16 @@ class PIDLateralController:
             ),
         )
 
-    def change_parameters(self, K_P: float, K_I: float, K_D: float, dt: float) -> None:
+    def change_parameters(self, k_p: float, k_i: float, k_d: float, dt: float) -> None:
         """Change the PID parameters.
 
         Args:
-            K_P: new proportional term
-            K_I: new integral term
-            K_D: new differential term
+            k_p: new proportional term
+            k_i: new integral term
+            k_d: new differential term
             dt: new time differential
         """
-        self._k_p = K_P
-        self._k_i = K_I
-        self._k_d = K_D
+        self._k_p = k_p
+        self._k_i = k_i
+        self._k_d = k_d
         self._dt = dt

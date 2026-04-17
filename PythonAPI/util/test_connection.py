@@ -72,13 +72,17 @@ def main() -> int:
     args = _parse_args()
     t0 = time.time()
 
-    while args.timeout > (time.time() - t0):
+    def _try_connect(host: str, port: int) -> bool:
         try:
-            client = carla.Client(args.host, args.port)
+            client = carla.Client(host, port)
             client.set_timeout(_CHECK_INTERVAL)
-            return _EXIT_SUCCESS
         except RuntimeError:
-            pass
+            return False
+        return True
+
+    while args.timeout > (time.time() - t0):
+        if _try_connect(args.host, args.port):
+            return _EXIT_SUCCESS
 
     return _EXIT_FAILURE
 

@@ -8,15 +8,26 @@ Tests each feature systematically and reports pass/fail.
 from __future__ import annotations
 
 import contextlib
+import random
 import sys
 import time
 import traceback
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+try:
     import carla
+except ImportError:
+    carla = None  # type: ignore[assignment]
+
+try:
+    import airsim
+except ImportError:
+    airsim = None  # type: ignore[assignment]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -84,7 +95,7 @@ class TestResult:
     status: TestStatus
     category: TestCategory
     error: str | None = None
-    data: Any = None
+    data: object = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,12 +119,10 @@ class TestSummary:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def test_carla_basic(
+def check_carla_basic(
     carla_port: int = _CARLA_DEFAULT_PORT,
 ) -> tuple[carla.Client, carla.World, carla.BlueprintLibrary, list[carla.Transform]]:
     """Test basic CARLA connection and world access."""
-    import carla
-
     client = carla.Client("localhost", carla_port)
     client.set_timeout(_CARLA_TIMEOUT)
     world = client.get_world()
@@ -126,8 +135,6 @@ def test_carla_basic(
 
 def test_weather(world: carla.World) -> None:
     """Test weather control."""
-    import carla
-
     world.set_weather(carla.WeatherParameters.ClearNoon)
     weather = world.get_weather()
     assert weather.sun_altitude_angle > 0, "Sun should be up at ClearNoon"
@@ -145,19 +152,15 @@ def test_vehicle_spawn(
     spawn_points: list[carla.Transform],
 ) -> list[carla.Vehicle]:
     """Test vehicle spawning and autopilot."""
-    import random
-
     vehicle_bps = bp_lib.filter("vehicle.*")
 
     vehicles: list[carla.Vehicle] = []
     for i in range(_TEST_VEHICLE_COUNT):
         bp = random.choice(vehicle_bps)
-        try:
+        with contextlib.suppress(RuntimeError):
             v = world.spawn_actor(bp, spawn_points[i])
             v.set_autopilot(True)
             vehicles.append(v)
-        except Exception:
-            pass
 
     assert len(vehicles) > 0, "Should spawn at least 1 vehicle"
     return vehicles
@@ -169,8 +172,6 @@ def test_walker_spawn(
     spawn_points: list[carla.Transform],
 ) -> list[carla.Actor]:
     """Test walker spawning."""
-    import random
-
     walker_bps = bp_lib.filter("walker.pedestrian.*")
 
     walkers: list[carla.Actor] = []
@@ -178,11 +179,9 @@ def test_walker_spawn(
         bp = random.choice(walker_bps)
         sp = spawn_points[min(20 + i, len(spawn_points) - 1)]
         sp.location.z += _WALKER_SPAWN_OFFSET_Z
-        try:
+        with contextlib.suppress(RuntimeError):
             w = world.spawn_actor(bp, sp)
             walkers.append(w)
-        except Exception:
-            pass
 
     assert len(walkers) > 0, "Should spawn at least 1 walker"
     return walkers
@@ -194,8 +193,6 @@ def test_walker_control(
     spawn_points: list[carla.Transform],
 ) -> None:
     """Test WalkerControl (used by human_traj_col.py)."""
-    import carla
-
     walker_bp = bp_lib.filter("walker.pedestrian.*")[0]
     sp = spawn_points[min(40, len(spawn_points) - 1)]
     sp.location.z += _WALKER_SPAWN_OFFSET_Z
@@ -217,8 +214,6 @@ def test_camera_sensor(
     spawn_points: list[carla.Transform],
 ) -> None:
     """Test camera sensor attachment."""
-    import carla
-
     cam_bp = bp_lib.find("sensor.camera.rgb")
     cam_bp.set_attribute("image_size_x", _CAMERA_RESOLUTION_X)
     cam_bp.set_attribute("image_size_y", _CAMERA_RESOLUTION_Y)
@@ -271,8 +266,6 @@ def test_navigation_mesh(world: carla.World) -> bool:
 
 def test_debug_drawing(world: carla.World) -> None:
     """Test debug drawing (used by all test_scripts)."""
-    import carla
-
     world.debug.draw_point(
         carla.Location(x=0, y=0, z=_DEBUG_Z),
         size=0.5,
@@ -326,20 +319,16 @@ def test_drone_prop_blueprint(bp_lib: carla.BlueprintLibrary) -> str | None:
             bp_lib.find(bp_id)
             found = bp_id
             break
-        except Exception:
+        except RuntimeError:
             pass
 
     if found is None:
-        props = bp_lib.filter("static.prop.*")
-        for _p in props:
-            pass
+        _ = bp_lib.filter("static.prop.*")
     return found
 
 
 def test_environment_objects(world: carla.World) -> bool:
     """Test get_environment_objects (used by human_traj_col.py for max building height)."""
-    import carla
-
     buildings = world.get_environment_objects(carla.CityObjectLabel.Buildings)
     if buildings:
         max(
@@ -350,8 +339,6 @@ def test_environment_objects(world: carla.World) -> bool:
 
 def test_spectator(world: carla.World) -> None:
     """Test spectator control."""
-    import carla
-
     spectator = world.get_spectator()
     spectator.set_transform(
         carla.Transform(
@@ -361,52 +348,50 @@ def test_spectator(world: carla.World) -> None:
     )
 
 
-def test_airsim_connection(
+def check_airsim_connection(
     airsim_port: int = _AIRSIM_DEFAULT_PORT,
-) -> Any:  # airsim.MultirotorClient
+) -> object:  # airsim.MultirotorClient
     """Test AirSim connection."""
-    import airsim
-
     client = airsim.MultirotorClient(port=airsim_port)
     client.confirmConnection()
     return client
 
 
-def test_airsim_flight(client: Any) -> None:  # airsim.MultirotorClient
+def test_airsim_flight(client: object) -> None:  # airsim.MultirotorClient
     """Test AirSim takeoff and basic movement."""
-    client.enableApiControl(True)
-    client.armDisarm(True)
-    client.takeoffAsync().join()
+    client.enableApiControl(is_enabled=True)  # type: ignore[attr-defined]
+    client.armDisarm(arm=True)  # type: ignore[attr-defined]
+    client.takeoffAsync().join()  # type: ignore[attr-defined]
 
-    client.getMultirotorState().kinematics_estimated.position
+    _ = client.getMultirotorState().kinematics_estimated.position  # type: ignore[attr-defined]
 
-    client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()
-    client.getMultirotorState().kinematics_estimated.position
+    client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()  # type: ignore[attr-defined]
+    _ = client.getMultirotorState().kinematics_estimated.position  # type: ignore[attr-defined]
 
-    client.landAsync().join()
-    client.armDisarm(False)
-    client.enableApiControl(False)
+    client.landAsync().join()  # type: ignore[attr-defined]
+    client.armDisarm(arm=False)  # type: ignore[attr-defined]
+    client.enableApiControl(is_enabled=False)  # type: ignore[attr-defined]
 
 
-def test_airsim_camera(client: Any) -> None:  # airsim.MultirotorClient
+def test_airsim_camera(client: object) -> None:  # airsim.MultirotorClient
     """Test AirSim camera."""
-    import airsim
+    client.enableApiControl(is_enabled=True)  # type: ignore[attr-defined]
+    client.armDisarm(arm=True)  # type: ignore[attr-defined]
+    client.takeoffAsync().join()  # type: ignore[attr-defined]
+    client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()  # type: ignore[attr-defined]
 
-    client.enableApiControl(True)
-    client.armDisarm(True)
-    client.takeoffAsync().join()
-    client.moveToZAsync(_AIRSIM_ALTITUDE, _AIRSIM_FLIGHT_DURATION).join()
-
-    responses = client.simGetImages(
-        [airsim.ImageRequest("0", airsim.ImageType.Scene, False, False)],
+    responses = client.simGetImages(  # type: ignore[attr-defined]
+        [airsim.ImageRequest("0", airsim.ImageType.Scene, pixels_as_float=False, compress=False)],
     )
 
-    w, h = responses[0].width, responses[0].height
-    assert w > 0 and h > 0, "Camera image should have valid dimensions"
+    w = responses[0].width
+    h = responses[0].height
+    assert w > 0, "Camera image width should be positive"
+    assert h > 0, "Camera image height should be positive"
 
-    client.landAsync().join()
-    client.armDisarm(False)
-    client.enableApiControl(False)
+    client.landAsync().join()  # type: ignore[attr-defined]
+    client.armDisarm(arm=False)  # type: ignore[attr-defined]
+    client.enableApiControl(is_enabled=False)  # type: ignore[attr-defined]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -416,28 +401,28 @@ def test_airsim_camera(client: Any) -> None:  # airsim.MultirotorClient
 
 def run_test(
     name: str,
-    func: Any,  # Callable
+    func: Callable[..., object],
     category: TestCategory,
-    *args: Any,
-    **kwargs: Any,
+    *args: object,
+    **kwargs: object,
 ) -> TestResult:
     """Run a test and catch exceptions."""
+    error: str | None = None
+    data: object = None
     try:
-        result = func(*args, **kwargs)
-        return TestResult(
-            name=name,
-            status=TestStatus.PASS,
-            category=category,
-            data=result,
-        )
-    except Exception as e:
+        data = func(*args, **kwargs)
+    except RuntimeError as e:
         traceback.print_exc()
-        return TestResult(
-            name=name,
-            status=TestStatus.FAIL,
-            category=category,
-            error=str(e),
-        )
+        error = str(e)
+    except OSError as e:
+        traceback.print_exc()
+        error = str(e)
+    except ValueError as e:
+        traceback.print_exc()
+        error = str(e)
+    if error is not None:
+        return TestResult(name=name, status=TestStatus.FAIL, category=category, error=error)
+    return TestResult(name=name, status=TestStatus.PASS, category=category, data=data)
 
 
 def _print_summary(summary: TestSummary) -> None:
@@ -460,7 +445,7 @@ def main() -> int:
 
     # CARLA tests
     result = run_test(
-        "CARLA Connection", test_carla_basic, TestCategory.CARLA,
+        "CARLA Connection", check_carla_basic, TestCategory.CARLA,
     )
     results.append(result)
     if result.status != TestStatus.PASS:
@@ -506,7 +491,7 @@ def main() -> int:
 
     # AirSim tests
     result = run_test(
-        "AirSim Connection", test_airsim_connection, TestCategory.AIRSIM,
+        "AirSim Connection", check_airsim_connection, TestCategory.AIRSIM,
     )
     results.append(result)
 

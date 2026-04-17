@@ -12,6 +12,8 @@ This script spawn all the raycast sensors in a simple scenario and check if thei
 output are deterministic.
 """
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import filecmp
@@ -25,7 +27,7 @@ import carla
 
 
 class Scenario:
-    def __init__(self, client, world, save_snapshots_mode=False) -> None:
+    def __init__(self, client: object, world: object, *, save_snapshots_mode: bool = False) -> None:
         self.world = world
         self.client = client
         self.actor_list = []
@@ -37,7 +39,7 @@ class Scenario:
         self.sensor_list = []
         self.sensor_queue = Queue()
 
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         self.prefix = prefix
         self.actor_list = []
         self.active = True
@@ -51,7 +53,7 @@ class Scenario:
         snapshot = self.world.get_snapshot()
         self.init_timestamp = {"frame0" : snapshot.frame, "time0" : snapshot.timestamp.elapsed_seconds}
 
-    def add_actor(self, actor, actor_name="Actor") -> None:
+    def add_actor(self, actor: object, actor_name: object="Actor") -> None:
         actor_idx = len(self.actor_list)
 
         name = str(actor_idx) + "_" + actor_name
@@ -61,7 +63,7 @@ class Scenario:
         if self.save_snapshots_mode:
             self.snapshots.append(np.empty((0,11), float))
 
-    def wait(self, frames=100) -> None:
+    def wait(self, frames: object=100) -> None:
         for _i in range(frames):
             self.world.tick()
             if self.active:
@@ -77,18 +79,18 @@ class Scenario:
 
         self.active = False
 
-    def reload_world(self, settings = None, spectator_tr = None) -> None:
+    def reload_world(self, settings: object = None, spectator_tr: object = None) -> None:
         self.client.reload_world()
         if settings is not None:
             self.world.apply_settings(settings)
         if spectator_tr is not None:
             self.reset_spectator(spectator_tr)
 
-    def reset_spectator(self, spectator_tr) -> None:
+    def reset_spectator(self, spectator_tr: object) -> None:
         spectator = self.world.get_spectator()
         spectator.set_transform(spectator_tr)
 
-    def save_snapshot(self, actor):
+    def save_snapshot(self, actor: object) -> None:
         snapshot = self.world.get_snapshot()
 
         return np.array([
@@ -112,15 +114,15 @@ class Scenario:
         for i, actor in enumerate(self.actor_list):
             np.savetxt(self.get_filename(actor[0]), self.snapshots[i])
 
-    def get_filename_with_prefix(self, prefix, actor_id=None, frame=None):
+    def get_filename_with_prefix(self, prefix: object, actor_id: object=None, frame: object=None) -> None:
         add_id = "" if actor_id is None else "_" + actor_id
-        add_frame = "" if frame is None else ("_%04d") % frame
+        add_frame = "" if frame is None else f"_{frame:04d}"
         return prefix + add_id + add_frame + ".out"
 
-    def get_filename(self, actor_id=None, frame=None):
+    def get_filename(self, actor_id: object=None, frame: object=None) -> None:
         return self.get_filename_with_prefix(self.prefix, actor_id, frame)
 
-    def run_simulation(self, prefix, run_settings, spectator_tr, tics = 200):
+    def run_simulation(self, prefix: object, run_settings: object, spectator_tr: object, tics: object = 200) -> None:
         original_settings = self.world.get_settings()
 
         self.init_scene(prefix, run_settings, spectator_tr)
@@ -138,7 +140,7 @@ class Scenario:
 
         return t_end - t_start
 
-    def add_sensor(self, sensor, sensor_type) -> None:
+    def add_sensor(self, sensor: object, sensor_type: object) -> None:
         sen_idx = len(self.sensor_list)
         if sensor_type == "LiDAR":
             name = str(sen_idx) + "_LiDAR"
@@ -152,7 +154,7 @@ class Scenario:
 
         self.sensor_list.append((name, sensor))
 
-    def add_lidar_snapshot(self, lidar_data, name="LiDAR") -> None:
+    def add_lidar_snapshot(self, lidar_data: object, name: object="LiDAR") -> None:
         if not self.active:
             return
 
@@ -163,7 +165,7 @@ class Scenario:
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_semlidar_snapshot(self, lidar_data, name="SemLiDAR") -> None:
+    def add_semlidar_snapshot(self, lidar_data: object, name: object="SemLiDAR") -> None:
         if not self.active:
             return
 
@@ -176,7 +178,7 @@ class Scenario:
         np.savetxt(self.get_filename(name, frame), points)
         self.sensor_queue.put((lidar_data.frame, name))
 
-    def add_radar_snapshot(self, radar_data, name="Radar") -> None:
+    def add_radar_snapshot(self, radar_data: object, name: object="Radar") -> None:
         if not self.active:
             return
 
@@ -197,7 +199,7 @@ class Scenario:
 
 
 class SpawnLidarNoDropff(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -220,7 +222,7 @@ class SpawnLidarNoDropff(Scenario):
         self.wait(1)
 
 class SpawnSemanticLidar(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -241,7 +243,7 @@ class SpawnSemanticLidar(Scenario):
         self.wait(1)
 
 class SpawnRadar(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -263,7 +265,7 @@ class SpawnRadar(Scenario):
         self.wait(1)
 
 class SpawnLidarWithDropff(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -286,7 +288,7 @@ class SpawnLidarWithDropff(Scenario):
         self.wait(1)
 
 class SpawnAllRaycastSensors(Scenario):
-    def init_scene(self, prefix, settings = None, spectator_tr = None) -> None:
+    def init_scene(self, prefix: object, settings: object = None, spectator_tr: object = None) -> None:
         super().init_scene(prefix, settings, spectator_tr)
 
         blueprint_library = self.world.get_blueprint_library()
@@ -328,17 +330,16 @@ class SpawnAllRaycastSensors(Scenario):
         self.wait(1)
 
 class SensorScenarioTester:
-    def __init__(self, scene, output_path) -> None:
+    def __init__(self, scene: object, output_path: object) -> None:
         self.scene = scene
         self.world = self.scene.world
         self.client = self.scene.client
         self.scenario_name = self.scene.__class__.__name__
         self.output_path = output_path
 
-    def compare_files(self, file_i, file_j):
+    def compare_files(self, file_i: object, file_j: object) -> None:
 
         # First, we check if the files are exactly equal,
-        # if they are the simulations are equivalent
         check_ij = filecmp.cmp(file_i, file_j)
         if check_ij:
             return True
@@ -355,9 +356,10 @@ class SensorScenarioTester:
         # differing only in floaring-point arithmetic errors
         max_error = np.amax(np.abs(data_i-data_j))
 
-        return max_error < 0.01
+        _max_allowed_error = 0.01
+        return max_error < _max_allowed_error
 
-    def check_simulations(self, rep_prefixes, sim_tics):
+    def check_simulations(self, rep_prefixes: object, sim_tics: object) -> None:
         repetitions = len(rep_prefixes)
         mat_check = np.zeros((repetitions, repetitions), int)
 
@@ -383,7 +385,7 @@ class SensorScenarioTester:
 
         return determinism_set
 
-    def test_scenario(self, repetitions = 1, sim_tics = 100):
+    def test_scenario(self, repetitions: object = 1, sim_tics: object = 100) -> None:
         output_str = f"Testing Determinism in {self.scenario_name} -> "
 
         prefix = self.output_path + self.scenario_name
@@ -397,13 +399,13 @@ class SensorScenarioTester:
         sim_prefixes = []
         t_comp = 0
         for i in range(repetitions):
-            prefix_rep = prefix + "_rep_" + ("%03d" % i)
+            prefix_rep = f"{prefix}_rep_{i:03d}"
             t_comp += self.scene.run_simulation(prefix_rep, config_settings, spectator_tr, tics=sim_tics)
             sim_prefixes.append(prefix_rep)
 
         determ_repet = self.check_simulations(sim_prefixes, sim_tics)
-        output_str += "Deterministic Repetitions: %r / %2d" % (determ_repet, repetitions)
-        output_str += "  -> Comp. FPS: %.0f" % ((repetitions*sim_tics)/t_comp)
+        output_str += f"Deterministic Repetitions: {determ_repet!r} / {repetitions:2d}"
+        output_str += f"  -> Comp. FPS: {(repetitions * sim_tics) / t_comp:.0f}"
 
         if determ_repet[0] != repetitions:
             pass
@@ -411,7 +413,7 @@ class SensorScenarioTester:
         return output_str
 
 
-def main(arg) -> None:
+def main(arg: object) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(30.0)
@@ -440,7 +442,6 @@ def main(arg) -> None:
 
 
         # Remove all the output files
-        #shutil.rmtree(path)
 
     finally:
         world.apply_settings(pre_settings)

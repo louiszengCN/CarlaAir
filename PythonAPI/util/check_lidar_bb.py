@@ -46,6 +46,8 @@ Important Data structure description:
 
 """
 
+from __future__ import annotations
+
 import contextlib
 from queue import Empty, Queue
 
@@ -56,7 +58,7 @@ import carla
 
 class ActorTrace:
     """Class that store and process information about an actor at certain moment."""
-    def __init__(self, actor, lidar, world) -> None:
+    def __init__(self, actor: object, lidar: object, world: object) -> None:
         self._world = world
         self.set_lidar(lidar)
         self.set_actor(actor)
@@ -65,12 +67,12 @@ class ActorTrace:
         self._bb_minlimits = [0, 0, 0]
         self._bb_maxlimits = [0, 0, 0]
 
-    def set_lidar(self, lidar) -> None:
+    def set_lidar(self, lidar: object) -> None:
         self._frame = lidar[0]
         self._lidar_data = lidar[2]
         self._lidar_transf = lidar[3]
 
-    def set_actor(self, actor) -> None:
+    def set_actor(self, actor: object) -> None:
         self._actor_id = actor[0]
         self._actor_type = actor[1]
         self._actor_transf = actor[2]
@@ -103,12 +105,12 @@ class ActorTrace:
         self._bb_minlimits = ver_np.min(axis=0) - 0.1
         self._bb_maxlimits = ver_np.max(axis=0) + 0.1
 
-    def print(self, print_if_empty = False) -> None:
+    def print(self, print_if_empty: object = False) -> None:
         if self._lidar_pc_local.shape[0] > 0 or print_if_empty:
             np.savetxt("veh_data_%d_%s_%d.out" % (self._frame, self._actor_type, self._actor_id), self._lidar_pc_local)
             np.savetxt("bb_data_%d_%s_%d.out"  % (self._frame, self._actor_type, self._actor_id), self._bb_vertices)
 
-    def lidar_is_outside_bb(self, check_axis = None) -> bool:
+    def lidar_is_outside_bb(self, check_axis: object = None) -> bool:
         if check_axis is None:
             check_axis = [True, True, True]
         lidar_pc = self._lidar_pc_local
@@ -143,7 +145,7 @@ class ActorTrace:
             return False
         return True
 
-    def draw_debug(self, world=None) -> None:
+    def draw_debug(self, world: object=None) -> None:
         debug = self._world.debug if world is None else world.debug
 
         points = self._lidar_pc_local
@@ -177,7 +179,7 @@ class ActorTrace:
 
 
 
-def wait(world, frames=100, queue = None, slist = None) -> None:
+def wait(world: object, frames: object=100, queue: object = None, slist: object = None) -> None:
     for _i in range(frames):
         world.tick()
 
@@ -192,14 +194,14 @@ def wait(world, frames=100, queue = None, slist = None) -> None:
 # This is where you receive the sensor data and
 # process it as you liked and the important part is that,
 # at the end, it should include an element into the sensor queue.
-def lidar_callback(sensor_data, sensor_queue, sensor_name) -> None:
+def lidar_callback(sensor_data: object, sensor_queue: object, sensor_name: object) -> None:
     sensor_pc_local = np.frombuffer(sensor_data.raw_data, dtype=np.dtype([
         ("x", np.float32), ("y", np.float32), ("z", np.float32),
         ("CosAngle", np.float32), ("ObjIdx", np.uint32), ("ObjTag", np.uint32)]))
     sensor_transf = sensor_data.transform
     sensor_queue.put((sensor_data.frame, sensor_name, sensor_pc_local, sensor_transf))
 
-def bb_callback(snapshot, world, sensor_queue, sensor_name) -> None:
+def bb_callback(snapshot: object, world: object, sensor_queue: object, sensor_name: object) -> None:
     data_array = []
 
     vehicles = world.get_actors().filter("vehicle.*")
@@ -208,7 +210,7 @@ def bb_callback(snapshot, world, sensor_queue, sensor_name) -> None:
 
     sensor_queue.put((snapshot.frame, sensor_name, data_array))
 
-def move_spectator(world, actor) -> None:
+def move_spectator(world: object, actor: object) -> None:
     actor_tr = actor.get_transform()
     spectator_transform = carla.Transform(actor_tr.location, actor_tr.rotation)
     spectator_transform.location -= actor_tr.get_forward_vector() * 10
@@ -216,11 +218,11 @@ def move_spectator(world, actor) -> None:
     spectator = world.get_spectator()
     spectator.set_transform(spectator_transform)
 
-def world_callback(snapshot, world, sensor_queue, sensor_name, actor) -> None:
+def world_callback(snapshot: object, world: object, sensor_queue: object, sensor_name: object, actor: object) -> None:
     move_spectator(world, actor)
     bb_callback(snapshot, world, sensor_queue, sensor_name)
 
-def process_sensors(w_frame, sensor_queue, sensor_number, world) -> None:
+def process_sensors(w_frame: object, sensor_queue: object, sensor_number: object, world: object) -> None:
     if sensor_number != 2:
         pass
 
@@ -237,7 +239,6 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world) -> None:
                 sl_data = s_frame
             elif s_frame[1] == "bb":
                 bb_data = s_frame
-          #print("    Frame: %d   Sensor: %s Len: %d " % (s_frame[0], s_frame[1], len(s_frame[2])))
     except Empty:
         return
 
@@ -251,7 +252,7 @@ def process_sensors(w_frame, sensor_queue, sensor_number, world) -> None:
             trace_vehicle.check_lidar_data()
 
 class SpawnCar:
-    def __init__(self, location, rotation, filter_pattern="vehicle.*", autopilot = False, velocity = None) -> None:
+    def __init__(self, location: object, rotation: object, filter_pattern: object="vehicle.*", autopilot: object = False, velocity: object = None) -> None:
         self._filter = filter_pattern
         self._transform = carla.Transform(location, rotation)
         self._autopilot = autopilot
@@ -259,7 +260,7 @@ class SpawnCar:
         self._actor = None
         self._world = None
 
-    def spawn(self, world):
+    def spawn(self, world: object) -> None:
         self._world = world
         actor_BP = world.get_blueprint_library().filter(self._filter)[0]
         self._actor = world.spawn_actor(actor_BP, self._transform)
@@ -302,7 +303,7 @@ CarPropList = [
     SpawnCar(carla.Location(x=243, y=+140,z=2),   carla.Rotation(yaw=-90),  filter= "c3", autopilot=True),
 ]
 
-def spawn_prop_vehicles(world) -> None:
+def spawn_prop_vehicles(world: object) -> None:
     for car in CarPropList:
         car.spawn(world)
 

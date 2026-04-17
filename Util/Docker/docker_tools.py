@@ -6,34 +6,34 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-Helper script to generate consumables for Carla in Docker
-"""
+"""Helper script to generate consumables for Carla in Docker."""
 
+from __future__ import annotations
 
 import argparse
 import os
 import subprocess
 import sys
+from typing import Any
 
 import docker
 import docker_utils
 
 
-def print_formated_dict(dic) -> None:
+def print_formated_dict(dic: dict[str, Any]) -> None:
     for _k, _v in dic.items():
         pass
 
 
-def bold(text):
+def bold(text: str) -> str:
     return "".join([docker_utils.BOLD, text, docker_utils.ENDC])
 
 
-def bold_underline(text):
+def bold_underline(text: str) -> str:
     return "".join([docker_utils.UNDERLINE, bold(text)])
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace | None:
     argparser = argparse.ArgumentParser(
         description=__doc__)
     argparser.add_argument(

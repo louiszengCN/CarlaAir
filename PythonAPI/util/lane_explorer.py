@@ -136,7 +136,7 @@ def draw_waypoint_union(
         _POINT_SIZE,
         color,
         lt,
-        False,
+        persistent_lines=False,
     )
 
 
@@ -156,23 +156,23 @@ def draw_waypoint_info(
     debug.draw_string(
         w_loc + carla.Location(z=_INFO_Z_OFFSET),
         f"lane: {w.lane_id}",
-        False,
-        _YELLOW,
-        lt,
+        draw_shadow=False,
+        color=_YELLOW,
+        life_time=lt,
     )
     debug.draw_string(
         w_loc + carla.Location(z=_INFO_Z_OFFSET_HIGH),
         f"road: {w.road_id}",
-        False,
-        _BLUE,
-        lt,
+        draw_shadow=False,
+        color=_BLUE,
+        life_time=lt,
     )
     debug.draw_string(
         w_loc + carla.Location(z=_INFO_Z_OFFSET_LOW),
         str(w.lane_change),
-        False,
-        _RED,
-        lt,
+        draw_shadow=False,
+        color=_RED,
+        life_time=lt,
     )
 
 
@@ -213,7 +213,7 @@ def draw_junction(
             _POINT_SIZE,
             _ORANGE,
             l_time,
-            False,
+            persistent_lines=False,
         )
         draw_transform(debug, pair_w[1].transform, _ORANGE, l_time)
         debug.draw_point(
@@ -221,7 +221,7 @@ def draw_junction(
             _POINT_SIZE,
             _ORANGE,
             l_time,
-            False,
+            persistent_lines=False,
         )
         debug.draw_line(
             pair_w[0].transform.location + carla.Location(z=_JUNCTION_POINT_Z),
@@ -229,7 +229,7 @@ def draw_junction(
             _LINE_THICKNESS,
             _WHITE,
             l_time,
-            False,
+            persistent_lines=False,
         )
 
 

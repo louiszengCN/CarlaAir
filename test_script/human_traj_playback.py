@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+import cv2
 import numpy as np
 import pygame
 from pydantic import BaseModel, ConfigDict, Field
@@ -81,6 +82,7 @@ _VIDEO_CODECS: list[str] = ["mp4v", "avc1"]
 
 # Exit
 _EXIT_DELAY: float = 3.0
+_MIN_ARGS: int = 2
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -204,6 +206,7 @@ class TrajectoryPlayback:
     def __init__(
         self,
         trajectory_file: str,
+        *,
         record: bool = False,
         record_name: str = _DEFAULT_RECORD_NAME,
         visual_style: str = VisualStyle.WALKER.value,
@@ -286,14 +289,12 @@ class TrajectoryPlayback:
         with open(filename) as f:
             return json.load(f)
 
-    def _init_video_writer(self) -> Any | None:
+    def _init_video_writer(self) -> object:
         """Initialize video writer for recording.
 
         Returns:
             cv2.VideoWriter instance or None if failed
         """
-        import cv2
-
         for codec in self._video_cfg.codecs_to_try:
             fourcc = cv2.VideoWriter_fourcc(*codec)
             writer = cv2.VideoWriter(
@@ -450,15 +451,20 @@ class TrajectoryPlayback:
                 if self._walker is not None:
                     self._walker.apply_control(control)
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (
-                        event.type == pygame.KEYDOWN
-                        and event.key == pygame.K_ESCAPE
-                    ):
-                        running = False
+                running = self._check_quit_events(running=running)
         finally:
             time.sleep(_EXIT_DELAY)
             self._cleanup()
+
+    def _check_quit_events(self, *, running: bool) -> bool:
+        """Check for quit events and return updated running state."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_ESCAPE
+            ):
+                running = False
+        return running
 
     def _update_walker_control(
         self,
@@ -523,7 +529,7 @@ class TrajectoryPlayback:
                         z=current_loc.z + self._playback_cfg.jump_boost_z,
                     )
                     self._walker.set_location(boost_loc)
-                except Exception:
+                except RuntimeError:
                     pass
         elif self._jump_hold_frames > 0:
             control.jump = True
@@ -627,7 +633,7 @@ class TrajectoryPlayback:
         pygame.quit()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) < _MIN_ARGS:
         pass
     else:
         try:
@@ -663,5 +669,5 @@ if __name__ == "__main__":
                 visual_style=visual_style,
             )
             playback.run()
-        except Exception:
+        except (RuntimeError, KeyboardInterrupt):
             pass

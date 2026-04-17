@@ -142,9 +142,9 @@ class TestGeoLocationConversion(SmokeTest):
             b: second location
             tol: maximum allowed distance
         """
-        self.assertAlmostEqual(a.x, b.x, delta=tol)
-        self.assertAlmostEqual(a.y, b.y, delta=tol)
-        self.assertAlmostEqual(a.z, b.z, delta=tol)
+        assert abs(a.x - b.x) <= tol, f"X mismatch: {a.x} vs {b.x}"
+        assert abs(a.y - b.y) <= tol, f"Y mismatch: {a.y} vs {b.y}"
+        assert abs(a.z - b.z) <= tol, f"Z mismatch: {a.z} vs {b.z}"
 
     def _assert_geolocation_close(
         self,
@@ -166,18 +166,16 @@ class TestGeoLocationConversion(SmokeTest):
             _LAT_MIN <= a.latitude <= _LAT_MAX
             and _LAT_MIN <= b.latitude <= _LAT_MAX
         ):
-            raise ValueError(
-                f"Latitude out of bounds: {a.latitude}, {b.latitude}",
-            )
+            msg = f"Latitude out of bounds: {a.latitude}, {b.latitude}"
+            raise ValueError(msg)
 
         # Longitudes must stay in range [-180, 180]
         if not (
             _LON_MIN <= a.longitude <= _LON_MAX
             and _LON_MIN <= b.longitude <= _LON_MAX
         ):
-            raise ValueError(
-                f"Longitude out of bounds: {a.longitude}, {b.longitude}",
-            )
+            msg = f"Longitude out of bounds: {a.longitude}, {b.longitude}"
+            raise ValueError(msg)
 
         lon_diff = (
             (a.longitude - b.longitude + _LON_WRAP_OFFSET)
@@ -192,12 +190,11 @@ class TestGeoLocationConversion(SmokeTest):
             lat_diff > _HEMISPHERE_LAT_THRESHOLD
             or lon_diff > _LON_DIFF_MAX
         ):
-            raise AssertionError(
+            msg = (
                 f"Geo conversion failed: large discrepancy "
-                f"(lat diff = {lat_diff}, lon diff = {lon_diff})\n"
-                f"Original: lat={a.latitude}, lon={a.longitude}\n"
-                f"Back:     lat={b.latitude}, lon={b.longitude}",
+                f"(lat diff = {lat_diff}, lon diff = {lon_diff})"
             )
+            raise AssertionError(msg)
 
         assert lat_diff <= latlon_tol, f"Latitude mismatch: {a.latitude} vs {b.latitude}"
         assert lon_diff <= latlon_tol, f"Longitude mismatch: {a.longitude} vs {b.longitude}"
@@ -214,7 +211,15 @@ class TestGeoLocationConversion(SmokeTest):
     def test_geo_projection(self) -> None:
         """Test geo projection type."""
         geo_projection = self.map.get_geoprojection()
-        assert isinstance(geo_projection, (carla.GeoProjectionTM, carla.GeoProjectionUTM, carla.GeoProjectionWebMerc, carla.GeoProjectionLCC2SP))
+        assert isinstance(
+            geo_projection,
+            (
+                carla.GeoProjectionTM,
+                carla.GeoProjectionUTM,
+                carla.GeoProjectionWebMerc,
+                carla.GeoProjectionLCC2SP,
+            ),
+        )
 
     def test_location_to_geo_and_back(self) -> None:
         """Test location -> geo -> location roundtrip."""

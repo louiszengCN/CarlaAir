@@ -18,31 +18,35 @@ Controls:
     ESC          : quit
 """
 
-# ==============================================================================
-# -- imports -------------------------------------------------------------------
-# ==============================================================================
+from __future__ import annotations
 
 import random
 import weakref
 
 import carla
 
+_MSG_PYGAME = "pygame is required"
+_MSG_NUMPY = "numpy is required"
+
 try:
     import pygame
     from pygame.locals import K_ESCAPE, K_SPACE, K_a, K_d, K_s, K_w
-except ImportError:
-    raise RuntimeError("cannot import pygame, make sure pygame package is installed")
+except ImportError as _err:
+    raise RuntimeError(_MSG_PYGAME) from _err
 
 try:
     import numpy as np
-except ImportError:
-    raise RuntimeError("cannot import numpy, make sure numpy package is installed")
+except ImportError as _err:
+    raise RuntimeError(_MSG_NUMPY) from _err
 
-VIEW_WIDTH = 1920//2
-VIEW_HEIGHT = 1080//2
+VIEW_WIDTH = 1920 // 2
+VIEW_HEIGHT = 1080 // 2
 VIEW_FOV = 90
 
 BB_COLOR = (248, 64, 24)
+_HALF_CIRCLE_DEG: float = 360.0
+_STEER_STEP: float = 0.05
+_BUSY_LOOP_FPS: int = 20
 
 # ==============================================================================
 # -- ClientSideBoundingBoxes ---------------------------------------------------
@@ -56,21 +60,18 @@ class ClientSideBoundingBoxes:
     """
 
     @staticmethod
-    def get_bounding_boxes(vehicles, camera):
-        """
-        Creates 3D bounding boxes based on carla vehicle list and camera.
-        """
-
-        bounding_boxes = [ClientSideBoundingBoxes.get_bounding_box(vehicle, camera) for vehicle in vehicles]
-        # filter objects behind camera
+    def get_bounding_boxes(
+        vehicles: carla.ActorList, camera: carla.Sensor,
+    ) -> list[np.ndarray]:
+        """Create 3D bounding boxes based on carla vehicle list and camera."""
+        bounding_boxes = [
+            ClientSideBoundingBoxes.get_bounding_box(vehicle, camera) for vehicle in vehicles
+        ]
         return [bb for bb in bounding_boxes if all(bb[:, 2] > 0)]
 
     @staticmethod
-    def draw_bounding_boxes(display, bounding_boxes) -> None:
-        """
-        Draws bounding boxes on pygame display.
-        """
-
+    def draw_bounding_boxes(display: pygame.Surface, bounding_boxes: list[np.ndarray]) -> None:
+        """Draw bounding boxes on pygame display."""
         bb_surface = pygame.Surface((VIEW_WIDTH, VIEW_HEIGHT))
         bb_surface.set_colorkey((0, 0, 0))
         for bbox in bounding_boxes:
@@ -95,11 +96,8 @@ class ClientSideBoundingBoxes:
         display.blit(bb_surface, (0, 0))
 
     @staticmethod
-    def get_bounding_box(vehicle, camera):
-        """
-        Returns 3D bounding box for a vehicle based on camera view.
-        """
-
+    def get_bounding_box(vehicle: carla.Actor, camera: carla.Sensor) -> np.ndarray:
+        """Return 3D bounding box for a vehicle based on camera view."""
         bb_cords = ClientSideBoundingBoxes._create_bb_points(vehicle)
         cords_x_y_z = ClientSideBoundingBoxes._vehicle_to_sensor(bb_cords, vehicle, camera)[:3, :]
         cords_y_minus_z_x = np.concatenate([cords_x_y_z[1, :], -cords_x_y_z[2, :], cords_x_y_z[0, :]])
@@ -107,11 +105,8 @@ class ClientSideBoundingBoxes:
         return np.concatenate([bbox[:, 0] / bbox[:, 2], bbox[:, 1] / bbox[:, 2], bbox[:, 2]], axis=1)
 
     @staticmethod
-    def _create_bb_points(vehicle):
-        """
-        Returns 3D bounding box for a vehicle.
-        """
-
+    def _create_bb_points(vehicle: carla.Actor) -> np.ndarray:
+        """Return 3D bounding box corner points for a vehicle."""
         cords = np.zeros((8, 4))
         extent = vehicle.bounding_box.extent
         cords[0, :] = np.array([extent.x, extent.y, -extent.z, 1])
@@ -125,20 +120,16 @@ class ClientSideBoundingBoxes:
         return cords
 
     @staticmethod
-    def _vehicle_to_sensor(cords, vehicle, sensor):
-        """
-        Transforms coordinates of a vehicle bounding box to sensor.
-        """
-
+    def _vehicle_to_sensor(
+        cords: np.ndarray, vehicle: carla.Actor, sensor: carla.Sensor,
+    ) -> np.ndarray:
+        """Transform coordinates of a vehicle bounding box to sensor."""
         world_cord = ClientSideBoundingBoxes._vehicle_to_world(cords, vehicle)
         return ClientSideBoundingBoxes._world_to_sensor(world_cord, sensor)
 
     @staticmethod
-    def _vehicle_to_world(cords, vehicle):
-        """
-        Transforms coordinates of a vehicle bounding box to world.
-        """
-
+    def _vehicle_to_world(cords: np.ndarray, vehicle: carla.Actor) -> np.ndarray:
+        """Transform coordinates of a vehicle bounding box to world."""
         bb_transform = carla.Transform(vehicle.bounding_box.location)
         bb_vehicle_matrix = ClientSideBoundingBoxes.get_matrix(bb_transform)
         vehicle_world_matrix = ClientSideBoundingBoxes.get_matrix(vehicle.get_transform())
@@ -146,21 +137,15 @@ class ClientSideBoundingBoxes:
         return np.dot(bb_world_matrix, np.transpose(cords))
 
     @staticmethod
-    def _world_to_sensor(cords, sensor):
-        """
-        Transforms world coordinates to sensor.
-        """
-
+    def _world_to_sensor(cords: np.ndarray, sensor: carla.Sensor) -> np.ndarray:
+        """Transform world coordinates to sensor."""
         sensor_world_matrix = ClientSideBoundingBoxes.get_matrix(sensor.get_transform())
         world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
         return np.dot(world_sensor_matrix, cords)
 
     @staticmethod
-    def get_matrix(transform):
-        """
-        Creates matrix from carla transform.
-        """
-
+    def get_matrix(transform: carla.Transform) -> np.matrix:
+        """Create matrix from carla transform."""
         rotation = transform.rotation
         location = transform.location
         c_y = np.cos(np.radians(rotation.yaw))
@@ -205,22 +190,16 @@ class BasicSynchronousClient:
         self.image = None
         self.capture = True
 
-    def camera_blueprint(self):
-        """
-        Returns camera blueprint.
-        """
-
+    def camera_blueprint(self) -> carla.ActorBlueprint:
+        """Return camera blueprint."""
         camera_bp = self.world.get_blueprint_library().find("sensor.camera.rgb")
         camera_bp.set_attribute("image_size_x", str(VIEW_WIDTH))
         camera_bp.set_attribute("image_size_y", str(VIEW_HEIGHT))
         camera_bp.set_attribute("fov", str(VIEW_FOV))
         return camera_bp
 
-    def set_synchronous_mode(self, synchronous_mode) -> None:
-        """
-        Sets synchronous mode.
-        """
-
+    def set_synchronous_mode(self, *, synchronous_mode: bool) -> None:
+        """Set synchronous mode."""
         settings = self.world.get_settings()
         settings.synchronous_mode = synchronous_mode
         self.world.apply_settings(settings)
@@ -251,12 +230,8 @@ class BasicSynchronousClient:
         calibration[0, 0] = calibration[1, 1] = VIEW_WIDTH / (2.0 * np.tan(VIEW_FOV * np.pi / 360.0))
         self.camera.calibration = calibration
 
-    def control(self, car) -> bool:
-        """
-        Applies control to main car based on pygame pressed keys.
-        Will return True If ESCAPE is hit, otherwise False to end main loop.
-        """
-
+    def control(self, car: carla.Vehicle) -> bool:
+        """Apply control to main car based on pressed keys. Return True on ESC."""
         keys = pygame.key.get_pressed()
         if keys[K_ESCAPE]:
             return True
@@ -281,23 +256,15 @@ class BasicSynchronousClient:
         return False
 
     @staticmethod
-    def set_image(weak_self, img) -> None:
-        """
-        Sets image coming from camera sensor.
-        The self.capture flag is a mean of synchronization - once the flag is
-        set, next coming image will be stored.
-        """
-
+    def set_image(weak_self: weakref.ref[BasicSynchronousClient], img: carla.Image) -> None:
+        """Set image from camera sensor. Capture flag synchronizes image storage."""
         self = weak_self()
         if self.capture:
             self.image = img
             self.capture = False
 
-    def render(self, display) -> None:
-        """
-        Transforms image from camera sensor and blits it to main pygame display.
-        """
-
+    def render(self, display: pygame.Surface) -> None:
+        """Transform camera image and blit to main pygame display."""
         if self.image is not None:
             array = np.frombuffer(self.image.raw_data, dtype=np.dtype("uint8"))
             array = np.reshape(array, (self.image.height, self.image.width, 4))
@@ -324,7 +291,7 @@ class BasicSynchronousClient:
             self.display = pygame.display.set_mode((VIEW_WIDTH, VIEW_HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
             pygame_clock = pygame.time.Clock()
 
-            self.set_synchronous_mode(True)
+            self.set_synchronous_mode(synchronous_mode=True)
             vehicles = self.world.get_actors().filter("vehicle.*")
 
             while True:
@@ -344,7 +311,7 @@ class BasicSynchronousClient:
                     return
 
         finally:
-            self.set_synchronous_mode(False)
+            self.set_synchronous_mode(synchronous_mode=False)
             self.camera.destroy()
             self.car.destroy()
             pygame.quit()

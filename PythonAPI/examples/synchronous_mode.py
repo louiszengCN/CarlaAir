@@ -15,33 +15,29 @@ context manager that enables synchronous mode.
 
 from __future__ import annotations
 
+import queue
 import random
 from contextlib import AbstractContextManager, suppress
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import carla
 
+_MSG_PYGAME = "cannot import pygame, make sure pygame package is installed"
+_MSG_NUMPY = "cannot import numpy, make sure numpy package is installed"
+
 try:
     import pygame
-except ImportError:
-    raise RuntimeError(
-        "cannot import pygame, make sure pygame package is installed",
-    )
+except ImportError as _err:
+    raise RuntimeError(_MSG_PYGAME) from _err
 
 try:
     import numpy as np
-except ImportError:
-    raise RuntimeError(
-        "cannot import numpy, make sure numpy package is installed",
-    )
+except ImportError as _err:
+    raise RuntimeError(_MSG_NUMPY) from _err
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue  # type: ignore[no-redef]
-
-
+if TYPE_CHECKING:
+    import types
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants
@@ -168,14 +164,19 @@ class CarlaSyncMode(AbstractContextManager):
         assert all(x.frame == self.state.frame for x in data)
         return data
 
-    def __exit__(self, *args: Any, **kwargs: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
         """Exit context and restore original world settings."""
         if self.state._original_settings is not None:
             self.world.apply_settings(self.state._original_settings)
 
     def _retrieve_data(
         self, sensor_queue: queue.Queue[Any], timeout: float,
-    ) -> Any:
+    ) -> object:
         """Retrieve sensor data matching current frame.
 
         Args:
@@ -199,6 +200,7 @@ class CarlaSyncMode(AbstractContextManager):
 def draw_image(
     surface: pygame.Surface,
     image: carla.Image,
+    *,
     blend: bool = False,
 ) -> None:
     """Render a CARLA image to a pygame surface.
@@ -328,19 +330,17 @@ def main() -> None:
                 draw_image(display, image_semseg, blend=True)
                 display.blit(
                     font.render(
-                        f"{'':>5d} FPS (real)".replace(
-                            "d", "",
-                        ) + f" {clock.get_fps():5.0f} FPS (real)",
-                        True,
-                        _HUD_COLOR,
+                        f" {clock.get_fps():5.0f} FPS (real)",
+                        antialias=True,
+                        color=_HUD_COLOR,
                     ),
                     (_HUD_X, _HUD_Y_REAL),
                 )
                 display.blit(
                     font.render(
                         f"{fps:5d} FPS (simulated)",
-                        True,
-                        _HUD_COLOR,
+                        antialias=True,
+                        color=_HUD_COLOR,
                     ),
                     (_HUD_X, _HUD_Y_SIM),
                 )

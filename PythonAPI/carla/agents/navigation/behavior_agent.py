@@ -1,4 +1,4 @@
-# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Copyright (c) 2018-2020 CVC.
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
@@ -298,6 +298,7 @@ class BehaviorAgent(BasicAgent):
         self,
         vehicle: carla.Vehicle,
         distance: float,
+        *,
         debug: bool = False,
     ) -> carla.VehicleControl:
         """Handle car-following behaviors when there's someone in front of us.
@@ -345,7 +346,7 @@ class BehaviorAgent(BasicAgent):
 
         return control
 
-    def run_step(self, debug: bool = False) -> carla.VehicleControl:
+    def run_step(self, *, debug: bool = False) -> carla.VehicleControl:
         """Execute one step of navigation.
 
         Args:

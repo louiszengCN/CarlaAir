@@ -6,150 +6,120 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+from __future__ import annotations
+
 import contextlib
 import fnmatch
 import os
 import shutil
 import sys
 from distutils.command.install_lib import install_lib
+from typing import TYPE_CHECKING
 
 from setuptools import Extension, setup
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def is_rss_variant_enabled():
+
+def is_rss_variant_enabled() -> bool:
     return bool("BUILD_RSS_VARIANT" in os.environ and os.environ["BUILD_RSS_VARIANT"] == "true")
 
-def get_libcarla_extensions():
-    include_dirs = ["dependencies/include"]
 
-    library_dirs = ["dependencies/lib"]
-    libraries = []
+def _build_posix_extensions(
+    pwd: str,
+    include_dirs: list[str],
+    library_dirs: list[str],
+    libraries: list[str],
+    sources: list[str],
+    walk_fn: object,
+) -> list[Extension]:
+    """Build extension list for POSIX (Linux) platforms."""
+    import distro as _distro  # noqa: PLC0415
+    supported_dists = ["ubuntu", "debian", "deepin"]
+    linux_distro = _distro.id().lower()
+    if linux_distro not in supported_dists:
+        raise NotImplementedError(linux_distro + " not in supported posix platforms: " + str(supported_dists))
 
-
-    sources = ["source/libcarla/libcarla.cpp"]
-
-    def walk(folder, file_filter="*"):
-        for root, _, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, file_filter):
-                yield os.path.join(root, filename)
-
-    if os.name == "posix":
-        import distro
-        supported_dists = ["ubuntu", "debian", "deepin"]
-
-        linux_distro = distro.id().lower()
-        if linux_distro in supported_dists:
-            pwd = os.path.dirname(os.path.realpath(__file__))
-            pylib_static = "libboost_python%d%d.a" % (sys.version_info.major,
-                                               sys.version_info.minor)
-            pylib_so = "libboost_python%d%d.so" % (sys.version_info.major,
-                                               sys.version_info.minor)
-            # Prefer static .a, fallback to dynamic .so
-            if os.path.exists(os.path.join(pwd, "dependencies/lib", pylib_static)):
-                pylib = pylib_static
-            elif os.path.exists(os.path.join(pwd, "dependencies/lib", pylib_so)):
-                pylib = pylib_so
-            else:
-                pylib = pylib_static  # will error at link time
-            if is_rss_variant_enabled():
-                extra_link_args = [ os.path.join(pwd, "dependencies/lib/libcarla_client_rss.a") ]
-            else:
-                extra_link_args = [ os.path.join(pwd, "dependencies/lib/libcarla_client.a") ]
-
-            extra_link_args += [
-                os.path.join(pwd, "dependencies/lib/librpc.a"),
-                os.path.join(pwd, "dependencies/lib/libboost_filesystem.a"),
-                os.path.join(pwd, "dependencies/lib/libRecast.a"),
-                os.path.join(pwd, "dependencies/lib/libDetour.a"),
-                os.path.join(pwd, "dependencies/lib/libDetourCrowd.a"),
-                os.path.join(pwd, "dependencies/lib/libosm2odr.a"),
-                os.path.join(pwd, "dependencies/lib/libxerces-c.a")]
-            extra_link_args += ["-lz"]
-            extra_compile_args = [
-                "-isystem", os.path.join(pwd, "dependencies/include/system"), "-fPIC", "-std=c++14",
-                "-Werror", "-Wall", "-Wextra", "-Wpedantic", "-Wno-self-assign-overloaded",
-                "-Wdeprecated", "-Wno-shadow", "-Wuninitialized", "-Wunreachable-code",
-                "-Wpessimizing-move", "-Wold-style-cast", "-Wnull-dereference",
-                "-Wduplicate-enum", "-Wnon-virtual-dtor", "-Wheader-hygiene",
-                "-Wconversion", "-Wfloat-overflow-conversion",
-                "-Wno-error=unused-command-line-argument",
-                "-DBOOST_ERROR_CODE_HEADER_ONLY", "-DLIBCARLA_WITH_PYTHON_SUPPORT",
-                "-stdlib=libstdc++",
-            ]
-            if is_rss_variant_enabled():
-                extra_compile_args += ["-DLIBCARLA_RSS_ENABLED"]
-                extra_compile_args += ["-DLIBCARLA_PYTHON_MAJOR_" +  str(sys.version_info.major)]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_rss_map_integration_python" +  str(sys.version_info.major) + str(sys.version_info.minor) + ".a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_rss_map_integration.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_map_access_python" +  str(sys.version_info.major) + str(sys.version_info.minor) + ".a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_map_access.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_rss_python" +  str(sys.version_info.major) + str(sys.version_info.minor) + ".a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_rss.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_physics_python" +  str(sys.version_info.major) + str(sys.version_info.minor) + ".a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_physics.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libad_map_opendrive_reader.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libboost_program_options.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libodrSpiral.a")]
-                extra_link_args += [os.path.join(pwd, "dependencies/lib/libspdlog.a")]
-                extra_link_args += ["-lrt"]
-                extra_link_args += ["-ltbb"]
-
-            # libproj, libsqlite and python libs are also required for rss_variant, therefore
-            # place them after the rss_variant linked libraries
-            extra_link_args += [os.path.join(pwd, "dependencies/lib/libproj.a"),
-                                os.path.join(pwd, "dependencies/lib/libsqlite3.a"),
-                                os.path.join(pwd, "dependencies/lib", pylib)]
-
-            if "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true":
-                extra_link_args += ["-ljpeg", "-ltiff"]
-                extra_compile_args += ["-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=false"]
-            else:
-                extra_link_args += ["-lpng", "-ljpeg", "-ltiff"]
-                extra_compile_args += ["-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true"]
-            # @todo Why would we need this?
-            # include_dirs += ['/usr/lib/gcc/x86_64-linux-gnu/7/include']
-            # library_dirs += ['/usr/lib/gcc/x86_64-linux-gnu/7']
-            # extra_link_args += ['/usr/lib/gcc/x86_64-linux-gnu/7/libstdc++.a']
-            extra_link_args += ["-lstdc++"]
-        else:
-            raise NotImplementedError(linux_distro + " not in supported posix platforms: " + str(supported_dists))
-    elif os.name == "nt":
-        pwd = os.path.dirname(os.path.realpath(__file__))
-        pylib = "libboost_python%d%d" % (
-            sys.version_info.major,
-            sys.version_info.minor)
-
-        extra_link_args = ["shlwapi.lib", "Advapi32.lib", "ole32.lib", "shell32.lib"]
-
-        required_libs = [
-            pylib, "libboost_filesystem",
-            "rpc.lib", "carla_client.lib",
-            "libpng.lib", "zlib.lib",
-            "Recast.lib", "Detour.lib", "DetourCrowd.lib",
-            "xerces-c_3.lib", "sqlite3.lib",
-            "proj.lib", "osm2odr.lib"]
-
-        # Search for files in 'PythonAPI\carla\dependencies\lib' that contains
-        # the names listed in required_libs in it's file name
-        libs = [x for x in os.listdir("dependencies/lib") if any(d in x for d in required_libs)]
-
-        for lib in libs:
-            extra_link_args.append(os.path.join(pwd, "dependencies/lib", lib))
-
-        # https://docs.microsoft.com/es-es/cpp/porting/modifying-winver-and-win32-winnt
-        extra_compile_args = [
-            "/experimental:external", "/external:W0", "/external:I", "dependencies/include/system",
-            "/DBOOST_ALL_NO_LIB", "/DBOOST_PYTHON_STATIC_LIB",
-            "/DBOOST_ERROR_CODE_HEADER_ONLY", "/D_WIN32_WINNT=0x0600", "/DHAVE_SNPRINTF",
-            "/DLIBCARLA_WITH_PYTHON_SUPPORT", "-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true", "/MD"]
+    pylib_static = f"libboost_python{sys.version_info.major}{sys.version_info.minor}.a"
+    pylib_so = f"libboost_python{sys.version_info.major}{sys.version_info.minor}.so"
+    # Prefer static .a, fallback to dynamic .so
+    if os.path.exists(os.path.join(pwd, "dependencies/lib", pylib_static)):
+        pylib = pylib_static
+    elif os.path.exists(os.path.join(pwd, "dependencies/lib", pylib_so)):
+        pylib = pylib_so
     else:
-        raise NotImplementedError
+        pylib = pylib_static  # will error at link time
 
-    depends = list(walk("source/libcarla"))
-    depends += list(walk("dependencies"))
+    if is_rss_variant_enabled():
+        extra_link_args = [os.path.join(pwd, "dependencies/lib/libcarla_client_rss.a")]
+    else:
+        extra_link_args = [os.path.join(pwd, "dependencies/lib/libcarla_client.a")]
 
-    def make_extension(name, sources):
+    extra_link_args += [
+        os.path.join(pwd, "dependencies/lib/librpc.a"),
+        os.path.join(pwd, "dependencies/lib/libboost_filesystem.a"),
+        os.path.join(pwd, "dependencies/lib/libRecast.a"),
+        os.path.join(pwd, "dependencies/lib/libDetour.a"),
+        os.path.join(pwd, "dependencies/lib/libDetourCrowd.a"),
+        os.path.join(pwd, "dependencies/lib/libosm2odr.a"),
+        os.path.join(pwd, "dependencies/lib/libxerces-c.a"),
+    ]
+    extra_link_args += ["-lz"]
+    extra_compile_args = [
+        "-isystem", os.path.join(pwd, "dependencies/include/system"), "-fPIC", "-std=c++14",
+        "-Werror", "-Wall", "-Wextra", "-Wpedantic", "-Wno-self-assign-overloaded",
+        "-Wdeprecated", "-Wno-shadow", "-Wuninitialized", "-Wunreachable-code",
+        "-Wpessimizing-move", "-Wold-style-cast", "-Wnull-dereference",
+        "-Wduplicate-enum", "-Wnon-virtual-dtor", "-Wheader-hygiene",
+        "-Wconversion", "-Wfloat-overflow-conversion",
+        "-Wno-error=unused-command-line-argument",
+        "-DBOOST_ERROR_CODE_HEADER_ONLY", "-DLIBCARLA_WITH_PYTHON_SUPPORT",
+        "-stdlib=libstdc++",
+    ]
+    if is_rss_variant_enabled():
+        py_ver = f"{sys.version_info.major}{sys.version_info.minor}"
+        dep_lib = os.path.join(pwd, "dependencies/lib")
+        extra_compile_args += [
+            "-DLIBCARLA_RSS_ENABLED",
+            f"-DLIBCARLA_PYTHON_MAJOR_{sys.version_info.major}",
+        ]
+        extra_link_args += [
+            os.path.join(dep_lib, f"libad_rss_map_integration_python{py_ver}.a"),
+            os.path.join(dep_lib, "libad_rss_map_integration.a"),
+            os.path.join(dep_lib, f"libad_map_access_python{py_ver}.a"),
+            os.path.join(dep_lib, "libad_map_access.a"),
+            os.path.join(dep_lib, f"libad_rss_python{py_ver}.a"),
+            os.path.join(dep_lib, "libad_rss.a"),
+            os.path.join(dep_lib, f"libad_physics_python{py_ver}.a"),
+            os.path.join(dep_lib, "libad_physics.a"),
+            os.path.join(dep_lib, "libad_map_opendrive_reader.a"),
+            os.path.join(dep_lib, "libboost_program_options.a"),
+            os.path.join(dep_lib, "libodrSpiral.a"),
+            os.path.join(dep_lib, "libspdlog.a"),
+            "-lrt", "-ltbb",
+        ]
 
+    # libproj, libsqlite and python libs are also required for rss_variant, therefore
+    # place them after the rss_variant linked libraries
+    extra_link_args += [
+        os.path.join(pwd, "dependencies/lib/libproj.a"),
+        os.path.join(pwd, "dependencies/lib/libsqlite3.a"),
+        os.path.join(pwd, "dependencies/lib", pylib),
+    ]
+
+    if "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true":
+        extra_link_args += ["-ljpeg", "-ltiff"]
+        extra_compile_args += ["-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=false"]
+    else:
+        extra_link_args += ["-lpng", "-ljpeg", "-ltiff"]
+        extra_compile_args += ["-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true"]
+    extra_link_args += ["-lstdc++"]
+
+    depends = list(walk_fn("source/libcarla"))  # type: ignore[operator]
+    depends += list(walk_fn("dependencies"))  # type: ignore[operator]
+
+    def make_extension(name: str, sources: list[str]) -> Extension:
         return Extension(
             name,
             sources=sources,
@@ -161,8 +131,80 @@ def get_libcarla_extensions():
             language="c++14",
             depends=depends)
 
+    return [make_extension("carla.libcarla", sources)]
+
+
+def _build_nt_extensions(
+    pwd: str,
+    include_dirs: list[str],
+    library_dirs: list[str],
+    libraries: list[str],
+    sources: list[str],
+    walk_fn: object,
+) -> list[Extension]:
+    """Build extension list for Windows (NT) platforms."""
+    pylib = f"libboost_python{sys.version_info.major}{sys.version_info.minor}"
+
+    extra_link_args = ["shlwapi.lib", "Advapi32.lib", "ole32.lib", "shell32.lib"]
+
+    required_libs = [
+        pylib, "libboost_filesystem",
+        "rpc.lib", "carla_client.lib",
+        "libpng.lib", "zlib.lib",
+        "Recast.lib", "Detour.lib", "DetourCrowd.lib",
+        "xerces-c_3.lib", "sqlite3.lib",
+        "proj.lib", "osm2odr.lib"]
+
+    # Search for files in 'PythonAPI\carla\dependencies\lib' that contains
+    # the names listed in required_libs in it's file name
+    libs = [x for x in os.listdir("dependencies/lib") if any(d in x for d in required_libs)]
+
+    extra_link_args.extend(os.path.join(pwd, "dependencies/lib", lib) for lib in libs)
+
+    # https://docs.microsoft.com/es-es/cpp/porting/modifying-winver-and-win32-winnt
+    extra_compile_args = [
+        "/experimental:external", "/external:W0", "/external:I", "dependencies/include/system",
+        "/DBOOST_ALL_NO_LIB", "/DBOOST_PYTHON_STATIC_LIB",
+        "/DBOOST_ERROR_CODE_HEADER_ONLY", "/D_WIN32_WINNT=0x0600", "/DHAVE_SNPRINTF",
+        "/DLIBCARLA_WITH_PYTHON_SUPPORT", "-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true", "/MD"]
+
+    depends = list(walk_fn("source/libcarla"))  # type: ignore[operator]
+    depends += list(walk_fn("dependencies"))  # type: ignore[operator]
+
+    def make_extension(name: str, sources: list[str]) -> Extension:
+        return Extension(
+            name,
+            sources=sources,
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+            libraries=libraries,
+            extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
+            language="c++14",
+            depends=depends)
 
     return [make_extension("carla.libcarla", sources)]
+
+
+def get_libcarla_extensions() -> list[Extension]:
+    include_dirs = ["dependencies/include"]
+    library_dirs = ["dependencies/lib"]
+    libraries: list[str] = []
+    sources = ["source/libcarla/libcarla.cpp"]
+
+    def walk(folder: str, file_filter: str = "*") -> Iterator[str]:
+        for root, _, filenames in os.walk(folder):
+            for filename in fnmatch.filter(filenames, file_filter):
+                yield os.path.join(root, filename)
+
+    pwd = os.path.dirname(os.path.realpath(__file__))
+
+    if os.name == "posix":
+        return _build_posix_extensions(pwd, include_dirs, library_dirs, libraries, sources, walk)
+    if os.name == "nt":
+        return _build_nt_extensions(pwd, include_dirs, library_dirs, libraries, sources, walk)
+    raise NotImplementedError
+
 
 def get_license() -> str:
     if is_rss_variant_enabled():

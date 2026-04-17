@@ -41,6 +41,7 @@ def convert(
     input_path: str,
     output_path: str,
     lane_width: float = _DEFAULT_LANE_WIDTH,
+    *,
     traffic_lights: bool = False,
     all_junctions_lights: bool = False,
     center_map: bool = False,

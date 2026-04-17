@@ -4,295 +4,304 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+from __future__ import annotations
+
 import math
 import unittest
 
 import carla
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────────────────────────────────────
+
+_ZERO: float = 0.0
+_ONE: float = 1.0
+_TWO: float = 2.0
+_THREE: float = 3.0
+_FOUR: float = 4.0
+_FIVE: float = 5.0
+_SIX: float = 6.0
+_SEVEN: float = 7.0
+_EIGHT: float = 8.0
+_TEN: float = 10.0
+_EIGHTEEN: float = 18.0
+_NINETEEN: float = 19.0
+_TWENTY: float = 20.0
+_FORTY_TWO: float = 42.0
+_NINETY: float = 90.0
+_HUNDRED_EIGHTY: float = 180.0
+_NEG_ONE: float = -1.0
+_NEG_TWO: float = -2.0
+_NEG_SIX: float = -6.0
+_TOLERANCE: float = 0.001
+_POINT_ONE: float = 0.1
+_UTM_ZONE_31: int = 31
+_UTM_ZONE_32: int = 32
+
 WGS84 = carla.GeoEllipsoid(a=6378137.0, f_inv=298.257223563)
+
 
 class TestLocation(unittest.TestCase):
     def test_default_values(self) -> None:
         location = carla.Location()
-        assert location.x == 0.0
-        assert location.y == 0.0
-        assert location.z == 0.0
-        location = carla.Location(1.0)
-        assert location.x == 1.0
-        assert location.y == 0.0
-        assert location.z == 0.0
-        location = carla.Location(1.0, 2.0)
-        assert location.x == 1.0
-        assert location.y == 2.0
-        assert location.z == 0.0
-        location = carla.Location(1.0, 2.0, 3.0)
-        assert location.x == 1.0
-        assert location.y == 2.0
-        assert location.z == 3.0
+        assert location.x == _ZERO
+        assert location.y == _ZERO
+        assert location.z == _ZERO
+        location = carla.Location(_ONE)
+        assert location.x == _ONE
+        assert location.y == _ZERO
+        assert location.z == _ZERO
+        location = carla.Location(_ONE, _TWO)
+        assert location.x == _ONE
+        assert location.y == _TWO
+        assert location.z == _ZERO
+        location = carla.Location(_ONE, _TWO, _THREE)
+        assert location.x == _ONE
+        assert location.y == _TWO
+        assert location.z == _THREE
 
     def test_named_args(self) -> None:
-        location = carla.Location(x=42.0)
-        assert location.x == 42.0
-        assert location.y == 0.0
-        assert location.z == 0.0
-        location = carla.Location(y=42.0)
-        assert location.x == 0.0
-        assert location.y == 42.0
-        assert location.z == 0.0
-        location = carla.Location(z=42.0)
-        assert location.x == 0.0
-        assert location.y == 0.0
-        assert location.z == 42.0
-        location = carla.Location(z=3.0, x=1.0, y=2.0)
-        assert location.x == 1.0
-        assert location.y == 2.0
-        assert location.z == 3.0
+        location = carla.Location(x=_FORTY_TWO)
+        assert location.x == _FORTY_TWO
+        assert location.y == _ZERO
+        assert location.z == _ZERO
+        location = carla.Location(y=_FORTY_TWO)
+        assert location.x == _ZERO
+        assert location.y == _FORTY_TWO
+        assert location.z == _ZERO
+        location = carla.Location(z=_FORTY_TWO)
+        assert location.x == _ZERO
+        assert location.y == _ZERO
+        assert location.z == _FORTY_TWO
+        location = carla.Location(z=_THREE, x=_ONE, y=_TWO)
+        assert location.x == _ONE
+        assert location.y == _TWO
+        assert location.z == _THREE
 
 
 class TestRotation(unittest.TestCase):
     def test_default_values(self) -> None:
         rotation = carla.Rotation()
-        assert rotation.pitch == 0.0
-        assert rotation.yaw == 0.0
-        assert rotation.roll == 0.0
-        rotation = carla.Rotation(1.0)
-        assert rotation.pitch == 1.0
-        assert rotation.yaw == 0.0
-        assert rotation.roll == 0.0
-        rotation = carla.Rotation(1.0, 2.0)
-        assert rotation.pitch == 1.0
-        assert rotation.yaw == 2.0
-        assert rotation.roll == 0.0
-        rotation = carla.Rotation(1.0, 2.0, 3.0)
-        assert rotation.pitch == 1.0
-        assert rotation.yaw == 2.0
-        assert rotation.roll == 3.0
+        assert rotation.pitch == _ZERO
+        assert rotation.yaw == _ZERO
+        assert rotation.roll == _ZERO
+        rotation = carla.Rotation(_ONE)
+        assert rotation.pitch == _ONE
+        assert rotation.yaw == _ZERO
+        assert rotation.roll == _ZERO
+        rotation = carla.Rotation(_ONE, _TWO)
+        assert rotation.pitch == _ONE
+        assert rotation.yaw == _TWO
+        assert rotation.roll == _ZERO
+        rotation = carla.Rotation(_ONE, _TWO, _THREE)
+        assert rotation.pitch == _ONE
+        assert rotation.yaw == _TWO
+        assert rotation.roll == _THREE
 
     def test_named_args(self) -> None:
-        rotation = carla.Rotation(pitch=42.0)
-        assert rotation.pitch == 42.0
-        assert rotation.yaw == 0.0
-        assert rotation.roll == 0.0
-        rotation = carla.Rotation(yaw=42.0)
-        assert rotation.pitch == 0.0
-        assert rotation.yaw == 42.0
-        assert rotation.roll == 0.0
-        rotation = carla.Rotation(roll=42.0)
-        assert rotation.pitch == 0.0
-        assert rotation.yaw == 0.0
-        assert rotation.roll == 42.0
-        rotation = carla.Rotation(roll=3.0, pitch=1.0, yaw=2.0)
-        assert rotation.pitch == 1.0
-        assert rotation.yaw == 2.0
-        assert rotation.roll == 3.0
+        rotation = carla.Rotation(pitch=_FORTY_TWO)
+        assert rotation.pitch == _FORTY_TWO
+        assert rotation.yaw == _ZERO
+        assert rotation.roll == _ZERO
+        rotation = carla.Rotation(yaw=_FORTY_TWO)
+        assert rotation.pitch == _ZERO
+        assert rotation.yaw == _FORTY_TWO
+        assert rotation.roll == _ZERO
+        rotation = carla.Rotation(roll=_FORTY_TWO)
+        assert rotation.pitch == _ZERO
+        assert rotation.yaw == _ZERO
+        assert rotation.roll == _FORTY_TWO
+        rotation = carla.Rotation(roll=_THREE, pitch=_ONE, yaw=_TWO)
+        assert rotation.pitch == _ONE
+        assert rotation.yaw == _TWO
+        assert rotation.roll == _THREE
 
 
 class TestTransform(unittest.TestCase):
     def test_values(self) -> None:
         t = carla.Transform()
-        assert t.location.x == 0.0
-        assert t.location.y == 0.0
-        assert t.location.z == 0.0
-        assert t.rotation.pitch == 0.0
-        assert t.rotation.yaw == 0.0
-        assert t.rotation.roll == 0.0
-        t = carla.Transform(carla.Location(y=42.0))
-        assert t.location.x == 0.0
-        assert t.location.y == 42.0
-        assert t.location.z == 0.0
-        assert t.rotation.pitch == 0.0
-        assert t.rotation.yaw == 0.0
-        assert t.rotation.roll == 0.0
-        t = carla.Transform(rotation=carla.Rotation(yaw=42.0))
-        assert t.location.x == 0.0
-        assert t.location.y == 0.0
-        assert t.location.z == 0.0
-        assert t.rotation.pitch == 0.0
-        assert t.rotation.yaw == 42.0
-        assert t.rotation.roll == 0.0
+        assert t.location.x == _ZERO
+        assert t.location.y == _ZERO
+        assert t.location.z == _ZERO
+        assert t.rotation.pitch == _ZERO
+        assert t.rotation.yaw == _ZERO
+        assert t.rotation.roll == _ZERO
+        t = carla.Transform(carla.Location(y=_FORTY_TWO))
+        assert t.location.x == _ZERO
+        assert t.location.y == _FORTY_TWO
+        assert t.location.z == _ZERO
+        assert t.rotation.pitch == _ZERO
+        assert t.rotation.yaw == _ZERO
+        assert t.rotation.roll == _ZERO
+        t = carla.Transform(rotation=carla.Rotation(yaw=_FORTY_TWO))
+        assert t.location.x == _ZERO
+        assert t.location.y == _ZERO
+        assert t.location.z == _ZERO
+        assert t.rotation.pitch == _ZERO
+        assert t.rotation.yaw == _FORTY_TWO
+        assert t.rotation.roll == _ZERO
 
     def test_print(self) -> None:
         t = carla.Transform(
-            carla.Location(x=1.0, y=2.0, z=3.0),
-            carla.Rotation(pitch=4.0, yaw=5.0, roll=6.0))
-        s = "Transform(Location(x=1.000000, y=2.000000, z=3.000000), Rotation(pitch=4.000000, yaw=5.000000, roll=6.000000))"
+            carla.Location(x=_ONE, y=_TWO, z=_THREE),
+            carla.Rotation(pitch=_FOUR, yaw=_FIVE, roll=_SIX),
+        )
+        s = (
+            "Transform(Location(x=1.000000, y=2.000000, z=3.000000), "
+            "Rotation(pitch=4.000000, yaw=5.000000, roll=6.000000))"
+        )
         assert str(t) == s
 
     def test_translation(self) -> None:
-        error = .001
         t = carla.Transform(
-            carla.Location(x=8.0, y=19.0, z=20.0),
-            carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0))
-        point = carla.Location(x=0.0, y=0.0, z=0.0)
+            carla.Location(x=_EIGHT, y=_NINETEEN, z=_TWENTY),
+            carla.Rotation(pitch=_ZERO, yaw=_ZERO, roll=_ZERO),
+        )
+        point = carla.Location(x=_ZERO, y=_ZERO, z=_ZERO)
         t.transform(point)
-        assert abs(point.x - 8.0) <= error
-        assert abs(point.y - 19.0) <= error
-        assert abs(point.z - 20.0) <= error
+        assert abs(point.x - _EIGHT) <= _TOLERANCE
+        assert abs(point.y - _NINETEEN) <= _TOLERANCE
+        assert abs(point.z - _TWENTY) <= _TOLERANCE
 
     def test_rotation(self) -> None:
-        error = .001
         t = carla.Transform(
-            carla.Location(x=0.0, y=0.0, z=0.0),
-            carla.Rotation(pitch=180.0, yaw=0.0, roll=0.0))
-        point = carla.Location(x=0.0, y=0.0, z=1.0)
+            carla.Location(x=_ZERO, y=_ZERO, z=_ZERO),
+            carla.Rotation(pitch=_HUNDRED_EIGHTY, yaw=_ZERO, roll=_ZERO),
+        )
+        point = carla.Location(x=_ZERO, y=_ZERO, z=_ONE)
         t.transform(point)
-
-        assert abs(point.x - 0.0) <= error
-        assert abs(point.y - 0.0) <= error
-        assert abs(point.z - -1.0) <= error
+        assert abs(point.x - _ZERO) <= _TOLERANCE
+        assert abs(point.y - _ZERO) <= _TOLERANCE
+        assert abs(point.z - _NEG_ONE) <= _TOLERANCE
 
     def test_rotation_and_translation(self) -> None:
-        error = .001
         t = carla.Transform(
-            carla.Location(x=0.0, y=0.0, z=-1.0),
-            carla.Rotation(pitch=90.0, yaw=0.0, roll=0.0))
-        point = carla.Location(x=0.0, y=0.0, z=2.0)
+            carla.Location(x=_ZERO, y=_ZERO, z=_NEG_ONE),
+            carla.Rotation(pitch=_NINETY, yaw=_ZERO, roll=_ZERO),
+        )
+        point = carla.Location(x=_ZERO, y=_ZERO, z=_TWO)
         t.transform(point)
-
-        assert abs(point.x - -2.0) <= error
-        assert abs(point.y - 0.0) <= error
-        assert abs(point.z - -1.0) <= error
+        assert abs(point.x - _NEG_TWO) <= _TOLERANCE
+        assert abs(point.y - _ZERO) <= _TOLERANCE
+        assert abs(point.z - _NEG_ONE) <= _TOLERANCE
 
     def test_list_rotation_and_translation_location(self) -> None:
-        error = .001
         t = carla.Transform(
-            carla.Location(x=0.0, y=0.0, z=-1.0),
-            carla.Rotation(pitch=90.0, yaw=0.0, roll=0.0))
-
-        point_list = [carla.Location(x=0.0, y=0.0, z=2.0),
-                      carla.Location(x=0.0, y=10.0, z=1.0),
-                      carla.Location(x=0.0, y=18.0, z=2.0),
-                      ]
+            carla.Location(x=_ZERO, y=_ZERO, z=_NEG_ONE),
+            carla.Rotation(pitch=_NINETY, yaw=_ZERO, roll=_ZERO),
+        )
+        point_list = [
+            carla.Location(x=_ZERO, y=_ZERO, z=_TWO),
+            carla.Location(x=_ZERO, y=_TEN, z=_ONE),
+            carla.Location(x=_ZERO, y=_EIGHTEEN, z=_TWO),
+        ]
         t.transform(point_list)
-
-        solution_list = [carla.Location(-2.0, 0.0, -1.0),
-                         carla.Location(-1.0, 10.0, -1.0),
-                         carla.Location(-2.0, 18.0, -1.0),
-                         ]
-
+        solution_list = [
+            carla.Location(_NEG_TWO, _ZERO, _NEG_ONE),
+            carla.Location(_NEG_ONE, _TEN, _NEG_ONE),
+            carla.Location(_NEG_TWO, _EIGHTEEN, _NEG_ONE),
+        ]
         for i in range(len(point_list)):
-            assert abs(point_list[i].x - solution_list[i].x) <= error
-            assert abs(point_list[i].y - solution_list[i].y) <= error
-            assert abs(point_list[i].z - solution_list[i].z) <= error
+            assert abs(point_list[i].x - solution_list[i].x) <= _TOLERANCE
+            assert abs(point_list[i].y - solution_list[i].y) <= _TOLERANCE
+            assert abs(point_list[i].z - solution_list[i].z) <= _TOLERANCE
 
     def test_list_rotation_and_translation_vector3d(self) -> None:
-        error = .001
         t = carla.Transform(
-            carla.Location(x=0.0, y=0.0, z=-1.0),
-            carla.Rotation(pitch=90.0, yaw=0.0, roll=0.0))
-
-        point_list = [carla.Vector3D(0.0, 0.0, 2.0),
-                      carla.Vector3D(0.0, 10.0, 1.0),
-                      carla.Vector3D(0.0, 18.0, 2.0),
-                      ]
+            carla.Location(x=_ZERO, y=_ZERO, z=_NEG_ONE),
+            carla.Rotation(pitch=_NINETY, yaw=_ZERO, roll=_ZERO),
+        )
+        point_list = [
+            carla.Vector3D(_ZERO, _ZERO, _TWO),
+            carla.Vector3D(_ZERO, _TEN, _ONE),
+            carla.Vector3D(_ZERO, _EIGHTEEN, _TWO),
+        ]
         t.transform(point_list)
-
-        solution_list = [carla.Vector3D(-2.0, 0.0, -1.0),
-                         carla.Vector3D(-1.0, 10.0, -1.0),
-                         carla.Vector3D(-2.0, 18.0, -1.0),
-                         ]
-
+        solution_list = [
+            carla.Vector3D(_NEG_TWO, _ZERO, _NEG_ONE),
+            carla.Vector3D(_NEG_ONE, _TEN, _NEG_ONE),
+            carla.Vector3D(_NEG_TWO, _EIGHTEEN, _NEG_ONE),
+        ]
         for i in range(len(point_list)):
-            assert abs(point_list[i].x - solution_list[i].x) <= error
-            assert abs(point_list[i].y - solution_list[i].y) <= error
-            assert abs(point_list[i].z - solution_list[i].z) <= error
+            assert abs(point_list[i].x - solution_list[i].x) <= _TOLERANCE
+            assert abs(point_list[i].y - solution_list[i].y) <= _TOLERANCE
+            assert abs(point_list[i].z - solution_list[i].z) <= _TOLERANCE
 
     def test_geo_offset_transform(self) -> None:
-        error = 0.001
-        t = carla.GeoOffsetTransform(1.0, 2.0, 3.0, 0.0)
-
-        assert abs(t.offset_x - 1.0) <= error
-        assert abs(t.offset_y - 2.0) <= error
-        assert abs(t.offset_z - 3.0) <= error
+        t = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, _ZERO)
+        assert abs(t.offset_x - _ONE) <= _TOLERANCE
+        assert abs(t.offset_y - _TWO) <= _TOLERANCE
+        assert abs(t.offset_z - _THREE) <= _TOLERANCE
 
     def test_geo_offset_transform_translation(self) -> None:
-        error = 0.001
-        t = carla.GeoOffsetTransform(10.0, 20.0, 5.0, 0.0)
-        loc = carla.Location(1.0, 2.0, 3.0)
-
+        t = carla.GeoOffsetTransform(_TEN, _TWENTY, _FIVE, _ZERO)
+        loc = carla.Location(_ONE, _TWO, _THREE)
         out = t.ApplyTransformation(loc)
-
-        solution_list = carla.Location(11.0, 18.0, 8.0)
-
-        assert abs(out.x - solution_list.x) <= error
-        assert abs(out.y - solution_list.y) <= error
-        assert abs(out.z - solution_list.z) <= error
+        solution = carla.Location(11.0, _EIGHTEEN, _EIGHT)
+        assert abs(out.x - solution.x) <= _TOLERANCE
+        assert abs(out.y - solution.y) <= _TOLERANCE
+        assert abs(out.z - solution.z) <= _TOLERANCE
 
     def test_geo_offset_transform_rotation(self) -> None:
-        error = 0.001
-        t = carla.GeoOffsetTransform(0.0, 0.0, 0.0, math.pi / 2.0)
-        loc = carla.Location(1.0, 0.0, 0.0)
-
+        t = carla.GeoOffsetTransform(_ZERO, _ZERO, _ZERO, math.pi / _TWO)
+        loc = carla.Location(_ONE, _ZERO, _ZERO)
         out = t.ApplyTransformation(loc)
-
-        solution_list = carla.Location(0.0, -1.0, 0.0)
-
-        assert abs(out.x - solution_list.x) <= error
-        assert abs(out.y - solution_list.y) <= error
+        solution = carla.Location(_ZERO, _NEG_ONE, _ZERO)
+        assert abs(out.x - solution.x) <= _TOLERANCE
+        assert abs(out.y - solution.y) <= _TOLERANCE
 
     def test_geo_offset_transform_and_rotation(self) -> None:
-        error = 0.001
-        t =  carla.GeoOffsetTransform(5.0, 0.0, 0.0, math.pi / 2.0)
-        loc = carla.Location(1.0, 0.0, 0.0)
-
+        t = carla.GeoOffsetTransform(_FIVE, _ZERO, _ZERO, math.pi / _TWO)
+        loc = carla.Location(_ONE, _ZERO, _ZERO)
         out = t.ApplyTransformation(loc)
-
-        solution_list = carla.Location(0.0, -6.0, 0.0)
-        assert abs(out.x - solution_list.x) <= error
-        assert abs(out.y - solution_list.y) <= error
+        solution = carla.Location(_ZERO, _NEG_SIX, _ZERO)
+        assert abs(out.x - solution.x) <= _TOLERANCE
+        assert abs(out.y - solution.y) <= _TOLERANCE
 
     def test_geo_offset_transform_equality(self) -> None:
-        t1 = carla.GeoOffsetTransform(1.0, 2.0, 3.0, math.pi / 2.0)
-        t2 = carla.GeoOffsetTransform(1.0, 2.0, 3.0, math.pi / 2.0)
-        t3 = carla.GeoOffsetTransform(1.0, 2.0, 3.0, 0.0)
-
+        t1 = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, math.pi / _TWO)
+        t2 = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, math.pi / _TWO)
+        t3 = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, _ZERO)
         assert t1 == t2
         assert t1 != t3
 
     def test_geo_projection_utm(self) -> None:
         p = carla.GeoProjectionUTM()
-
-        assert p.zone == 31
+        assert p.zone == _UTM_ZONE_31
         assert p.north
         assert isinstance(p.ellps, carla.GeoEllipsoid)
         assert p.offset is None
 
     def test_geo_projection_utm_offset_none(self) -> None:
         p = carla.GeoProjectionUTM()
-        p.zone=32
-        p.north=True
-        p.ellps=carla.GeoEllipsoid()
-        p.offset=None
-
-        assert p.zone == 32
+        p.zone = 32
+        p.north = True
+        p.ellps = carla.GeoEllipsoid()
+        p.offset = None
+        assert p.zone == _UTM_ZONE_32
         assert p.offset is None
 
     def test_geo_projection_utm_with_offset(self) -> None:
-        t = carla.GeoOffsetTransform(1.0, 2.0, 3.0, 0.0)
-
+        t = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, _ZERO)
         p = carla.GeoProjectionUTM()
         p.zone = 32
         p.north = True
         p.ellps = carla.GeoEllipsoid()
         p.offset = t
-
         assert p.offset is not None
         assert p.offset == t
 
     def test_geo_projection_utm_offset_setter(self) -> None:
         p = carla.GeoProjectionUTM()
-
-        offset = carla.GeoOffsetTransform(5.0, 6.0, 7.0, 0.1)
+        offset = carla.GeoOffsetTransform(_FIVE, _SIX, _SEVEN, _POINT_ONE)
         p.offset = offset
-
         assert p.offset == offset
-
         p.offset = None
         assert p.offset is None
 
     def test_geo_projection_utm_equality(self) -> None:
-        t = carla.GeoOffsetTransform(1.0, 2.0, 3.0, 0.0)
-
+        t = carla.GeoOffsetTransform(_ONE, _TWO, _THREE, _ZERO)
         p1 = carla.GeoProjectionUTM()
         p1.zone = 31
         p1.north = True
@@ -304,24 +313,18 @@ class TestTransform(unittest.TestCase):
         p2.north = True
         p2.ellps = carla.GeoEllipsoid()
         p2.offset = None
-
         assert p1 != p2
 
     def test_geo_projection_utm_constructor_3_args(self) -> None:
-        p =  carla.GeoProjectionUTM(zone=31, north=True, ellps=WGS84)
-
-        assert p.zone == 31
+        p = carla.GeoProjectionUTM(zone=31, north=True, ellps=WGS84)
+        assert p.zone == _UTM_ZONE_31
         assert p.north
         assert p.ellps == WGS84
         assert p.offset is None
 
     def test_geo_projection_utm_constructor_3_args_positional(self) -> None:
-        p = carla.GeoProjectionUTM(31, True, WGS84)
-
-        assert p.zone == 31
+        p = carla.GeoProjectionUTM(_UTM_ZONE_31, north=True, ellps=WGS84)
+        assert p.zone == _UTM_ZONE_31
         assert p.north
         assert p.ellps == WGS84
         assert p.offset is None
-
-
-

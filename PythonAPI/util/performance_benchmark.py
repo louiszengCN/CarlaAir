@@ -24,6 +24,8 @@ Please, make sure you install the following dependencies:
 
 
 
+from __future__ import annotations
+
 import argparse
 import logging
 import math
@@ -44,7 +46,7 @@ import carla
 # ======================================================================================================================
 sensors_callback = []
 
-def define_weather():
+def define_weather() -> None:
   list_weather = []
 
   if args.tm:
@@ -71,7 +73,7 @@ def define_weather():
   return list_weather
 
 
-def define_sensors():
+def define_sensors() -> None:
   list_sensor_specs = []
 
   if args.tm:
@@ -131,7 +133,7 @@ def define_sensors():
 
   return list_sensor_specs
 
-def define_environments():
+def define_environments() -> None:
   list_env_specs = []
 
   if args.tm:
@@ -152,7 +154,7 @@ def define_environments():
 
   return list_env_specs
 
-def define_maps(client):
+def define_maps(client: object) -> None:
   maps = ["Town01", "Town01_Opt", "Town02", "Town02_Opt", "Town03", "Town03_Opt", "Town04", "Town04_Opt", "Town05", "Town05_Opt", "Town10HD", "Town10HD_Opt"]
   maps = sorted(maps)
 
@@ -170,16 +172,16 @@ class CallBack:
         self._pygame_clock = pygame.time.Clock()
         self._current_fps = 0
 
-    def __call__(self, data):
+    def __call__(self, data: object) -> None:
         self._pygame_clock.tick()
         self._current_fps = self._pygame_clock.get_fps()
 
-    def get_fps(self):
+    def get_fps(self) -> None:
         with self._lock:
             return self._current_fps
 
 
-def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, client, tick):
+def create_environment(world: object, sensors: object, n_vehicles: object, n_walkers: object, spawn_points: object, client: object, tick: object) -> None:
   global sensors_callback  # noqa: PLW0602
   sensors_ret = []
   blueprint_library = world.get_blueprint_library()
@@ -240,9 +242,9 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
   walker_bp = world.get_blueprint_library().filter("walker.pedestrian.0001")[0]
 
   # @todo cannot import these directly.
-  SpawnActor = carla.command.SpawnActor
-  SetAutopilot = carla.command.SetAutopilot
-  FutureActor = carla.command.FutureActor
+  spawn_actor_cmd = carla.command.SpawnActor
+  set_autopilot_cmd = carla.command.SetAutopilot
+  future_actor = carla.command.FutureActor
 
   # --------------
   # Spawn vehicles
@@ -252,7 +254,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     if num >= n_vehicles:
       break
     blueprint.set_attribute("role_name", "autopilot")
-    batch.append(SpawnActor(blueprint, transform).then(SetAutopilot(FutureActor, True)))
+    batch.append(spawn_actor_cmd(blueprint, transform).then(set_autopilot_cmd(future_actor, enabled=True)))
 
   for response in client.apply_batch_sync(batch, False):
     if response.error:
@@ -287,7 +289,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
         walker_speed.append(walker_bp.get_attribute("speed").recommended_values[1])
       else:
         walker_speed.append(0.0)
-      batch.append(SpawnActor(walker_bp, spawn_point))
+      batch.append(spawn_actor_cmd(walker_bp, spawn_point))
     results = client.apply_batch_sync(batch, True)
     walker_speed2 = []
     for i in range(len(results)):
@@ -301,7 +303,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
     batch = []
     walker_controller_bp = world.get_blueprint_library().find("controller.ai.walker")
     for i in range(len(walkers_list)):
-      batch.append(SpawnActor(walker_controller_bp, carla.Transform(), walkers_list[i]["id"]))
+      batch.append(spawn_actor_cmd(walker_controller_bp, carla.Transform(), walkers_list[i]["id"]))
     results = client.apply_batch_sync(batch, True)
     for i in range(len(results)):
       if results[i].error:
@@ -338,7 +340,7 @@ def create_environment(world, sensors, n_vehicles, n_walkers, spawn_points, clie
 # -- Benchmarking functions --------------------------------------------------------------------------------------------
 # ======================================================================================================================
 
-def set_world_settings(world, args = None) -> None:
+def set_world_settings(world: object, args: object = None) -> None:
 
   if args is None:
     settings = world.get_settings()
@@ -353,7 +355,7 @@ def set_world_settings(world, args = None) -> None:
     settings.no_rendering_mode = args.no_render_mode
     world.apply_settings(settings)
 
-def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
+def run_benchmark(world: object, sensors: object, n_vehicles: object, n_walkers: object, client: object, debug: object=False) -> None:
   global sensors_callback  # noqa: PLW0602
 
   spawn_points = world.get_map().get_spawn_points()
@@ -407,7 +409,7 @@ def run_benchmark(world, sensors, n_vehicles, n_walkers, client, debug=False):
   return list_fps
 
 
-def compute_mean_std(list_values):
+def compute_mean_std(list_values: object) -> None:
     np_values = np.array(list_values)
 
     mean = np.mean(np_values)
@@ -416,7 +418,7 @@ def compute_mean_std(list_values):
     return mean, std
 
 
-def serialize_records(records, system_specs, filename) -> None:
+def serialize_records(records: object, system_specs: object, filename: object) -> None:
   with open(filename, "w+") as fd:
     s = "| Town | Sensors | Weather | # of Vehicles | # of Walkers | Samples | Mean FPS | Std FPS |\n"
     s += "| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |\n"
@@ -443,14 +445,14 @@ def serialize_records(records, system_specs, filename) -> None:
     fd.write(s)
 
 
-def get_total(records):
+def get_total(records: object) -> None:
   record_vals = [item for sublist in records.values() for item in sublist]
   total_mean_fps = sum([r["fps_mean"] for r in record_vals]) / len(record_vals)
   total_mean_std = sum([r["fps_std"] for r in record_vals]) / len(record_vals)
   return total_mean_fps, total_mean_std
 
 
-def get_system_specs():
+def get_system_specs() -> None:
   str_system = ""
   cpu_info = cpuinfo.get_cpu_info()
   str_system += "CPU {} {}. ".format(cpu_info.get("brand", "Unknown"), cpu_info.get("family", "Unknown"))
@@ -467,7 +469,7 @@ def get_system_specs():
   return str_system
 
 
-def show_benchmark_scenarios(maps) -> None:
+def show_benchmark_scenarios(maps: object) -> None:
   for _map_name in sorted(maps):
     pass
   for _,sensors in enumerate(define_sensors()):
@@ -480,7 +482,7 @@ def show_benchmark_scenarios(maps) -> None:
     pass
 
 
-def main(args) -> None:
+def main(args: object) -> None:
 
   try:
     client = carla.Client(args.host, int(args.port))
@@ -494,7 +496,6 @@ def main(args) -> None:
       show_benchmark_scenarios(maps)
       return
 
-    #maps = ["Town04_Opt"]
 
     for town in maps:
       world = client.load_world(town)

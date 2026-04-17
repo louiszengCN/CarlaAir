@@ -7,9 +7,16 @@ import json
 import math
 import socket
 import time
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
+
+try:
+    import airsim as _airsim
+except ImportError:  # optional dependency
+    _airsim = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
+    import types
+
     import carla
 
 
@@ -41,6 +48,8 @@ _WALKER_FILTER: str = "walker.*"
 _DEFAULT_PITCH: float = 0.0
 _DEFAULT_ROLL: float = 0.0
 _DEFAULT_YAW: float = 0.0
+
+_ENABLED: bool = True
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -82,8 +91,8 @@ class TrajectoryDict(TypedDict, total=False):
     frames: list[FrameDict]
     vehicle_id: str
     trajectory_type: TrajectoryType
-    camera: dict[str, Any]
-    points: list[dict[str, Any]]
+    camera: dict[str, object]
+    points: list[dict[str, object]]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -111,20 +120,19 @@ def wait_for_airsim(
     deadline = time.time() + timeout
     first = True
     while time.time() < deadline:
-        try:
-            with socket.create_connection(
-                (host, port), timeout=_AIRSIM_SOCKET_TIMEOUT,
-            ):
-                return True
-        except OSError:
-            if first:
-                first = False
-            time.sleep(interval)
+        with contextlib.suppress(OSError), socket.create_connection(
+            (host, port), timeout=_AIRSIM_SOCKET_TIMEOUT,
+        ):
+            return True
+        if first:
+            first = False
+        time.sleep(interval)
     return False
 
 
 def cleanup_world(
     world: carla.World,
+    *,
     restore_async: bool = False,
 ) -> int:
     """Destroy all leftover vehicles, walkers and sensors.
@@ -143,23 +151,16 @@ def cleanup_world(
     count = 0
 
     for s in sensors:
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError):
             s.stop()
-        try:
+        with contextlib.suppress(RuntimeError):
             s.destroy()
             count += 1
-        except Exception:
-            pass
 
     for a in vehicles + walkers:
-        try:
+        with contextlib.suppress(RuntimeError):
             a.destroy()
             count += 1
-        except Exception:
-            pass
-
-    if count:
-        pass
 
     if restore_async:
         settings = world.get_settings()
@@ -187,7 +188,7 @@ def load_trajectory_json(path: str) -> TrajectoryDict:
 def vehicle_apply_frame_transform(
     actor: carla.Actor,
     frame: FrameDict,
-    carla_mod: carla,
+    carla_mod: types.ModuleType,
 ) -> None:
     """Apply a frame transform to a vehicle actor.
 
@@ -212,13 +213,13 @@ def vehicle_apply_frame_transform(
 
 
 def airsim_pose_from_drone_frame(
-    ac: Any,  # airsim.MultirotorClient
+    ac: object,  # airsim.MultirotorClient
     frame: FrameDict,
-) -> Any:  # airsim.Pose
+) -> object:  # airsim.Pose
     """Convert a drone frame to an AirSim Pose.
 
     Args:
-        ac: AirSim client instance
+        ac: AirSim client instance (unused, kept for API compat)
         frame: trajectory frame dictionary
 
     Returns:
@@ -227,8 +228,7 @@ def airsim_pose_from_drone_frame(
     Raises:
         ValueError: if frame lacks airsim_ned/transform
     """
-    import airsim as _airsim
-
+    _ = ac  # unused but kept for call-site compat
     ned = frame.get("airsim_ned", frame.get("transform"))
     if not ned:
         msg = "drone frame missing airsim_ned/transform"
@@ -244,7 +244,7 @@ def airsim_pose_from_drone_frame(
 
 
 def drone_apply_frame(
-    ac: Any,  # airsim.MultirotorClient
+    ac: object,  # airsim.MultirotorClient
     frame: FrameDict,
 ) -> None:
     """Apply a trajectory frame to an AirSim drone.
@@ -253,14 +253,21 @@ def drone_apply_frame(
         ac: AirSim client instance
         frame: trajectory frame dictionary
     """
-    ac.simSetVehiclePose(airsim_pose_from_drone_frame(ac, frame), True)
+    ac.simSetVehiclePose(  # type: ignore[attr-defined]
+        airsim_pose_from_drone_frame(ac, frame),
+        ignore_collision=_ENABLED,
+    )
+
+
+class _GhostSpawnError(RuntimeError):
+    """Raised when ghost vehicle spawn fails at all offsets."""
 
 
 def spawn_ghost_vehicle(
     world: carla.World,
     bp_lib: carla.BlueprintLibrary,
     traj: TrajectoryDict,
-    carla_mod: carla,
+    carla_mod: types.ModuleType,
 ) -> carla.Actor:
     """Spawn a non-physics vehicle at the first frame pose for looping replay.
 
@@ -275,7 +282,7 @@ def spawn_ghost_vehicle(
 
     Raises:
         ValueError: if trajectory has no frames
-        RuntimeError: if spawn fails at all z-offsets
+        _GhostSpawnError: if spawn fails at all z-offsets
     """
     frames = traj.get("frames") or []
     if not frames:
@@ -315,12 +322,9 @@ def spawn_ghost_vehicle(
             pass
 
     if actor is None:
-        raise RuntimeError(
-            f"Cannot spawn ghost vehicle — collision at all offsets near "
-            f"({tf.location.x:.1f}, {tf.location.y:.1f}, {tf.location.z:.1f})",
-        )
+        raise _GhostSpawnError
 
-    with contextlib.suppress(Exception):
+    with contextlib.suppress(RuntimeError):
         actor.set_simulate_physics(False)
 
     return actor

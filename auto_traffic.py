@@ -79,6 +79,9 @@ _VEHICLE_STALL_SPEED_THRESHOLD: float = 0.01
 
 _ZERO_SPEED: float = 0.0
 
+_MAX_PORT: int = 65535
+_FOUR_WHEEL_COUNT: int = 4
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Enums
@@ -223,7 +226,7 @@ class SimulationConfig(BaseModel):
     @field_validator("carla_port", "tm_port")
     @classmethod
     def _validate_port(cls, v: int) -> int:
-        if not (1 <= v <= 65535):
+        if not (1 <= v <= _MAX_PORT):
             msg = f"Port must be in range 1-65535, got {v}"
             raise ValueError(msg)
         return v
@@ -246,15 +249,27 @@ class SpawnResult:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Global state (mutable, for cleanup)
+# Mutable traffic state
 # ──────────────────────────────────────────────────────────────────────────────
 
-_vehicles: list[ActorId] = []
-_walkers: list[WalkerEntry] = []
-_all_actor_ids: list[ActorId] = []
-_client: carla.Client | None = None
-_world: carla.World | None = None
-_running: bool = True
+
+class _TrafficState:
+    """Encapsulates all mutable runtime state for the traffic generator.
+
+    Replaces module-level globals so that mutation is explicit and
+    does not require ``global`` statements.
+    """
+
+    def __init__(self) -> None:
+        self.vehicles: list[ActorId] = []
+        self.walkers: list[WalkerEntry] = []
+        self.all_actor_ids: list[ActorId] = []
+        self.client: carla.Client | None = None
+        self.world: carla.World | None = None
+        self.running: bool = True
+
+
+_state = _TrafficState()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -266,8 +281,7 @@ def _signal_handler(sig: int, _frame: object) -> None:
     """Handle SIGINT / SIGTERM by setting the running flag to ``False``."""
     sig_name = signal.Signals(sig).name
     _LOG.info("Received %s signal, shutting down …", sig_name)
-    global _running
-    _running = False
+    _state.running = False
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -289,7 +303,7 @@ def _spawn_vehicles(
     car_bps = [
         bp
         for bp in vehicle_bps
-        if int(bp.get_attribute("number_of_wheels").as_int()) == 4
+        if int(bp.get_attribute("number_of_wheels").as_int()) == _FOUR_WHEEL_COUNT
     ]
     if not car_bps:
         car_bps = list(vehicle_bps)
@@ -314,8 +328,8 @@ def _spawn_vehicles(
             carla.command.SpawnActor(bp, sp).then(
                 carla.command.SetAutopilot(
                     carla.command.FutureActor,
-                    True,
-                    tm.get_port(),
+                    enabled=True,
+                    port=tm.get_port(),
                 ),
             ),
         )
@@ -324,7 +338,7 @@ def _spawn_vehicles(
     spawned = 0
     for r in results:
         if not r.error:
-            _vehicles.append(r.actor_id)
+            _state.vehicles.append(r.actor_id)
             spawned += 1
 
     _LOG.info("Vehicles: %d/%d spawned", spawned, count)
@@ -336,25 +350,29 @@ def _spawn_vehicles(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def _spawn_walkers(
+def _collect_walker_spawn_points(
     world: carla.World,
-    client: carla.Client,
-    walker_config: WalkerSpawnConfig,
     count: int,
-) -> SpawnResult:
-    """Spawn pedestrians with AI controllers (async mode)."""
-    bp_lib = world.get_blueprint_library()
-    walker_bps = bp_lib.filter("walker.pedestrian.*")
-    controller_bp = bp_lib.find("controller.ai.walker")
-
+    multiplier: int,
+) -> list[carla.Transform]:
+    """Gather up to *count* random navigation spawn points."""
     spawn_points: list[carla.Transform] = []
-    for _ in range(count * walker_config.spawn_multiplier):
+    for _ in range(count * multiplier):
         loc = world.get_random_location_from_navigation()
         if loc:
             spawn_points.append(carla.Transform(loc))
         if len(spawn_points) >= count:
             break
+    return spawn_points
 
+
+def _build_walker_batch(
+    walker_bps: list[carla.ActorBlueprint],
+    spawn_points: list[carla.Transform],
+    walker_config: WalkerSpawnConfig,
+    count: int,
+) -> tuple[list[carla.command.BatchCommand], list[float]]:
+    """Build the spawn batch and per-walker speed list."""
     batch: list[carla.command.BatchCommand] = []
     speeds: list[float] = []
     for sp in spawn_points[:count]:
@@ -370,48 +388,70 @@ def _spawn_walkers(
         else:
             speeds.append(walker_config.default_speed)
         batch.append(carla.command.SpawnActor(bp, sp))
+    return batch, speeds
+
+
+def _start_walker_controllers(
+    world: carla.World,
+    valid_speeds: list[float],
+    default_speed: float,
+) -> None:
+    """Start AI controllers and assign destinations/speeds."""
+    all_actors = world.get_actors(_state.all_actor_ids)
+    for i in range(0, len(_state.all_actor_ids), _WALKER_ACTOR_STEP):
+        with contextlib.suppress(RuntimeError, AttributeError, IndexError):
+            ctrl = all_actors[i]
+            ctrl.start()
+            ctrl.go_to_location(world.get_random_location_from_navigation())
+            idx = i // _WALKER_ACTOR_STEP
+            ctrl.set_max_speed(valid_speeds[idx] if idx < len(valid_speeds) else default_speed)
+
+
+def _spawn_walkers(
+    world: carla.World,
+    client: carla.Client,
+    walker_config: WalkerSpawnConfig,
+    count: int,
+) -> SpawnResult:
+    """Spawn pedestrians with AI controllers (async mode)."""
+    bp_lib = world.get_blueprint_library()
+    walker_bps = bp_lib.filter("walker.pedestrian.*")
+    controller_bp = bp_lib.find("controller.ai.walker")
+
+    spawn_points = _collect_walker_spawn_points(world, count, walker_config.spawn_multiplier)
+    batch, speeds = _build_walker_batch(walker_bps, spawn_points, walker_config, count)
 
     results = client.apply_batch_sync(batch, do_tick=False)
     valid_speeds: list[float] = []
     for i, r in enumerate(results):
         if not r.error:
-            _walkers.append(WalkerEntry(walker_id=r.actor_id))
+            _state.walkers.append(WalkerEntry(walker_id=r.actor_id))
             valid_speeds.append(speeds[i])
 
-    batch_ctrl: list[carla.command.BatchCommand] = []
-    for w in _walkers:
-        batch_ctrl.append(
-            carla.command.SpawnActor(controller_bp, carla.Transform(), w.walker_id),
-        )
+    batch_ctrl = [
+        carla.command.SpawnActor(controller_bp, carla.Transform(), w.walker_id)
+        for w in _state.walkers
+    ]
     ctrl_results = client.apply_batch_sync(batch_ctrl, do_tick=False)
     for i, r in enumerate(ctrl_results):
         if not r.error:
-            _walkers[i] = WalkerEntry(
-                walker_id=_walkers[i].walker_id,
+            _state.walkers[i] = WalkerEntry(
+                walker_id=_state.walkers[i].walker_id,
                 controller_id=r.actor_id,
             )
 
-    for w in _walkers:
+    for w in _state.walkers:
         if w.controller_id is not None:
-            _all_actor_ids.append(w.controller_id)
-        _all_actor_ids.append(w.walker_id)
+            _state.all_actor_ids.append(w.controller_id)
+        _state.all_actor_ids.append(w.walker_id)
 
     world.wait_for_tick()
     world.set_pedestrians_cross_factor(walker_config.cross_factor)
 
-    all_actors = world.get_actors(_all_actor_ids)
-    for i in range(0, len(_all_actor_ids), _WALKER_ACTOR_STEP):
-        try:
-            ctrl = all_actors[i]
-            ctrl.start()
-            ctrl.go_to_location(world.get_random_location_from_navigation())
-            idx = i // _WALKER_ACTOR_STEP
-            ctrl.set_max_speed(valid_speeds[idx] if idx < len(valid_speeds) else walker_config.default_speed)
-        except Exception:
-            pass
+    _start_walker_controllers(world, valid_speeds, walker_config.default_speed)
 
-    _LOG.info("Walkers: %d/%d spawned with AI controllers", len(_walkers), count)
-    return SpawnResult(spawned=len(_walkers), requested=count)
+    _LOG.info("Walkers: %d/%d spawned with AI controllers", len(_state.walkers), count)
+    return SpawnResult(spawned=len(_state.walkers), requested=count)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -421,23 +461,21 @@ def _spawn_walkers(
 
 def _health_check_walkers(world: carla.World) -> int:
     """Reassign destinations to all walkers; fixes frozen walkers."""
-    if not _all_actor_ids:
+    if not _state.all_actor_ids:
         return 0
     try:
-        actors = world.get_actors(_all_actor_ids)
-        reassigned = 0
-        for i in range(0, len(_all_actor_ids), _WALKER_ACTOR_STEP):
-            try:
-                ctrl = actors[i]
-                loc = world.get_random_location_from_navigation()
-                if loc and ctrl.is_alive:
-                    ctrl.go_to_location(loc)
-                    reassigned += 1
-            except Exception:
-                pass
-        return reassigned
-    except Exception:
+        actors = world.get_actors(_state.all_actor_ids)
+    except RuntimeError:
         return 0
+    reassigned = 0
+    for i in range(0, len(_state.all_actor_ids), _WALKER_ACTOR_STEP):
+        with contextlib.suppress(RuntimeError, AttributeError, IndexError):
+            ctrl = actors[i]
+            loc = world.get_random_location_from_navigation()
+            if loc and ctrl.is_alive:
+                ctrl.go_to_location(loc)
+                reassigned += 1
+    return reassigned
 
 
 def _health_check_vehicles(
@@ -447,23 +485,21 @@ def _health_check_vehicles(
     stall_speed: float,
 ) -> int:
     """Re-enable autopilot on any vehicle that lost it."""
-    if not _vehicles:
+    if not _state.vehicles:
         return 0
     try:
-        actors = world.get_actors(_vehicles)
-        restarted = 0
-        for a in actors:
-            try:
-                vel = a.get_velocity()
-                speed = (vel.x ** 2 + vel.y ** 2 + vel.z ** 2) ** _ZERO_SPEED
-                if speed < stall_speed:
-                    a.set_autopilot(True, tm_port)
-                    restarted += 1
-            except Exception:
-                pass
-        return restarted
-    except Exception:
+        actors = world.get_actors(_state.vehicles)
+    except RuntimeError:
         return 0
+    restarted = 0
+    for a in actors:
+        with contextlib.suppress(RuntimeError, AttributeError):
+            vel = a.get_velocity()
+            speed = (vel.x ** 2 + vel.y ** 2 + vel.z ** 2) ** _ZERO_SPEED
+            if speed < stall_speed:
+                a.set_autopilot(enabled=True, port=tm_port)
+                restarted += 1
+    return restarted
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -473,30 +509,28 @@ def _health_check_vehicles(
 
 def _cleanup() -> None:
     """Destroy all spawned actors."""
-    global _client, _vehicles, _walkers, _all_actor_ids
-
-    if not _client:
+    if not _state.client:
         return
 
     try:
-        if _all_actor_ids and _world:
-            all_actors = _world.get_actors(_all_actor_ids)
-            for i in range(0, len(_all_actor_ids), _WALKER_ACTOR_STEP):
-                with contextlib.suppress(Exception):
+        if _state.all_actor_ids and _state.world:
+            all_actors = _state.world.get_actors(_state.all_actor_ids)
+            for i in range(0, len(_state.all_actor_ids), _WALKER_ACTOR_STEP):
+                with contextlib.suppress(RuntimeError, AttributeError, IndexError):
                     all_actors[i].stop()
 
-        if _vehicles:
-            _client.apply_batch(
-                [carla.command.DestroyActor(aid) for aid in _vehicles],
+        if _state.vehicles:
+            _state.client.apply_batch(
+                [carla.command.DestroyActor(aid) for aid in _state.vehicles],
             )
-            _LOG.info("Destroyed %d vehicles", len(_vehicles))
+            _LOG.info("Destroyed %d vehicles", len(_state.vehicles))
 
-        if _all_actor_ids:
-            _client.apply_batch(
-                [carla.command.DestroyActor(aid) for aid in _all_actor_ids],
+        if _state.all_actor_ids:
+            _state.client.apply_batch(
+                [carla.command.DestroyActor(aid) for aid in _state.all_actor_ids],
             )
-            _LOG.info("Destroyed %d walkers/controllers", len(_all_actor_ids))
-    except Exception as exc:
+            _LOG.info("Destroyed %d walkers/controllers", len(_state.all_actor_ids))
+    except RuntimeError as exc:
         _LOG.warning("Cleanup warning: %s", exc)
 
 
@@ -545,6 +579,18 @@ def _parse_args() -> SimulationConfig:
     )
 
 
+def _try_connect(port: int, timeout: float) -> tuple[carla.Client, carla.World] | None:
+    """Attempt a single connection to CARLA. Returns ``None`` on failure."""
+    try:
+        client = carla.Client("localhost", port)
+        client.set_timeout(timeout)
+        world = client.get_world()
+    except RuntimeError:
+        return None
+    else:
+        return client, world
+
+
 def _connect_to_carla(
     port: int,
     timeout: float,
@@ -553,19 +599,16 @@ def _connect_to_carla(
 ) -> tuple[carla.Client, carla.World]:
     """Connect to the CARLA simulator with retry logic."""
     for attempt in range(1, max_attempts + 1):
-        try:
-            _LOG.info("Connecting to CARLA (port %d) …", port)
-            client = carla.Client("localhost", port)
-            client.set_timeout(timeout)
-            world = client.get_world()
-            return client, world
-        except Exception as exc:
-            if attempt < max_attempts:
-                _LOG.info("  Waiting for CARLA … (attempt %d/%d, error: %s)", attempt, max_attempts, exc)
-                time.sleep(retry_delay)
-            else:
-                _LOG.error("Failed to connect after %d attempts.", max_attempts)
-                sys.exit(1)
+        _LOG.info("Connecting to CARLA (port %d) …", port)
+        result = _try_connect(port, timeout)
+        if result is not None:
+            return result
+        if attempt < max_attempts:
+            _LOG.info("  Waiting for CARLA … (attempt %d/%d)", attempt, max_attempts)
+            time.sleep(retry_delay)
+        else:
+            _LOG.error("Failed to connect after %d attempts.", max_attempts)
+            sys.exit(1)
     # Unreachable, but keeps type-checkers happy
     msg = "Connection loop exited unexpectedly"
     raise RuntimeError(msg)
@@ -581,76 +624,79 @@ def _ensure_async_mode(world: carla.World) -> None:
         world.apply_settings(settings)
 
 
+def _run_main_loop(config: SimulationConfig) -> None:
+    """Run the health-check main loop until ``_state.running`` becomes False."""
+    last_health = time.time()
+
+    while _state.running:
+        time.sleep(config.main_loop_sleep)
+        now = time.time()
+        if now - last_health < config.health_interval:
+            continue
+        last_health = now
+        try:
+            if _state.world is None:
+                continue
+            _health_check_walkers(_state.world)
+            rv = _health_check_vehicles(
+                _state.world,
+                _state.client,
+                config.tm_port,
+                config.vehicle_stall_speed,
+            )
+            if rv > _ERROR_LOG_THRESHOLD:
+                _LOG.info("Health: restarted %d stalled vehicles", rv)
+        except RuntimeError:
+            _LOG.info("Connection interrupted; waiting to reconnect …")
+            time.sleep(_RECONNECT_DELAY)
+            with contextlib.suppress(RuntimeError):
+                if _state.client is not None:
+                    _state.world = _state.client.get_world()
+                    _LOG.info("Reconnected: %s", _state.world.get_map().name)
+        except OSError as exc:
+            if _state.running:
+                _LOG.error("Error: %s", exc)
+                time.sleep(_RECONNECT_DELAY)
+
+
 def main() -> None:
     """Entry-point: spawn vehicles/walkers and run periodic health checks."""
-    global _client, _world, _running
-
     _configure_logging()
     config = _parse_args()
 
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
 
-    _client, _world = _connect_to_carla(
+    _state.client, _state.world = _connect_to_carla(
         port=config.carla_port,
         timeout=config.connection_timeout,
         max_attempts=config.connection_max_attempts,
         retry_delay=config.connection_retry_delay,
     )
 
-    map_name = _world.get_map().name.split("/")[-1]
+    map_name = _state.world.get_map().name.split("/")[-1]
     _LOG.info("Connected: %s", map_name)
 
-    _ensure_async_mode(_world)
+    _ensure_async_mode(_state.world)
 
     vehicle_cfg = VehicleSpawnConfig()
     tm_cfg = TrafficManagerConfig()
     walker_cfg = WalkerSpawnConfig()
 
     nv = _spawn_vehicles(
-        _world,
-        _client,
+        _state.world,
+        _state.client,
         vehicle_cfg,
         tm_cfg,
         count=config.vehicle_count,
         tm_port=config.tm_port,
     )
-    nw = _spawn_walkers(_world, _client, walker_cfg, count=config.walker_count)
+    nw = _spawn_walkers(_state.world, _state.client, walker_cfg, count=config.walker_count)
 
     _LOG.info("Traffic ready: %d vehicles + %d walkers on %s", nv.spawned, nw.spawned, map_name)
     _LOG.info("Running in background. Health checks every %.1fs.", config.health_interval)
 
-    last_health = time.time()
-
-    while _running:
-        try:
-            time.sleep(config.main_loop_sleep)
-
-            now = time.time()
-            if now - last_health >= config.health_interval:
-                last_health = now
-                _health_check_walkers(_world)
-                rv = _health_check_vehicles(
-                    _world,
-                    _client,
-                    config.tm_port,
-                    config.vehicle_stall_speed,
-                )
-                if rv > _ERROR_LOG_THRESHOLD:
-                    _LOG.info("Health: restarted %d stalled vehicles", rv)
-
-        except RuntimeError:
-            _LOG.info("Connection interrupted; waiting to reconnect …")
-            time.sleep(_RECONNECT_DELAY)
-            try:
-                _world = _client.get_world()
-                _LOG.info("Reconnected: %s", _world.get_map().name)
-            except Exception:
-                pass
-        except Exception as exc:
-            if _running:
-                _LOG.error("Error: %s", exc)
-                time.sleep(_RECONNECT_DELAY)
+    _run_main_loop(config)
 
     _cleanup()
     _LOG.info("Traffic generator stopped.")

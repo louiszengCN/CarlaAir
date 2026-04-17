@@ -197,7 +197,7 @@ def main() -> None:
             blueprint.set_attribute("role_name", _VEHICLE_ROLE_NAME)
             batch.append(
                 SpawnActor(blueprint, transform).then(
-                    SetAutopilot(FutureActor, True),
+                    SetAutopilot(FutureActor, enabled=True),
                 ),
             )
 

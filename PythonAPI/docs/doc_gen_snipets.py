@@ -6,6 +6,8 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+from __future__ import annotations
+
 import os
 import re
 
@@ -18,13 +20,13 @@ COLOR_WARNING = "#ED2F2F"
 QUERY = re.compile(r"([cC]arla(\.[a-zA-Z0-9_]+)+)")
 
 
-def create_hyperlinks(text):
+def create_hyperlinks(text: str) -> str:
     return re.sub(QUERY, r"[\1](#\1)", text)
 
-def create_getter_setter_hyperlinks(text):
+def create_getter_setter_hyperlinks(text: str) -> str:
     return re.sub(QUERY, r"[\1](#\1)", text)
 
-def join(elem, separator=""):
+def join(elem: list[str], separator: str = "") -> str:
     return separator.join(elem)
 
 
@@ -34,15 +36,15 @@ class MarkdownFile:
         self._list_depth = 0
         self.endl = "  \n"
 
-    def data(self):
+    def data(self) -> str:
         return self._data
 
-    def list_depth(self):
+    def list_depth(self) -> str:
         if self._data.strip()[-1:] != "\n" or self._list_depth == 0:
             return ""
         return join(["    " * self._list_depth])
 
-    def textn(self, buf) -> None:
+    def textn(self, buf: str) -> None:
         self._data = join([self._data, self.list_depth(), buf, self.endl])
 
 
@@ -50,7 +52,7 @@ class MarkdownFile:
 class Documentation:
     """Main documentation class"""
 
-    def __init__(self, path, images_path) -> None:
+    def __init__(self, path: str, images_path: str) -> None:
         self._snipets_path = os.path.join(os.path.dirname(path), "snipets")
         self._files = [f for f in os.listdir(self._snipets_path) if f.endswith(".py")]
         self._snipets = []
@@ -66,7 +68,7 @@ class Documentation:
             self._snipets_images.append(current_image_path)
 
 
-    def gen_body(self):
+    def gen_body(self) -> str:
         """Generates the documentation body"""
         md = MarkdownFile()
         # Create header for snipets (div container and script to copy)
@@ -74,7 +76,9 @@ class Documentation:
         "[comment]: <> (=========================)\n"+
         "[comment]: <> (PYTHON API SCRIPT SNIPETS)\n"+
         "[comment]: <> (=========================)\n"+
-        "<div id=\"snipets-container\" class=\"Container\" onmouseover='this.style[\"overflowX\"]=\"scroll\";' onmouseout='this.style[\"overflowX\"]=\"visible\";'></div>\n"+
+        '<div id="snipets-container" class="Container" '
+        "onmouseover='this.style[\"overflowX\"]=\"scroll\";' "
+        "onmouseout='this.style[\"overflowX\"]=\"visible\";'></div>\n"+
         "<script>\n"+
         "function CopyToClipboard(containerid) {\n"+
         "if (document.selection) {\n"+
@@ -109,7 +113,16 @@ class Documentation:
             # The snipet code
             md.textn(current_snipet.read())
             # Closing for a snipet
-            md.textn("\n```\n<button id=\"button1\" class=\"CopyScript\" onclick=\"CopyToClipboard('"+snipet_name+"-code')\">Copy snippet</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"button1\" class=\"CloseSnipet\" onclick=\"CloseSnipet()\">Close snippet</button><br><br>\n")
+            md.textn(
+                "\n```\n"
+                '<button id="button1" class="CopyScript" '
+                "onclick=\"CopyToClipboard('" + snipet_name + "-code')\">"
+                "Copy snippet</button>"
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                '<button id="button1" class="CloseSnipet" '
+                'onclick="CloseSnipet()">'
+                "Close snippet</button><br><br>\n",
+            )
             # Check if snipet image exists, and add it
             for snipet_path_to_image in self._snipets_images:
                 snipet_image_name = os.path.splitext(os.path.basename(snipet_path_to_image))[0]
@@ -121,7 +134,7 @@ class Documentation:
         return md.data().strip()
 
 
-    def gen_markdown(self):
+    def gen_markdown(self) -> str:
         """Generates the whole markdown file"""
         return join([self.gen_body()], "\n").strip()
 

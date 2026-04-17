@@ -22,6 +22,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import math
 import random
 import sys
@@ -120,26 +121,18 @@ def cleanup_world(world: carla.World) -> int:
     """
     count = 0
     for actor in world.get_actors().filter(_SENSOR_FILTER):
-        try:
+        with contextlib.suppress(RuntimeError, OSError):
             actor.stop()
             actor.destroy()
             count += 1
-        except Exception:
-            pass
     for actor in world.get_actors().filter(_VEHICLE_FILTER):
-        try:
+        with contextlib.suppress(RuntimeError, OSError):
             actor.destroy()
             count += 1
-        except Exception:
-            pass
     for actor in world.get_actors().filter(_WALKER_FILTER):
-        try:
+        with contextlib.suppress(RuntimeError, OSError):
             actor.destroy()
             count += 1
-        except Exception:
-            pass
-    if count:
-        pass
     return count
 
 
@@ -180,10 +173,10 @@ def wait_world_ready(
             sps = world.get_map().get_spawn_points()
             if sps:
                 return WorldReadyResult(world=world, spawn_points=sps)
-        except Exception:
+        except (RuntimeError, OSError):
             pass
         time.sleep(_READY_CHECK_INTERVAL)
-    raise TimeoutError("World not ready after load")
+    raise TimeoutError
 
 
 def switch_map(
@@ -209,7 +202,7 @@ def switch_map(
             pass
         cleanup_world(world)
         ensure_async_mode(world)
-    except Exception:
+    except (RuntimeError, OSError):
         pass
 
     # Set extended timeout for slow load_world
@@ -366,7 +359,7 @@ def main() -> None:
     try:
         world = client.get_world()
         current = world.get_map().name.split("/")[-1]
-    except Exception:
+    except (RuntimeError, OSError):
         sys.exit(1)
 
     maps = get_available_maps(client)

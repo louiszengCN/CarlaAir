@@ -67,24 +67,10 @@ class TestSnapshot(SyncSmokeTest):
             assert actor_snapshot is not None
             t1 = actor_snapshot.get_transform()
             # Ignore Z because vehicle is falling.
-            self.assertAlmostEqual(
-                t0.location.x, t1.location.x, places=_LOCATION_PLACES,
-            )
-            self.assertAlmostEqual(
-                t0.location.y, t1.location.y, places=_LOCATION_PLACES,
-            )
-            self.assertAlmostEqual(
-                t0.rotation.pitch,
-                t1.rotation.pitch,
-                places=_ROTATION_PLACES,
-            )
-            self.assertAlmostEqual(
-                t0.rotation.yaw,
-                t1.rotation.yaw,
-                places=_ROTATION_PLACES,
-            )
-            self.assertAlmostEqual(
-                t0.rotation.roll,
-                t1.rotation.roll,
-                places=_ROTATION_PLACES,
-            )
+            loc_tol = 10 ** (-_LOCATION_PLACES)
+            rot_tol = 10 ** (-_ROTATION_PLACES)
+            assert abs(t0.location.x - t1.location.x) < loc_tol
+            assert abs(t0.location.y - t1.location.y) < loc_tol
+            assert abs(t0.rotation.pitch - t1.rotation.pitch) < rot_tol
+            assert abs(t0.rotation.yaw - t1.rotation.yaw) < rot_tol
+            assert abs(t0.rotation.roll - t1.rotation.roll) < rot_tol

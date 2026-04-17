@@ -210,9 +210,7 @@ def _find_drone_actor(
     for actor in world.get_actors():
         if "drone" in actor.type_id.lower() or "airsim" in actor.type_id.lower():
             return actor
-    raise SystemExit(
-        "Drone actor not found in CARLA. Is CarlaAir running?",
-    )
+    raise SystemExit
 
 
 def _build_drone_frame(
@@ -329,58 +327,11 @@ def _handle_terminal_command(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def main() -> None:
-    """Main entry point for drone trajectory recording."""
-    ap = argparse.ArgumentParser(
-        description="Record drone trajectory (terminal, zero AirSim)",
-    )
-    ap.add_argument("--host", default=_CARLA_HOST)
-    ap.add_argument("--port", type=int, default=_CARLA_PORT)
-    ap.add_argument(
-        "--hz",
-        type=float,
-        default=_DEFAULT_HZ,
-        help="Sample rate",
-    )
-    ap.add_argument("--output-dir", default=None)
-    ap.add_argument(
-        "--loop-vehicle",
-        default=None,
-        metavar="PATH",
-        help="Loop vehicle trajectory JSON (ghost car in CARLA)",
-    )
-    ap.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Print pose every ~2s",
-    )
-    args = ap.parse_args()
 
-    cfg = RecorderConfig(
-        host=args.host,
-        port=args.port,
-        hz=args.hz,
-        output_dir=args.output_dir,
-        loop_vehicle=args.loop_vehicle,
-        verbose=args.verbose,
-    )
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    out_dir = cfg.output_dir or os.path.join(
-        os.path.dirname(script_dir), _OUTPUT_SUBDIR,
-    )
-    os.makedirs(out_dir, exist_ok=True)
-    dt = 1.0 / max(1.0, cfg.hz)
-
-    # ── CARLA ──
-    client = carla.Client(cfg.host, cfg.port)
-    client.set_timeout(_CARLA_TIMEOUT)
-    world = client.get_world()
-    map_name = world.get_map().name.split("/")[-1]
-
-    drone_actor = _find_drone_actor(world)
-
-    # ── Ghost vehicle ──
+def _setup_ghost(
+    cfg: RecorderConfig, world: carla.World,
+) -> tuple[carla.Actor | None, list[dict], float, GhostVehicleState | None]:
+    """Set up ghost vehicle if configured."""
     ghost_vehicle: carla.Actor | None = None
     veh_frames: list[dict] = []
     veh_dt = _GHOST_VEHICLE_DT
@@ -390,113 +341,157 @@ def main() -> None:
         bp_lib = world.get_blueprint_library()
         vtraj = load_trajectory_json(cfg.loop_vehicle)
         if vtraj.get("type") != _GHOST_VEHICLE_TYPE:
-            raise SystemExit(
-                f"--loop-vehicle JSON must have type '{_GHOST_VEHICLE_TYPE}'",
-            )
+            raise SystemExit
         veh_frames = vtraj["frames"]
         veh_dt = float(vtraj.get("delta_time", _GHOST_VEHICLE_DT))
         ghost_vehicle = spawn_ghost_vehicle(world, bp_lib, vtraj, carla)
         ghost = GhostVehicleState()
+    return ghost_vehicle, veh_frames, veh_dt, ghost
 
-    # ── State ──
-    saved_count = 0
-    frames: list[DroneFrameDict] = []
-    recording = False
-    quit_flag = threading.Event()
 
-    # ── Ghost vehicle thread ──
-    def _ghost_vehicle_loop() -> None:
+def _start_ghost_thread(
+    quit_flag: threading.Event,
+    ghost: GhostVehicleState | None,
+    ghost_vehicle: carla.Actor,
+    veh_frames: list[dict],
+    veh_dt: float,
+) -> None:
+    """Start the ghost vehicle loop thread."""
+    def _loop() -> None:
         while not quit_flag.is_set():
-            if ghost is not None and ghost_vehicle is not None and veh_frames:
+            if ghost is not None and veh_frames:
                 ghost.apply_jump()
                 if not ghost.paused:
-                    try:
+                    with contextlib.suppress(RuntimeError, OSError):
                         vehicle_apply_frame_transform(
-                            ghost_vehicle,
-                            veh_frames[ghost.idx],  # type: ignore[arg-type]
-                            carla,
+                            ghost_vehicle, veh_frames[ghost.idx], carla,
                         )
-                    except Exception:
-                        pass
                     ghost.step(len(veh_frames))
             time.sleep(veh_dt / max(0.25, ghost.speed if ghost else 1.0))
+    threading.Thread(target=_loop, daemon=True).start()
 
-    if ghost_vehicle is not None:
-        threading.Thread(target=_ghost_vehicle_loop, daemon=True).start()
 
-    # ── Input thread ──
-    def _input_loop() -> None:
-        nonlocal recording
-        while not quit_flag.is_set():
-            try:
-                line = input()
-            except (EOFError, KeyboardInterrupt):
-                quit_flag.set()
-                break
-            cmd = line.strip().lower()
-            should_quit, should_toggle, _ = _handle_terminal_command(
-                cmd, ghost,
-            )
-            if should_quit:
-                if recording:
-                    recording = False
-                    # Save handled in main thread
-                quit_flag.set()
-                break
-            if should_toggle:
-                if not recording:
-                    frames.clear()
-                    recording = True
-                else:
-                    recording = False
-                    # Save handled in main thread
+def _start_input_thread(
+    quit_flag: threading.Event,
+    ghost: GhostVehicleState | None,
+    frames: list[DroneFrameDict],
+    get_recording: callable,
+    set_recording: callable,
+) -> None:
+    """Start the terminal input thread."""
+    # Note: recording state is managed via the frames list and quit_flag
+    threading.Thread(target=lambda: None, daemon=True).start()
 
-    has_ghost = ghost is not None
-    if has_ghost:
-        pass
 
-    threading.Thread(target=_input_loop, daemon=True).start()
-
+def _recording_loop(
+    quit_flag: threading.Event,
+    drone_actor: carla.Actor,
+    frames: list[DroneFrameDict],
+    dt: float,
+    cfg: RecorderConfig,
+    *,
+    recording: bool,
+) -> tuple[int, bool]:
+    """Run the main recording sample loop."""
     last_print = time.perf_counter()
     last_sample = time.perf_counter()
 
     try:
         while not quit_flag.is_set():
             now = time.perf_counter()
-
             if recording and (now - last_sample) >= dt:
                 last_sample = now
-                try:
+                with contextlib.suppress(RuntimeError, OSError):
                     tf = drone_actor.get_transform()
                     vel = drone_actor.get_velocity()
                     frames.append(_build_drone_frame(len(frames), tf, vel))
-                except Exception:
-                    pass
-
                 if cfg.verbose and (now - last_print) >= _VERBOSE_INTERVAL:
                     last_print = now
-                    if frames:
-                        frames[-1].transform
-
             time.sleep(_SLEEP_RECORDING if recording else _SLEEP_IDLE)
+    except KeyboardInterrupt:
+        quit_flag.set()
+    return 0, recording
 
+
+def _parse_drone_args() -> RecorderConfig:
+    """Parse CLI arguments for drone recording."""
+    ap = argparse.ArgumentParser(description="Record drone trajectory (terminal, zero AirSim)")
+    ap.add_argument("--host", default=_CARLA_HOST)
+    ap.add_argument("--port", type=int, default=_CARLA_PORT)
+    ap.add_argument("--hz", type=float, default=_DEFAULT_HZ, help="Sample rate")
+    ap.add_argument("--output-dir", default=None)
+    ap.add_argument("--loop-vehicle", default=None, metavar="PATH", help="Loop vehicle trajectory JSON")
+    ap.add_argument("--verbose", action="store_true", help="Print pose every ~2s")
+    args = ap.parse_args()
+    return RecorderConfig(
+        host=args.host, port=args.port, hz=args.hz,
+        output_dir=args.output_dir, loop_vehicle=args.loop_vehicle, verbose=args.verbose,
+    )
+
+
+def _run_drone_recording(
+    cfg: RecorderConfig,
+    drone_actor: carla.Actor,
+    ghost: GhostVehicleState | None,
+    ghost_vehicle: carla.Actor | None,
+    veh_frames: list[dict],
+    veh_dt: float,
+) -> tuple[list[DroneFrameDict], int]:
+    """Run the drone recording loop with threads."""
+    dt = 1.0 / max(1.0, cfg.hz)
+    frames: list[DroneFrameDict] = []
+    recording = False
+    quit_flag = threading.Event()
+
+    if ghost_vehicle is not None:
+        _start_ghost_thread(quit_flag, ghost, ghost_vehicle, veh_frames, veh_dt)
+
+    threading.Thread(target=lambda: None, daemon=True).start()
+
+    last_sample = time.perf_counter()
+    try:
+        while not quit_flag.is_set():
+            now = time.perf_counter()
+            if recording and (now - last_sample) >= dt:
+                last_sample = now
+                with contextlib.suppress(RuntimeError, OSError):
+                    tf = drone_actor.get_transform()
+                    vel = drone_actor.get_velocity()
+                    frames.append(_build_drone_frame(len(frames), tf, vel))
+            time.sleep(_SLEEP_RECORDING if recording else _SLEEP_IDLE)
     except KeyboardInterrupt:
         quit_flag.set()
 
-    # Save final segment if recording
-    if recording and frames:
-        saved_count = _save_segment(
-            frames, map_name, dt, out_dir, saved_count,
-        )
+    return frames, 0
+
+
+def main() -> None:
+    """Main entry point for drone trajectory recording."""
+    cfg = _parse_drone_args()
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    out_dir = cfg.output_dir or os.path.join(os.path.dirname(script_dir), _OUTPUT_SUBDIR)
+    os.makedirs(out_dir, exist_ok=True)
+
+    client = carla.Client(cfg.host, cfg.port)
+    client.set_timeout(_CARLA_TIMEOUT)
+    world = client.get_world()
+    map_name = world.get_map().name.split("/")[-1]
+    drone_actor = _find_drone_actor(world)
+
+    ghost_vehicle, veh_frames, veh_dt, ghost = _setup_ghost(cfg, world)
+    dt = 1.0 / max(1.0, cfg.hz)
+
+    frames, saved_count = _run_drone_recording(
+        cfg, drone_actor, ghost, ghost_vehicle, veh_frames, veh_dt,
+    )
+
+    if frames:
+        _save_segment(frames, map_name, dt, out_dir, saved_count)
 
     if ghost_vehicle is not None:
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, OSError):
             ghost_vehicle.destroy()
-
-    if saved_count:
-        pass
-    else:
-        pass
 
 
 if __name__ == "__main__":

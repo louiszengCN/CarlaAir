@@ -98,7 +98,7 @@ def main() -> None:
         )
 
         # Enable gbuffer textures
-        camera.enable_gbuffers(True)
+        camera.enable_gbuffers(enabled=True)
 
         # Register gbuffer callbacks
         gbuffer_ids = [

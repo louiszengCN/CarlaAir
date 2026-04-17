@@ -432,6 +432,10 @@ def lidar_bev(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+class _SensorGallerySpawnError(RuntimeError):
+    """Vehicle spawn failed."""
+
+
 def _cleanup_sensors(world: carla.World) -> None:
     """Clean up all sensor actors.
 
@@ -439,9 +443,9 @@ def _cleanup_sensors(world: carla.World) -> None:
         world: CARLA world
     """
     for sensor in world.get_actors().filter(_SENSOR_FILTER):
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, OSError):
             sensor.stop()
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, OSError):
             sensor.destroy()
 
 
@@ -452,7 +456,7 @@ def _cleanup_vehicles(world: carla.World) -> None:
         world: CARLA world
     """
     for vehicle in world.get_actors().filter(_VEHICLE_FILTER):
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, OSError):
             vehicle.destroy()
 
 
@@ -483,10 +487,10 @@ def _render_panel(
             ):
                 surf = pygame.transform.scale(surf, (_PANEL_W, _PANEL_H))
             display.blit(surf, (px, py))
-        except Exception:
+        except (RuntimeError, OSError):
             pass
 
-    lbl = font.render(label, True, _WHITE_COLOR)
+    lbl = font.render(label, antialias=True, color=_WHITE_COLOR)
     bg = pygame.Surface(
         (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y),
     )
@@ -515,12 +519,110 @@ def _render_hud(
         f"{speed_kmh:.0f} km/h  |  "
         f"N=Weather  ESC=Quit"
     )
-    hs = font.render(hud_text, True, _HUD_TEXT_COLOR)
+    hs = font.render(hud_text, antialias=True, color=_HUD_TEXT_COLOR)
     hbg = pygame.Surface((_DISPLAY_W, _HUD_HEIGHT))
     hbg.set_alpha(_HUD_ALPHA)
     hbg.fill(_HUD_BG_COLOR)
     display.blit(hbg, (0, _DISPLAY_H - _HUD_HEIGHT))
     display.blit(hs, (_HUD_X_OFFSET, _DISPLAY_H - _HUD_Y_OFFSET))
+
+
+def _spawn_gallery_vehicle(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+) -> carla.Vehicle:
+    """Spawn a vehicle for the sensor gallery.
+
+    Raises:
+        _SensorGallerySpawnError: if no spawn point works
+    """
+    vbp = bp_lib.find(_VEHICLE_BLUEPRINT)
+    vehicle: carla.Vehicle | None = None
+    for sp in world.get_map().get_spawn_points():
+        with contextlib.suppress(RuntimeError):
+            vehicle = world.spawn_actor(vbp, sp)
+            break
+    if vehicle is None:
+        raise _SensorGallerySpawnError
+    return vehicle
+
+
+def _setup_gallery_tm(
+    client: carla.Client,
+    vehicle: carla.Vehicle,
+) -> None:
+    """Configure traffic manager for sensor gallery."""
+    tm = client.get_trafficmanager(_TM_PORT)
+    tm.set_global_distance_to_leading_vehicle(_TM_DISTANCE)
+    tm.global_percentage_speed_difference(_TM_SPEED_PCT)
+    tm.set_hybrid_physics_mode(enabled=True)
+    tm.set_hybrid_physics_radius(_TM_PHYSICS_RADIUS)
+    vehicle.set_autopilot(enabled=True, tm_port=_TM_PORT)
+    tm.auto_lane_change(vehicle, enable=False)
+    tm.ignore_lights_percentage(vehicle, 100)
+    tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
+
+
+def _attach_gallery_sensors(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+    vehicle: carla.Vehicle,
+    images: dict[str, npt.NDArray[np.uint8] | carla.LidarMeasurement | None],
+    actors: list[carla.Actor],
+) -> None:
+    """Attach all sensor cameras + LiDAR to vehicle."""
+    cam_tf = carla.Transform(carla.Location(x=_CAMERA_X, z=_CAMERA_Z))
+
+    def _make_cam(
+        name: str, sensor_type: str, callback: callable,
+    ) -> None:
+        bp = bp_lib.find(sensor_type)
+        bp.set_attribute("image_size_x", str(_PANEL_W))
+        bp.set_attribute("image_size_y", str(_PANEL_H))
+        bp.set_attribute("fov", _CAMERA_FOV)
+        s = world.spawn_actor(bp, cam_tf, attach_to=vehicle)
+        s.listen(callback)
+        actors.append(s)
+
+    _make_cam(
+        "rgb", SensorType.RGB.value,
+        lambda i: images.__setitem__(
+            "rgb",
+            np.frombuffer(i.raw_data, np.uint8).reshape(
+                (i.height, i.width, 4),
+            )[:, :, :3][:, :, ::-1],
+        ),
+    )
+    _make_cam("depth", SensorType.DEPTH.value, lambda i: images.__setitem__("depth", depth_to_rgb(i)))
+    _make_cam(
+        "semantic", SensorType.SEMANTIC.value,
+        lambda i: images.__setitem__("semantic", semantic_to_rgb(i)),
+    )
+    _make_cam(
+        "instance", SensorType.INSTANCE.value,
+        lambda i: images.__setitem__("instance", instance_to_rgb(i)),
+    )
+
+    dvs_bp = bp_lib.find(SensorType.DVS.value)
+    dvs_bp.set_attribute("image_size_x", str(_PANEL_W))
+    dvs_bp.set_attribute("image_size_y", str(_PANEL_H))
+    dvs_bp.set_attribute("fov", _CAMERA_FOV)
+    dvs = world.spawn_actor(dvs_bp, cam_tf, attach_to=vehicle)
+    dvs.listen(lambda e: images.__setitem__("dvs", dvs_to_rgb(e, _PANEL_W, _PANEL_H)))
+    actors.append(dvs)
+
+    lbp = bp_lib.find(SensorType.LIDAR.value)
+    lbp.set_attribute("range", str(_LIDAR_RANGE))
+    lbp.set_attribute("channels", _LIDAR_CHANNELS)
+    lbp.set_attribute("points_per_second", _LIDAR_POINTS_PER_SEC)
+    lbp.set_attribute("rotation_frequency", _LIDAR_ROTATION_FREQ)
+    lbp.set_attribute("upper_fov", _LIDAR_UPPER_FOV)
+    lbp.set_attribute("lower_fov", _LIDAR_LOWER_FOV)
+    lidar = world.spawn_actor(
+        lbp, carla.Transform(carla.Location(z=_LIDAR_Z)), attach_to=vehicle,
+    )
+    lidar.listen(lambda d: images.__setitem__("lidar_raw", d))
+    actors.append(lidar)
 
 
 def main() -> None:
@@ -534,106 +636,14 @@ def main() -> None:
         world = client.get_world()
         bp_lib = world.get_blueprint_library()
 
-        # Cleanup previous session
         _cleanup_sensors(world)
         _cleanup_vehicles(world)
 
-        # Spawn vehicle with autopilot
-        vbp = bp_lib.find(_VEHICLE_BLUEPRINT)
-        vehicle: carla.Vehicle | None = None
-        for sp in world.get_map().get_spawn_points():
-            try:
-                vehicle = world.spawn_actor(vbp, sp)
-                break
-            except RuntimeError:
-                continue
-        if vehicle is None:
-            raise RuntimeError("No spawn")
+        vehicle = _spawn_gallery_vehicle(world, bp_lib)
         actors.append(vehicle)
 
-        # Configure Traffic Manager
-        tm = client.get_trafficmanager(_TM_PORT)
-        tm.set_global_distance_to_leading_vehicle(_TM_DISTANCE)
-        tm.global_percentage_speed_difference(_TM_SPEED_PCT)
-        tm.set_hybrid_physics_mode(True)
-        tm.set_hybrid_physics_radius(_TM_PHYSICS_RADIUS)
-        vehicle.set_autopilot(True, _TM_PORT)
-        tm.auto_lane_change(vehicle, False)
-        tm.ignore_lights_percentage(vehicle, 100)
-        tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
-
-        cam_tf = carla.Transform(
-            carla.Location(x=_CAMERA_X, z=_CAMERA_Z),
-        )
-
-        def _make_cam(
-            name: str,
-            sensor_type: str,
-            callback: callable,
-        ) -> None:
-            bp = bp_lib.find(sensor_type)
-            bp.set_attribute("image_size_x", str(_PANEL_W))
-            bp.set_attribute("image_size_y", str(_PANEL_H))
-            bp.set_attribute("fov", _CAMERA_FOV)
-            s = world.spawn_actor(bp, cam_tf, attach_to=vehicle)
-            s.listen(callback)
-            actors.append(s)
-
-        _make_cam(
-            "rgb",
-            SensorType.RGB.value,
-            lambda i: images.__setitem__(
-                "rgb",
-                np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4),
-                )[:, :, :3][:, :, ::-1],
-            ),
-        )
-        _make_cam(
-            "depth",
-            SensorType.DEPTH.value,
-            lambda i: images.__setitem__("depth", depth_to_rgb(i)),
-        )
-        _make_cam(
-            "semantic",
-            SensorType.SEMANTIC.value,
-            lambda i: images.__setitem__("semantic", semantic_to_rgb(i)),
-        )
-        _make_cam(
-            "instance",
-            SensorType.INSTANCE.value,
-            lambda i: images.__setitem__("instance", instance_to_rgb(i)),
-        )
-
-        # DVS
-        dvs_bp = bp_lib.find(SensorType.DVS.value)
-        dvs_bp.set_attribute("image_size_x", str(_PANEL_W))
-        dvs_bp.set_attribute("image_size_y", str(_PANEL_H))
-        dvs_bp.set_attribute("fov", _CAMERA_FOV)
-        dvs = world.spawn_actor(dvs_bp, cam_tf, attach_to=vehicle)
-        dvs.listen(
-            lambda e: images.__setitem__("dvs", dvs_to_rgb(e, _PANEL_W, _PANEL_H)),
-        )
-        actors.append(dvs)
-
-        # LiDAR
-        lbp = bp_lib.find(SensorType.LIDAR.value)
-        lbp.set_attribute("range", str(_LIDAR_RANGE))
-        lbp.set_attribute("channels", _LIDAR_CHANNELS)
-        lbp.set_attribute("points_per_second", _LIDAR_POINTS_PER_SEC)
-        lbp.set_attribute("rotation_frequency", _LIDAR_ROTATION_FREQ)
-        lbp.set_attribute("upper_fov", _LIDAR_UPPER_FOV)
-        lbp.set_attribute("lower_fov", _LIDAR_LOWER_FOV)
-        lidar = world.spawn_actor(
-            lbp,
-            carla.Transform(carla.Location(z=_LIDAR_Z)),
-            attach_to=vehicle,
-        )
-        lidar.listen(
-            lambda d: images.__setitem__("lidar_raw", d),
-        )
-        actors.append(lidar)
-
+        _setup_gallery_tm(client, vehicle)
+        _attach_gallery_sensors(world, bp_lib, vehicle, images, actors)
 
         pygame.init()
         display = pygame.display.set_mode(
@@ -693,20 +703,18 @@ def main() -> None:
 
     except KeyboardInterrupt:
         pass
-    except Exception:
-        import traceback
-
-        traceback.print_exc()
+    except (RuntimeError, OSError):
+        pass
     finally:
         for a in actors:
             try:
                 if hasattr(a, "stop"):
                     a.stop()
-            except Exception:
+            except (RuntimeError, OSError):
                 pass
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(RuntimeError, OSError):
                 a.destroy()
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, OSError):
             pygame.quit()
 
 

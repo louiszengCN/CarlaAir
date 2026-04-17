@@ -87,7 +87,8 @@ def extract_spawn_points(
         logging.info(
             "Please add some Vehicle Spawn Point to your UE4 scene.",
         )
-        raise RuntimeError("No spawn points available")
+        msg = "No spawn points available"
+        raise RuntimeError(msg)
 
     records = [
         SpawnPointRecord(

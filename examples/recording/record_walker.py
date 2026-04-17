@@ -242,6 +242,7 @@ def _build_frame(
     rot: carla.Rotation,
     vel: carla.Vector3D,
     speed: float,
+    *,
     jump: bool,
 ) -> WalkerFrameDict:
     """Build a trajectory frame dictionary.
@@ -310,6 +311,155 @@ def _save_trajectory(
     return filename
 
 
+def _spawn_walker_and_camera(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+    latest_image: list[np.ndarray | None],
+) -> tuple[carla.Actor, carla.Actor, carla.Transform]:
+    """Spawn walker and chase camera.
+
+    Args:
+        world: CARLA world
+        bp_lib: blueprint library
+        latest_image: shared image buffer
+
+    Returns:
+        (walker, camera, spawn_transform) tuple
+    """
+    walker_bp = bp_lib.filter(_WALKER_FILTER)[0]
+    if walker_bp.has_attribute("is_invincible"):
+        walker_bp.set_attribute("is_invincible", "true")
+
+    spawn_loc = world.get_random_location_from_navigation()
+    if spawn_loc is None:
+        sp = world.get_map().get_spawn_points()
+        spawn_loc = sp[0].location if sp else carla.Location(0, 0, _FALLBACK_Z)
+    spawn_tf = carla.Transform(spawn_loc + carla.Location(z=_SPAWN_Z))
+
+    walker = world.spawn_actor(walker_bp, spawn_tf)
+    world.tick()
+
+    cam_bp = bp_lib.find("sensor.camera.rgb")
+    cam_bp.set_attribute("image_size_x", str(_WINDOW_W))
+    cam_bp.set_attribute("image_size_y", str(_WINDOW_H))
+    cam_bp.set_attribute("fov", _CAMERA_FOV)
+    cam_tf = carla.Transform(
+        carla.Location(x=_CHASE_X, z=_CHASE_Z),
+        carla.Rotation(pitch=_CHASE_PITCH),
+    )
+    camera = world.spawn_actor(cam_bp, cam_tf, attach_to=walker)
+
+    def _on_image(image: carla.Image) -> None:
+        arr = np.frombuffer(image.raw_data, dtype=np.uint8)
+        latest_image[0] = arr.reshape((image.height, image.width, 4))[:, :, :3][:, :, ::-1]
+
+    camera.listen(_on_image)
+    world.tick()
+    return walker, camera, spawn_tf
+
+
+def _record_loop(
+    world: carla.World,
+    walker: carla.Actor,
+    camera: carla.Actor,
+    display: pygame.Surface,
+    clock: pygame.time.Clock,
+    latest_image: list[np.ndarray | None],
+    initial_yaw: float,
+    walk_speed: float,
+) -> tuple[list[WalkerFrameDict], bool]:
+    """Run the main recording loop.
+
+    Args:
+        world: CARLA world
+        walker: walker actor
+        camera: camera actor
+        display: pygame display
+        clock: pygame clock
+        latest_image: shared image buffer
+        initial_yaw: starting yaw
+        walk_speed: initial walk speed
+
+    Returns:
+        (frames, save_on_exit) tuple
+    """
+    yaw = initial_yaw
+    pitch = 0.0
+    frames: list[WalkerFrameDict] = []
+    recording_started = False
+    running = True
+    save_on_exit = False
+
+    while running:
+        clock.tick(_DISPLAY_FPS)
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                running = False
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    running = False
+                elif ev.key == pygame.K_F9:
+                    if not recording_started:
+                        recording_started = True
+                elif ev.key == pygame.K_F1:
+                    save_on_exit = True
+                    running = False
+            elif ev.type == pygame.MOUSEBUTTONDOWN:
+                if ev.button == KeyCommand.SCROLL_UP.value:
+                    walk_speed = min(walk_speed + _WALK_SPEED_STEP, _WALK_SPEED_MAX)
+                elif ev.button == KeyCommand.SCROLL_DOWN.value:
+                    walk_speed = max(walk_speed - _WALK_SPEED_STEP, _WALK_SPEED_MIN)
+
+        dx, dy = pygame.mouse.get_rel()
+        yaw += dx * _MOUSE_SENS
+        pitch = float(np.clip(pitch - dy * _MOUSE_SENS, -60.0, 60.0))
+
+        tf = walker.get_transform()
+        tf.rotation.yaw = yaw
+        walker.set_transform(tf)
+        camera.set_transform(
+            carla.Transform(
+                carla.Location(x=_CHASE_X, z=_CHASE_Z),
+                carla.Rotation(pitch=pitch + _CHASE_PITCH, yaw=0, roll=0),
+            ),
+        )
+
+        keys = pygame.key.get_pressed()
+        fwd = keys[pygame.K_w] - keys[pygame.K_s]
+        right = keys[pygame.K_d] - keys[pygame.K_a]
+        jump = bool(keys[pygame.K_SPACE])
+        sprint = bool(keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT])
+        speed = walk_speed * (_SPRINT_MULT if sprint else 1.0)
+        yaw_rad = math.radians(yaw)
+
+        control = carla.WalkerControl()
+        if abs(fwd) > 0 or abs(right) > 0:
+            wx = fwd * math.cos(yaw_rad) - right * math.sin(yaw_rad)
+            wy = fwd * math.sin(yaw_rad) + right * math.cos(yaw_rad)
+            control.direction = carla.Vector3D(x=wx, y=wy, z=0)
+            control.speed = speed
+        control.jump = jump
+        walker.apply_control(control)
+        world.tick()
+
+        loc = walker.get_location()
+        rot = walker.get_transform().rotation
+        vel = walker.get_velocity()
+        if recording_started:
+            frames.append(_build_frame(len(frames), loc, rot, vel, speed, jump=jump))
+
+        if latest_image[0] is not None:
+            surf = pygame.surfarray.make_surface(latest_image[0].swapaxes(0, 1))
+            display.blit(surf, (0, 0))
+        else:
+            display.fill(_DISPLAY_BG)
+
+        pygame.display.flip()
+
+    return frames, save_on_exit
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
@@ -320,18 +470,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Record walker trajectory")
     parser.add_argument("--host", default=_CARLA_HOST)
     parser.add_argument("--port", type=int, default=_CARLA_PORT)
-    parser.add_argument(
-        "--speed",
-        type=float,
-        default=_WALK_SPEED_DEFAULT,
-        help="Walk speed m/s",
-    )
+    parser.add_argument("--speed", type=float, default=_WALK_SPEED_DEFAULT, help="Walk speed m/s")
     parser.add_argument("--map", default=None, help="Switch to this map first")
-    parser.add_argument(
-        "--weather",
-        default=None,
-        choices=[p.value[0] for p in WeatherPreset],
-    )
+    parser.add_argument("--weather", default=None, choices=[p.value[0] for p in WeatherPreset])
     parser.add_argument("--output-dir", default=None)
     args = parser.parse_args()
 
@@ -345,21 +486,15 @@ def main() -> None:
     )
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    out_dir = cfg.output_dir or os.path.join(
-        os.path.dirname(script_dir), _OUTPUT_SUBDIR,
-    )
+    out_dir = cfg.output_dir or os.path.join(os.path.dirname(script_dir), _OUTPUT_SUBDIR)
     os.makedirs(out_dir, exist_ok=True)
 
     client = carla.Client(cfg.host, cfg.port)
     client.set_timeout(_CARLA_TIMEOUT)
 
     if cfg.map_name:
-        available = [
-            m.split("/")[-1] for m in client.get_available_maps()
-        ]
-        matched = [
-            m for m in available if cfg.map_name.lower() in m.lower()
-        ]
+        available = [m.split("/")[-1] for m in client.get_available_maps()]
+        matched = [m for m in available if cfg.map_name.lower() in m.lower()]
         if matched:
             client.load_world(matched[0])
             time.sleep(_MAP_LOAD_DELAY)
@@ -383,175 +518,36 @@ def main() -> None:
     latest_image: list[np.ndarray | None] = [None]
 
     try:
-        # Spawn walker
-        walker_bp = bp_lib.filter(_WALKER_FILTER)[0]
-        if walker_bp.has_attribute("is_invincible"):
-            walker_bp.set_attribute("is_invincible", "true")
+        walker, camera, spawn_tf = _spawn_walker_and_camera(world, bp_lib, latest_image)
+        actors.extend([walker, camera])
 
-        spawn_loc = world.get_random_location_from_navigation()
-        if spawn_loc is None:
-            sp = world.get_map().get_spawn_points()
-            spawn_loc = (
-                sp[0].location if sp else carla.Location(0, 0, _FALLBACK_Z)
-            )
-        spawn_tf = carla.Transform(spawn_loc + carla.Location(z=_SPAWN_Z))
-
-        walker = world.spawn_actor(walker_bp, spawn_tf)
-        actors.append(walker)
-        world.tick()
-
-        # Camera
-        cam_bp = bp_lib.find("sensor.camera.rgb")
-        cam_bp.set_attribute("image_size_x", str(_WINDOW_W))
-        cam_bp.set_attribute("image_size_y", str(_WINDOW_H))
-        cam_bp.set_attribute("fov", _CAMERA_FOV)
-        cam_tf = carla.Transform(
-            carla.Location(x=_CHASE_X, z=_CHASE_Z),
-            carla.Rotation(pitch=_CHASE_PITCH),
-        )
-        camera = world.spawn_actor(cam_bp, cam_tf, attach_to=walker)
-        actors.append(camera)
-
-        def _on_image(image: carla.Image) -> None:
-            arr = np.frombuffer(image.raw_data, dtype=np.uint8)
-            arr = arr.reshape((image.height, image.width, 4))[
-                :, :, :3,
-            ][:, :, ::-1]
-            latest_image[0] = arr
-
-        camera.listen(_on_image)
-        world.tick()
-
-        # Pygame
         pygame.init()
-        display = pygame.display.set_mode(
-            (_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS,
-        )
+        display = pygame.display.set_mode((_WINDOW_W, _WINDOW_H), _DISPLAY_FLAGS)
         pygame.display.set_caption("")
         pygame.event.set_grab(True)
         pygame.mouse.set_visible(False)
         clock = pygame.time.Clock()
 
-        yaw = spawn_tf.rotation.yaw
-        pitch = 0.0
-        walk_speed = cfg.speed
-        frames: list[WalkerFrameDict] = []
-        recording_started = False
-        running = True
-        save_on_exit = False
+        frames, save_on_exit = _record_loop(
+            world, walker, camera, display, clock, latest_image,
+            spawn_tf.rotation.yaw, cfg.speed,
+        )
 
-
-        while running:
-            clock.tick(_DISPLAY_FPS)
-
-            for ev in pygame.event.get():
-                if ev.type == pygame.QUIT:
-                    running = False
-                elif ev.type == pygame.KEYDOWN:
-                    if ev.key == pygame.K_ESCAPE:
-                        running = False
-                    elif ev.key == pygame.K_F9:
-                        if not recording_started:
-                            recording_started = True
-                    elif ev.key == pygame.K_F1:
-                        save_on_exit = True
-                        running = False
-                elif ev.type == pygame.MOUSEBUTTONDOWN:
-                    if ev.button == KeyCommand.SCROLL_UP.value:
-                        walk_speed = min(
-                            walk_speed + _WALK_SPEED_STEP, _WALK_SPEED_MAX,
-                        )
-                    elif ev.button == KeyCommand.SCROLL_DOWN.value:
-                        walk_speed = max(
-                            walk_speed - _WALK_SPEED_STEP, _WALK_SPEED_MIN,
-                        )
-
-            # Mouse look
-            dx, dy = pygame.mouse.get_rel()
-            yaw += dx * _MOUSE_SENS
-            pitch = np.clip(
-                pitch - dy * _MOUSE_SENS,
-                -60.0,
-                60.0,
-            )
-
-            tf = walker.get_transform()
-            tf.rotation.yaw = yaw
-            walker.set_transform(tf)
-
-            camera.set_transform(
-                carla.Transform(
-                    carla.Location(x=_CHASE_X, z=_CHASE_Z),
-                    carla.Rotation(
-                        pitch=pitch + _CHASE_PITCH, yaw=0, roll=0,
-                    ),
-                ),
-            )
-
-            # Movement
-            keys = pygame.key.get_pressed()
-            fwd = keys[pygame.K_w] - keys[pygame.K_s]
-            right = keys[pygame.K_d] - keys[pygame.K_a]
-            jump = bool(keys[pygame.K_SPACE])
-            sprint = bool(
-                keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT],
-            )
-
-            speed = walk_speed * (_SPRINT_MULT if sprint else 1.0)
-            yaw_rad = math.radians(yaw)
-
-            control = carla.WalkerControl()
-            if abs(fwd) > 0 or abs(right) > 0:
-                wx = fwd * math.cos(yaw_rad) - right * math.sin(yaw_rad)
-                wy = fwd * math.sin(yaw_rad) + right * math.cos(yaw_rad)
-                control.direction = carla.Vector3D(x=wx, y=wy, z=0)
-                control.speed = speed
-            control.jump = jump
-
-            walker.apply_control(control)
-            world.tick()
-
-            loc = walker.get_location()
-            rot = walker.get_transform().rotation
-            vel = walker.get_velocity()
-            if recording_started:
-                frames.append(
-                    _build_frame(
-                        len(frames), loc, rot, vel, speed, jump,
-                    ),
-                )
-
-            # Display
-            if latest_image[0] is not None:
-                surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1),
-                )
-                display.blit(surf, (0, 0))
-            else:
-                display.fill(_DISPLAY_BG)
-
-            pygame.display.flip()
-
-        # Save
         if save_on_exit and frames:
             _save_trajectory(frames, map_name, out_dir)
-        elif frames or save_on_exit:
-            pass
 
     finally:
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError):
             camera.stop()
         for a in actors:
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(RuntimeError):
                 a.destroy()
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError):
             world.apply_settings(original_settings)
-        try:
+        with contextlib.suppress(RuntimeError, pygame.error):
             pygame.event.set_grab(False)
             pygame.mouse.set_visible(True)
             pygame.quit()
-        except Exception:
-            pass
 
 
 if __name__ == "__main__":

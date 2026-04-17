@@ -45,8 +45,9 @@ class TestStreamming(SmokeTest):
         Args:
             event: GNSS measurement data
         """
-        self.assertAlmostEqual(event.latitude, self.lat, places=_LAT_LON_PLACES)
-        self.assertAlmostEqual(event.longitude, self.lon, places=_LAT_LON_PLACES)
+        tol = 10 ** (-_LAT_LON_PLACES)
+        assert abs(event.latitude - self.lat) < tol, f"Lat: {event.latitude} vs {self.lat}"
+        assert abs(event.longitude - self.lon) < tol, f"Lon: {event.longitude} vs {self.lon}"
 
     def _create_client(self) -> None:
         """Create a secondary client and verify GNSS streaming."""

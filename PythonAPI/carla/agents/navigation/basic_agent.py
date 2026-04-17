@@ -1,4 +1,4 @@
-# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Copyright (c) 2018-2020 CVC.
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
@@ -90,6 +90,7 @@ _DEFAULT_SAME_LANE_TIME: float = 0.0
 _DEFAULT_OTHER_LANE_TIME: float = 0.0
 _DEFAULT_LANE_CHANGE_TIME: float = 2.0
 _HALF_LANE_WIDTH_DIVISOR: float = 2.0
+_MIN_POLYGON_POINTS: int = 3
 
 
 def _extract_local_planner_options(options: _BasicAgentOptions) -> _LocalPlannerOptions:
@@ -168,13 +169,11 @@ class BasicAgent:
         """
         self._vehicle = vehicle
         self._world = self._vehicle.get_world()
-        if map_inst:
-            if isinstance(map_inst, carla.Map):
-                self._map = map_inst
-            else:
-                self._map = self._world.get_map()
-        else:
-            self._map = self._world.get_map()
+        self._map = (
+            map_inst
+            if isinstance(map_inst, carla.Map)
+            else self._world.get_map()
+        )
         self._last_traffic_light = None
 
         # Base parameters
@@ -192,6 +191,31 @@ class BasicAgent:
 
         # Change parameters according to the dictionary
         options: _BasicAgentOptions = opt_dict or {}
+        self._apply_agent_options(options)
+
+        # Initialize the planners
+        local_opts = _extract_local_planner_options(options)
+        self._local_planner = LocalPlanner(
+            self._vehicle,
+            opt_dict=local_opts,
+            map_inst=self._map,
+        )
+        self._global_planner = (
+            grp_inst
+            if isinstance(grp_inst, GlobalRoutePlanner)
+            else GlobalRoutePlanner(self._map, self._sampling_resolution)
+        )
+
+        # Get the static elements of the scene
+        self._lights_list = self._world.get_actors().filter(_TRAFFIC_LIGHT_FILTER)
+        self._lights_map = {}
+
+    def _apply_agent_options(self, options: _BasicAgentOptions) -> None:
+        """Apply configuration options from the options dictionary.
+
+        Args:
+            options: agent configuration options
+        """
         if "ignore_traffic_lights" in options:
             self._ignore_traffic_lights = options["ignore_traffic_lights"]
         if "ignore_stop_signs" in options:
@@ -212,25 +236,6 @@ class BasicAgent:
             self._max_brake = options["max_brake"]
         if "offset" in options:
             self._offset = options["offset"]
-
-        # Initialize the planners
-        local_opts = _extract_local_planner_options(options)
-        self._local_planner = LocalPlanner(
-            self._vehicle,
-            opt_dict=local_opts,
-            map_inst=self._map,
-        )
-        if grp_inst:
-            if isinstance(grp_inst, GlobalRoutePlanner):
-                self._global_planner = grp_inst
-            else:
-                self._global_planner = GlobalRoutePlanner(self._map, self._sampling_resolution)
-        else:
-            self._global_planner = GlobalRoutePlanner(self._map, self._sampling_resolution)
-
-        # Get the static elements of the scene
-        self._lights_list = self._world.get_actors().filter(_TRAFFIC_LIGHT_FILTER)
-        self._lights_map = {}
 
     def add_emergency_stop(self, control: carla.VehicleControl) -> carla.VehicleControl:
         """Overwrite throttle and brake values of a control to perform an emergency stop.
@@ -257,7 +262,7 @@ class BasicAgent:
         self._target_speed = speed
         self._local_planner.set_speed(speed)
 
-    def follow_speed_limits(self, value: bool = True) -> None:
+    def follow_speed_limits(self, *, value: bool = True) -> None:
         """Activate dynamic speed limit following.
 
         If active, the agent will dynamically change the target speed according to the speed limits.
@@ -279,6 +284,7 @@ class BasicAgent:
         self,
         end_location: carla.Location,
         start_location: carla.Location | None = None,
+        *,
         clean_queue: bool = True,
     ) -> None:
         """Create a list of waypoints between a starting and ending location.
@@ -310,6 +316,7 @@ class BasicAgent:
     def set_global_plan(
         self,
         plan: list[tuple[carla.Waypoint, RoadOption]],
+        *,
         stop_waypoint_creation: bool = True,
         clean_queue: bool = True,
     ) -> None:
@@ -379,7 +386,7 @@ class BasicAgent:
         """Check whether the agent has reached its destination."""
         return self._local_planner.done()
 
-    def ignore_traffic_lights(self, active: bool = True) -> None:
+    def ignore_traffic_lights(self, *, active: bool = True) -> None:
         """Activate or deactivate traffic light checks.
 
         Args:
@@ -387,7 +394,7 @@ class BasicAgent:
         """
         self._ignore_traffic_lights = active
 
-    def ignore_stop_signs(self, active: bool = True) -> None:
+    def ignore_stop_signs(self, *, active: bool = True) -> None:
         """Activate or deactivate stop sign checks.
 
         Args:
@@ -395,7 +402,7 @@ class BasicAgent:
         """
         self._ignore_stop_signs = active
 
-    def ignore_vehicles(self, active: bool = True) -> None:
+    def ignore_vehicles(self, *, active: bool = True) -> None:
         """Activate or deactivate vehicle checks.
 
         Args:
@@ -457,7 +464,7 @@ class BasicAgent:
             TrafficLightDetectionResult with whether a red light was found and which one
         """
         if self._ignore_traffic_lights:
-            return TrafficLightDetectionResult(False, None)
+            return TrafficLightDetectionResult(traffic_light_was_found=False, traffic_light=None)
 
         if not lights_list:
             lights_list = self._world.get_actors().filter(_TRAFFIC_LIGHT_FILTER)
@@ -469,7 +476,7 @@ class BasicAgent:
             if self._last_traffic_light.state != carla.TrafficLightState.Red:
                 self._last_traffic_light = None
             else:
-                return TrafficLightDetectionResult(True, self._last_traffic_light)
+                return TrafficLightDetectionResult(traffic_light_was_found=True, traffic_light=self._last_traffic_light)
 
         ego_vehicle_location = self._vehicle.get_location()
         ego_vehicle_waypoint = self._map.get_waypoint(ego_vehicle_location)
@@ -505,9 +512,9 @@ class BasicAgent:
                 _TLIGHT_ANGLE_INTERVAL,
             ):
                 self._last_traffic_light = traffic_light
-                return TrafficLightDetectionResult(True, traffic_light)
+                return TrafficLightDetectionResult(traffic_light_was_found=True, traffic_light=traffic_light)
 
-        return TrafficLightDetectionResult(False, None)
+        return TrafficLightDetectionResult(traffic_light_was_found=False, traffic_light=None)
 
     def _vehicle_obstacle_detected(
         self,
@@ -553,18 +560,18 @@ class BasicAgent:
                 route_bb.extend([[p1.x, p1.y, p1.z], [p2.x, p2.y, p2.z]])
 
             # Two points don't create a polygon, nothing to check
-            if len(route_bb) < 3:
+            if len(route_bb) < _MIN_POLYGON_POINTS:
                 return None
 
             return Polygon(route_bb)
 
         if self._ignore_vehicles:
-            return ObstacleDetectionResult(False, None, _NO_OBSTACLE_DISTANCE)
+            return ObstacleDetectionResult(obstacle_was_found=False, obstacle=None, distance=_NO_OBSTACLE_DISTANCE)
 
         if vehicle_list is None:
             vehicle_list = self._world.get_actors().filter(_VEHICLE_FILTER)
         if len(vehicle_list) == 0:
-            return ObstacleDetectionResult(False, None, _NO_OBSTACLE_DISTANCE)
+            return ObstacleDetectionResult(obstacle_was_found=False, obstacle=None, distance=_NO_OBSTACLE_DISTANCE)
 
         if max_distance is None:
             max_distance = self._base_vehicle_threshold
@@ -609,9 +616,9 @@ class BasicAgent:
 
                 if route_polygon.intersects(target_polygon):
                     return ObstacleDetectionResult(
-                        True,
-                        target_vehicle,
-                        target_vehicle.get_location().distance(ego_location),
+                        obstacle_was_found=True,
+                        obstacle=target_vehicle,
+                        distance=target_vehicle.get_location().distance(ego_location),
                     )
 
             # Simplified approach, using only the plan waypoints (similar to TM)
@@ -643,12 +650,12 @@ class BasicAgent:
                     (low_angle_th, up_angle_th),
                 ):
                     return ObstacleDetectionResult(
-                        True,
-                        target_vehicle,
-                        target_transform.location.distance(ego_transform.location),
+                        obstacle_was_found=True,
+                        obstacle=target_vehicle,
+                        distance=target_transform.location.distance(ego_transform.location),
                     )
 
-        return ObstacleDetectionResult(False, None, _NO_OBSTACLE_DISTANCE)
+        return ObstacleDetectionResult(obstacle_was_found=False, obstacle=None, distance=_NO_OBSTACLE_DISTANCE)
 
     @staticmethod
     def _generate_lane_change_path(
@@ -657,6 +664,7 @@ class BasicAgent:
         distance_same_lane: float = _DEFAULT_DISTANCE_SAME_LANE,
         distance_other_lane: float = _DEFAULT_DISTANCE_OTHER_LANE,
         lane_change_distance: float = _DEFAULT_LANE_CHANGE_DISTANCE,
+        *,
         check: bool = True,
         lane_changes: int = _DEFAULT_LANE_CHANGES,
         step_distance: float = _DEFAULT_STEP_DISTANCE,

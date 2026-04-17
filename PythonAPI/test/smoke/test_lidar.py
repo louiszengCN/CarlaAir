@@ -185,7 +185,7 @@ class LiDARSensor:
 
     def _callback(
         self,
-        sensor_data: Any,
+        sensor_data: object,
         sensor_name: str | None = None,
         queue: Queue | None = None,
     ) -> None:
@@ -427,7 +427,10 @@ class TestCompareLidars(SyncSmokeTest):
 
             # The detections of the semantic lidar and the Lidar
             # with no dropoff should have the same point count
-            assert data_sem_lidar[2] == data_lidar_nod[2], "The point count of the detections of this " "frame of LiDAR(No dropoff) and SemLiDAR " "do not match."
+            assert data_sem_lidar[2] == data_lidar_nod[2], (
+                "The point count of the detections of this "
+                "frame of LiDAR(No dropoff) and SemLiDAR do not match."
+            )
 
             # Default lidar should drop a minimum of 25% of points
             if data_lidar_def[2] > _DROP_RATIO_THRESHOLD * data_sem_lidar[2]:

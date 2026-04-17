@@ -6,7 +6,9 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""Open3D Lidar visualization example for CARLA"""
+"""Open3D Lidar visualization example for CARLA."""
+
+from __future__ import annotations
 
 import argparse
 import contextlib
@@ -23,6 +25,13 @@ import carla
 
 VIRIDIS = np.array(cm._colormaps.get_cmap("plasma").colors)
 VID_RANGE = np.linspace(0.0, 1.0, VIRIDIS.shape[0])
+
+_TM_PORT: int = 8000
+_FIXED_DELTA: float = 0.05
+_INTENSITY_DECAY: float = 0.004
+_INTENSITY_RANGE: float = 100.0
+_SLEEP_INTERVAL: float = 0.005
+_FRAME_INIT: int = 2
 LABEL_COLORS = np.array([
     (0, 0, 0),           # 0: None
     # cityscape labels
@@ -57,15 +66,13 @@ LABEL_COLORS = np.array([
     (180, 165, 180),     # 28: GuardRail (custom, light purple)
 ]) / 255.0  # normalize to [0, 1] for Open3D
 
-def lidar_callback(point_cloud, point_list) -> None:
-    """Prepares a point cloud with intensity
-    colors ready to be consumed by Open3D"""
+def lidar_callback(point_cloud: carla.LidarMeasurement, point_list: o3d.geometry.PointCloud) -> None:
+    """Prepare a point cloud with intensity colors for Open3D."""
     data = np.copy(np.frombuffer(point_cloud.raw_data, dtype=np.dtype("f4")))
     data = np.reshape(data, (int(data.shape[0] / 4), 4))
 
-    # Isolate the intensity and compute a color for it
     intensity = data[:, -1]
-    intensity_col = 1.0 - np.log(intensity) / np.log(np.exp(-0.004 * 100))
+    intensity_col = 1.0 - np.log(intensity) / np.log(np.exp(-_INTENSITY_DECAY * _INTENSITY_RANGE))
     int_color = np.c_[
         np.interp(intensity_col, VID_RANGE, VIRIDIS[:, 0]),
         np.interp(intensity_col, VID_RANGE, VIRIDIS[:, 1]),
@@ -74,48 +81,39 @@ def lidar_callback(point_cloud, point_list) -> None:
     # Isolate the 3D data
     points = data[:, :-1]
 
-    # We're negating the y to correclty visualize a world that matches
-    # what we see in Unreal since Open3D uses a right-handed coordinate system
+    # Negate y for right-handed coordinate system (Open3D vs Unreal)
     points[:, 1] = -points[:, 1]
-
-    # # An example of converting points from sensor to vehicle space if we had
-    # # a carla.Transform variable named "tran":
-    # points = np.append(points, np.ones((points.shape[0], 1)), axis=1)
-    # points = np.dot(tran.get_matrix(), points.T).T
-    # points = points[:, :-1]
 
     point_list.points = o3d.utility.Vector3dVector(points)
     point_list.colors = o3d.utility.Vector3dVector(int_color)
 
 
-def semantic_lidar_callback(point_cloud, point_list) -> None:
-    """Prepares a point cloud with semantic segmentation
-    colors ready to be consumed by Open3D"""
+def semantic_lidar_callback(
+    point_cloud: carla.SemanticLidarMeasurement, point_list: o3d.geometry.PointCloud,
+) -> None:
+    """Prepare a point cloud with semantic segmentation colors for Open3D."""
     data = np.frombuffer(point_cloud.raw_data, dtype=np.dtype([
         ("x", np.float32), ("y", np.float32), ("z", np.float32),
         ("CosAngle", np.float32), ("ObjIdx", np.uint32), ("ObjTag", np.uint32)]))
 
-    # We're negating the y to correclty visualize a world that matches
-    # what we see in Unreal since Open3D uses a right-handed coordinate system
+    # Negate y for right-handed coordinate system
     points = np.array([data["x"], -data["y"], data["z"]]).T
-
-    # # An example of adding some noise to our data if needed:
-    # points += np.random.uniform(-0.05, 0.05, size=points.shape)
 
     # Colorize the pointcloud based on the CityScapes color palette
     labels = np.array(data["ObjTag"])
     int_color = LABEL_COLORS[labels]
 
-    # # In case you want to make the color intensity depending
-    # # of the incident ray angle, you can use:
-    # int_color *= np.array(data['CosAngle'])[:, None]
-
     point_list.points = o3d.utility.Vector3dVector(points)
     point_list.colors = o3d.utility.Vector3dVector(int_color)
 
 
-def generate_lidar_bp(arg, world, blueprint_library, delta):
-    """Generates a CARLA blueprint based on the script parameters"""
+def generate_lidar_bp(
+    arg: argparse.Namespace,
+    world: carla.World,
+    blueprint_library: carla.BlueprintLibrary,
+    delta: float,
+) -> carla.ActorBlueprint:
+    """Generate a CARLA lidar blueprint based on script parameters."""
     if arg.semantic:
         lidar_bp = world.get_blueprint_library().find("sensor.lidar.ray_cast_semantic")
     else:
@@ -136,8 +134,8 @@ def generate_lidar_bp(arg, world, blueprint_library, delta):
     return lidar_bp
 
 
-def add_open3d_axis(vis) -> None:
-    """Add a small 3D axis on Open3D Visualizer"""
+def add_open3d_axis(vis: o3d.visualization.Visualizer) -> None:
+    """Add a small 3D axis on Open3D Visualizer."""
     axis = o3d.geometry.LineSet()
     axis.points = o3d.utility.Vector3dVector(np.array([
         [0.0, 0.0, 0.0],
@@ -155,8 +153,8 @@ def add_open3d_axis(vis) -> None:
     vis.add_geometry(axis)
 
 
-def main(arg) -> None:
-    """Main function of the script"""
+def main(arg: argparse.Namespace) -> None:
+    """Main function of the script."""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(2.0)
     world = client.get_world()
@@ -164,10 +162,10 @@ def main(arg) -> None:
     try:
         original_settings = world.get_settings()
         settings = world.get_settings()
-        traffic_manager = client.get_trafficmanager(8000)
+        traffic_manager = client.get_trafficmanager(_TM_PORT)
         traffic_manager.set_synchronous_mode(True)
 
-        delta = 0.05
+        delta = _FIXED_DELTA
 
         settings.fixed_delta_seconds = delta
         settings.synchronous_mode = True
@@ -210,18 +208,17 @@ def main(arg) -> None:
         frame = 0
         dt0 = datetime.now(timezone.utc)
         while True:
-            if frame == 2:
+            if frame == _FRAME_INIT:
                 vis.add_geometry(point_list)
             vis.update_geometry(point_list)
 
             vis.poll_events()
             vis.update_renderer()
-            # # This can fix Open3D jittering issues:
-            time.sleep(0.005)
+            time.sleep(_SLEEP_INTERVAL)
             world.tick()
 
             process_time = datetime.now(timezone.utc) - dt0
-            sys.stdout.write("\r" + "FPS: " + str(1.0 / process_time.total_seconds()))
+            sys.stdout.write(f"\rFPS: {1.0 / process_time.total_seconds()}")
             sys.stdout.flush()
             dt0 = datetime.now(timezone.utc)
             frame += 1

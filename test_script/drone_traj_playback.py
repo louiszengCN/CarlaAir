@@ -27,6 +27,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 import carla
 
+try:
+    import cv2
+except ImportError:
+    cv2 = None  # type: ignore[assignment]
+
 if TYPE_CHECKING:
     import numpy.typing as npt
 
@@ -109,6 +114,11 @@ _REALTIME_SLEEP_MIN: float = 0.0
 
 # Depth Threshold
 _DEPTH_MIN: float = 0.1
+
+# Port / Color validation
+_PORT_MAX: int = 65535
+_COLOR_COMPONENTS: int = 3
+_COLOR_COMPONENT_MAX: int = 255
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -212,7 +222,7 @@ class PlaybackConfig(BaseModel):
     @field_validator("port")
     @classmethod
     def _validate_port(cls, v: int) -> int:
-        if not (1 <= v <= 65535):
+        if not (1 <= v <= _PORT_MAX):
             msg = f"Port must be in range 1-65535, got {v}"
             raise ValueError(msg)
         return v
@@ -221,6 +231,17 @@ class PlaybackConfig(BaseModel):
 # ──────────────────────────────────────────────────────────────────────────────
 # Dataclasses / TypedDicts
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class FrustumDrawParams:
+    """Parameters for draw_frustum helper."""
+
+    life_time: float = _DEFAULT_FRUSTUM_LIFE
+    color: carla.Color | None = None
+    near: float = _DEFAULT_FRUSTUM_NEAR
+    far: float = _DEFAULT_FRUSTUM_FAR
+    thickness: float = _DEFAULT_FRUSTUM_THICKNESS
 
 
 @dataclass(frozen=True, slots=True)
@@ -252,7 +273,7 @@ def parse_color(s: str, default: tuple[int, int, int]) -> tuple[int, int, int]:
     """
     try:
         parts = [int(x) for x in s.split(",")]
-        if len(parts) == 3 and all(0 <= c <= 255 for c in parts):
+        if len(parts) == _COLOR_COMPONENTS and all(0 <= c <= _COLOR_COMPONENT_MAX for c in parts):
             return (parts[0], parts[1], parts[2])
     except (ValueError, AttributeError):
         pass
@@ -367,8 +388,6 @@ def draw_cross(
     Returns:
         modified image array
     """
-    import cv2
-
     if img is None:
         return img
     if not img.flags.writeable:
@@ -390,6 +409,7 @@ def _save_array_image(
     out_path: str,
     fmt: str,
     quality: int = _DEFAULT_CAPTURE_QUALITY,
+    *,
     lossless: bool = False,
 ) -> None:
     """Save a NumPy image array to file using OpenCV.
@@ -401,8 +421,6 @@ def _save_array_image(
         quality: compression quality (1-100)
         lossless: whether to use lossless compression
     """
-    import cv2
-
     fmt = (fmt or "png").lower().lstrip(".")
     quality = int(max(1, min(100, quality)))
     params: list[int] = []
@@ -453,11 +471,7 @@ def draw_frustum(
     fov_deg: float,
     img_w: int,
     img_h: int,
-    life_time: float = _DEFAULT_FRUSTUM_LIFE,
-    color: carla.Color | None = None,
-    near: float = _DEFAULT_FRUSTUM_NEAR,
-    far: float = _DEFAULT_FRUSTUM_FAR,
-    thickness: float = _DEFAULT_FRUSTUM_THICKNESS,
+    params: FrustumDrawParams | None = None,
 ) -> None:
     """Draw a camera frustum visualization in the CARLA world.
 
@@ -467,14 +481,15 @@ def draw_frustum(
         fov_deg: field of view in degrees
         img_w: image width
         img_h: image height
-        life_time: how long lines persist
-        color: line color
-        near: near plane distance
-        far: far plane distance
-        thickness: line thickness
+        params: frustum drawing parameters (life_time, color, near, far, thickness)
     """
-    if color is None:
-        color = carla.Color(*_DEFAULT_FRUSTUM_COLOR)
+    if params is None:
+        params = FrustumDrawParams()
+    life_time = params.life_time
+    near = params.near
+    far = params.far
+    thickness = params.thickness
+    color = params.color if params.color is not None else carla.Color(*_DEFAULT_FRUSTUM_COLOR)
     if far <= near + _FRUSTUM_EPSILON or far <= _FRUSTUM_MIN_FAR:
         return
     aspect = img_w / img_h
@@ -646,7 +661,7 @@ class DroneTrajectoryPlayback:
                 self._world.apply_settings(settings)
                 tm = self._client.get_trafficmanager(_TM_PORT)
                 tm.set_synchronous_mode(False)
-        except Exception:
+        except RuntimeError:
             pass
 
     def _spawn_drone_and_camera(self) -> None:
@@ -657,7 +672,7 @@ class DroneTrajectoryPlayback:
             try:
                 drone_bp = self._bp_lib.find(bp_id)
                 break
-            except Exception:
+            except RuntimeError:
                 continue
 
         # Camera setup
@@ -706,7 +721,7 @@ class DroneTrajectoryPlayback:
             try:
                 if cam_bp.has_attribute(key):
                     cam_bp.set_attribute(key, value)
-            except Exception:
+            except RuntimeError:
                 pass
 
         for attr_key, attr_value in _POSTPROCESS_ATTRS.items():
@@ -823,133 +838,198 @@ class DroneTrajectoryPlayback:
                 self._world.tick()
 
                 p0 = self._points[point_idx]
-                pose0 = p0["drone_pose"]
-                tf0 = carla.Transform(
-                    carla.Location(x=pose0["x"], y=pose0["y"], z=pose0["z"]),
-                    carla.Rotation(
-                        pitch=pose0.get("pitch", 0.0),
-                        yaw=pose0.get("yaw", 0.0),
-                        roll=pose0.get("roll", 0.0),
-                    ),
+                tf0 = self._pose_to_transform(p0["drone_pose"])
+
+                tf, point_idx, seg_tick = self._interpolate_step(
+                    point_idx, seg_tick, tf0, pacing, min_seg, max_seg,
                 )
 
-                if point_idx + 1 < len(self._points):
-                    p1 = self._points[point_idx + 1]
-                    pose1 = p1["drone_pose"]
-                    tf1 = carla.Transform(
-                        carla.Location(x=pose1["x"], y=pose1["y"], z=pose1["z"]),
-                        carla.Rotation(
-                            pitch=pose1.get("pitch", 0.0),
-                            yaw=pose1.get("yaw", 0.0),
-                            roll=pose1.get("roll", 0.0),
-                        ),
-                    )
-
-                    # Compute segment length
-                    s0 = p0.get("sim_step")
-                    s1 = p1.get("sim_step")
-                    if (
-                        pacing.use_sim_step
-                        and isinstance(s0, (int, float))
-                        and isinstance(s1, (int, float))
-                        and s1 > s0
-                    ):
-                        seg_len = int(
-                            max(1, round((s1 - s0) / max(_SEGMENT_EPSILON, pacing.playback_speed))),
-                        )
-                    else:
-                        seg_len = int(
-                            max(1, round(pacing.ticks_per_point / max(_SEGMENT_EPSILON, pacing.playback_speed))),
-                        )
-                    seg_len = max(min_seg, min(max_seg, seg_len))
-
-                    alpha = min(_ALPHA_MAX, seg_tick / max(1, seg_len))
-
-                    # Interpolate location
-                    loc = carla.Location(
-                        x=tf0.location.x + (tf1.location.x - tf0.location.x) * alpha,
-                        y=tf0.location.y + (tf1.location.y - tf0.location.y) * alpha,
-                        z=tf0.location.z + (tf1.location.z - tf0.location.z) * alpha,
-                    )
-
-                    # Interpolate rotation with shortest path
-                    rot = carla.Rotation(
-                        pitch=self._lerp_angle(tf0.rotation.pitch, tf1.rotation.pitch, alpha),
-                        yaw=self._lerp_angle(tf0.rotation.yaw, tf1.rotation.yaw, alpha),
-                        roll=self._lerp_angle(tf0.rotation.roll, tf1.rotation.roll, alpha),
-                    )
-
-                    tf = carla.Transform(loc, rot)
-                    self._set_transform(tf)
-
-                    seg_tick += 1
-                    if seg_tick >= seg_len:
-                        seg_tick = 0
-                        point_idx += 1
-                else:
-                    self._set_transform(tf0)
-                    point_idx += 1
-                    seg_tick = 0
-                    tf = tf0
-
-                # Frustum visualization
-                if self._cfg.frustum.enabled:
-                    draw_frustum(
-                        self._world,
-                        tf,
-                        fov_deg=self._metadata.fov,
-                        img_w=self._metadata.width,
-                        img_h=self._metadata.height,
-                        life_time=self._cfg.frustum.life,
-                        color=carla.Color(*self._cfg.frustum.color),
-                        near=self._cfg.frustum.near,
-                        far=self._cfg.frustum.far,
-                        thickness=self._cfg.frustum.thickness,
-                    )
-
-                # Process camera image
-                image = self._last_image
-                if image is not None:
-                    arr = np.frombuffer(
-                        image.raw_data, dtype=np.uint8,
-                    ).reshape((image.height, image.width, 4))[:, :, :3]
-
-                    # Draw navigation target cross
-                    nav = p0.get("nav_waypoint") or {}
-                    uv = nav.get("t1_image_uv")
-                    if uv is not None:
-                        arr = draw_cross(arr, uv[0], uv[1])
-
-                    surface = pygame.surfarray.make_surface(arr.swapaxes(0, 1))
-                    display.blit(surface, (0, 0))
-                    pygame.display.flip()
-
-                    # Video recording
-                    if self._cfg.video.enabled and self._video_writer is not None:
-
-                        self._video_writer.write(arr)
-
-                    # Frame capture
-                    if (
-                        self._cfg.capture.save_frames
-                        and point_idx != self._last_saved_point_idx
-                    ):
-                        self._last_saved_point_idx = point_idx
-                        self._save_frame_capture(arr, point_idx, tf, nav, p0)
+                self._draw_frustum_if_enabled(tf)
+                self._process_camera_frame(
+                    display, p0, point_idx, tf,
+                )
 
                 # Event handling
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    if event.type == pygame.QUIT or (
+                        event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_ESCAPE
+                    ):
                         running = False
 
                 # Realtime pacing
                 if pacing.realtime:
                     time.sleep(
-                        max(_REALTIME_SLEEP_MIN, dt / max(_SEGMENT_EPSILON, pacing.playback_speed)),
+                        max(
+                            _REALTIME_SLEEP_MIN,
+                            dt / max(
+                                _SEGMENT_EPSILON,
+                                pacing.playback_speed,
+                            ),
+                        ),
                     )
 
         finally:
             self._cleanup()
+
+    @staticmethod
+    def _pose_to_transform(
+        pose: dict[str, Any],
+    ) -> carla.Transform:
+        """Convert pose dict to CARLA Transform."""
+        return carla.Transform(
+            carla.Location(
+                x=pose["x"], y=pose["y"], z=pose["z"],
+            ),
+            carla.Rotation(
+                pitch=pose.get("pitch", 0.0),
+                yaw=pose.get("yaw", 0.0),
+                roll=pose.get("roll", 0.0),
+            ),
+        )
+
+    def _interpolate_step(
+        self,
+        point_idx: int,
+        seg_tick: int,
+        tf0: carla.Transform,
+        pacing: PlaybackPacingConfig,
+        min_seg: int,
+        max_seg: int,
+    ) -> tuple[carla.Transform, int, int]:
+        """Interpolate one step and return (transform, point_idx, seg_tick)."""
+        if point_idx + 1 < len(self._points):
+            p0 = self._points[point_idx]
+            p1 = self._points[point_idx + 1]
+            tf1 = self._pose_to_transform(p1["drone_pose"])
+
+            seg_len = self._compute_seg_len(
+                p0, p1, pacing, min_seg, max_seg,
+            )
+            alpha = min(
+                _ALPHA_MAX, seg_tick / max(1, seg_len),
+            )
+
+            loc = carla.Location(
+                x=tf0.location.x
+                + (tf1.location.x - tf0.location.x) * alpha,
+                y=tf0.location.y
+                + (tf1.location.y - tf0.location.y) * alpha,
+                z=tf0.location.z
+                + (tf1.location.z - tf0.location.z) * alpha,
+            )
+            rot = carla.Rotation(
+                pitch=self._lerp_angle(
+                    tf0.rotation.pitch, tf1.rotation.pitch, alpha,
+                ),
+                yaw=self._lerp_angle(
+                    tf0.rotation.yaw, tf1.rotation.yaw, alpha,
+                ),
+                roll=self._lerp_angle(
+                    tf0.rotation.roll, tf1.rotation.roll, alpha,
+                ),
+            )
+            tf = carla.Transform(loc, rot)
+            self._set_transform(tf)
+
+            seg_tick += 1
+            if seg_tick >= seg_len:
+                seg_tick = 0
+                point_idx += 1
+        else:
+            self._set_transform(tf0)
+            point_idx += 1
+            seg_tick = 0
+            tf = tf0
+
+        return tf, point_idx, seg_tick
+
+    @staticmethod
+    def _compute_seg_len(
+        p0: dict[str, Any],
+        p1: dict[str, Any],
+        pacing: PlaybackPacingConfig,
+        min_seg: int,
+        max_seg: int,
+    ) -> int:
+        """Compute interpolation segment length."""
+        s0 = p0.get("sim_step")
+        s1 = p1.get("sim_step")
+        speed = max(_SEGMENT_EPSILON, pacing.playback_speed)
+        if (
+            pacing.use_sim_step
+            and isinstance(s0, (int, float))
+            and isinstance(s1, (int, float))
+            and s1 > s0
+        ):
+            seg_len = int(max(1, round((s1 - s0) / speed)))
+        else:
+            seg_len = int(
+                max(1, round(pacing.ticks_per_point / speed)),
+            )
+        return max(min_seg, min(max_seg, seg_len))
+
+    def _draw_frustum_if_enabled(
+        self, tf: carla.Transform,
+    ) -> None:
+        """Draw frustum visualization if enabled."""
+        if self._cfg.frustum.enabled:
+            draw_frustum(
+                self._world,
+                tf,
+                self._metadata.fov,
+                self._metadata.width,
+                self._metadata.height,
+                FrustumDrawParams(
+                    life_time=self._cfg.frustum.life,
+                    color=carla.Color(*self._cfg.frustum.color),
+                    near=self._cfg.frustum.near,
+                    far=self._cfg.frustum.far,
+                    thickness=self._cfg.frustum.thickness,
+                ),
+            )
+
+    def _process_camera_frame(
+        self,
+        display: pygame.Surface,
+        p0: dict[str, Any],
+        point_idx: int,
+        tf: carla.Transform,
+    ) -> None:
+        """Process camera image for display, recording, capture."""
+        image = self._last_image
+        if image is None:
+            return
+
+        arr = np.frombuffer(
+            image.raw_data, dtype=np.uint8,
+        ).reshape((image.height, image.width, 4))[:, :, :3]
+
+        nav = p0.get("nav_waypoint") or {}
+        uv = nav.get("t1_image_uv")
+        if uv is not None:
+            arr = draw_cross(arr, uv[0], uv[1])
+
+        surface = pygame.surfarray.make_surface(
+            arr.swapaxes(0, 1),
+        )
+        display.blit(surface, (0, 0))
+        pygame.display.flip()
+
+        if (
+            self._cfg.video.enabled
+            and self._video_writer is not None
+        ):
+            self._video_writer.write(arr)
+
+        if (
+            self._cfg.capture.save_frames
+            and point_idx != self._last_saved_point_idx
+        ):
+            self._last_saved_point_idx = point_idx
+            self._save_frame_capture(
+                arr, point_idx, tf, nav, p0,
+            )
 
     @staticmethod
     def _lerp_angle(a0: float, a1: float, t: float) -> float:
@@ -972,8 +1052,6 @@ class DroneTrajectoryPlayback:
         Args:
             dt: simulation delta seconds (used for FPS)
         """
-        import cv2
-
         fps = round(1.0 / dt)
         for cc in _VIDEO_CODECS:
             vw = cv2.VideoWriter(
@@ -1068,7 +1146,7 @@ class DroneTrajectoryPlayback:
         try:
             if self._camera:
                 self._camera.stop()
-        except Exception:
+        except RuntimeError:
             pass
         if self._video_writer is not None:
             with contextlib.suppress(Exception):

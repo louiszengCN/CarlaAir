@@ -8,6 +8,7 @@
 
 """Import Assets to Carla"""
 
+from __future__ import annotations
 
 import argparse
 import copy
@@ -18,40 +19,44 @@ import os
 import shutil
 import subprocess
 import threading
+from typing import Any
 
 import carla
 
 # Global variables
 IMPORT_SETTING_FILENAME = "importsetting.json"
 SCRIPT_NAME = os.path.basename(__file__)
+_MIN_SOURCE_NAME_PARTS = 2
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Go two directories above the current script
 CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + "/../..")
 
 
-def get_packages_json_list(folder):
+def get_packages_json_list(folder: str) -> list[list[str]]:
     """Returns a list with the paths of each package's json
     files that has been found recursively in the input folder.
     """
-    json_files = []
+    json_files: list[list[str]] = []
 
     for root, _, filenames in os.walk(folder):
-        for filename in fnmatch.filter(filenames, "*.json"):
-            if filename != "roadpainter_decals.json":
-                json_files.append([root, filename])
+        json_files.extend(
+            [root, filename]
+            for filename in fnmatch.filter(filenames, "*.json")
+            if filename != "roadpainter_decals.json"
+        )
 
     return json_files
 
-def get_decals_json_file(folder):
-
+def get_decals_json_file(folder: str) -> str:
+    """Return the roadpainter_decals.json filename if found, else empty string."""
     for _root, _, filenames in os.walk(folder):
         for filename in fnmatch.filter(filenames, "roadpainter_decals.json"):
             return filename
 
     return ""
 
-def generate_json_package(folder, package_name, use_carla_materials):
+def generate_json_package(folder: str, package_name: str, *, use_carla_materials: bool) -> list[list[str]]:
     """Generate a .json file with all the maps it founds on the folder
     and subfolders. A map is a .fbx and a .xodr with the same name.
     """
@@ -105,7 +110,7 @@ def generate_json_package(folder, package_name, use_carla_materials):
 
     return json_files
 
-def generate_decals_file(folder) -> None:
+def generate_decals_file(folder: str) -> None:
 
     # search for all .fbx and .xodr pair of files
     maps = []
@@ -184,7 +189,7 @@ def generate_decals_file(folder) -> None:
             serialized = json.dumps(my_json, sort_keys=False, indent=3)
             f.write(serialized)
 
-def invoke_commandlet(name, arguments) -> None:
+def invoke_commandlet(name: str, arguments: list[str]) -> None:
     """Generic function for running a commandlet with its arguments."""
     ue4_path = os.environ["UE4_ROOT"]
     uproject_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "CarlaUE4.uproject")
@@ -203,7 +208,14 @@ def invoke_commandlet(name, arguments) -> None:
         subprocess.call([full_command], shell=True)
 
 
-def generate_import_setting_file(package_name, json_dirname, props, maps, do_tiles, tile_size):
+def generate_import_setting_file(
+    package_name: str,
+    json_dirname: str,
+    props: list[dict[str, Any]],
+    maps: list[dict[str, Any]],
+    do_tiles: int,
+    tile_size: int,
+) -> str:
     """Creates the PROPS and MAPS import_setting.json file needed
     as an argument for using the ImportAssets commandlet
     """
@@ -267,7 +279,7 @@ def generate_import_setting_file(package_name, json_dirname, props, maps, do_til
     return importfile
 
 
-def generate_package_file(package_name, props, maps) -> None:
+def generate_package_file(package_name: str, props: list[dict[str, Any]], maps: list[dict[str, Any]]) -> None:
     """Creates the PackageName.Package.json file for the package."""
     output_json = {}
 
@@ -276,7 +288,7 @@ def generate_package_file(package_name, props, maps) -> None:
         name = prop["name"]
         size = prop["size"]
         source_name = os.path.basename(prop["source"]).split(".")
-        if len(source_name) < 2:
+        if len(source_name) < _MIN_SOURCE_NAME_PARTS:
             pass
 
         source_name = ".".join([source_name[0], source_name[0]])
@@ -311,7 +323,7 @@ def generate_package_file(package_name, props, maps) -> None:
         json.dump(output_json, fh, indent=4)
 
 
-def copy_roadpainter_config_files(package_name) -> None:
+def copy_roadpainter_config_files(package_name: str) -> None:
     """Copies roadpainter configuration files into Unreal content folder"""
 
     two_directories_up = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -327,7 +339,15 @@ def copy_roadpainter_config_files(package_name) -> None:
         shutil.copy(final_path, package_config_path)
 
 
-def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, batch_size) -> None:
+def import_assets(
+    package_name: str,
+    json_dirname: str,
+    props: list[dict[str, Any]],
+    maps: list[dict[str, Any]],
+    do_tiles: int,
+    tile_size: int,
+    batch_size: float,
+) -> None:
     """Same commandlet is used for importing assets and also maps."""
     commandlet_name = "ImportAssets"
 
@@ -354,8 +374,12 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
                 current_batch += 1
                 # import when the size of the group of tiles surpasses the specified size in MB
                 if current_batch_size >= batch_size:
-                    import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                    commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
+                    import_setting_file = generate_import_setting_file(
+                        package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size,
+                    )
+                    commandlet_arguments = [
+                        f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting",
+                    ]
                     invoke_commandlet(commandlet_name, commandlet_arguments)
                     os.remove(import_setting_file)
                     current_batch_map = copy.deepcopy(map_template)
@@ -363,14 +387,22 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
                     current_batch_size = 0
             # import remaining tiles
             if current_batch > 0:
-                import_setting_file = generate_import_setting_file(package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size)
-                commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
+                import_setting_file = generate_import_setting_file(
+                    package_name, json_dirname, props, [current_batch_map], do_tiles, tile_size,
+                )
+                commandlet_arguments = [
+                    f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting",
+                ]
                 invoke_commandlet(commandlet_name, commandlet_arguments)
                 os.remove(import_setting_file)
     else:
         # Import Props
-        import_setting_file = generate_import_setting_file(package_name, json_dirname, props, maps, do_tiles, tile_size)
-        commandlet_arguments = [f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting"]
+        import_setting_file = generate_import_setting_file(
+            package_name, json_dirname, props, maps, do_tiles, tile_size,
+        )
+        commandlet_arguments = [
+            f'-importSettings="{import_setting_file}"', "-nosourcecontrol", "-replaceexisting",
+        ]
         invoke_commandlet(commandlet_name, commandlet_arguments)
         os.remove(import_setting_file)
 
@@ -406,7 +438,7 @@ def import_assets(package_name, json_dirname, props, maps, do_tiles, tile_size, 
     generate_package_file(package_name, props, maps)
 
 
-def import_assets_from_json_list(json_list, batch_size) -> None:
+def import_assets_from_json_list(json_list: list[list[str]], batch_size: float) -> None:
     maps = []
     package_name = ""
     for dirname, filename in json_list:
@@ -450,19 +482,19 @@ def import_assets_from_json_list(json_list, batch_size) -> None:
             thr.join()
 
 
-def load_asset_materials_commandlet(package_name) -> None:
+def load_asset_materials_commandlet(package_name: str) -> None:
     commandlet_name = "LoadAssetMaterials"
     commandlet_arguments = [f"-PackageName={package_name}"]
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
-def prepare_maps_commandlet_for_cooking(package_name, only_prepare_maps) -> None:
+def prepare_maps_commandlet_for_cooking(package_name: str, *, only_prepare_maps: bool) -> None:
     commandlet_name = "PrepareAssetsForCooking"
     commandlet_arguments = [f"-PackageName={package_name}"]
-    commandlet_arguments.append("-OnlyPrepareMaps=%d" % only_prepare_maps)
+    commandlet_arguments.append(f"-OnlyPrepareMaps={int(only_prepare_maps):d}")
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 
-def move_assets_commandlet(package_name, maps) -> None:
+def move_assets_commandlet(package_name: str, maps: list[dict[str, Any]]) -> None:
     commandlet_name = "MoveAssets"
     commandlet_arguments = [f"-PackageName={package_name}"]
 
@@ -474,7 +506,7 @@ def move_assets_commandlet(package_name, maps) -> None:
     invoke_commandlet(commandlet_name, commandlet_arguments)
 
 # build the binary file for navigation of pedestrians for that map
-def build_binary_for_navigation(package_name, dirname, maps) -> None:
+def build_binary_for_navigation(package_name: str, dirname: str, maps: list[dict[str, Any]]) -> None:
     folder = os.path.join(CARLA_ROOT_PATH, "Util", "DockerUtils", "dist")
 
     # process each map
@@ -483,9 +515,6 @@ def build_binary_for_navigation(package_name, dirname, maps) -> None:
         # get the sources for the map (single or tiles)
         if ("source" in umap):
             tiles = [umap["source"]]
-        # disabled until we have a new Recast adapted to work with tiles
-        # elif ("tiles" in umap):
-        #     tiles = umap["tiles"]
         else:
             continue
 
@@ -516,9 +545,6 @@ def build_binary_for_navigation(package_name, dirname, maps) -> None:
                 # copy
                 shutil.copy2(fbx_path_source, fbx_path_target)
 
-            # rename the xodr with the same name of the source/tile
-            # os.rename(os.path.join(folder, xodr_filename), os.path.join(folder, "%s.xodr" % fbx_name_no_ext))
-
             # make the conversion
             if os.name == "nt":
                 subprocess.call(["build.bat", fbx_name_no_ext, xodr_filename], cwd=folder, shell=True)
@@ -526,12 +552,11 @@ def build_binary_for_navigation(package_name, dirname, maps) -> None:
                 subprocess.call(["chmod +x build.sh"], cwd=folder, shell=True)
                 subprocess.call(f"./build.sh {fbx_name_no_ext} {xodr_filename}", cwd=folder, shell=True)
 
-            # rename the xodr with the original name
-            # os.rename(os.path.join(folder, "%s.xodr" % fbx_name_no_ext), os.path.join(folder, xodr_filename))
-
             # copy the binary file
             nav_path_source = os.path.join(folder, f"{fbx_name_no_ext}.bin")
-            nav_folder_target = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Maps", target_name, "Nav")
+            nav_folder_target = os.path.join(
+                CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Maps", target_name, "Nav",
+            )
             if os.path.exists(nav_path_source):
                 if not os.path.exists(nav_folder_target):
                     os.makedirs(nav_folder_target)
@@ -549,7 +574,7 @@ def build_binary_for_navigation(package_name, dirname, maps) -> None:
             os.remove(xodr_path_target)
 
 
-def build_binary_for_tm(package_name, dirname, maps) -> None:
+def build_binary_for_tm(package_name: str, dirname: str, maps: list[dict[str, Any]]) -> None:
 
     xodrs = {
         (m["name"], m["xodr"]) for m in maps if "xodr" in m}
@@ -603,7 +628,9 @@ def main() -> None:
     decals_json = get_decals_json_file(import_folder)
 
     if len(json_list) < 1:
-        json_list = generate_json_package(import_folder, args.package, args.no_carla_materials)
+        json_list = generate_json_package(
+            import_folder, args.package, use_carla_materials=args.no_carla_materials,
+        )
 
     if len(decals_json) == 0:
         generate_decals_file(import_folder)

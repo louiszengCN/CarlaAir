@@ -1,4 +1,4 @@
-# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Copyright (c) 2018-2020 CVC.
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
@@ -159,15 +159,15 @@ class LocalPlanner:
         self._target_speed = _DEFAULT_TARGET_SPEED
         self._sampling_radius = _DEFAULT_SAMPLING_RADIUS
         self._args_lateral_dict = PIDArgs(
-            K_P=_DEFAULT_LAT_K_P,
-            K_I=_DEFAULT_LAT_K_I,
-            K_D=_DEFAULT_LAT_K_D,
+            k_p=_DEFAULT_LAT_K_P,
+            k_i=_DEFAULT_LAT_K_I,
+            k_d=_DEFAULT_LAT_K_D,
             dt=self._dt,
         )
         self._args_longitudinal_dict = PIDArgs(
-            K_P=_DEFAULT_LON_K_P,
-            K_I=_DEFAULT_LON_K_I,
-            K_D=_DEFAULT_LON_K_D,
+            k_p=_DEFAULT_LON_K_P,
+            k_i=_DEFAULT_LON_K_I,
+            k_d=_DEFAULT_LON_K_D,
             dt=self._dt,
         )
         self._max_throt = _DEFAULT_MAX_THROTTLE
@@ -245,7 +245,7 @@ class LocalPlanner:
             pass
         self._target_speed = speed
 
-    def follow_speed_limits(self, value: bool = True) -> None:
+    def follow_speed_limits(self, *, value: bool = True) -> None:
         """Activate flag that makes the max speed dynamically vary according to the speed limits.
 
         Args:
@@ -284,6 +284,7 @@ class LocalPlanner:
     def set_global_plan(
         self,
         current_plan: list[tuple[carla.Waypoint, RoadOption]],
+        *,
         stop_waypoint_creation: bool = True,
         clean_queue: bool = True,
     ) -> None:
@@ -321,7 +322,7 @@ class LocalPlanner:
         if self._vehicle_controller is not None:
             self._vehicle_controller.set_offset(offset)
 
-    def run_step(self, debug: bool = False) -> carla.VehicleControl:
+    def run_step(self, *, debug: bool = False) -> carla.VehicleControl:
         """Execute one step of local planning.
 
         Execute one step of local planning which involves running the longitudinal and lateral PID controllers to
@@ -400,9 +401,10 @@ class LocalPlanner:
 
         try:
             wpt, direction = self._waypoints_queue[-1]
-            return wpt, direction
         except IndexError:
             return None, RoadOption.VOID
+        else:
+            return wpt, direction
 
     def get_plan(self) -> deque[tuple[carla.Waypoint, RoadOption]]:
         """Return the current plan of the local planner."""

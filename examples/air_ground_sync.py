@@ -23,14 +23,20 @@ from __future__ import annotations
 import contextlib
 import math
 import time
+import traceback
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pygame
 
 import carla
+
+try:
+    import airsim
+except ImportError:
+    airsim = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -217,7 +223,7 @@ PANELS: list[tuple[str, int, str]] = [
 
 def calibrate_offset(
     world: carla.World,
-    air_client: Any,  # airsim.MultirotorClient
+    air_client: object,  # airsim.MultirotorClient
 ) -> OffsetCalibration:
     """Calculate offset between CARLA and AirSim coordinate systems.
 
@@ -289,10 +295,10 @@ def _render_panel(
             ):
                 surf = pygame.transform.scale(surf, (_PANEL_W, _PANEL_H))
             display.blit(surf, (px, 0))
-        except Exception:
+        except (ValueError, pygame.error):
             pass
 
-    lbl = font.render(label, True, _WHITE_COLOR)
+    lbl = font.render(label, antialias=True, color=_WHITE_COLOR)
     bg = pygame.Surface(
         (lbl.get_width() + _LABEL_PADDING_X, lbl.get_height() + _LABEL_PADDING_Y),
     )
@@ -320,7 +326,7 @@ def _render_hud(
         f"Same world. Same weather.  |  "
         f"N=Next  ESC=Quit"
     )
-    hs = font.render(hud_text, True, _HUD_TEXT_COLOR)
+    hs = font.render(hud_text, antialias=True, color=_HUD_TEXT_COLOR)
     hbg = pygame.Surface((_DISPLAY_W, _HUD_HEIGHT))
     hbg.set_alpha(_HUD_ALPHA)
     hbg.fill(_HUD_BG_COLOR)
@@ -329,19 +335,338 @@ def _render_hud(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Main
+# Main — helpers to keep branches/statements low
 # ──────────────────────────────────────────────────────────────────────────────
+
+_ENABLED = True
+_DISABLED = False
+
+
+class _SpawnError(RuntimeError):
+    """Raised when vehicle spawn fails."""
+
+
+def _connect_airsim(port: int) -> object:
+    """Connect to AirSim and arm the drone.
+
+    Args:
+        port: AirSim RPC port
+
+    Returns:
+        AirSim multirotor client
+    """
+
+    client = airsim.MultirotorClient(port=port)
+    client.confirmConnection()
+    client.enableApiControl(is_enabled=_ENABLED)
+    client.armDisarm(arm=_ENABLED)
+    return client
+
+
+def _setup_sync(world: carla.World) -> carla.WorldSettings:
+    """Enable sync mode and return original settings.
+
+    Args:
+        world: CARLA world
+
+    Returns:
+        original settings for later restoration
+    """
+    original = world.get_settings()
+    settings = world.get_settings()
+    settings.synchronous_mode = True
+    settings.fixed_delta_seconds = 1.0 / _PHYSICS_HZ
+    world.apply_settings(settings)
+    return original
+
+
+def _spawn_vehicle(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+) -> carla.Vehicle:
+    """Spawn a vehicle at the first available spawn point.
+
+    Args:
+        world: CARLA world
+        bp_lib: blueprint library
+
+    Returns:
+        spawned vehicle
+
+    Raises:
+        _SpawnError: when no spawn point works
+    """
+    vbp = bp_lib.find(_VEHICLE_BLUEPRINT)
+    vehicle: carla.Vehicle | None = None
+    for sp in world.get_map().get_spawn_points():
+        with contextlib.suppress(RuntimeError):
+            vehicle = world.spawn_actor(vbp, sp)
+            break
+    if vehicle is None:
+        raise _SpawnError
+    return vehicle
+
+
+def _attach_cameras(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+    vehicle: carla.Vehicle,
+    images: dict[str, npt.NDArray[np.uint8] | None],
+) -> list[carla.Sensor]:
+    """Attach ground + aerial cameras and return sensor list.
+
+    Args:
+        world: CARLA world
+        bp_lib: blueprint library
+        vehicle: vehicle to attach cameras to
+        images: shared mutable image dict
+
+    Returns:
+        list of spawned sensor actors
+    """
+    cam_bp = bp_lib.find("sensor.camera.rgb")
+    cam_bp.set_attribute("image_size_x", str(_PANEL_W))
+    cam_bp.set_attribute("image_size_y", str(_PANEL_H))
+    cam_bp.set_attribute("fov", _CAMERA_FOV)
+
+    ground_cam = world.spawn_actor(
+        cam_bp,
+        carla.Transform(
+            carla.Location(x=_GROUND_CAM_X, z=_GROUND_CAM_Z),
+            carla.Rotation(pitch=_GROUND_CAM_PITCH),
+        ),
+        attach_to=vehicle,
+    )
+    ground_cam.listen(
+        lambda i: images.__setitem__(
+            "ground",
+            np.frombuffer(i.raw_data, np.uint8).reshape(
+                (i.height, i.width, 4),
+            )[:, :, :3][:, :, ::-1],
+        ),
+    )
+
+    aerial_tf = carla.Transform(
+        carla.Location(x=_AERIAL_CAM_X, z=_AERIAL_CAM_Z),
+        carla.Rotation(pitch=_AERIAL_CAM_PITCH),
+    )
+    drone_cam = world.spawn_actor(cam_bp, aerial_tf, attach_to=vehicle)
+    drone_cam.listen(
+        lambda i: images.__setitem__(
+            "drone",
+            np.frombuffer(i.raw_data, np.uint8).reshape(
+                (i.height, i.width, 4),
+            )[:, :, :3][:, :, ::-1],
+        ),
+    )
+    return [ground_cam, drone_cam]
+
+
+def _teleport_drone(
+    air_client: object,
+    vehicle: carla.Vehicle,
+    offset: OffsetCalibration,
+) -> None:
+    """Takeoff and teleport drone above the vehicle.
+
+    Args:
+        air_client: AirSim client
+        vehicle: CARLA vehicle to follow
+        offset: coordinate offset
+    """
+
+    air_client.takeoffAsync()  # type: ignore[attr-defined]
+    time.sleep(_TAKEOFF_DELAY)
+    vl = vehicle.get_location()
+    sp = vehicle.get_transform()
+    nx = vl.x + offset.x
+    ny = vl.y + offset.y
+    nz = -(vl.z + _DRONE_HEIGHT) + offset.z
+    air_client.simSetVehiclePose(  # type: ignore[attr-defined]
+        airsim.Pose(
+            airsim.Vector3r(nx, ny, nz),
+            airsim.to_quaternion(
+                0, 0, math.radians(sp.rotation.yaw),
+            ),
+        ),
+        ignore_collision=_ENABLED,
+    )
+    time.sleep(_SYNC_DELAY)
+
+
+def _setup_traffic_manager(
+    client: carla.Client,
+    vehicle: carla.Vehicle,
+) -> None:
+    """Configure traffic manager for autopilot.
+
+    Args:
+        client: CARLA client
+        vehicle: vehicle to set autopilot on
+    """
+    tm = client.get_trafficmanager(_TM_PORT)
+    tm.set_synchronous_mode(enabled=True)
+    tm.set_global_distance_to_leading_vehicle(_TM_DISTANCE)
+    tm.global_percentage_speed_difference(_TM_SPEED_PCT)
+    tm.set_hybrid_physics_mode(enabled=True)
+    tm.set_hybrid_physics_radius(_TM_PHYSICS_RADIUS)
+    vehicle.set_autopilot(enabled=_ENABLED, tm_port=_TM_PORT)
+    tm.auto_lane_change(vehicle, enable=_DISABLED)
+    tm.ignore_lights_percentage(vehicle, 100)
+    tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
+
+
+def _drone_follow_step(
+    air_client: object,
+    vehicle: carla.Vehicle,
+    offset: OffsetCalibration,
+) -> None:
+    """Move drone to follow the vehicle.
+
+    Args:
+        air_client: AirSim client
+        vehicle: CARLA vehicle being followed
+        offset: coordinate offset
+    """
+
+    vt = vehicle.get_transform()
+    yaw = vt.rotation.yaw
+    yr = math.radians(yaw)
+    cx = vt.location.x - _DRONE_BACK * math.cos(yr)
+    cy = vt.location.y - _DRONE_BACK * math.sin(yr)
+    cz = vt.location.z + _DRONE_HEIGHT
+    air_client.moveToPositionAsync(  # type: ignore[attr-defined]
+        cx + offset.x,
+        cy + offset.y,
+        -cz + offset.z,
+        _DRONE_VELOCITY,
+        drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
+        yaw_mode=airsim.YawMode(is_rate=_DISABLED, yaw_or_rate=yaw),
+    )
+
+
+def _release_airsim(air_client: object | None) -> None:
+    """Disarm and release AirSim control.
+
+    Args:
+        air_client: AirSim client or None
+    """
+    if air_client is None:
+        return
+    try:
+        air_client.armDisarm(arm=_DISABLED)  # type: ignore[attr-defined]
+        air_client.enableApiControl(is_enabled=_DISABLED)  # type: ignore[attr-defined]
+    except (ConnectionError, OSError):
+        pass
+
+
+def _init_pygame() -> tuple[pygame.Surface, pygame.time.Clock, pygame.font.Font, pygame.font.Font]:
+    """Initialize pygame and return display, clock, and fonts."""
+    pygame.init()
+    display = pygame.display.set_mode((_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS)
+    pygame.display.set_caption(_DISPLAY_CAPTION)
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont("monospace", _FONT_SIZE, bold=True)
+    font_lg = pygame.font.SysFont("monospace", _FONT_LG_SIZE, bold=True)
+    return display, clock, font, font_lg
+
+
+@dataclass
+class _DisplayContext:
+    """Bundle of display objects for the render loop."""
+
+    display: pygame.Surface
+    clock: pygame.time.Clock
+    font: pygame.font.Font
+    font_lg: pygame.font.Font
+
+
+def _run_display_loop(
+    world: carla.World,
+    vehicle: carla.Vehicle,
+    air_client: object,
+    offset: OffsetCalibration,
+    images: dict[str, npt.NDArray[np.uint8] | None],
+    ctx: _DisplayContext,
+) -> None:
+    """Run the main display loop until quit."""
+    display, clock, font, font_lg = ctx.display, ctx.clock, ctx.font, ctx.font_lg
+    weather_list = list(WeatherPreset)
+    weather_idx = 0
+    world.set_weather(weather_list[0].value[1])
+    last_weather = time.time()
+    running = True
+    frame_count = 0
+
+    while running:
+        clock.tick(_DISPLAY_FPS)
+        frame_count += 1
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                running = False
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    running = False
+                elif ev.key == pygame.K_n:
+                    weather_idx = (weather_idx + 1) % len(weather_list)
+                    world.set_weather(weather_list[weather_idx].value[1])
+                    last_weather = time.time()
+
+        if time.time() - last_weather > _WEATHER_SEC:
+            weather_idx = (weather_idx + 1) % len(weather_list)
+            world.set_weather(weather_list[weather_idx].value[1])
+            last_weather = time.time()
+
+        if frame_count % _DRONE_FOLLOW_FRAMES == 0:
+            with contextlib.suppress(RuntimeError, ConnectionError, OSError):
+                _drone_follow_step(air_client, vehicle, offset)
+
+        display.fill(_DISPLAY_BG)
+        for panel_key, px, label in PANELS:
+            _render_panel(display, images.get(panel_key), px, label, font_lg)
+
+        pygame.draw.line(
+            display, _DIVIDER_COLOR,
+            (_PANEL_W, 0), (_PANEL_W, _DISPLAY_H), _DIVIDER_WIDTH,
+        )
+
+        vel = vehicle.get_velocity()
+        spd = _SPEED_CONVERSION * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
+        state = SplitScreenState(
+            weather_name=weather_list[weather_idx].value[0], speed_kmh=spd,
+        )
+        _render_hud(display, state, font)
+        pygame.display.flip()
+        world.tick()
+
+
+def _cleanup_main(
+    actors: list[carla.Actor],
+    original_settings: carla.WorldSettings | None,
+    world: carla.World,
+    air_client: object | None,
+) -> None:
+    """Clean up actors, settings, and AirSim on exit."""
+    for a in actors:
+        with contextlib.suppress(RuntimeError):
+            if hasattr(a, "stop"):
+                a.stop()
+        with contextlib.suppress(RuntimeError):
+            a.destroy()
+    if original_settings is not None:
+        with contextlib.suppress(RuntimeError):
+            world.apply_settings(original_settings)
+    _release_airsim(air_client)
+    with contextlib.suppress(pygame.error):
+        pygame.quit()
 
 
 def main() -> None:
     """Main entry point for air/ground split-screen showcase."""
     actors: list[carla.Actor] = []
-    sensors: list[carla.Sensor] = []
-    images: dict[str, npt.NDArray[np.uint8] | None] = {
-        "ground": None,
-        "drone": None,
-    }
-    air_client: Any | None = None
+    images: dict[str, npt.NDArray[np.uint8] | None] = {"ground": None, "drone": None}
+    air_client: object | None = None
     original_settings: carla.WorldSettings | None = None
 
     try:
@@ -350,226 +675,31 @@ def main() -> None:
         world = client.get_world()
         bp_lib = world.get_blueprint_library()
 
-        # Cleanup previous session
         _cleanup_sensors(world)
         _cleanup_vehicles(world)
 
-        # Connect to AirSim
-        import airsim
-
-        air_client = airsim.MultirotorClient(port=_AIRSIM_PORT)
-        air_client.confirmConnection()
-        air_client.enableApiControl(True)
-        air_client.armDisarm(True)
-
+        air_client = _connect_airsim(_AIRSIM_PORT)
         offset = calibrate_offset(world, air_client)
+        original_settings = _setup_sync(world)
 
-        # Synchronous mode — smooth deterministic physics
-        original_settings = world.get_settings()
-        settings = world.get_settings()
-        settings.synchronous_mode = True
-        settings.fixed_delta_seconds = 1.0 / _PHYSICS_HZ
-        world.apply_settings(settings)
-
-        # Spawn vehicle
-        vbp = bp_lib.find(_VEHICLE_BLUEPRINT)
-        vehicle: carla.Vehicle | None = None
-        for sp in world.get_map().get_spawn_points():
-            try:
-                vehicle = world.spawn_actor(vbp, sp)
-                break
-            except RuntimeError:
-                continue
-        if vehicle is None:
-            raise RuntimeError("Cannot spawn")
+        vehicle = _spawn_vehicle(world, bp_lib)
         actors.append(vehicle)
+        sensors = _attach_cameras(world, bp_lib, vehicle, images)
+        actors.extend(sensors)
 
-        # Ground camera (left panel)
-        cam_bp = bp_lib.find("sensor.camera.rgb")
-        cam_bp.set_attribute("image_size_x", str(_PANEL_W))
-        cam_bp.set_attribute("image_size_y", str(_PANEL_H))
-        cam_bp.set_attribute("fov", _CAMERA_FOV)
+        _teleport_drone(air_client, vehicle, offset)
+        _setup_traffic_manager(client, vehicle)
 
-        ground_cam = world.spawn_actor(
-            cam_bp,
-            carla.Transform(
-                carla.Location(x=_GROUND_CAM_X, z=_GROUND_CAM_Z),
-                carla.Rotation(pitch=_GROUND_CAM_PITCH),
-            ),
-            attach_to=vehicle,
-        )
-        ground_cam.listen(
-            lambda i: images.__setitem__(
-                "ground",
-                np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4),
-                )[:, :, :3][:, :, ::-1],
-            ),
-        )
-        actors.append(ground_cam)
-        sensors.append(ground_cam)
-
-        # Aerial camera (right panel)
-        aerial_tf = carla.Transform(
-            carla.Location(x=_AERIAL_CAM_X, z=_AERIAL_CAM_Z),
-            carla.Rotation(pitch=_AERIAL_CAM_PITCH),
-        )
-        drone_cam = world.spawn_actor(cam_bp, aerial_tf, attach_to=vehicle)
-        drone_cam.listen(
-            lambda i: images.__setitem__(
-                "drone",
-                np.frombuffer(i.raw_data, np.uint8).reshape(
-                    (i.height, i.width, 4),
-                )[:, :, :3][:, :, ::-1],
-            ),
-        )
-        actors.append(drone_cam)
-        sensors.append(drone_cam)
-
-        # Takeoff drone
-        air_client.takeoffAsync()
-        time.sleep(_TAKEOFF_DELAY)
-        vl = vehicle.get_location()
-        sp = vehicle.get_transform()
-        nx = vl.x + offset.x
-        ny = vl.y + offset.y
-        nz = -(vl.z + _DRONE_HEIGHT) + offset.z
-        air_client.simSetVehiclePose(
-            airsim.Pose(
-                airsim.Vector3r(nx, ny, nz),
-                airsim.to_quaternion(
-                    0, 0, math.radians(sp.rotation.yaw),
-                ),
-            ),
-            True,
-        )
-        time.sleep(_SYNC_DELAY)
-
-        # Start driving
-        tm = client.get_trafficmanager(_TM_PORT)
-        tm.set_synchronous_mode(True)
-        tm.set_global_distance_to_leading_vehicle(_TM_DISTANCE)
-        tm.global_percentage_speed_difference(_TM_SPEED_PCT)
-        tm.set_hybrid_physics_mode(True)
-        tm.set_hybrid_physics_radius(_TM_PHYSICS_RADIUS)
-        vehicle.set_autopilot(True, _TM_PORT)
-        tm.auto_lane_change(vehicle, False)
-        tm.ignore_lights_percentage(vehicle, 100)
-        tm.distance_to_leading_vehicle(vehicle, _TM_FOLLOW_DIST)
-
-        # Pygame setup
-        pygame.init()
-        display = pygame.display.set_mode(
-            (_DISPLAY_W, _DISPLAY_H), _DISPLAY_FLAGS,
-        )
-        pygame.display.set_caption(_DISPLAY_CAPTION)
-        clock = pygame.time.Clock()
-        font = pygame.font.SysFont("monospace", _FONT_SIZE, bold=True)
-        font_lg = pygame.font.SysFont("monospace", _FONT_LG_SIZE, bold=True)
-
-        weather_list = list(WeatherPreset)
-        weather_idx = 0
-        world.set_weather(weather_list[0].value[1])
-        last_weather = time.time()
-        running = True
-        frame_count = 0
-
-        while running:
-            clock.tick(_DISPLAY_FPS)
-            frame_count += 1
-
-            for ev in pygame.event.get():
-                if ev.type == pygame.QUIT:
-                    running = False
-                elif ev.type == pygame.KEYDOWN:
-                    if ev.key == pygame.K_ESCAPE:
-                        running = False
-                    elif ev.key == pygame.K_n:
-                        weather_idx = (weather_idx + 1) % len(weather_list)
-                        world.set_weather(weather_list[weather_idx].value[1])
-                        last_weather = time.time()
-
-            if time.time() - last_weather > _WEATHER_SEC:
-                weather_idx = (weather_idx + 1) % len(weather_list)
-                world.set_weather(weather_list[weather_idx].value[1])
-                last_weather = time.time()
-
-            # Drone follow (every N frames)
-            if frame_count % _DRONE_FOLLOW_FRAMES == 0:
-                try:
-                    vt = vehicle.get_transform()
-                    yaw = vt.rotation.yaw
-                    yr = math.radians(yaw)
-                    cx = vt.location.x - _DRONE_BACK * math.cos(yr)
-                    cy = vt.location.y - _DRONE_BACK * math.sin(yr)
-                    cz = vt.location.z + _DRONE_HEIGHT
-                    nx = cx + offset.x
-                    ny = cy + offset.y
-                    nz = -cz + offset.z
-                    air_client.moveToPositionAsync(
-                        nx,
-                        ny,
-                        nz,
-                        _DRONE_VELOCITY,
-                        drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
-                        yaw_mode=airsim.YawMode(False, yaw),
-                    )
-                except Exception:
-                    pass
-
-            # Render
-            display.fill(_DISPLAY_BG)
-            for panel_key, px, label in PANELS:
-                _render_panel(
-                    display, images.get(panel_key), px, label, font_lg,
-                )
-
-            # Center divider
-            pygame.draw.line(
-                display,
-                _DIVIDER_COLOR,
-                (_PANEL_W, 0),
-                (_PANEL_W, _DISPLAY_H),
-                _DIVIDER_WIDTH,
-            )
-
-            # HUD
-            vel = vehicle.get_velocity()
-            spd = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2,
-            )
-            state = SplitScreenState(
-                weather_name=weather_list[weather_idx].value[0],
-                speed_kmh=spd,
-            )
-            _render_hud(display, state, font)
-            pygame.display.flip()
-            world.tick()
+        display, clock, font, font_lg = _init_pygame()
+        ctx = _DisplayContext(display=display, clock=clock, font=font, font_lg=font_lg)
+        _run_display_loop(world, vehicle, air_client, offset, images, ctx)
 
     except KeyboardInterrupt:
         pass
-    except Exception:
-        import traceback
-
+    except (RuntimeError, ConnectionError, OSError):
         traceback.print_exc()
     finally:
-        for s in sensors:
-            with contextlib.suppress(Exception):
-                s.stop()
-        for a in actors:
-            with contextlib.suppress(Exception):
-                a.destroy()
-        if original_settings is not None:
-            with contextlib.suppress(Exception):
-                world.apply_settings(original_settings)
-        if air_client is not None:
-            try:
-                air_client.armDisarm(False)
-                air_client.enableApiControl(False)
-            except Exception:
-                pass
-        with contextlib.suppress(Exception):
-            pygame.quit()
+        _cleanup_main(actors, original_settings, world, air_client)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,8 @@ For further details, visit
 https://carla.readthedocs.io/en/latest/configuring_the_simulation/
 """
 
+from __future__ import annotations
+
 import argparse
 import datetime
 import os
@@ -23,8 +25,10 @@ import textwrap
 
 import carla
 
+_MIN_ARGS: int = 2
 
-def get_ip(host):
+
+def get_ip(host: str) -> str:
     if host in ["localhost", "127.0.0.1"]:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -37,27 +41,28 @@ def get_ip(host):
     return host
 
 
-def find_weather_presets():
+def find_weather_presets() -> list[tuple[object, str]]:
     presets = [x for x in dir(carla.WeatherParameters) if re.match("[A-Z].+", x)]
     return [(getattr(carla.WeatherParameters, x), x) for x in presets]
 
 
-def list_options(client) -> None:
+def list_options(client: object) -> None:
     [m.replace("/Game/Carla/Maps/", "") for m in client.get_available_maps()]
     indent = 4 * " "
-    def wrap(text):
+    def wrap(text: str) -> str:
         return "\n".join(textwrap.wrap(text, initial_indent=indent, subsequent_indent=indent))
 
 
-def list_blueprints(world, bp_filter) -> None:
+def list_blueprints(world: object, bp_filter: str) -> None:
     blueprint_library = world.get_blueprint_library()
     blueprints = [bp.id for bp in blueprint_library.filter(bp_filter)]
     for _bp in sorted(blueprints):
         pass
 
 
-def inspect(args, client) -> None:
-    "%s:%d" % (get_ip(args.host), args.port)
+def inspect(args: object, client: object) -> None:
+    """Inspect the CARLA simulation."""
+    _address = f"{get_ip(args.host)}:{args.port}"
 
     world = client.get_world()
     elapsed_time = world.get_snapshot().timestamp.elapsed_seconds
@@ -74,10 +79,93 @@ def inspect(args, client) -> None:
     if s.fixed_delta_seconds is None:
         pass
     else:
-        "%.2f ms (%d FPS)" % (
-            1000.0 * s.fixed_delta_seconds,
-            1.0 / s.fixed_delta_seconds)
+        f"{1000.0 * s.fixed_delta_seconds:.2f} ms ({1.0 / s.fixed_delta_seconds:.0f} FPS)"
 
+
+
+def _load_xodr(client: object, xodr_path: str) -> object:
+    """Load world from OpenDRIVE file."""
+    if not os.path.exists(xodr_path):
+        return client.get_world()
+    with open(xodr_path, encoding="utf-8") as od_file:
+        try:
+            data = od_file.read()
+        except OSError:
+            sys.exit()
+    vertex_distance = 2.0
+    max_road_length = 500.0
+    wall_height = 1.0
+    extra_width = 0.6
+    return client.generate_opendrive_world(
+        data, carla.OpendriveGenerationParameters(
+            vertex_distance=vertex_distance,
+            max_road_length=max_road_length,
+            wall_height=wall_height,
+            additional_width=extra_width,
+            smooth_junctions=True,
+            enable_mesh_visibility=True,
+        ),
+    )
+
+
+def _load_osm(client: object, osm_path: str) -> object:
+    """Load world from OpenStreetMap file."""
+    if not os.path.exists(osm_path):
+        return client.get_world()
+    with open(osm_path, encoding="utf-8") as od_file:
+        try:
+            data = od_file.read()
+        except OSError:
+            sys.exit()
+    xodr_data = carla.Osm2Odr.convert(data)
+    vertex_distance = 2.0
+    max_road_length = 500.0
+    wall_height = 0.0
+    extra_width = 0.6
+    return client.generate_opendrive_world(
+        xodr_data, carla.OpendriveGenerationParameters(
+            vertex_distance=vertex_distance,
+            max_road_length=max_road_length,
+            wall_height=wall_height,
+            additional_width=extra_width,
+            smooth_junctions=True,
+            enable_mesh_visibility=True,
+        ),
+    )
+
+
+def _apply_settings(args: object, world: object) -> None:
+    """Apply world settings from parsed arguments."""
+    settings = world.get_settings()
+
+    if args.no_rendering:
+        settings.no_rendering_mode = True
+    elif args.rendering:
+        settings.no_rendering_mode = False
+
+    if args.no_sync:
+        settings.synchronous_mode = False
+
+    if args.delta_seconds is not None:
+        settings.fixed_delta_seconds = args.delta_seconds
+    elif args.fps is not None:
+        settings.fixed_delta_seconds = (1.0 / args.fps) if args.fps > 0.0 else 0.0
+
+    if args.delta_seconds is not None or args.fps is not None:
+        if settings.fixed_delta_seconds > 0.0:
+            pass
+        else:
+            settings.fixed_delta_seconds = None
+
+    if args.tile_stream_distance is not None:
+        settings.tile_stream_distance = args.tile_stream_distance
+    if args.actor_active_distance is not None:
+        settings.actor_active_distance = args.actor_active_distance
+
+    world.apply_settings(settings)
+
+    if args.weather is not None and hasattr(carla.WeatherParameters, args.weather):
+        world.set_weather(getattr(carla.WeatherParameters, args.weather))
 
 
 def main() -> None:
@@ -160,7 +248,7 @@ def main() -> None:
         metavar="N",
         type=float,
         help="Set actor active distance (large maps only)")
-    if len(sys.argv) < 2:
+    if len(sys.argv) < _MIN_ARGS:
         argparser.print_help()
         return
 
@@ -180,85 +268,13 @@ def main() -> None:
     elif args.reload_map:
         world = client.reload_world()
     elif args.xodr_path is not None:
-        if os.path.exists(args.xodr_path):
-            with open(args.xodr_path, encoding="utf-8") as od_file:
-                try:
-                    data = od_file.read()
-                except OSError:
-                    sys.exit()
-            vertex_distance = 2.0  # in meters
-            max_road_length = 500.0 # in meters
-            wall_height = 1.0      # in meters
-            extra_width = 0.6      # in meters
-            world = client.generate_opendrive_world(
-                data, carla.OpendriveGenerationParameters(
-                    vertex_distance=vertex_distance,
-                    max_road_length=max_road_length,
-                    wall_height=wall_height,
-                    additional_width=extra_width,
-                    smooth_junctions=True,
-                    enable_mesh_visibility=True))
-        else:
-            pass
+        world = _load_xodr(client, args.xodr_path)
     elif args.osm_path is not None:
-        if os.path.exists(args.osm_path):
-            with open(args.osm_path, encoding="utf-8") as od_file:
-                try:
-                    data = od_file.read()
-                except OSError:
-                    sys.exit()
-            xodr_data = carla.Osm2Odr.convert(data)
-            vertex_distance = 2.0  # in meters
-            max_road_length = 500.0 # in meters
-            wall_height = 0.0      # in meters
-            extra_width = 0.6      # in meters
-            world = client.generate_opendrive_world(
-                xodr_data, carla.OpendriveGenerationParameters(
-                    vertex_distance=vertex_distance,
-                    max_road_length=max_road_length,
-                    wall_height=wall_height,
-                    additional_width=extra_width,
-                    smooth_junctions=True,
-                    enable_mesh_visibility=True))
-        else:
-            pass
-
+        world = _load_osm(client, args.osm_path)
     else:
         world = client.get_world()
 
-    settings = world.get_settings()
-
-    if args.no_rendering:
-        settings.no_rendering_mode = True
-    elif args.rendering:
-        settings.no_rendering_mode = False
-
-    if args.no_sync:
-        settings.synchronous_mode = False
-
-    if args.delta_seconds is not None:
-        settings.fixed_delta_seconds = args.delta_seconds
-    elif args.fps is not None:
-        settings.fixed_delta_seconds = (1.0 / args.fps) if args.fps > 0.0 else 0.0
-
-    if args.delta_seconds is not None or args.fps is not None:
-        if settings.fixed_delta_seconds > 0.0:
-            pass
-        else:
-            settings.fixed_delta_seconds = None
-
-    if args.tile_stream_distance is not None:
-        settings.tile_stream_distance = args.tile_stream_distance
-    if args.actor_active_distance is not None:
-        settings.actor_active_distance = args.actor_active_distance
-
-    world.apply_settings(settings)
-
-    if args.weather is not None:
-        if not hasattr(carla.WeatherParameters, args.weather):
-            pass
-        else:
-            world.set_weather(getattr(carla.WeatherParameters, args.weather))
+    _apply_settings(args, world)
 
     if args.inspect:
         inspect(args, client)

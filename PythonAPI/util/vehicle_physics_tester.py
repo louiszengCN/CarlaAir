@@ -15,6 +15,8 @@ Uses:
         python vehicle_physics_tester.py --filter vehicle_id --turn
 """
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import time
@@ -25,8 +27,13 @@ import carla
 
 
 class VehicleControlStop:
-    def __init__(self, x_min = -100000, x_max = +100000, y_min = -100000, y_max = +100000,
-            yaw_min = -500, yaw_max = +500, speed_min = -1, speed_max = +100000) -> None:
+    def __init__(
+        self,
+        x_min: float = -100000, x_max: float = +100000,
+        y_min: float = -100000, y_max: float = +100000,
+        yaw_min: float = -500, yaw_max: float = +500,
+        speed_min: float = -1, speed_max: float = +100000,
+    ) -> None:
 
         self.x_min = x_min
         self.x_max = x_max
@@ -37,7 +44,7 @@ class VehicleControlStop:
         self.speed_min = speed_min
         self.speed_max = speed_max
 
-    def stop_control(self, vehicle):
+    def stop_control(self, vehicle: object) -> None:
 
         loc = vehicle.get_location()
         if loc.x > self.x_max :
@@ -63,9 +70,9 @@ class VehicleControlStop:
         return speed < self.speed_min
 
 
-def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_sweep = None,
-    long_stiff = None, lat_stiff = None, lat_load = None,
-    clutch_strength = None, max_rpm = None):
+def change_physics_control(vehicle: object, tire_friction: object = None, drag: object = None, wheel_sweep: object = None,
+    long_stiff: object = None, lat_stiff: object = None, lat_load: object = None,
+    clutch_strength: object = None, max_rpm: object = None) -> None:
 
     physics_control = vehicle.get_physics_control()
 
@@ -121,18 +128,18 @@ def change_physics_control(vehicle, tire_friction = None, drag = None, wheel_swe
 
     return physics_control
 
-def print_step_info(world, vehicle) -> None:
+def print_step_info(world: object, vehicle: object) -> None:
     world.get_snapshot()
 
-def wait(world, frames=100) -> None:
+def wait(world: object, frames: object=100) -> None:
     for _i in range(frames):
         world.tick()
 
-def norm(vec):
+def norm(vec: object) -> None:
     return np.sqrt(vec.x*vec.x + vec.y*vec.y + vec.z*vec.z)
 
 class TelemetryPoint:
-    def __init__(self, curr_time=None, location=None, rotation=None, velocity=None) -> None:
+    def __init__(self, curr_time: object=None, location: object=None, rotation: object=None, velocity: object=None) -> None:
         self.time = curr_time
         self.location = location
         self.rotation = rotation
@@ -141,7 +148,7 @@ class TelemetryPoint:
     def __str__(self) -> str:
         return f"{self.time:.2f} {self.location!s} {self.rotation!s} {self.velocity!s}"
 
-    def __sub__(self, other):
+    def __sub__(self, other: object) -> None:
         t = self.time - other.time
         loc_diff = self.location - other.location
         r = carla.Rotation()
@@ -149,7 +156,7 @@ class TelemetryPoint:
         return TelemetryPoint(t, loc_diff, r, v)
 
 class TelemetryData:
-    def __init__(self, curr_time, vehicle) -> None:
+    def __init__(self, curr_time: object, vehicle: object) -> None:
         self.list_of_telemetries = []
         location = vehicle.get_location()
         rotation = vehicle.get_transform().rotation
@@ -163,28 +170,28 @@ class TelemetryData:
 
         return ret_str
 
-    def add_telemetry(self, curr_time, vehicle) -> None:
+    def add_telemetry(self, curr_time: object, vehicle: object) -> None:
         location = vehicle.get_location()
         rotation = vehicle.get_transform().rotation
         velocity = vehicle.get_velocity()
         self.list_of_telemetries.append(TelemetryPoint(curr_time, location, rotation, velocity))
 
-    def number_of_telemetries(self):
+    def number_of_telemetries(self) -> None:
         return len(self.list_of_telemetries)
 
-    def get_telemetry(self, index):
+    def get_telemetry(self, index: object) -> None:
         if index >= self.number_of_telemetries():
             return TelemetryPoint()
 
         return self.list_of_telemetries[index]
 
-    def get_telemetry_delta(self, index):
+    def get_telemetry_delta(self, index: object) -> None:
         if index >= (self.number_of_telemetries()-1):
             return TelemetryPoint()
 
         return self.list_of_telemetries[index+1] - self.list_of_telemetries[index]
 
-    def get_scalar_delta(self, index):
+    def get_scalar_delta(self, index: object) -> None:
         if index >= (self.number_of_telemetries()-1):
             return TelemetryPoint()
 
@@ -193,9 +200,9 @@ class TelemetryData:
         return delta.time, norm(delta.location), norm(delta.velocity)
 
 
-def run_scenario(world, bp_veh, init_loc, init_speed = 0.0, init_frames=10,
-        controls=None,
-        apply_phys_control = None):
+def run_scenario(world: object, bp_veh: object, init_loc: object, init_speed: object = 0.0, init_frames: object=10,
+        controls: object=None,
+        apply_phys_control: object = None) -> None:
 
     if controls is None:
         controls = [(150, carla.VehicleControl(), VehicleControlStop())]
@@ -234,13 +241,13 @@ def run_scenario(world, bp_veh, init_loc, init_speed = 0.0, init_frames=10,
 
     return data
 
-def brake_scenario(world, bp_veh, speed) -> None:
+def brake_scenario(world: object, bp_veh: object, speed: object) -> None:
 
     spectator_transform = carla.Transform(carla.Location(20, -190, 10), carla.Rotation(yaw=67, pitch=-13))
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except Exception:
+    except RuntimeError:
         pass
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
@@ -253,13 +260,13 @@ def brake_scenario(world, bp_veh, speed) -> None:
     data.get_scalar_delta(1)
     3.6*norm(data.get_telemetry(2).velocity)
 
-def accel_scenario(world, bp_veh, max_vel) -> None:
+def accel_scenario(world: object, bp_veh: object, max_vel: object) -> None:
 
     spectator_transform = carla.Transform(carla.Location(20, -190, 10), carla.Rotation(yaw=67, pitch=-13))
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except Exception:
+    except RuntimeError:
         pass
 
     init_loc = carla.Transform(carla.Location(32, -180, 0.5), carla.Rotation(yaw=90))
@@ -272,13 +279,13 @@ def accel_scenario(world, bp_veh, max_vel) -> None:
     data.get_scalar_delta(1)
     3.6*norm(data.get_telemetry(2).velocity)
 
-def uturn_scenario(world, bp_veh) -> None:
+def uturn_scenario(world: object, bp_veh: object) -> None:
 
     spectator_transform = carla.Transform(carla.Location(30, -180, 20), carla.Rotation(yaw=-140, pitch=-36))
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except Exception:
+    except RuntimeError:
         pass
 
     init_pos = carla.Transform(carla.Location(15, -190, 0.2), carla.Rotation(yaw=0))
@@ -291,13 +298,13 @@ def uturn_scenario(world, bp_veh) -> None:
     data = run_scenario(world, bp_veh, init_loc=init_pos, controls=controls)
     3.6*norm(data.get_telemetry(3).velocity)
 
-def highspeed_turn_scenario(world, bp_veh, steer) -> None:
+def highspeed_turn_scenario(world: object, bp_veh: object, steer: object) -> None:
     spectator_transform = carla.Transform(carla.Location(70, -200, 15), carla.Rotation(yaw=0, pitch=-12))
 
     try:
         spectator = world.get_spectator()
         spectator.set_transform(spectator_transform)
-    except Exception:
+    except RuntimeError:
         pass
 
     init_pos = carla.Transform(carla.Location(50, -204, 0.2), carla.Rotation(yaw=0))
@@ -311,7 +318,7 @@ def highspeed_turn_scenario(world, bp_veh, steer) -> None:
 
     time.sleep(1)
 
-def main(arg) -> None:
+def main(arg: object) -> None:
     """Main function of the script"""
     client = carla.Client(arg.host, arg.port)
     client.set_timeout(30.0)
@@ -338,7 +345,7 @@ def main(arg) -> None:
                     veh_transf.location.z = 100
                     vehicle = world.spawn_actor(bp_veh, veh_transf)
                     vehicle.destroy()
-                except Exception:
+                except RuntimeError:
                     pass
 
             if args.none:

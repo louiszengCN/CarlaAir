@@ -18,6 +18,7 @@ _DELTA_VALUES: list[float] = [
     0.011112,
 ]
 _TICK_ITERATIONS: int = 20
+_DELTA_TOLERANCE: float = 1e-7
 
 
 class TestWorld(SmokeTest):
@@ -34,7 +35,9 @@ class TestWorld(SmokeTest):
             world.apply_settings(settings)
             for _ in range(_TICK_ITERATIONS):
                 delta_seconds = world.wait_for_tick().timestamp.delta_seconds
-                self.assertAlmostEqual(expected_delta, delta_seconds)
+                assert abs(expected_delta - delta_seconds) < _DELTA_TOLERANCE, (
+                    f"Delta mismatch: {expected_delta} vs {delta_seconds}"
+                )
 
         settings.fixed_delta_seconds = None
         world.apply_settings(settings)

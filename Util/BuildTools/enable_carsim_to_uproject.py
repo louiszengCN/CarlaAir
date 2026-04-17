@@ -58,6 +58,7 @@ def _parse_args() -> argparse.Namespace:
 
 def _edit_plugin(
     uproject_json: dict,
+    *,
     enable: bool,
 ) -> bool:
     """Edit the CarSim plugin in the uproject JSON.
@@ -104,7 +105,7 @@ def main() -> None:
     with open(args.file, encoding="utf-8") as uproject_file:
         uproject_json = json.load(uproject_file)
 
-    should_do_changes = _edit_plugin(uproject_json, args.enable)
+    should_do_changes = _edit_plugin(uproject_json, enable=args.enable)
 
     if should_do_changes:
         with open(args.file, "w", encoding="utf-8") as uproject_file:

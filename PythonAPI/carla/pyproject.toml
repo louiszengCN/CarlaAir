@@ -35,7 +35,8 @@ exclude = [
     "PythonAPI/carla/source",      # Auto-generated C++ bindings
     "CarlaAir_Release",             # Binary distribution copy
     "LibCarla",                     # C++ library source
-    "PythonAPI/docs/snipets",       # Documentation code snippets
+    "PythonAPI/docs/snipets",       # Documentation code snippets (upstream)
+    "Build",                        # Build artifacts
 ]
 
 [tool.ruff.lint]
@@ -72,62 +73,18 @@ select = [
     "SLOT",  # flake8-slots
     "T20",   # flake8-print (enforce logging over print)
 ]
-ignore = [
-    "ANN401",  # Dynamically typed expressions (typing.Any) are discouraged
-    "PLR0912", # Too many branches
-    "PLR0913", # Too many arguments to function call
-    "PLR0915", # Too many statements
-    "PLR2004", # Magic value used in comparison (we use constants instead)
-    "TRY003",  # Avoid specifying long messages outside the exception class
-    "TRY300",  # Consider moving statement to else block
-    "TRY301",  # Abstract raise to an inner function
-    "COM812",  # Trailing comma missing (conflicts with ruff formatter)
-    "FBT001",  # Boolean-typed positional argument (common in CARLA APIs)
-    "FBT002",  # Boolean default positional argument
-    "FBT003",  # Boolean positional value in function call (Pydantic models)
-    "RET504",  # Unnecessary assignment before return (often clearer code)
-    "ERA001",  # Found commented-out code (copyright headers often look like this)
-    "N803",    # Argument name should be lowercase (K_P, K_I, K_D are standard PID names)
-    "N815",    # Variable in class scope should not be mixedCase (backward-compatible aliases)
-    "PLC0415", # Import should be at top-level (test scripts use lazy imports)
-    "RUF001",  # String contains ambiguous characters (Chinese text is intentional)
-    "RUF002",  # Docstring contains ambiguous characters (Chinese docs)
-    "RUF003",  # Comment contains ambiguous characters (Chinese comments)
-    "B904",    # Raise from err (legacy exception handling pattern)
-    "PERF203", # try-except within a loop (acceptable for error recovery)
-    "PERF401", # Use list comprehension (explicit loops sometimes clearer)
-    "SIM105",  # Use contextlib.suppress (explicit try-except sometimes clearer)
-    "Q000",    # Quotes style (mixed single/double quotes in legacy code)
-    "E501",    # Line too long (many upstream files exceed 120 chars)
-    "N802",    # Function name should be lowercase (CARLA naming convention)
-    "N806",    # Variable name should be lowercase (CARLA naming convention)
-    # N813 moved to per-file-ignores for PythonAPI/examples only
-    # UP031 moved to per-file-ignores for upstream files only
-    # PLW2901 moved to per-file-ignores for PythonAPI/examples only
-    # PLW0108 re-enabled — the one violation in codeformat.py was fixed
-    # ANN001/201/202/204 moved to per-file-ignores for upstream-only files
-]
+ignore = []
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"source/**" = ["ANN", "T201"]  # Auto-generated carla bindings
-"auto_traffic.py" = ["INP001", "PLW0603", "PLW0602", "BLE001"]  # Not part of a package, globals needed for cleanup, exception handling for robustness
-"examples/**" = ["INP001", "T201", "BLE001", "ANN"]  # CarlaAir examples (CLI output, exception handling)
-"examples/recording/**" = ["INP001", "T201", "BLE001"]  # Recording scripts (CLI output)
-"test_script/**" = ["INP001", "ANN", "PT028", "PT018", "T201", "BLE001"]  # Test scripts (test output)
-"PythonAPI/examples/**" = ["INP001", "ANN", "T201", "BLE001", "PLW2901", "N813", "UP031"]  # Upstream examples
-"PythonAPI/examples/generate_traffic.py" = ["E402"]  # Has pydantic import after standard lib
-"PythonAPI/examples/automatic_control.py" = ["N813"]  # ColorConverter as cc is standard CARLA convention
-"PythonAPI/examples/synchronous_mode.py" = ["N813"]  # Queue import compat
-"PythonAPI/util/**" = ["INP001", "T201", "BLE001", "UP031", "ANN"]  # Utilities (CLI output, printf, legacy untyped)
-"Util/**" = ["INP001", "T201", "BLE001", "UP031", "ANN"]  # Build tools (CLI output, printf, legacy untyped)
-"PythonAPI/test/**" = ["PT009", "UP031", "UP008", "UP036", "SIM", "ANN", "E501", "F401", "PLC0414", "F821", "F841", "N806", "T201", "BLE001"]  # Unittest style, legacy patterns
-"PythonAPI/docs/**" = ["T201", "ANN"]  # Documentation generators (CLI output, legacy untyped)
-"Unreal/**/*.py" = ["T201"]  # Unreal Engine scripts (CLI output)
-"PythonAPI/carla/agents/**" = ["T201", "BLE001"]  # Navigation agents (warning messages)
-"PythonAPI/carla/setup.py" = ["T201", "UP031", "ANN"]  # Build script
-"PythonAPI/carla/scene_layout.py" = ["ANN"]  # Legacy untyped module
-"PythonAPI/carla/source/**" = ["T201"]  # Auto-generated bindings
+# Upstream CARLA code: no type annotations, UE4 naming conventions, legacy style
+"PythonAPI/examples/*" = ["ANN", "N", "FBT", "PLR", "PLW", "ERA001", "TRY", "BLE001", "RUF", "E501", "UP031", "PERF", "PLC0415", "PT", "B"]
+"PythonAPI/util/*" = ["ANN", "N", "FBT", "PLR", "PLW", "ERA001", "TRY", "BLE001", "RUF", "E501", "UP031", "PERF", "PLC0415", "PT", "B"]
+"PythonAPI/test/*" = ["ANN", "N", "FBT", "PLR", "PLW", "ERA001", "TRY", "BLE001", "RUF", "E501", "UP031", "PERF", "PLC0415", "PT", "B"]
+"PythonAPI/docs/*" = ["ANN", "N", "FBT", "PLR", "PLW", "ERA001", "TRY", "BLE001", "RUF", "E501", "UP031", "PERF", "PLC0415", "PT", "B", "INP001"]
+# scene_layout.py uses carla C++ extension objects which have no type stubs
+"PythonAPI/carla/scene_layout.py" = ["ANN401"]
+# global_route_planner has inherently branchy routing logic; refactoring would harm readability
+"PythonAPI/carla/agents/navigation/global_route_planner.py" = ["PLR0912"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["carla", "agents"]

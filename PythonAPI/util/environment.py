@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""
-Script to control weather parameters in simulations
-"""
+"""Script to control weather parameters in simulations."""
+
+from __future__ import annotations
 
 import argparse
 import sys
@@ -36,12 +36,11 @@ CAR_LIGHTS = {
 
 LIGHT_GROUP = {
     "None" : [carla.LightGroup.NONE],
-    # 'Vehicle' : [carla.LightGroup.Vehicle],
     "Street" : [carla.LightGroup.Street],
     "Building" : [carla.LightGroup.Building],
     "Other" : [carla.LightGroup.Other]}
 
-def apply_sun_presets(args, weather) -> None:
+def apply_sun_presets(args: object, weather: object) -> None:
     """Uses sun presets to set the sun position"""
     if args.sun is not None:
         if args.sun in SUN_PRESETS:
@@ -51,7 +50,7 @@ def apply_sun_presets(args, weather) -> None:
             sys.exit(1)
 
 
-def apply_weather_presets(args, weather) -> None:
+def apply_weather_presets(args: object, weather: object) -> None:
     """Uses weather presets to set the weather parameters"""
     if args.weather is not None:
         if args.weather in WEATHER_PRESETS:
@@ -71,7 +70,7 @@ def apply_weather_presets(args, weather) -> None:
             sys.exit(1)
 
 
-def apply_weather_values(args, weather) -> None:
+def apply_weather_values(args: object, weather: object) -> None:
     """Set weather values individually"""
     if args.azimuth is not None:
         weather.sun_azimuth_angle = args.azimuth
@@ -103,7 +102,7 @@ def apply_weather_values(args, weather) -> None:
         weather.dust_storm = args.dust_storm
 
 
-def apply_lights_to_cars(args, world) -> None:
+def apply_lights_to_cars(args: object, world: object) -> None:
     if args.cars is None:
         return
 
@@ -117,7 +116,7 @@ def apply_lights_to_cars(args, world) -> None:
         if "vehicle." in ve.type_id:
             ve.set_light_state(carla.VehicleLightState(light_mask))
 
-def apply_lights_manager(args, light_manager) -> None:
+def apply_lights_manager(args: object, light_manager: object) -> None:
     if args.lights is None:
         return
 

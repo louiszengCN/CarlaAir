@@ -487,55 +487,14 @@ class TrajectoryCollector:
                 try:
                     self.spawn_player()
                     continue
-                except Exception:
+                except RuntimeError:
                     running = False
                     continue
 
-            # 1. Mouse handling (rotation)
-            dx, dy = pygame.mouse.get_rel()
-            self._look_yaw += dx * self._movement_cfg.mouse_sensitivity
-            self._look_pitch = np.clip(
-                self._look_pitch - dy * self._movement_cfg.mouse_sensitivity,
-                self._movement_cfg.pitch_min,
-                self._movement_cfg.pitch_max,
-            )
+            self._update_mouse_look()
+            self._update_camera_rotation()
 
-            # Update walker orientation
-            if self._walker is not None:
-                walker_transform = self._walker.get_transform()
-                walker_transform.rotation.yaw = self._look_yaw
-                self._walker.set_transform(walker_transform)
-
-            # Update camera rotation
-            if self._camera is not None:
-                if self._camera_mode == CameraMode.FPS:
-                    self._camera.set_transform(
-                        carla.Transform(
-                            carla.Location(
-                                x=self._camera_cfg.fps_offset_x,
-                                z=self._camera_cfg.fps_offset_z,
-                            ),
-                            carla.Rotation(
-                                pitch=self._look_pitch, yaw=0, roll=0,
-                            ),
-                        ),
-                    )
-                else:
-                    self._camera.set_transform(
-                        carla.Transform(
-                            carla.Location(
-                                x=self._camera_cfg.tps_offset_x,
-                                z=self._camera_cfg.tps_offset_z,
-                            ),
-                            carla.Rotation(
-                                pitch=self._look_pitch + self._camera_cfg.tps_pitch,
-                                yaw=0,
-                                roll=0,
-                            ),
-                        ),
-                    )
-
-            # 2. Keyboard handling (movement)
+            # Keyboard handling (movement)
             keys = pygame.key.get_pressed()
             control = carla.WalkerControl()
             direction = carla.Vector3D(0, 0, 0)
@@ -577,6 +536,52 @@ class TrajectoryCollector:
 
         self.cleanup()
 
+    def _update_mouse_look(self) -> None:
+        """Update look yaw/pitch from mouse input."""
+        dx, dy = pygame.mouse.get_rel()
+        self._look_yaw += dx * self._movement_cfg.mouse_sensitivity
+        self._look_pitch = np.clip(
+            self._look_pitch - dy * self._movement_cfg.mouse_sensitivity,
+            self._movement_cfg.pitch_min,
+            self._movement_cfg.pitch_max,
+        )
+
+        if self._walker is not None:
+            walker_transform = self._walker.get_transform()
+            walker_transform.rotation.yaw = self._look_yaw
+            self._walker.set_transform(walker_transform)
+
+    def _update_camera_rotation(self) -> None:
+        """Update camera transform for current look pitch and mode."""
+        if self._camera is None:
+            return
+        if self._camera_mode == CameraMode.FPS:
+            self._camera.set_transform(
+                carla.Transform(
+                    carla.Location(
+                        x=self._camera_cfg.fps_offset_x,
+                        z=self._camera_cfg.fps_offset_z,
+                    ),
+                    carla.Rotation(
+                        pitch=self._look_pitch, yaw=0, roll=0,
+                    ),
+                ),
+            )
+        else:
+            self._camera.set_transform(
+                carla.Transform(
+                    carla.Location(
+                        x=self._camera_cfg.tps_offset_x,
+                        z=self._camera_cfg.tps_offset_z,
+                    ),
+                    carla.Rotation(
+                        pitch=self._look_pitch + self._camera_cfg.tps_pitch,
+                        yaw=0,
+                        roll=0,
+                    ),
+                ),
+            )
+
     def _handle_keydown(
         self, event: pygame.Event, control: carla.WalkerControl,
     ) -> bool:
@@ -598,7 +603,7 @@ class TrajectoryCollector:
                     boost_loc = self._walker.get_location()
                     boost_loc.z += self._movement_cfg.jump_boost_z
                     self._walker.set_location(boost_loc)
-                except Exception:
+                except RuntimeError:
                     pass
         elif event.key == K_r:
             self.record_point()
@@ -657,7 +662,7 @@ class TrajectoryCollector:
             current_tf = (
                 self._walker.get_transform() if self._walker else None
             )
-        except Exception:
+        except RuntimeError:
             current_tf = None
 
         # Reload world to clear debug drawings
@@ -672,7 +677,7 @@ class TrajectoryCollector:
 
             try:
                 self._world = self._client.reload_world()
-            except Exception:
+            except RuntimeError:
                 self._world = self._client.load_world(base_map_name)
 
             self._map = self._world.get_map()
@@ -681,18 +686,18 @@ class TrajectoryCollector:
             if current_tf is not None:
                 try:
                     self._spawn_walker_and_camera(current_tf)
-                except Exception:
+                except RuntimeError:
                     self.spawn_player()
             else:
                 self.spawn_player()
-        except Exception:
+        except RuntimeError:
             try:
                 self._world = self._client.get_world()
                 self._map = self._world.get_map()
                 self._blueprint_library = self._world.get_blueprint_library()
                 if self._walker is None or self._camera is None:
                     self.spawn_player()
-            except Exception:
+            except RuntimeError:
                 pass
 
 
@@ -703,10 +708,10 @@ if __name__ == "__main__":
             "--time",
             type=float,
             default=_DEFAULT_DEBUG_LIFE_TIME,
-            help="Trajectory visualization display duration (seconds) (轨迹可视化显示时长（秒）)",
+            help="Trajectory visualization display duration (seconds)",
         )
         args = parser.parse_args()
         collector = TrajectoryCollector(debug_life_time=args.time)
         collector.run()
-    except Exception:
+    except RuntimeError:
         pass

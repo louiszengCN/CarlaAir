@@ -32,7 +32,7 @@ import carla
 from agents.navigation.basic_agent import BasicAgent
 from agents.navigation.behavior_agent import BehaviorAgent
 from agents.navigation.constant_velocity_agent import ConstantVelocityAgent
-from carla import ColorConverter as cc
+from carla import ColorConverter
 
 if TYPE_CHECKING:
     from carla import ActorBlueprint, WeatherParameters
@@ -103,8 +103,7 @@ _BOUND_X_OFFSET: float = 0.5
 _BOUND_Y_OFFSET: float = 0.5
 _BOUND_Z_OFFSET: float = 0.5
 
-# Camera position multipliers (index 0-4)
-# (x, y, z, pitch, attachment_type)
+# Camera position multipliers (index 0-4): x, y, z, pitch, attachment_type
 _CAM_TRANSFORMS: list[tuple[float, float, float, float, str]] = [
     (-2.0, 0.0, 2.0, 8.0, "SpringArmGhost"),  # Third person
     (0.8, 0.0, 1.3, 0.0, "Rigid"),  # In-car
@@ -124,6 +123,8 @@ _GNSS_Z_OFFSET: float = 2.8
 
 # Vehicle physics
 _SPAWN_Z_OFFSET: float = 2.0
+_RESOLUTION_PARTS: int = 2
+_MAX_PORT: int = 65535
 
 # Weather pattern regex
 _WEATHER_NAME_RGX = re.compile(
@@ -193,7 +194,7 @@ class Resolution(BaseModel):
             Resolution instance
         """
         parts = s.split("x")
-        if len(parts) != 2:
+        if len(parts) != _RESOLUTION_PARTS:
             msg = f"Invalid resolution format: {s}"
             raise ValueError(msg)
         return cls(width=int(parts[0]), height=int(parts[1]))
@@ -219,7 +220,7 @@ class SimulationConfig(BaseModel):
     @field_validator("port")
     @classmethod
     def _validate_port(cls, v: int) -> int:
-        if not (1 <= v <= 65535):
+        if not (1 <= v <= _MAX_PORT):
             msg = f"Port must be in range 1-65535, got {v}"
             raise ValueError(msg)
         return v
@@ -303,14 +304,15 @@ def get_actor_blueprints(
 
     try:
         int_generation = int(generation)
+    except ValueError:
+        return []
+    else:
         if int_generation in [1, 2, 3]:
             return [
                 x
                 for x in bps
                 if int(x.get_attribute("generation").as_int()) == int_generation
             ]
-        return []
-    except ValueError:
         return []
 
 
@@ -430,7 +432,7 @@ class World:
         actor_type = get_actor_display_name(self.player)
         self.hud.notification(actor_type)
 
-    def next_weather(self, reverse: bool = False) -> None:
+    def next_weather(self, *, reverse: bool = False) -> None:
         """Cycle to the next weather preset.
 
         Args:
@@ -452,7 +454,7 @@ class World:
             physics_control = actor.get_physics_control()
             physics_control.use_sweep_wheel_collision = True
             actor.apply_physics_control(physics_control)
-        except Exception:
+        except RuntimeError:
             pass
 
     def tick(self, clock: pygame.time.Clock) -> None:
@@ -691,7 +693,7 @@ class HUD:
         return heading
 
     def _add_nearby_ehicles(
-        self, vehicles: Any, transform: carla.Transform,
+        self, vehicles: carla.ActorList, transform: carla.Transform,
     ) -> None:
         """Add nearby vehicles to info text.
 
@@ -774,14 +776,14 @@ class HUD:
                         (x + 8, v_offset + 8 + (1 - y) * 30)
                         for x, y in enumerate(item)
                     ]
-                    pygame.draw.lines(display, _ORANGE_COLOR, False, points, 2)
+                    pygame.draw.lines(display, _ORANGE_COLOR, closed=False, points=points, width=2)
                 v_offset += _INFO_ITEM_HEIGHT
             elif isinstance(item, tuple):
                 self._render_bar(display, bar_h_offset, v_offset, bar_width, item)
                 v_offset += _INFO_ITEM_HEIGHT
             else:
                 if item:
-                    surface = self._font_mono.render(item, True, _BAR_COLOR)
+                    surface = self._font_mono.render(item, antialias=True, color=_BAR_COLOR)
                     display.blit(surface, (8, v_offset))
                 v_offset += _INFO_ITEM_HEIGHT
 
@@ -868,17 +870,17 @@ class FadingText:
             color: RGB color tuple
             seconds: display duration
         """
-        text_texture = self.font.render(text, True, color)
+        text_texture = self.font.render(text, antialias=True, color=color)
         self.surface = pygame.Surface(self.dim)
         self.seconds_left = seconds
         self.surface.fill((0, 0, 0, 0))
         self.surface.blit(text_texture, (10, 11))
 
-    def tick(self, _: Any, clock: pygame.time.Clock) -> None:
+    def tick(self, _world: object, clock: pygame.time.Clock) -> None:
         """Update fading text alpha.
 
         Args:
-            _: unused (world)
+            _world: unused (world reference)
             clock: pygame clock
         """
         delta_seconds = _FADING_DELTA * clock.get_time()
@@ -933,7 +935,7 @@ class HelpText:
         self.surface = pygame.Surface(self.dim)
         self.surface.fill((0, 0, 0, 0))
         for i, line in enumerate(lines):
-            text_texture = self.font.render(line, True, _BAR_COLOR)
+            text_texture = self.font.render(line, antialias=True, color=_BAR_COLOR)
             self.surface.blit(text_texture, (_HELP_H_PADDING, i * _HELP_LINE_HEIGHT))
         self._render = False
         self.surface.set_alpha(_HELP_SURFACE_ALPHA)
@@ -998,7 +1000,7 @@ class CollisionSensor:
         return history
 
     @staticmethod
-    def _on_collision(weak_self: Any, event: Any) -> None:
+    def _on_collision(weak_self: weakref.ref[CollisionSensor], event: carla.CollisionEvent) -> None:
         """Handle collision event.
 
         Args:
@@ -1048,7 +1050,7 @@ class LaneInvasionSensor:
         )
 
     @staticmethod
-    def _on_invasion(weak_self: Any, event: Any) -> None:
+    def _on_invasion(weak_self: weakref.ref[LaneInvasionSensor], event: carla.LaneInvasionEvent) -> None:
         """Handle lane invasion event.
 
         Args:
@@ -1099,7 +1101,7 @@ class GnssSensor:
         )
 
     @staticmethod
-    def _on_gnss_event(weak_self: Any, event: Any) -> None:
+    def _on_gnss_event(weak_self: weakref.ref[GnssSensor], event: carla.GnssMeasurement) -> None:
         """Handle GNSS event.
 
         Args:
@@ -1165,22 +1167,22 @@ class CameraManager:
 
         self.transform_index = 1
         self.sensors = [
-            ["sensor.camera.rgb", cc.Raw, "Camera RGB"],
-            ["sensor.camera.depth", cc.Raw, "Camera Depth (Raw)"],
-            ["sensor.camera.depth", cc.Depth, "Camera Depth (Gray Scale)"],
+            ["sensor.camera.rgb", ColorConverter.Raw, "Camera RGB"],
+            ["sensor.camera.depth", ColorConverter.Raw, "Camera Depth (Raw)"],
+            ["sensor.camera.depth", ColorConverter.Depth, "Camera Depth (Gray Scale)"],
             [
                 "sensor.camera.depth",
-                cc.LogarithmicDepth,
+                ColorConverter.LogarithmicDepth,
                 "Camera Depth (Logarithmic Gray Scale)",
             ],
             [
                 "sensor.camera.semantic_segmentation",
-                cc.Raw,
+                ColorConverter.Raw,
                 "Camera Semantic Segmentation (Raw)",
             ],
             [
                 "sensor.camera.semantic_segmentation",
-                cc.CityScapesPalette,
+                ColorConverter.CityScapesPalette,
                 "Camera Semantic Segmentation (CityScapes Palette)",
             ],
             ["sensor.lidar.ray_cast", None, "Lidar (Ray-Cast)"],
@@ -1205,7 +1207,7 @@ class CameraManager:
         self.set_sensor(self.index, notify=False, force_respawn=True)
 
     def set_sensor(
-        self, index: int | None, notify: bool = True, force_respawn: bool = False,
+        self, index: int | None, *, notify: bool = True, force_respawn: bool = False,
     ) -> None:
         """Set active camera sensor.
 
@@ -1257,7 +1259,7 @@ class CameraManager:
             display.blit(self.surface, (0, 0))
 
     @staticmethod
-    def _parse_image(weak_self: Any, image: carla.Image) -> None:
+    def _parse_image(weak_self: weakref.ref[CameraManager], image: carla.Image) -> None:
         """Process camera image.
 
         Args:
@@ -1394,7 +1396,7 @@ def _create_agent(
     """
     if cfg.agent == AgentType.BASIC:
         agent = BasicAgent(world.player, _DEFAULT_TARGET_SPEED)
-        agent.follow_speed_limits(True)
+        agent.follow_speed_limits(value=True)
     elif cfg.agent == AgentType.CONSTANT:
         agent = ConstantVelocityAgent(world.player, _DEFAULT_TARGET_SPEED)
         ground_loc = world.world.ground_projection(
@@ -1404,7 +1406,7 @@ def _create_agent(
             world.player.set_location(
                 ground_loc.location + carla.Location(z=0.01),
             )
-        agent.follow_speed_limits(True)
+        agent.follow_speed_limits(value=True)
     else:
         agent = BehaviorAgent(world.player, behavior=cfg.behavior)
     return agent

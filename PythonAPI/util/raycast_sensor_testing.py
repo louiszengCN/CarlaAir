@@ -29,6 +29,8 @@ And for profiling one radar:
 
 """
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import random
@@ -51,11 +53,11 @@ class CustomTimer:
         except AttributeError:
             self.timer = time.time
 
-    def time(self):
+    def time(self) -> None:
         return self.timer()
 
 class DisplayManager:
-    def __init__(self, grid_size, window_size, show_window=True) -> None:
+    def __init__(self, grid_size: object, window_size: object, show_window: object=True) -> None:
         if show_window:
             pygame.init()
             pygame.font.init()
@@ -67,20 +69,20 @@ class DisplayManager:
         self.window_size = window_size
         self.sensor_list = []
 
-    def get_window_size(self):
+    def get_window_size(self) -> None:
         return [int(self.window_size[0]), int(self.window_size[1])]
 
-    def get_display_size(self):
+    def get_display_size(self) -> None:
         return [int(self.window_size[0]/self.grid_size[0]), int(self.window_size[1]/self.grid_size[1])]
 
-    def get_display_offset(self, gridPos):
+    def get_display_offset(self, gridPos: object) -> None:
         dis_size = self.get_display_size()
         return [int(gridPos[0] * dis_size[0]), int(gridPos[1] * dis_size[1])]
 
-    def add_sensor(self, sensor) -> None:
+    def add_sensor(self, sensor: object) -> None:
         self.sensor_list.append(sensor)
 
-    def get_sensor_list(self):
+    def get_sensor_list(self) -> None:
         return self.sensor_list
 
     def render(self) -> None:
@@ -96,11 +98,11 @@ class DisplayManager:
         for s in self.sensor_list:
             s.destroy()
 
-    def render_enabled(self):
+    def render_enabled(self) -> None:
         return self.display is not None
 
 class SensorManager:
-    def __init__(self, world, display_man, sensor_type, transform, attached, sensor_options, display_pos) -> None:
+    def __init__(self, world: object, display_man: object, sensor_type: object, transform: object, attached: object, sensor_options: object, display_pos: object) -> None:
         self.surface = None
         self.world = world
         self.display_man = display_man
@@ -114,7 +116,7 @@ class SensorManager:
 
         self.display_man.add_sensor(self)
 
-    def init_sensor(self, sensor_type, transform, attached, sensor_options):
+    def init_sensor(self, sensor_type: object, transform: object, attached: object, sensor_options: object) -> None:
         if sensor_type == "RGBCamera":
             camera_bp = self.world.get_blueprint_library().find("sensor.camera.rgb")
             disp_size = self.display_man.get_display_size()
@@ -168,10 +170,10 @@ class SensorManager:
             return radar
         return None
 
-    def get_sensor(self):
+    def get_sensor(self) -> None:
         return self.sensor
 
-    def save_rgb_image(self, image) -> None:
+    def save_rgb_image(self, image: object) -> None:
         t_start = self.timer.time()
 
         image.convert(carla.ColorConverter.Raw)
@@ -187,7 +189,7 @@ class SensorManager:
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
 
-    def save_lidar_image(self, image) -> None:
+    def save_lidar_image(self, image: object) -> None:
         t_start = self.timer.time()
 
         disp_size = self.display_man.get_display_size()
@@ -213,7 +215,7 @@ class SensorManager:
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
 
-    def save_semanticlidar_image(self, image) -> None:
+    def save_semanticlidar_image(self, image: object) -> None:
         t_start = self.timer.time()
 
         disp_size = self.display_man.get_display_size()
@@ -239,9 +241,8 @@ class SensorManager:
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
 
-    def save_radar_image(self, radar_data) -> None:
+    def save_radar_image(self, radar_data: object) -> None:
         t_start = self.timer.time()
-        #print("Hola, saving Radar data!!")
         # To get a numpy [[vel, altitude, azimuth, depth],...[,,,]]:
         points = np.frombuffer(radar_data.raw_data, dtype=np.dtype("f4"))
         points = np.reshape(points, (len(radar_data), 4))
@@ -258,7 +259,7 @@ class SensorManager:
     def destroy(self) -> None:
         self.sensor.destroy()
 
-def one_run(args, client):
+def one_run(args: object, client: object) -> None:
     """This function performed one test run using the args parameters
     and connecting to the carla client passed.
     """

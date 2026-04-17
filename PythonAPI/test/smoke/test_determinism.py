@@ -85,35 +85,17 @@ class TestDeterminism(SmokeTest):
                 loc1 = record1.vehicle_position_list[j]
                 loc2 = record2.vehicle_position_list[j]
                 # Workaround: avoid test failure due to floating point drift
-                delta = loc1.x * 0.2
-                self.assertAlmostEqual(
-                    loc1.x,
-                    loc2.x,
-                    delta=delta,
-                    msg=(
-                        f"Actor location X missmatch at frame "
-                        f"{record1.frame}: {loc1} != {loc2}"
-                    ),
+                delta_x = loc1.x * 0.2
+                assert abs(loc1.x - loc2.x) <= delta_x, (
+                    f"Actor location X mismatch at frame {record1.frame}: {loc1} != {loc2}"
                 )
-                delta = loc1.y * 0.2
-                self.assertAlmostEqual(
-                    loc1.y,
-                    loc2.y,
-                    delta=delta,
-                    msg=(
-                        f"Actor location Y missmatch at frame "
-                        f"{record1.frame}: {loc1} != {loc2}"
-                    ),
+                delta_y = loc1.y * 0.2
+                assert abs(loc1.y - loc2.y) <= delta_y, (
+                    f"Actor location Y mismatch at frame {record1.frame}: {loc1} != {loc2}"
                 )
-                delta = loc1.z * 0.2
-                self.assertAlmostEqual(
-                    loc1.z,
-                    loc2.z,
-                    delta=delta,
-                    msg=(
-                        f"Actor location Z missmatch at frame "
-                        f"{record1.frame}: {loc1} != {loc2}"
-                    ),
+                delta_z = loc1.z * 0.2
+                assert abs(loc1.z - loc2.z) <= delta_z, (
+                    f"Actor location Z mismatch at frame {record1.frame}: {loc1} != {loc2}"
                 )
 
     def spawn_vehicles(
@@ -140,16 +122,17 @@ class TestDeterminism(SmokeTest):
                 carla.command.SpawnActor(blueprint, transform).then(
                     carla.command.SetAutopilot(
                         carla.command.FutureActor,
-                        True,
-                        traffic_manager.get_port(),
+                        enabled=True,
+                        port=traffic_manager.get_port(),
                     ),
                 ),
             )
 
-        vehicle_actor_ids: list[carla.ActorId] = []
-        for response in self.client.apply_batch_sync(batch, do_tick=True):
-            if not response.error:
-                vehicle_actor_ids.append(response.actor_id)
+        vehicle_actor_ids: list[carla.ActorId] = [
+            response.actor_id
+            for response in self.client.apply_batch_sync(batch, do_tick=True)
+            if not response.error
+        ]
 
         return list(world.get_actors(vehicle_actor_ids))
 
@@ -172,9 +155,9 @@ class TestDeterminism(SmokeTest):
         while True:
             if ticks == _NUM_TICKS:
                 break
-            position_list: list[carla.Location] = []
-            for vehicle in vehicle_actor_list:
-                position_list.append(vehicle.get_location())
+            position_list: list[carla.Location] = [
+                vehicle.get_location() for vehicle in vehicle_actor_list
+            ]
             simulation_record.append(FrameRecord(ticks, position_list))
             ticks += 1
             world.tick()
@@ -223,7 +206,7 @@ class TestDeterminism(SmokeTest):
             blueprint_transform_list.append((blueprint, transform))
 
         # Run simulation 1
-        self.client.reload_world(False)
+        self.client.reload_world(reset_settings=False)
         time.sleep(_RELOAD_DELAY)
         world = self.client.get_world()
         traffic_manager = self.client.get_trafficmanager(_TM_PORT)
@@ -238,7 +221,7 @@ class TestDeterminism(SmokeTest):
         traffic_manager.shut_down()
 
         # Run simulation 2
-        self.client.reload_world(False)
+        self.client.reload_world(reset_settings=False)
         time.sleep(_RELOAD_DELAY)
         world = self.client.get_world()
         traffic_manager = self.client.get_trafficmanager(_TM_PORT)

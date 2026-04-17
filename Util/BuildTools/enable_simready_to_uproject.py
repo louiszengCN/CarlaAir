@@ -63,6 +63,7 @@ def _parse_args() -> argparse.Namespace:
 def _edit_plugin(
     uproject_json: dict,
     plugin_name: str,
+    *,
     enable: bool,
 ) -> bool:
     """Edit a plugin in the uproject JSON.
@@ -110,7 +111,7 @@ def main() -> None:
         uproject_json = json.load(uproject_file)
 
     should_do_changes = _edit_plugin(
-        uproject_json, args.plugin, args.enable,
+        uproject_json, args.plugin, enable=args.enable,
     )
 
     if should_do_changes:

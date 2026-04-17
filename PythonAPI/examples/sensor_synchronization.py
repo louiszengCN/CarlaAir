@@ -25,7 +25,10 @@ from __future__ import annotations
 
 import contextlib
 from queue import Empty, Queue
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from carla import SensorData
 
 import carla
 
@@ -68,7 +71,7 @@ _LIDAR_PPS_ATTR: str = "points_per_second"
 
 
 def sensor_callback(
-    sensor_data: Any,
+    sensor_data: SensorData,
     sensor_queue: Queue[tuple[int, str]],
     sensor_name: str,
 ) -> None:
@@ -151,7 +154,7 @@ def main() -> None:
     try:
         while True:
             world.tick()
-            world.get_snapshot().frame
+            _ = world.get_snapshot().frame
 
             try:
                 for _ in range(len(sensor_list)):

@@ -148,12 +148,10 @@ def _cleanup_actors(
         actor_filter: actor filter pattern
     """
     for actor in world.get_actors().filter(actor_filter):
-        try:
+        with contextlib.suppress(RuntimeError):
             if hasattr(actor, "stop"):
                 actor.stop()
-        except Exception:
-            pass
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError):
             actor.destroy()
 
 
@@ -179,7 +177,7 @@ def _render_hud(
         f"{state.speed_kmh:.0f} km/h{rev_str}  |  "
         f"WASD=Drive  N=Weather  ESC=Quit"
     )
-    text_surface = font.render(hud_text, True, _HUD_TEXT_COLOR)
+    text_surface = font.render(hud_text, antialias=True, color=_HUD_TEXT_COLOR)
     bg_surface = pygame.Surface((width, _HUD_HEIGHT))
     bg_surface.set_alpha(_HUD_ALPHA)
     bg_surface.fill(_HUD_BG_COLOR)
@@ -207,6 +205,131 @@ def _handle_keydown(
     return True, None
 
 
+class _SpawnError(RuntimeError):
+    """Raised when vehicle spawn fails."""
+
+
+def _spawn_vehicle_and_camera(
+    world: carla.World,
+    bp_lib: carla.BlueprintLibrary,
+    latest_image: list[np.ndarray | None],
+) -> tuple[carla.Vehicle, carla.Sensor]:
+    """Spawn vehicle and attach chase camera.
+
+    Args:
+        world: CARLA world
+        bp_lib: blueprint library
+        latest_image: shared mutable image buffer
+
+    Returns:
+        (vehicle, camera) actors
+    """
+    vehicle_bp = bp_lib.find(_VEHICLE_BLUEPRINT)
+    vehicle: carla.Vehicle | None = None
+    for candidate in world.get_map().get_spawn_points():
+        try:
+            vehicle = world.spawn_actor(vehicle_bp, candidate)
+            break
+        except RuntimeError:
+            continue
+    if vehicle is None:
+        raise _SpawnError
+    cam_bp = bp_lib.find("sensor.camera.rgb")
+    cam_bp.set_attribute("image_size_x", str(_DISPLAY_WIDTH))
+    cam_bp.set_attribute("image_size_y", str(_DISPLAY_HEIGHT))
+    cam_bp.set_attribute("fov", _CAMERA_FOV)
+    cam_tf = carla.Transform(
+        carla.Location(x=_CHASE_CAMERA_X, z=_CHASE_CAMERA_Z),
+        carla.Rotation(pitch=_CHASE_CAMERA_PITCH),
+    )
+    camera = world.spawn_actor(cam_bp, cam_tf, attach_to=vehicle)
+
+    def _on_image(img: carla.Image) -> None:
+        arr = np.frombuffer(img.raw_data, dtype=np.uint8)
+        latest_image[0] = arr.reshape((img.height, img.width, 4))[:, :, :3][:, :, ::-1]
+
+    camera.listen(_on_image)
+    return vehicle, camera
+
+
+def _apply_vehicle_control(vehicle: carla.Vehicle, *, reverse: bool) -> None:
+    """Read keyboard state and apply vehicle control.
+
+    Args:
+        vehicle: vehicle actor
+        reverse: current reverse state
+    """
+    keys = pygame.key.get_pressed()
+    ctrl = carla.VehicleControl()
+    ctrl.throttle = _THROTTLE_VALUE if keys[pygame.K_w] else 0.0
+    ctrl.brake = _BRAKE_VALUE if keys[pygame.K_s] else 0.0
+    steer = 0.0
+    if keys[pygame.K_a]:
+        steer = _STEER_LEFT
+    elif keys[pygame.K_d]:
+        steer = _STEER_RIGHT
+    ctrl.steer = steer
+    ctrl.hand_brake = bool(keys[pygame.K_SPACE])
+    ctrl.reverse = reverse
+    vehicle.apply_control(ctrl)
+
+
+def _game_loop(
+    world: carla.World,
+    vehicle: carla.Vehicle,
+    display: pygame.Surface,
+    clock: pygame.time.Clock,
+    font: pygame.font.Font,
+    latest_image: list[np.ndarray | None],
+) -> None:
+    """Run the main game loop.
+
+    Args:
+        world: CARLA world
+        vehicle: player vehicle
+        display: pygame display surface
+        clock: pygame clock
+        font: HUD font
+        latest_image: shared image buffer
+    """
+    weather_list = list(WeatherPreset)
+    weather_idx = 0
+    world.set_weather(weather_list[0].value[1])
+    reverse = False
+    running = True
+
+    while running:
+        clock.tick(_DISPLAY_FPS)
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                running = False
+            elif ev.type == pygame.KEYDOWN:
+                should_continue, weather_change = _handle_keydown(ev)
+                if not should_continue:
+                    running = False
+                elif weather_change is not None:
+                    weather_idx = (weather_idx + weather_change) % len(weather_list)
+                    world.set_weather(weather_list[weather_idx].value[1])
+                elif ev.key == pygame.K_r:
+                    reverse = not reverse
+
+        _apply_vehicle_control(vehicle, reverse=reverse)
+
+        if latest_image[0] is not None:
+            surf = pygame.surfarray.make_surface(latest_image[0].swapaxes(0, 1))
+            display.blit(surf, (0, 0))
+
+        vel = vehicle.get_velocity()
+        speed_kmh = _SPEED_CONVERSION * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
+        state = VehicleState(
+            speed_kmh=speed_kmh,
+            reverse=reverse,
+            weather_name=weather_list[weather_idx].value[0],
+        )
+        _render_hud(display, state, _DISPLAY_WIDTH, _DISPLAY_HEIGHT, font)
+        pygame.display.flip()
+
+
 def main() -> None:
     """Main entry point for vehicle driving."""
     actors: list[carla.Actor] = []
@@ -218,125 +341,30 @@ def main() -> None:
         world = client.get_world()
         bp_lib = world.get_blueprint_library()
 
-        # Cleanup previous session
         _cleanup_actors(world, _SENSOR_FILTER)
         _cleanup_actors(world, _VEHICLE_FILTER)
 
-        # Spawn vehicle
-        vehicle_bp = bp_lib.find(_VEHICLE_BLUEPRINT)
-        spawn_points = world.get_map().get_spawn_points()
-        vehicle: carla.Vehicle | None = None
-        for candidate in spawn_points:
-            try:
-                vehicle = world.spawn_actor(vehicle_bp, candidate)
-                break
-            except RuntimeError:
-                continue
-        if vehicle is None:
-            raise RuntimeError("Cannot spawn vehicle")
-        actors.append(vehicle)
+        vehicle, camera = _spawn_vehicle_and_camera(world, bp_lib, latest_image)
+        actors.extend([vehicle, camera])
 
-        # Chase camera
-        cam_bp = bp_lib.find("sensor.camera.rgb")
-        cam_bp.set_attribute("image_size_x", str(_DISPLAY_WIDTH))
-        cam_bp.set_attribute("image_size_y", str(_DISPLAY_HEIGHT))
-        cam_bp.set_attribute("fov", _CAMERA_FOV)
-        cam_tf = carla.Transform(
-            carla.Location(x=_CHASE_CAMERA_X, z=_CHASE_CAMERA_Z),
-            carla.Rotation(pitch=_CHASE_CAMERA_PITCH),
-        )
-        camera = world.spawn_actor(cam_bp, cam_tf, attach_to=vehicle)
-        actors.append(camera)
-
-        def _on_image(img: carla.Image) -> None:
-            arr = np.frombuffer(img.raw_data, dtype=np.uint8)
-            latest_image[0] = arr.reshape((img.height, img.width, 4))[
-                :, :, :3,
-            ][:, :, ::-1]
-
-        camera.listen(_on_image)
-
-        # Pygame setup
         pygame.init()
-        display = pygame.display.set_mode(
-            (_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS,
-        )
+        display = pygame.display.set_mode((_DISPLAY_WIDTH, _DISPLAY_HEIGHT), _DISPLAY_FLAGS)
         pygame.display.set_caption(_DISPLAY_CAPTION)
         clock = pygame.time.Clock()
         font = pygame.font.SysFont("monospace", _HUD_FONT_SIZE, bold=True)
 
-        weather_list = list(WeatherPreset)
-        weather_idx = 0
-        world.set_weather(weather_list[0].value[1])
-        reverse = False
-        running = True
-
-
-        while running:
-            clock.tick(_DISPLAY_FPS)
-
-            for ev in pygame.event.get():
-                if ev.type == pygame.QUIT:
-                    running = False
-                elif ev.type == pygame.KEYDOWN:
-                    should_continue, weather_change = _handle_keydown(ev)
-                    if not should_continue:
-                        running = False
-                    elif weather_change is not None:
-                        weather_idx = (weather_idx + weather_change) % len(
-                            weather_list,
-                        )
-                        world.set_weather(weather_list[weather_idx].value[1])
-                    elif ev.key == pygame.K_r:
-                        reverse = not reverse
-
-            # Vehicle control
-            keys = pygame.key.get_pressed()
-            ctrl = carla.VehicleControl()
-            ctrl.throttle = _THROTTLE_VALUE if keys[pygame.K_w] else 0.0
-            ctrl.brake = _BRAKE_VALUE if keys[pygame.K_s] else 0.0
-            steer = 0.0
-            if keys[pygame.K_a]:
-                steer = _STEER_LEFT
-            elif keys[pygame.K_d]:
-                steer = _STEER_RIGHT
-            ctrl.steer = steer
-            ctrl.hand_brake = keys[pygame.K_SPACE]
-            ctrl.reverse = reverse
-            vehicle.apply_control(ctrl)
-
-            # Render
-            if latest_image[0] is not None:
-                surf = pygame.surfarray.make_surface(
-                    latest_image[0].swapaxes(0, 1),
-                )
-                display.blit(surf, (0, 0))
-
-            # HUD
-            vel = vehicle.get_velocity()
-            speed_kmh = _SPEED_CONVERSION * math.sqrt(
-                vel.x**2 + vel.y**2 + vel.z**2,
-            )
-            state = VehicleState(
-                speed_kmh=speed_kmh,
-                reverse=reverse,
-                weather_name=weather_list[weather_idx].value[0],
-            )
-            _render_hud(display, state, _DISPLAY_WIDTH, _DISPLAY_HEIGHT, font)
-            pygame.display.flip()
+        _game_loop(world, vehicle, display, clock, font, latest_image)
 
     except KeyboardInterrupt:
         pass
     finally:
         for actor in actors:
-            try:
+            with contextlib.suppress(RuntimeError):
                 if hasattr(actor, "stop"):
                     actor.stop()
-            except Exception:
-                pass
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(RuntimeError):
                 actor.destroy()
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(RuntimeError, pygame.error):
             pygame.quit()
 
 

@@ -14,6 +14,10 @@ import carla
 _SMALL_VECTOR_LENGTH: float = 1e-4
 _SMALL_EPSILON: float = 1e-6
 _UNIT_LENGTH: float = 1.0
+_UNIT_TOLERANCE: float = 1e-7
+_TEST_X: float = 1.0
+_TEST_Y: float = 2.0
+_TEST_Z: float = 3.0
 
 
 class TestGeom(unittest.TestCase):
@@ -21,20 +25,20 @@ class TestGeom(unittest.TestCase):
 
     def test_vector3d(self) -> None:
         """Verify Vector3D creation and unit vector generation."""
-        c = carla.Vector3D(1.0, 2.0, 3.0)
-        assert c.x == 1.0
-        assert c.y == 2.0
-        assert c.z == 3.0
+        c = carla.Vector3D(_TEST_X, _TEST_Y, _TEST_Z)
+        assert c.x == _TEST_X
+        assert c.y == _TEST_Y
+        assert c.z == _TEST_Z
 
         c_unit = c.make_unit_vector()
         # c should not be modified by make_unit_vector
-        assert c.x == 1.0
-        assert c.y == 2.0
-        assert c.z == 3.0
+        assert c.x == _TEST_X
+        assert c.y == _TEST_Y
+        assert c.z == _TEST_Z
 
         # the length of c_unit should be 1.0
         length = (c_unit.x ** 2 + c_unit.y ** 2 + c_unit.z ** 2) ** 0.5
-        self.assertAlmostEqual(length, _UNIT_LENGTH)
+        assert abs(length - _UNIT_LENGTH) < _UNIT_TOLERANCE
 
         # Test epsilon handling for small vectors
         large = carla.Vector3D(_SMALL_VECTOR_LENGTH, 0.0, 0.0)

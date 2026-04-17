@@ -4,9 +4,12 @@
 #
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
+from __future__ import annotations
+
 import os
 import re
 import sys
+from typing import Any
 
 import doc_gen_snipets
 import yaml
@@ -17,16 +20,18 @@ COLOR_INSTANCE_VAR = "#f8805a"
 COLOR_NOTE = "#8E8E8E"
 COLOR_WARNING = "#ED2F2F"
 
+_TITLE_HTML_COMPACT_LEVEL: int = 5
+
 QUERY = re.compile(r"([cC]arla(\.[a-zA-Z0-9_]+)+)")
 
 
-def create_hyperlinks(text):
+def create_hyperlinks(text: str) -> str:
     return re.sub(QUERY, r"[\1](#\1)", text)
 
-def create_getter_setter_hyperlinks(text):
+def create_getter_setter_hyperlinks(text: str) -> str:
     return re.sub(QUERY, r"[\1](#\1)", text)
 
-def join(elem, separator=""):
+def join(elem: list[str], separator: str = "") -> str:
     return separator.join(elem)
 
 
@@ -36,16 +41,16 @@ class MarkdownFile:
         self._list_depth = 0
         self.endl = "  \n"
 
-    def data(self):
+    def data(self) -> str:
         return self._data
 
-    def list_push(self, buf="") -> None:
+    def list_push(self, buf: str = "") -> None:
         if buf:
             self.text(join([
                 "    " * self._list_depth if self._list_depth != 0 else "", "- ", buf]))
         self._list_depth = (self._list_depth + 1)
 
-    def list_pushn(self, buf) -> None:
+    def list_pushn(self, buf: str) -> None:
         self.list_push(join([buf, self.endl]))
 
     def list_pop(self) -> None:
@@ -55,7 +60,7 @@ class MarkdownFile:
         self.list_pop()
         self._data = join([self._data, "\n"])
 
-    def list_depth(self):
+    def list_depth(self) -> str:
         if self._data.strip()[-1:] != "\n" or self._list_depth == 0:
             return ""
         return join(["    " * self._list_depth])
@@ -66,103 +71,109 @@ class MarkdownFile:
     def new_line(self) -> None:
         self._data = join([self._data, self.endl])
 
-    def text(self, buf) -> None:
+    def text(self, buf: str) -> None:
         self._data = join([self._data, buf])
 
-    def textn(self, buf) -> None:
+    def textn(self, buf: str) -> None:
         self._data = join([self._data, self.list_depth(), buf, self.endl])
 
     def first_title(self) -> None:
         self._data = join([
             self._data, "#Python API reference\n"])
 
-    def title(self, strongness, buf) -> None:
+    def title(self, strongness: int, buf: str) -> None:
         self._data = join([
             self._data, "\n", self.list_depth(), "#" * strongness, " ", buf, "\n"])
 
-    def title_html(self, strongness, buf) -> None:
-        if strongness == 5:
+    def title_html(self, strongness: int, buf: str) -> None:
+        if strongness == _TITLE_HTML_COMPACT_LEVEL:
             self._data = join([
-                self._data, "\n", self.list_depth(), "<h", str(strongness), ' style="margin-top: -20px">', buf, "</h", str(strongness),">\n",'<div style="padding-left:30px;margin-top:-25px"></div>'])
+                self._data, "\n", self.list_depth(),
+                "<h", str(strongness), ' style="margin-top: -20px">',
+                buf, "</h", str(strongness), ">\n",
+                '<div style="padding-left:30px;margin-top:-25px"></div>',
+            ])
         else:
             self._data = join([
                 self._data, "\n", self.list_depth(), "<h", str(strongness), ">", buf, "</h", str(strongness), ">\n"])
 
-    def inherit_join(self, inh) -> None:
+    def inherit_join(self, inh: str) -> None:
         self._data = join([
             self._data, '<small style="display:block;margin-top:-20px;">Inherited from ', inh, "</small></br>\n"])
 
-    def note(self, buf) -> None:
+    def note(self, buf: str) -> None:
         self._data = join([self._data, buf])
 
-    def code_block(self, buf, language=""):
+    def code_block(self, buf: str, language: str = "") -> str:
         return join(["```", language, "\n", self.list_depth(), buf, "\n", self.list_depth(), "```\n"])
 
-    def prettify_doc(self, doc):
+    def prettify_doc(self, doc: str) -> str:
         punctuation_marks = [".", "!", "?"]
         doc = doc.strip()
         doc += "" if doc[-1:] in punctuation_marks else "."
         return doc
 
 
-def italic(buf):
+def italic(buf: str) -> str:
     return join(["_", buf, "_"])
 
 
-def bold(buf):
+def bold(buf: str) -> str:
     return join(["**", buf, "**"])
 
-def snipet(name,class_key):
+def snipet(name: str, class_key: str) -> str:
+    return join([
+        '<button class="SnipetButton" id="',
+        class_key, ".", name,
+        '-snipet_button">', "snippet &rarr;", "</button>",
+    ])
 
-    return join(['<button class="SnipetButton" id="',class_key,".",name,'-snipet_button">', "snippet &rarr;", "</button>"])
-
-def code(buf):
+def code(buf: str) -> str:
     return join(["`", buf, "`"])
 
 
-def brackets(buf):
+def brackets(buf: str) -> str:
     return join(["[", buf, "]"])
 
 
-def parentheses(buf):
+def parentheses(buf: str) -> str:
     return join(["(", buf, ")"])
 
 
-def small_html(buf):
+def small_html(buf: str) -> str:
     return join(["<small>", buf, "</small>"])
 
 
-def small(buf):
+def small(buf: str) -> str:
     return join(["<sub><sup>", buf, "</sup></sub>"])
 
 
-def sub(buf):
+def sub(buf: str) -> str:
     return join(["<sub>", buf, "</sub>"])
 
 
-def html_key(buf):
+def html_key(buf: str) -> str:
     return join(['<a name="', buf, '"></a>'])
 
 
-def color(col, buf):
+def color(col: str, buf: str) -> str:
     return join(['<font color="', col, '">', buf, "</font>"])
 
 
-def valid_dic_val(dic, value):
-    return value in dic and dic[value]
+def valid_dic_val(dic: dict[str, Any], value: str) -> bool:
+    return value in dic and bool(dic[value])
 
 
 class YamlFile:
     """Yaml file class"""
 
-    def __init__(self, path) -> None:
+    def __init__(self, path: str) -> None:
         self._path = path
         with open(path) as yaml_file:
             self.data = yaml.safe_load(yaml_file)
         self.validate()
 
     def validate(self) -> None:
-        # print('Validating ' + str(self._path.replace('\\', '/').split('/')[-1:][0]))
         if self.data is None:
             sys.exit(0)
         for module in self.data:
@@ -172,38 +183,44 @@ class YamlFile:
                 if not module["classes"]:
                     sys.exit(0)
                 for cl in module["classes"]:
-                    if "class_name" in cl and cl["class_name"] is None:
-                        sys.exit(0)
-                    if cl.get("instance_variables"):
-                        for iv in cl["instance_variables"]:
-                            if "var_name" not in iv:
-                                sys.exit(0)
-                            if "var_name" in iv and iv["var_name"] is None:
-                                sys.exit(0)
-                    if cl.get("methods"):
-                        for met in cl["methods"]:
-                            if "def_name" not in met:
-                                sys.exit(0)
-                            if "def_name" in met and met["def_name"] is None:
-                                sys.exit(0)
-                            if met.get("params"):
-                                for param in met["params"]:
-                                    if "param_name" not in param:
-                                        sys.exit(0)
-                                    if "param_name" in param and param["param_name"] is None:
-                                        sys.exit(0)
-                                    if "type" in param and param["type"] is None:
-                                        sys.exit(0)
+                    self._validate_class(cl)
 
-    def get_modules(self):
+    @staticmethod
+    def _validate_class(cl: dict[str, Any]) -> None:
+        """Validate a single class entry from the YAML."""
+        if "class_name" in cl and cl["class_name"] is None:
+            sys.exit(0)
+        if cl.get("instance_variables"):
+            for iv in cl["instance_variables"]:
+                if "var_name" not in iv:
+                    sys.exit(0)
+                if iv["var_name"] is None:
+                    sys.exit(0)
+        if cl.get("methods"):
+            for met in cl["methods"]:
+                if "def_name" not in met:
+                    sys.exit(0)
+                if met["def_name"] is None:
+                    sys.exit(0)
+                if met.get("params"):
+                    for param in met["params"]:
+                        if "param_name" not in param:
+                            sys.exit(0)
+                        if param["param_name"] is None:
+                            sys.exit(0)
+                        if "type" in param and param["type"] is None:
+                            sys.exit(0)
+
+    def get_modules(self) -> list[dict[str, Any]]:
         return list(self.data)
 
-def append_snipet_button_script(md) -> None:
+def append_snipet_button_script(md: MarkdownFile) -> None:
     md.textn("\n\n<script>\n"+
                 "function ButtonAction(container_name){\n"+
                     "if(window_big){\n"+
                         "snipet_name = container_name.replace('-snipet_button','-snipet');\n"+
-                        'document.getElementById("snipets-container").innerHTML = document.getElementById(snipet_name).innerHTML;\n'+
+                        'document.getElementById("snipets-container").innerHTML = '
+                        'document.getElementById(snipet_name).innerHTML;\n'+
                     "}\n"+
                     "else{\n"+
                         'document.getElementById("snipets-container").innerHTML = null;'+
@@ -237,7 +254,7 @@ def append_snipet_button_script(md) -> None:
                 "window.onresize = WindowResize;\n"+
             "</script>\n")
 
-def append_code_snipets(md) -> None:
+def append_code_snipets(md: MarkdownFile) -> None:
     current_folder = os.path.dirname(os.path.abspath(__file__))
     snipets_path = os.path.join(current_folder, "../../Docs/python_api_snipets.md")
     with open(snipets_path) as snipets:
@@ -245,7 +262,7 @@ def append_code_snipets(md) -> None:
     os.remove(snipets_path)
 
 
-def gen_stub_method_def(method):
+def gen_stub_method_def(method: dict[str, Any]) -> str:
     """Return python def as it should be written in stub files"""
     param = ""
     method_name = method["def_name"]
@@ -258,7 +275,13 @@ def gen_stub_method_def(method):
     return join([method_name, parentheses(param), return_type])
 
 
-def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
+def gen_doc_method_def(
+    method: dict[str, Any],
+    class_key: str,
+    *,
+    is_indx: bool = False,
+    with_self: bool = True,
+) -> str:
     """Return python def as it should be written in docs"""
     param = ""
     snipet_link = ""
@@ -301,7 +324,7 @@ def gen_doc_method_def(method, class_key, is_indx=False, with_self=True):
 
     return join([method_name, parentheses(param),snipet_link])
 
-def gen_doc_dunder_def(dunder, is_indx=False, with_self=True):
+def gen_doc_dunder_def(dunder: dict[str, Any], *, is_indx: bool = False, with_self: bool = True) -> str:
     """Return python def as it should be written in docs"""
     param = ""
     dunder_name = dunder["def_name"]
@@ -335,7 +358,7 @@ def gen_doc_dunder_def(dunder, is_indx=False, with_self=True):
     return join([dunder_name, parentheses(param)])
 
 
-def gen_inst_var_indx(inst_var, class_key):
+def gen_inst_var_indx(inst_var: dict[str, Any], class_key: str) -> str:
     inst_var_name = inst_var["var_name"]
     inst_var_key = join([class_key, inst_var_name], ".")
     return join([
@@ -344,17 +367,17 @@ def gen_inst_var_indx(inst_var, class_key):
         sub(italic("Instance variable"))])
 
 
-def gen_method_indx(method, class_key):
+def gen_method_indx(method: dict[str, Any], class_key: str) -> str:
     method_name = method["def_name"]
     method_key = join([class_key, method_name], ".")
-    method_def = gen_doc_method_def(method, class_key, True)
+    method_def = gen_doc_method_def(method, class_key, is_indx=True)
     return join([
         brackets(method_def),
         parentheses(method_key), " ",
         sub(italic("Method"))])
 
 
-def add_doc_method_param(md, param) -> None:
+def add_doc_method_param(md: MarkdownFile, param: dict[str, Any]) -> None:
     param_name = param["param_name"]
     param_type = ""
     param_doc = ""
@@ -376,10 +399,10 @@ def add_doc_method_param(md, param) -> None:
     md.list_pop()
 
 
-def add_doc_method(md, method, class_key) -> None:
+def add_doc_method(md: MarkdownFile, method: dict[str, Any], class_key: str) -> None:
     method_name = method["def_name"]
     method_key = join([class_key, method_name], ".")
-    method_def = gen_doc_method_def(method, class_key, False)
+    method_def = gen_doc_method_def(method, class_key, is_indx=False)
     md.list_pushn(join([html_key(method_key), method_def]))
 
     # Method doc
@@ -389,7 +412,6 @@ def add_doc_method(md, method, class_key) -> None:
     printed_title = False
     if valid_dic_val(method, "params"):
         for param in method["params"]:
-            # is_self = valid_dic_val(param, 'param_name') and param['param_name'] == 'self'
             have_doc = valid_dic_val(param, "doc")
             have_type = valid_dic_val(param, "type")
             if not have_doc and not have_type:
@@ -430,10 +452,17 @@ def add_doc_method(md, method, class_key) -> None:
 
     md.list_pop()
 
-def add_doc_getter_setter(md, method, class_key, is_getter, other_list) -> None:
+def add_doc_getter_setter(
+    md: MarkdownFile,
+    method: dict[str, Any],
+    class_key: str,
+    *,
+    is_getter: bool,
+    other_list: list[dict[str, Any]],
+) -> None:
     method_name = method["def_name"]
     method_key = join([class_key, method_name], ".")
-    method_def = gen_doc_method_def(method, class_key, False)
+    method_def = gen_doc_method_def(method, class_key, is_indx=False)
     md.list_pushn(join([html_key(method_key), method_def]))
 
     # Method doc
@@ -443,7 +472,6 @@ def add_doc_getter_setter(md, method, class_key, is_getter, other_list) -> None:
     printed_title = False
     if valid_dic_val(method, "params"):
         for param in method["params"]:
-            # is_self = valid_dic_val(param, 'param_name') and param['param_name'] == 'self'
             have_doc = valid_dic_val(param, "doc")
             have_type = valid_dic_val(param, "type")
             if not have_doc and not have_type:
@@ -495,10 +523,10 @@ def add_doc_getter_setter(md, method, class_key, is_getter, other_list) -> None:
 
     md.list_pop()
 
-def add_doc_dunder(md, dunder, class_key) -> None:
+def add_doc_dunder(md: MarkdownFile, dunder: dict[str, Any], class_key: str) -> None:
     dunder_name = dunder["def_name"]
     dunder_key = join([class_key, dunder_name], ".")
-    dunder_def = gen_doc_dunder_def(dunder, False)
+    dunder_def = gen_doc_dunder_def(dunder, is_indx=False)
     md.list_pushn(join([html_key(dunder_key), dunder_def]))
 
     # Dunder doc
@@ -513,7 +541,7 @@ def add_doc_dunder(md, dunder, class_key) -> None:
 
     md.list_pop()
 
-def add_doc_dunder_param(md, param) -> None:
+def add_doc_dunder_param(md: MarkdownFile, param: dict[str, Any]) -> None:
     param_name = param["param_name"]
     param_type = ""
     if valid_dic_val(param, "type"):
@@ -528,7 +556,7 @@ def add_doc_dunder_param(md, param) -> None:
     md.list_pop()
 
 
-def add_doc_inst_var(md, inst_var, class_key) -> None:
+def add_doc_inst_var(md: MarkdownFile, inst_var: dict[str, Any], class_key: str) -> None:
     var_name = inst_var["var_name"]
     var_key = join([class_key, var_name], ".")
     var_type = ""
@@ -562,10 +590,47 @@ def add_doc_inst_var(md, inst_var, class_key) -> None:
 
     md.list_pop()
 
+def _gen_methods_body(
+    md: MarkdownFile,
+    methods: list[dict[str, Any]],
+    class_key: str,
+) -> None:
+    """Generate documentation for class methods, getters, setters, and dunders."""
+    method_list: list[dict[str, Any]] = []
+    dunder_list: list[dict[str, Any]] = []
+    get_list: list[dict[str, Any]] = []
+    set_list: list[dict[str, Any]] = []
+    for method in sorted(methods, key=lambda i: i["def_name"]):
+        method_name = method["def_name"]
+        if method_name[0] == "_" and method_name != "__init__":
+            dunder_list.append(method)
+        elif method_name[:4] == "get_":
+            get_list.append(method)
+        elif method_name[:4] == "set_":
+            set_list.append(method)
+        else:
+            method_list.append(method)
+    md.title(3, "Methods")
+    for method in method_list:
+        add_doc_method(md, method, class_key)
+    if get_list:
+        md.title(5, "Getters")
+    for method in get_list:
+        add_doc_getter_setter(md, method, class_key, is_getter=True, other_list=set_list)
+    if set_list:
+        md.title(5, "Setters")
+    for method in set_list:
+        add_doc_getter_setter(md, method, class_key, is_getter=False, other_list=get_list)
+    if dunder_list:
+        md.title(5, "Dunder methods")
+    for method in dunder_list:
+        add_doc_dunder(md, method, class_key)
+
+
 class Documentation:
     """Main documentation class"""
 
-    def __init__(self, path) -> None:
+    def __init__(self, path: str) -> None:
         self._path = path
         self._files = [f for f in os.listdir(path) if f.endswith(".yml")]
         self._yamls = []
@@ -585,7 +650,7 @@ class Documentation:
                             self.master_dict[module_name]["classes"] = []
                         self.master_dict[module_name]["classes"].append(new_module)
 
-    def gen_overview(self):
+    def gen_overview(self) -> str:
         """Generates a referenced index for markdown file"""
         md = MarkdownFile()
         md.title(3, "Overview")
@@ -619,72 +684,60 @@ class Documentation:
             md.list_pop()
         return md.data()
 
-    def gen_body(self):
+    @staticmethod
+    def _gen_class_body(
+        md: MarkdownFile,
+        cl: dict[str, Any],
+        module_name: str,
+        class_key: str,
+    ) -> None:
+        """Generate documentation body for a single class."""
+        class_name = cl["class_name"]
+        current_title = module_name + "." + class_name
+        md.title(2, join([current_title, '<a name="', current_title, '"></a>']))
+        # Inheritance
+        if valid_dic_val(cl, "parent"):
+            inherits = italic(create_hyperlinks(cl["parent"]))
+            md.inherit_join(inherits)
+        # Class main doc
+        if valid_dic_val(cl, "doc"):
+            md.textn(create_hyperlinks(md.prettify_doc(cl["doc"])))
+        # Generate instance variable doc (if any)
+        if valid_dic_val(cl, "instance_variables"):
+            md.title(3, "Instance Variables")
+            for inst_var in cl["instance_variables"]:
+                add_doc_inst_var(md, inst_var, class_key)
+        # Generate method doc (if any)
+        if valid_dic_val(cl, "methods"):
+            _gen_methods_body(md, cl["methods"], class_key)
+        md.separator()
+
+    def gen_body(self) -> str:
         """Generates the documentation body"""
         md = MarkdownFile()
         md.first_title()
         md.textn(
-        "This reference contains all the details the Python API. To consult a previous reference for a specific CARLA release, change the documentation version using the panel in the bottom right corner.<br>"
-        +"This will change the whole documentation to a previous state. Remember that the <i>latest</i> version is the `dev` branch and may show features not available in any packaged versions of CARLA.<hr>")
+            "This reference contains all the details the Python API. To consult a previous reference for a "
+            "specific CARLA release, change the documentation version using the panel in the bottom right "
+            "corner.<br>"
+            "This will change the whole documentation to a previous state. Remember that the <i>latest</i> "
+            "version is the `dev` branch and may show features not available in any packaged versions of "
+            "CARLA.<hr>",
+        )
         for module_name in sorted(self.master_dict):
             module = self.master_dict[module_name]
             module_key = module_name
             # Generate class doc (if any)
             if valid_dic_val(module, "classes"):
-                for cl in sorted(module["classes"], key = lambda i: i["class_name"]):
+                for cl in sorted(module["classes"], key=lambda i: i["class_name"]):
                     class_name = cl["class_name"]
                     class_key = join([module_key, class_name], ".")
-                    current_title = module_name+"."+class_name
-                    md.title(2, join([current_title,'<a name="',current_title,'"></a>']))
-                    # Inheritance
-                    if valid_dic_val(cl, "parent"):
-                        inherits = italic(create_hyperlinks(cl["parent"]))
-                        md.inherit_join(inherits)
-                    # Class main doc
-                    if valid_dic_val(cl, "doc"):
-                        md.textn(create_hyperlinks(md.prettify_doc(cl["doc"])))
-                    # Generate instance variable doc (if any)
-                    if valid_dic_val(cl, "instance_variables"):
-                        md.title(3, "Instance Variables")
-                        for inst_var in cl["instance_variables"]:
-                            add_doc_inst_var(md, inst_var, class_key)
-                    # Generate method doc (if any)
-                    if valid_dic_val(cl, "methods"):
-                        method_list = []
-                        dunder_list = []
-                        get_list = []
-                        set_list = []
-                        for method in sorted(cl["methods"], key = lambda i: i["def_name"]):
-                            method_name = method["def_name"]
-                            if method_name[0] == "_" and method_name != "__init__":
-                                dunder_list.append(method)
-                            elif method_name[:4] == "get_":
-                                get_list.append(method)
-                            elif method_name[:4] == "set_":
-                                set_list.append(method)
-                            else:
-                                method_list.append(method)
-                        md.title(3, "Methods")
-                        for method in method_list:
-                            add_doc_method(md, method, class_key)
-                        if len(get_list)>0:
-                            md.title(5, "Getters")
-                        for method in get_list:
-                            add_doc_getter_setter(md, method, class_key, True, set_list)
-                        if len(set_list)>0:
-                            md.title(5, "Setters")
-                        for method in set_list:
-                            add_doc_getter_setter(md, method, class_key, False, get_list)
-                        if len(dunder_list)>0:
-                            md.title(5, "Dunder methods")
-                        for method in dunder_list:
-                            add_doc_dunder(md, method, class_key)
-                    md.separator()
+                    self._gen_class_body(md, cl, module_name, class_key)
         append_code_snipets(md)
         append_snipet_button_script(md)
         return md.data().strip()
 
-    def gen_markdown(self):
+    def gen_markdown(self) -> str:
         """Generates the whole markdown file"""
         return join([self.gen_body()], "\n").strip()
 

@@ -6,6 +6,8 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
+from __future__ import annotations
+
 import os
 import sys
 
@@ -14,35 +16,35 @@ import carla
 COLOR_LIST = "#498efc"
 
 
-def join(elem, separator=""):
+def join(elem: list[str], separator: str = "") -> str:
     return separator.join(elem)
 
 
-def color(col, buf):
+def color(col: str, buf: str) -> str:
     return join(['<font color="', col, '">', buf, "</font>"])
 
 
-def valid_dic_val(dic, value):
-    return value in dic and dic[value]
+def valid_dic_val(dic: dict[str, object], value: str) -> bool:
+    return value in dic and bool(dic[value])
 
 
-def italic(buf):
+def italic(buf: str) -> str:
     return join(["_", buf, "_"])
 
 
-def bold(buf):
+def bold(buf: str) -> str:
     return join(["**", buf, "**"])
 
 
-def parentheses(buf):
+def parentheses(buf: str) -> str:
     return join(["(", buf, ")"])
 
 
-def sub(buf):
+def sub(buf: str) -> str:
     return join(["<sub>", buf, "</sub>"])
 
 
-def code(buf):
+def code(buf: str) -> str:
     return join(["`", buf, "`"])
 
 
@@ -52,16 +54,16 @@ class MarkdownFile:
         self._list_depth = 0
         self.endl = "  \n"
 
-    def data(self):
+    def data(self) -> str:
         return self._data
 
-    def list_push(self, buf="") -> None:
+    def list_push(self, buf: str = "") -> None:
         if buf:
             self.text(join([
                 "    " * self._list_depth if self._list_depth != 0 else "", "- ", buf]))
         self._list_depth = (self._list_depth + 1)
 
-    def list_pushn(self, buf) -> None:
+    def list_pushn(self, buf: str) -> None:
         self.list_push(join([buf, self.endl]))
 
     def list_pop(self) -> None:
@@ -71,33 +73,33 @@ class MarkdownFile:
         self.list_pop()
         self._data = join([self._data, "\n"])
 
-    def list_depth(self):
+    def list_depth(self) -> str:
         if self._data.strip()[-1:] != "\n" or self._list_depth == 0:
             return ""
         return join(["    " * self._list_depth])
 
-    def text(self, buf) -> None:
+    def text(self, buf: str) -> None:
         self._data = join([self._data, buf])
 
-    def textn(self, buf) -> None:
+    def textn(self, buf: str) -> None:
         self._data = join([self._data, self.list_depth(), buf, self.endl])
 
-    def not_title(self, buf) -> None:
+    def not_title(self, buf: str) -> None:
         self._data = join([
             self._data, "\n", self.list_depth(), "#", buf, "\n"])
 
-    def title(self, strongness, buf) -> None:
+    def title(self, strongness: int, buf: str) -> None:
         self._data = join([
             self._data, "\n", self.list_depth(), "#" * strongness, " ", buf, "\n"])
 
     def new_line(self) -> None:
         self._data = join([self._data, self.endl])
 
-    def code_block(self, buf, language=""):
+    def code_block(self, buf: str, language: str = "") -> str:
         return join(["```", language, "\n", self.list_depth(), buf, "\n", self.list_depth(), "```\n"])
 
 
-def generate_pb_docs():
+def generate_pb_docs() -> str:
     """Generates markdown file"""
 
     client = carla.Client("127.0.0.1", 2000)
