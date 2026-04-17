@@ -13,8 +13,8 @@
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4583)
-#pragma warning(disable:4582)
+#pragma warning(disable : 4583)
+#pragma warning(disable : 4582)
 #include <boost/variant2/variant.hpp>
 #pragma warning(pop)
 #else
@@ -24,149 +24,122 @@
 #include <tuple>
 
 namespace clmdep_msgpack {
-MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
-namespace adaptor {
+  MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
+    namespace adaptor {
 
-  // ===========================================================================
-  // -- Adaptors for boost::optional -------------------------------------------
-  // ===========================================================================
+      // ===========================================================================
+      // -- Adaptors for boost::optional -------------------------------------------
+      // ===========================================================================
 
-  template<typename T>
-  struct convert<boost::optional<T>> {
-    const clmdep_msgpack::object &operator()(
-        const clmdep_msgpack::object &o,
-        boost::optional<T> &v) const {
-      if (o.type != clmdep_msgpack::type::ARRAY) {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      if (o.via.array.size == 1) {
-        v.reset();
-      } else if (o.via.array.size == 2) {
-        v.reset(o.via.array.ptr[1].as<T>());
-      } else {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      return o;
-    }
-  };
+      template <typename T> struct convert<boost::optional<T>> {
+        const clmdep_msgpack::object &operator()(const clmdep_msgpack::object &o, boost::optional<T> &v) const {
+          if (o.type != clmdep_msgpack::type::ARRAY) {
+            ::carla::throw_exception(clmdep_msgpack::type_error());
+          }
+          if (o.via.array.size == 1) {
+            v.reset();
+          } else if (o.via.array.size == 2) {
+            v.reset(o.via.array.ptr[1].as<T>());
+          } else {
+            ::carla::throw_exception(clmdep_msgpack::type_error());
+          }
+          return o;
+        }
+      };
 
-  template<typename T>
-  struct pack<boost::optional<T>> {
-    template <typename Stream>
-    packer<Stream> &operator()(
-        clmdep_msgpack::packer<Stream> &o,
-        const boost::optional<T> &v) const {
-      if (v.has_value()) {
-        o.pack_array(2);
-        o.pack(true);
-        o.pack(*v);
-      } else {
-        o.pack_array(1);
-        o.pack(false);
-      }
-      return o;
-    }
-  };
+      template <typename T> struct pack<boost::optional<T>> {
+        template <typename Stream>
+        packer<Stream> &operator()(clmdep_msgpack::packer<Stream> &o, const boost::optional<T> &v) const {
+          if (v.has_value()) {
+            o.pack_array(2);
+            o.pack(true);
+            o.pack(*v);
+          } else {
+            o.pack_array(1);
+            o.pack(false);
+          }
+          return o;
+        }
+      };
 
-  template<typename T>
-  struct object_with_zone<boost::optional<T>> {
-    void operator()(
-        clmdep_msgpack::object::with_zone &o,
-        const boost::optional<T> &v) const {
-      o.type = type::ARRAY;
-      if (v.has_value()) {
-        o.via.array.size = 2;
-        o.via.array.ptr = static_cast<clmdep_msgpack::object*>(o.zone.allocate_align(
-            sizeof(clmdep_msgpack::object) * o.via.array.size,
-            MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
-        o.via.array.ptr[0] = clmdep_msgpack::object(true, o.zone);
-        o.via.array.ptr[1] = clmdep_msgpack::object(*v, o.zone);
-      } else {
-        o.via.array.size = 1;
-        o.via.array.ptr = static_cast<clmdep_msgpack::object*>(o.zone.allocate_align(
-            sizeof(clmdep_msgpack::object) * o.via.array.size,
-            MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
-        o.via.array.ptr[0] = clmdep_msgpack::object(false, o.zone);
-      }
-    }
-  };
+      template <typename T> struct object_with_zone<boost::optional<T>> {
+        void operator()(clmdep_msgpack::object::with_zone &o, const boost::optional<T> &v) const {
+          o.type = type::ARRAY;
+          if (v.has_value()) {
+            o.via.array.size = 2;
+            o.via.array.ptr = static_cast<clmdep_msgpack::object *>(o.zone.allocate_align(
+                sizeof(clmdep_msgpack::object) * o.via.array.size, MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
+            o.via.array.ptr[0] = clmdep_msgpack::object(true, o.zone);
+            o.via.array.ptr[1] = clmdep_msgpack::object(*v, o.zone);
+          } else {
+            o.via.array.size = 1;
+            o.via.array.ptr = static_cast<clmdep_msgpack::object *>(o.zone.allocate_align(
+                sizeof(clmdep_msgpack::object) * o.via.array.size, MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
+            o.via.array.ptr[0] = clmdep_msgpack::object(false, o.zone);
+          }
+        }
+      };
 
-  // ===========================================================================
-  // -- Adaptors for boost::variant2::variant ----------------------------------
-  // ===========================================================================
+      // ===========================================================================
+      // -- Adaptors for boost::variant2::variant ----------------------------------
+      // ===========================================================================
 
-  template<typename... Ts>
-  struct convert<boost::variant2::variant<Ts...>> {
+      template <typename... Ts> struct convert<boost::variant2::variant<Ts...>> {
 
-  private:
+      private:
+        template <std::size_t I> // UE5/macOS: size_t not uint64_t to match std::make_index_sequence
+        static void copy_to_variant_impl(const clmdep_msgpack::object &o, boost::variant2::variant<Ts...> &v) {
+          /// @todo Workaround for finding the type.
+          auto dummy = std::get<I>(std::tuple<Ts...>{});
+          using T = decltype(dummy);
+          v = o.via.array.ptr[1].as<T>();
+        }
 
-    template <std::size_t I> // UE5/macOS: size_t not uint64_t to match std::make_index_sequence
-    static void copy_to_variant_impl(
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v) {
-      /// @todo Workaround for finding the type.
-      auto dummy = std::get<I>(std::tuple<Ts...>{});
-      using T = decltype(dummy);
-      v = o.via.array.ptr[1].as<T>();
-    }
+        template <std::size_t... Is> // UE5/macOS: size_t not uint64_t to match std::index_sequence from
+                                     // make_index_sequence
+        static void copy_to_variant(const uint64_t index, const clmdep_msgpack::object &o,
+                                    boost::variant2::variant<Ts...> &v, std::index_sequence<Is...>) {
+          // C++17 fold expression replacing the C++11 initializer_list trick
+          ((index == Is ? (copy_to_variant_impl<Is>(o, v), 0) : 0), ...);
+        }
 
-    template <std::size_t... Is> // UE5/macOS: size_t not uint64_t to match std::index_sequence from make_index_sequence
-    static void copy_to_variant(
-        const uint64_t index,
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v,
-        std::index_sequence<Is...>) {
-      // C++17 fold expression replacing the C++11 initializer_list trick
-      ((index == Is ? (copy_to_variant_impl<Is>(o, v), 0) : 0), ...);
-    }
+      public:
+        const clmdep_msgpack::object &operator()(const clmdep_msgpack::object &o,
+                                                 boost::variant2::variant<Ts...> &v) const {
+          if (o.type != clmdep_msgpack::type::ARRAY) {
+            ::carla::throw_exception(clmdep_msgpack::type_error());
+          }
+          if (o.via.array.size != 2) {
+            ::carla::throw_exception(clmdep_msgpack::type_error());
+          }
+          const auto index = o.via.array.ptr[0].as<uint64_t>();
+          copy_to_variant(index, o, v, std::make_index_sequence<sizeof...(Ts)>());
+          return o;
+        }
+      };
 
-  public:
+      template <typename... Ts> struct pack<boost::variant2::variant<Ts...>> {
+        template <typename Stream>
+        packer<Stream> &operator()(clmdep_msgpack::packer<Stream> &o, const boost::variant2::variant<Ts...> &v) const {
+          o.pack_array(2);
+          o.pack(static_cast<uint64_t>(v.index()));
+          boost::variant2::visit([&](const auto &value) { o.pack(value); }, v);
+          return o;
+        }
+      };
 
-    const clmdep_msgpack::object &operator()(
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v) const {
-      if (o.type != clmdep_msgpack::type::ARRAY) {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      if (o.via.array.size != 2) {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      const auto index = o.via.array.ptr[0].as<uint64_t>();
-      copy_to_variant(index, o, v, std::make_index_sequence<sizeof...(Ts)>());
-      return o;
-    }
-  };
+      template <typename... Ts> struct object_with_zone<boost::variant2::variant<Ts...>> {
+        void operator()(clmdep_msgpack::object::with_zone &o, const boost::variant2::variant<Ts...> &v) const {
+          o.type = type::ARRAY;
+          o.via.array.size = 2;
+          o.via.array.ptr = static_cast<clmdep_msgpack::object *>(o.zone.allocate_align(
+              sizeof(clmdep_msgpack::object) * o.via.array.size, MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
+          o.via.array.ptr[0] = clmdep_msgpack::object(static_cast<uint64_t>(v.index()), o.zone);
+          boost::variant2::visit([&](const auto &value) { o.via.array.ptr[1] = clmdep_msgpack::object(value, o.zone); },
+                                 v);
+        }
+      };
 
-  template<typename... Ts>
-  struct pack<boost::variant2::variant<Ts...>> {
-    template <typename Stream>
-    packer<Stream> &operator()(
-        clmdep_msgpack::packer<Stream> &o,
-        const boost::variant2::variant<Ts...> &v) const {
-      o.pack_array(2);
-      o.pack(static_cast<uint64_t>(v.index()));
-      boost::variant2::visit([&](const auto &value) { o.pack(value); }, v);
-      return o;
-    }
-  };
-
-  template<typename... Ts>
-  struct object_with_zone<boost::variant2::variant<Ts...>> {
-    void operator()(
-        clmdep_msgpack::object::with_zone &o,
-        const boost::variant2::variant<Ts...> &v) const {
-      o.type = type::ARRAY;
-      o.via.array.size = 2;
-      o.via.array.ptr = static_cast<clmdep_msgpack::object*>(o.zone.allocate_align(
-          sizeof(clmdep_msgpack::object) * o.via.array.size,
-          MSGPACK_ZONE_ALIGNOF(clmdep_msgpack::object)));
-      o.via.array.ptr[0] = clmdep_msgpack::object(static_cast<uint64_t>(v.index()), o.zone);
-      boost::variant2::visit([&](const auto &value) {
-        o.via.array.ptr[1] = clmdep_msgpack::object(value, o.zone);
-      }, v);
-    }
-  };
-
-} // namespace adaptor
-} // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
-} // namespace msgpack
+    } // namespace adaptor
+  } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+} // namespace clmdep_msgpack

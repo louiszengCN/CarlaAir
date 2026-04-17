@@ -25,7 +25,6 @@ namespace carla {
   /// A thread pool based on Boost.Asio's io context.
   class ThreadPool : private NonCopyable {
   public:
-
     ThreadPool() : _work_to_do(boost::asio::make_work_guard(_io_context)) {}
 
     /// Stops the ThreadPool and joins all its threads.
@@ -39,9 +38,7 @@ namespace carla {
     }
 
     /// Return the underlying io_context.
-    auto &io_context() {
-      return _io_context;
-    }
+    auto &io_context() { return _io_context; }
 
     /// Post a task to the pool.
     template <typename FunctorT, typename ResultT = std::invoke_result_t<FunctorT>> // C++17: result_of removed in C++20
@@ -60,24 +57,18 @@ namespace carla {
     }
 
     /// @copydoc AsyncRun(size_t)
-    void AsyncRun() {
-      AsyncRun(std::thread::hardware_concurrency());
-    }
+    void AsyncRun() { AsyncRun(std::thread::hardware_concurrency()); }
 
     /// Run tasks in this thread.
     ///
     /// @warning This function blocks until the ThreadPool has been stopped.
-    void Run() {
-      _io_context.run();
-    }
+    void Run() { _io_context.run(); }
 
     /// Run tasks in this thread for an specific @a duration.
     ///
     /// @warning This function blocks until the ThreadPool has been stopped, or
     /// until the specified time duration has elapsed.
-    void RunFor(time_duration duration) {
-      _io_context.run_for(duration.to_chrono());
-    }
+    void RunFor(time_duration duration) { _io_context.run_for(duration.to_chrono()); }
 
     /// Stop the ThreadPool and join all its threads.
     void Stop() {
@@ -86,7 +77,6 @@ namespace carla {
     }
 
   private:
-
     boost::asio::io_context _io_context;
 
     // Boost 1.66+: io_context::work removed; use executor_work_guard

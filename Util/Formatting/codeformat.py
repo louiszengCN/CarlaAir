@@ -232,7 +232,7 @@ class CodeFormat:
         if os.path.isdir(fileOrDirectory):
             for root, directories, fileNames in os.walk(fileOrDirectory):
                 directories[:] = self.filterDirectories(root, directories)
-                for filename in filter(lambda name: filePattern.match(name), fileNames):
+                for filename in filter(filePattern.match, fileNames):
                     fullFilename = os.path.join(root, filename)
                     if self.isFileNotExcluded(fullFilename):
                         fileList.append(fullFilename)

@@ -73,8 +73,6 @@ select = [
     "T20",   # flake8-print (enforce logging over print)
 ]
 ignore = [
-    "ANN101",  # Missing type annotation for `self` (deprecated in newer ruff)
-    "ANN102",  # Missing type annotation for `cls`
     "ANN401",  # Dynamically typed expressions (typing.Any) are discouraged
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments to function call
@@ -103,34 +101,32 @@ ignore = [
     "E501",    # Line too long (many upstream files exceed 120 chars)
     "N802",    # Function name should be lowercase (CARLA naming convention)
     "N806",    # Variable name should be lowercase (CARLA naming convention)
-    "N813",    # camelcase imported as lowercase (CARLA convention: import ColorConverter as cc)
-    "UP031",   # printf-string-formatting (131 instances in upstream example scripts; not worth mass conversion)
-    "PLW2901", # redefined-loop-name (intentional pattern in CARLA scripts: for x in ...: x = transform(x))
-    "PLW0108", # unnecessary-lambda (upstream utility code)
-    "ANN001",  # Missing type annotation for function argument (legacy upstream scripts)
-    "ANN201",  # Missing return type for public function (legacy upstream scripts)
-    "ANN202",  # Missing return type for private function (legacy upstream scripts)
-    "ANN204",  # Missing return type for __init__ (legacy upstream scripts)
+    # N813 moved to per-file-ignores for PythonAPI/examples only
+    # UP031 moved to per-file-ignores for upstream files only
+    # PLW2901 moved to per-file-ignores for PythonAPI/examples only
+    # PLW0108 re-enabled — the one violation in codeformat.py was fixed
+    # ANN001/201/202/204 moved to per-file-ignores for upstream-only files
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "source/**" = ["ANN", "T201"]  # Auto-generated carla bindings
 "auto_traffic.py" = ["INP001", "PLW0603", "PLW0602", "BLE001"]  # Not part of a package, globals needed for cleanup, exception handling for robustness
-"examples/**" = ["INP001", "T201", "BLE001"]  # CarlaAir examples (CLI output, exception handling)
+"examples/**" = ["INP001", "T201", "BLE001", "ANN"]  # CarlaAir examples (CLI output, exception handling)
 "examples/recording/**" = ["INP001", "T201", "BLE001"]  # Recording scripts (CLI output)
 "test_script/**" = ["INP001", "ANN", "PT028", "PT018", "T201", "BLE001"]  # Test scripts (test output)
-"PythonAPI/examples/**" = ["INP001", "ANN", "T201", "BLE001"]  # Upstream examples (CLI output)
+"PythonAPI/examples/**" = ["INP001", "ANN", "T201", "BLE001", "PLW2901", "N813", "UP031"]  # Upstream examples
 "PythonAPI/examples/generate_traffic.py" = ["E402"]  # Has pydantic import after standard lib
 "PythonAPI/examples/automatic_control.py" = ["N813"]  # ColorConverter as cc is standard CARLA convention
 "PythonAPI/examples/synchronous_mode.py" = ["N813"]  # Queue import compat
-"PythonAPI/util/**" = ["INP001", "T201", "BLE001"]  # Utilities (CLI output)
-"Util/**" = ["INP001", "T201", "BLE001"]  # Build tools (CLI output)
+"PythonAPI/util/**" = ["INP001", "T201", "BLE001", "UP031", "ANN"]  # Utilities (CLI output, printf, legacy untyped)
+"Util/**" = ["INP001", "T201", "BLE001", "UP031", "ANN"]  # Build tools (CLI output, printf, legacy untyped)
 "PythonAPI/test/**" = ["PT009", "UP031", "UP008", "UP036", "SIM", "ANN", "E501", "F401", "PLC0414", "F821", "F841", "N806", "T201", "BLE001"]  # Unittest style, legacy patterns
-"PythonAPI/docs/**" = ["T201"]  # Documentation generators (CLI output)
+"PythonAPI/docs/**" = ["T201", "ANN"]  # Documentation generators (CLI output, legacy untyped)
 "Unreal/**/*.py" = ["T201"]  # Unreal Engine scripts (CLI output)
 "PythonAPI/carla/agents/**" = ["T201", "BLE001"]  # Navigation agents (warning messages)
-"PythonAPI/carla/setup.py" = ["T201"]  # Build script (CLI output)
+"PythonAPI/carla/setup.py" = ["T201", "UP031", "ANN"]  # Build script
+"PythonAPI/carla/scene_layout.py" = ["ANN"]  # Legacy untyped module
 "PythonAPI/carla/source/**" = ["T201"]  # Auto-generated bindings
 
 [tool.ruff.lint.isort]

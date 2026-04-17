@@ -1,5 +1,5 @@
-# CarlaAir .clang-format — C++ formatting conventions
-# Based on CARLA upstream style (Allman braces, 2-space indent)
+# CarlaAir .clang-format — matches existing LibCarla code style
+# Only enforced in CI for LibCarla/source.
 ---
 Language: Cpp
 BasedOnStyle: LLVM
@@ -7,7 +7,7 @@ IndentWidth: 2
 TabWidth: 2
 UseTab: Never
 ColumnLimit: 120
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
@@ -19,10 +19,3 @@ AccessModifierOffset: -2
 AlignTrailingComments: true
 SortIncludes: false
 IncludeBlocks: Preserve
----
-# UE plugin code uses tabs (match existing style in Unreal/)
-Language: Cpp
-BasedOnStyle: LLVM
-IndentWidth: 2
-UseTab: ForIndentation
-TabWidth: 4

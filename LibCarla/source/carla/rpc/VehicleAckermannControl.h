@@ -12,85 +12,58 @@
 // UE5: wrap with enable/disable to match VehicleControl.h pattern.
 // disable-ue4-macros.h undefines USTRUCT but leaves LIBCARLA_INCLUDED_FROM_UE4 set,
 // so without re-enabling macros first, the UE-side struct header fails to compile.
-#  include <compiler/enable-ue4-macros.h>
-#  include "Carla/Vehicle/VehicleAckermannControl.h"
-#  include <compiler/disable-ue4-macros.h>
+#include <compiler/enable-ue4-macros.h>
+#include "Carla/Vehicle/VehicleAckermannControl.h"
+#include <compiler/disable-ue4-macros.h>
 #endif // LIBCARLA_INCLUDED_FROM_UE4
 
 namespace carla {
-namespace rpc {
+  namespace rpc {
 
-  class VehicleAckermannControl {
-  public:
+    class VehicleAckermannControl {
+    public:
+      VehicleAckermannControl() = default;
 
-    VehicleAckermannControl() = default;
+      VehicleAckermannControl(float in_steer, float in_steer_speed, float in_speed, float in_acceleration,
+                              float in_jerk, float in_timestamp)
+          : steer(in_steer), steer_speed(in_steer_speed), speed(in_speed), acceleration(in_acceleration), jerk(in_jerk),
+            timestamp(in_timestamp) {}
 
-    VehicleAckermannControl(
-        float in_steer,
-        float in_steer_speed,
-        float in_speed,
-        float in_acceleration,
-        float in_jerk,
-        float in_timestamp)
-      : steer(in_steer),
-        steer_speed(in_steer_speed),
-        speed(in_speed),
-        acceleration(in_acceleration),
-        jerk(in_jerk),
-        timestamp(in_timestamp) {}
-
-    float steer = 0.0f;
-    float steer_speed = 0.0f;
-    float speed = 0.0f;
-    float acceleration = 0.0f;
-    float jerk = 0.0f;
-    float timestamp = 0.f;
+      float steer = 0.0f;
+      float steer_speed = 0.0f;
+      float speed = 0.0f;
+      float acceleration = 0.0f;
+      float jerk = 0.0f;
+      float timestamp = 0.f;
 
 #ifdef LIBCARLA_INCLUDED_FROM_UE4
 
-    VehicleAckermannControl(const FVehicleAckermannControl &Control)
-      : steer(Control.Steer),
-        steer_speed(Control.SteerSpeed),
-        speed(Control.Speed),
-        acceleration(Control.Acceleration),
-        jerk(Control.Jerk),
-        timestamp(Control.Timestamp) {}
+      VehicleAckermannControl(const FVehicleAckermannControl &Control)
+          : steer(Control.Steer), steer_speed(Control.SteerSpeed), speed(Control.Speed),
+            acceleration(Control.Acceleration), jerk(Control.Jerk), timestamp(Control.Timestamp) {}
 
-    operator FVehicleAckermannControl() const {
-      FVehicleAckermannControl Control;
-      Control.Steer = steer;
-      Control.SteerSpeed = steer_speed;
-      Control.Speed = speed;
-      Control.Acceleration = acceleration;
-      Control.Jerk = jerk;
-      Control.Timestamp = timestamp;
-      return Control;
-    }
+      operator FVehicleAckermannControl() const {
+        FVehicleAckermannControl Control;
+        Control.Steer = steer;
+        Control.SteerSpeed = steer_speed;
+        Control.Speed = speed;
+        Control.Acceleration = acceleration;
+        Control.Jerk = jerk;
+        Control.Timestamp = timestamp;
+        return Control;
+      }
 
 #endif // LIBCARLA_INCLUDED_FROM_UE4
 
-    bool operator!=(const VehicleAckermannControl &rhs) const {
-      return
-          steer != rhs.steer ||
-          steer_speed != rhs.steer_speed ||
-          speed != rhs.speed ||
-          acceleration != rhs.acceleration ||
-          jerk != rhs.jerk ||
-          timestamp != rhs.timestamp;
-    }
+      bool operator!=(const VehicleAckermannControl &rhs) const {
+        return steer != rhs.steer || steer_speed != rhs.steer_speed || speed != rhs.speed ||
+               acceleration != rhs.acceleration || jerk != rhs.jerk || timestamp != rhs.timestamp;
+      }
 
-    bool operator==(const VehicleAckermannControl &rhs) const {
-      return !(*this != rhs);
-    }
+      bool operator==(const VehicleAckermannControl &rhs) const { return !(*this != rhs); }
 
-    MSGPACK_DEFINE_ARRAY(
-        steer,
-        steer_speed,
-        speed,
-        acceleration,
-        jerk,
-        timestamp);
-  };
+      MSGPACK_DEFINE_ARRAY(steer, steer_speed, speed, acceleration, jerk, timestamp);
+    };
 
-} // namespace rpc
+  } // namespace rpc
 } // namespace carla
