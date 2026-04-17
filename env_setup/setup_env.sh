@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ============================================================
 #  CarlaAir v0.1.7 — One-click Environment Setup
 #  Usage: bash setup_env.sh

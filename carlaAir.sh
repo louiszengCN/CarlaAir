@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ============================================
 #  CarlaAir v0.1.7 - Air-Ground Co-Simulation Platform
 #  CARLA + AirSim Unified Launcher
