@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 
+#include <compiler/disable-ue4-macros.h>
 THIRD_PARTY_INCLUDES_START
 #include <boost/asio.hpp>
 THIRD_PARTY_INCLUDES_END
+#include <compiler/enable-ue4-macros.h>
 #include <memory>
 
 #include "MapPreviewUserWidget.generated.h"
