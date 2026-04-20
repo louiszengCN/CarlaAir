@@ -37,6 +37,19 @@ log() {
   printf '[restore-assets] %s\n' "$*"
 }
 
+curl_download() {
+  curl \
+    -L \
+    --fail \
+    --continue-at - \
+    --retry 20 \
+    --retry-delay 5 \
+    --retry-max-time 0 \
+    --retry-all-errors \
+    -o "$1" \
+    "$2"
+}
+
 fail() {
   printf '[restore-assets] ERROR: %s\n' "$*" >&2
   exit 1
@@ -149,12 +162,12 @@ if [[ ! -f "$ARCHIVE_PATH" ]]; then
   fi
 
   log "downloading archive with resume support"
-  curl -L --fail --continue-at - -o "$ARCHIVE_PATH" "$archive_url"
+  curl_download "$ARCHIVE_PATH" "$archive_url"
 else
   log "using existing archive"
   if [[ "$SKIP_DOWNLOAD" != true && "$DOWNLOAD_ONLY" != true ]]; then
     log "refreshing archive with resume support in case it is partial"
-    curl -L --fail --continue-at - -o "$ARCHIVE_PATH" "$archive_url"
+    curl_download "$ARCHIVE_PATH" "$archive_url"
   fi
 fi
 
