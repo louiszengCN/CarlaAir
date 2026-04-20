@@ -59,6 +59,35 @@ require_tool() {
   command -v "$1" >/dev/null 2>&1 || fail "Required tool not found: $1"
 }
 
+validate_archive() {
+  gzip -t "$1" >/dev/null 2>&1
+}
+
+download_archive() {
+  local mode="$1"
+
+  if [[ "$mode" == "fresh" ]]; then
+    rm -f "$ARCHIVE_PATH"
+  fi
+
+  curl_download "$ARCHIVE_PATH" "$archive_url"
+}
+
+ensure_valid_archive() {
+  if validate_archive "$ARCHIVE_PATH"; then
+    return 0
+  fi
+
+  if [[ "$SKIP_DOWNLOAD" == true ]]; then
+    fail "Archive failed integrity validation and --skip-download was requested: $ARCHIVE_PATH"
+  fi
+
+  log "archive failed gzip validation; removing corrupted cache and downloading a fresh copy"
+  download_archive fresh
+
+  validate_archive "$ARCHIVE_PATH" || fail "Archive failed integrity validation after fresh download: $ARCHIVE_PATH"
+}
+
 resolve_hash_for_version() {
   awk -F': ' -v version="$1" '$1 == version { print $2; exit }' "$CONTENT_VERSIONS"
 }
@@ -125,6 +154,7 @@ done
 require_tool curl
 require_tool tar
 require_tool awk
+require_tool gzip
 
 [[ -f "$CONTENT_VERSIONS" ]] || fail "Missing content manifest: $CONTENT_VERSIONS"
 [[ -d "$TARGET_CONTENT_DIR" ]] || fail "Missing target content directory: $TARGET_CONTENT_DIR"
@@ -162,14 +192,16 @@ if [[ ! -f "$ARCHIVE_PATH" ]]; then
   fi
 
   log "downloading archive with resume support"
-  curl_download "$ARCHIVE_PATH" "$archive_url"
+  download_archive resume
 else
   log "using existing archive"
   if [[ "$SKIP_DOWNLOAD" != true && "$DOWNLOAD_ONLY" != true ]]; then
     log "refreshing archive with resume support in case it is partial"
-    curl_download "$ARCHIVE_PATH" "$archive_url"
+    download_archive resume
   fi
 fi
+
+ensure_valid_archive
 
 if [[ "$DOWNLOAD_ONLY" == true ]]; then
   log "download-only mode complete"
