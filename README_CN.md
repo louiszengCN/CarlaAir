@@ -62,6 +62,7 @@
 
 ## 🔥 最新动态
 
+- **[2026-04-20]** 🤖 **ROS 2 示例上线！** —— 车/机传感器轻量桥接脚本 + RViz 2 预设布局，位于 [`examples/ros2/`](examples/ros2/README.md)。直连 Humble，无需编译 `carla-ros-bridge`。
 - **[2026-04-17]** 🌐 **[项目主页正式上线！](https://carla-air.com/)** -- 访问官网了解 CARLA-Air 的全部功能、教程与演示。
 - **[2026-04-16]** $\color{red}{\textbf{Windows 版预编译包已发布。}}$ **下载：** [百度网盘 — Windows 构建](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm)（推荐 Win11 x86_64；无需编译）
 - **[2026-04-10]** [![Windows 源码分支](https://img.shields.io/badge/Windows-源码分支-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows 源码分支已发布](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows 构建与运行支持现已在独立分支中提供

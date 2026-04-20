@@ -63,6 +63,7 @@
 <a id="news"></a>
 
 ## 🔥 News
+- **[2026-04-20]** 🤖 **ROS 2 examples released!** -- Minimal vehicle/drone sensor bridges + RViz 2 preset under [`examples/ros2/`](examples/ros2/README.md). Humble-ready, no `carla-ros-bridge` source build required.
 - **[2026-04-17]** 🌐 **[Project page is live!](https://carla-air.com/)** -- Explore CARLA-Air features, tutorials, and demos at our official website.
 - **[2026-04-16]** $\color{red}{\textbf{Windows pre-built package is now available.}}$ **Download:** [Baidu Pan — Windows build](https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm) (Win11 x86_64 recommended; no compilation)
 - **[2026-04-10]** [![Windows Source](https://img.shields.io/badge/Windows-Source%20Branch-0078D6?logo=windows&logoColor=white)](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) [Windows source branch published](https://github.com/louiszengCN/CarlaAir/tree/windows/v0.1.7-win11-x86_64) -- Windows build and runtime support is now available on the dedicated branch
