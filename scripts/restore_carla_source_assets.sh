@@ -10,6 +10,7 @@ ASSET_BASE_URL="https://carla-assets.s3.us-east-005.backblazeb2.com"
 IMPORT_CACHE_DIR="$REPO_ROOT/Import/cache"
 TARGET_CONTENT_DIR="$REPO_ROOT/Unreal/CarlaUE5/Content/Carla"
 MIN_FREE_GB=30
+DOWNLOAD_TOOL=""
 DOWNLOAD_ONLY=false
 SKIP_DOWNLOAD=false
 FORCE_EXTRACT=false
@@ -50,6 +51,25 @@ curl_download() {
     "$2"
 }
 
+aria2_download() {
+  local output_path="$1"
+  local source_url="$2"
+
+  aria2c \
+    --allow-overwrite=true \
+    --auto-file-renaming=false \
+    --continue=true \
+    --file-allocation=none \
+    --max-connection-per-server=8 \
+    --min-split-size=64M \
+    --split=8 \
+    --summary-interval=30 \
+    --console-log-level=warn \
+    --dir "$(dirname "$output_path")" \
+    --out "$(basename "$output_path")" \
+    "$source_url"
+}
+
 fail() {
   printf '[restore-assets] ERROR: %s\n' "$*" >&2
   exit 1
@@ -68,9 +88,14 @@ download_archive() {
 
   if [[ "$mode" == "fresh" ]]; then
     rm -f "$ARCHIVE_PATH"
+    rm -f "$ARCHIVE_PATH.aria2"
   fi
 
-  curl_download "$ARCHIVE_PATH" "$archive_url"
+  if [[ "$DOWNLOAD_TOOL" == "aria2c" ]]; then
+    aria2_download "$ARCHIVE_PATH" "$archive_url"
+  else
+    curl_download "$ARCHIVE_PATH" "$archive_url"
+  fi
 }
 
 ensure_valid_archive() {
@@ -151,10 +176,17 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-require_tool curl
 require_tool tar
 require_tool awk
 require_tool gzip
+
+if command -v aria2c >/dev/null 2>&1; then
+  DOWNLOAD_TOOL="aria2c"
+elif command -v curl >/dev/null 2>&1; then
+  DOWNLOAD_TOOL="curl"
+else
+  fail "Required tool not found: curl or aria2c"
+fi
 
 [[ -f "$CONTENT_VERSIONS" ]] || fail "Missing content manifest: $CONTENT_VERSIONS"
 [[ -d "$TARGET_CONTENT_DIR" ]] || fail "Missing target content directory: $TARGET_CONTENT_DIR"
@@ -174,6 +206,7 @@ log "content hash: $content_hash"
 log "archive url: $archive_url"
 log "archive path: $ARCHIVE_PATH"
 log "target content dir: $TARGET_CONTENT_DIR"
+log "download tool: $DOWNLOAD_TOOL"
 
 available_gb="$(free_gb_for_path "$TARGET_CONTENT_DIR")"
 if [[ "$available_gb" -lt "$MIN_FREE_GB" ]]; then
