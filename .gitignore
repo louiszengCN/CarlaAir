@@ -41,8 +41,12 @@ smoke_ue57_unrealeditor_unattended_*.log
 
 # Downloaded asset caches and generated media
 Import/cache/
+Import/*.tar.gz
 report/generated_images/
 report/generated_showcase/
+teaser_upload.png
+logo_upload.png
+teaser_upload.gif
 
 # Compiled objects
 *.o
