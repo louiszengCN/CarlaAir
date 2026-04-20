@@ -13,28 +13,43 @@
 #include "Carla/Game/CarlaStatics.h"
 #include "Carla/Recorder/CarlaRecorder.h"
 #include "Carla/Recorder/CarlaRecorderWeather.h"
+#include "Misc/PackageName.h"
+
+namespace
+{
+    template <typename TObject>
+    TObject* LoadOptionalObject(const TCHAR* ObjectPath)
+    {
+        const FSoftObjectPath SoftPath(ObjectPath);
+        const FString PackageName = SoftPath.GetLongPackageName();
+        if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+        {
+            return nullptr;
+        }
+        return LoadObject<TObject>(nullptr, ObjectPath);
+    }
+}
 
 AWeather::AWeather(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    PrecipitationPostProcessMaterial = ConstructorHelpers::FObjectFinder<UMaterial>(
-        TEXT("Material'/Game/Carla/Static/GenericMaterials/00_MastersOpt/Screen_posProcess/M_screenDrops.M_screenDrops'")).Object;
+    PrecipitationPostProcessMaterial = LoadOptionalObject<UMaterial>(
+        TEXT("/Game/Carla/Static/GenericMaterials/00_MastersOpt/Screen_posProcess/M_screenDrops.M_screenDrops"));
 
-    DustStormPostProcessMaterial = ConstructorHelpers::FObjectFinder<UMaterial>(
-        TEXT("Material'/Game/Carla/Static/GenericMaterials/00_MastersOpt/Screen_posProcess/M_screenDust_wind.M_screenDust_wind'")).Object;
+    DustStormPostProcessMaterial = LoadOptionalObject<UMaterial>(
+        TEXT("/Game/Carla/Static/GenericMaterials/00_MastersOpt/Screen_posProcess/M_screenDust_wind.M_screenDust_wind"));
 
     PrimaryActorTick.bCanEverTick = false;
-    RootComponent = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("RootComponent"));
 }
 
 void AWeather::CheckWeatherPostProcessEffects()
 {
-    if (Weather.Precipitation > 0.0f)
+    if (PrecipitationPostProcessMaterial && Weather.Precipitation > 0.0f)
         ActiveBlendables.Add(MakeTuple(PrecipitationPostProcessMaterial, Weather.Precipitation / 100.0f));
     else
         ActiveBlendables.Remove(PrecipitationPostProcessMaterial);
 
-    if (Weather.DustStorm > 0.0f)
+    if (DustStormPostProcessMaterial && Weather.DustStorm > 0.0f)
         ActiveBlendables.Add(MakeTuple(DustStormPostProcessMaterial, Weather.DustStorm / 100.0f));
     else
         ActiveBlendables.Remove(DustStormPostProcessMaterial);

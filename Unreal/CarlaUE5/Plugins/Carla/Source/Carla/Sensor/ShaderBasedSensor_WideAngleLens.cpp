@@ -10,6 +10,17 @@
 #include "ConstructorHelpers.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Actor/ActorBlueprintFunctionLibrary.h"
+#include "Misc/PackageName.h"
+
+namespace
+{
+    bool CarlaPackageExists(const FString& ObjectPath)
+    {
+        const FSoftObjectPath SoftPath(ObjectPath);
+        const FString PackageName = SoftPath.GetLongPackageName();
+        return !PackageName.IsEmpty() && FPackageName::DoesPackageExist(PackageName);
+    }
+}
 
 AShaderBasedSensor_WideAngleLens::AShaderBasedSensor_WideAngleLens(const FObjectInitializer& ObjectInitializer) :
     Super(ObjectInitializer)
@@ -19,14 +30,24 @@ AShaderBasedSensor_WideAngleLens::AShaderBasedSensor_WideAngleLens(const FObject
 
 bool AShaderBasedSensor_WideAngleLens::AddPostProcessingMaterial(const FString& Path)
 {
-    ConstructorHelpers::FObjectFinder<UMaterial> Loader(*Path);
+    // During CDO construction the plugin content directory is not yet mounted.
+    // Skip silently — the per-instance constructor (at spawn time) will load correctly.
+    if (IsTemplate())
+        return true;
 
-    if (Loader.Succeeded())
+    UMaterial* LoadedMaterial = nullptr;
+    if (CarlaPackageExists(Path))
     {
-        MaterialsFound.Add(Loader.Object);
+        LoadedMaterial = LoadObject<UMaterial>(nullptr, *Path);
+    }
+    if (LoadedMaterial != nullptr)
+    {
+        MaterialsFound.Add(LoadedMaterial);
+        return true;
     }
 
-    return Loader.Succeeded();
+    UE_LOG(LogCarla, Warning, TEXT("Post-process material not found: %s"), *Path);
+    return false;
 }
 
 void AShaderBasedSensor_WideAngleLens::SetUpSceneCaptureComponents(TArrayView<USceneCaptureComponent2D*> SceneCaptures)

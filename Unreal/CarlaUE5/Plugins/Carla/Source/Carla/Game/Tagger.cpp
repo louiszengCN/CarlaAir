@@ -12,6 +12,7 @@
 #include "Carla/Actor/CarlaActor.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
@@ -134,6 +135,14 @@ void ATagger::TagActor(const AActor &Actor, bool bTagForSemanticSegmentation, ui
     UE_LOG(LogCarla, Log, TEXT("  + StaticMeshComponent: %s"), *Component->GetName());
     UE_LOG(LogCarla, Log, TEXT("    - Label: \"%s\""), *GetTagAsString(Label));
 #endif // CARLA_TAGGER_EXTRA_LOG
+
+    if (Cast<UInstancedStaticMeshComponent>(Component))
+    {
+      // UE5.7 stock instanced-mesh proxies no longer support CARLA's tagged child
+      // component path. Keep stencil tagging so semantic segmentation still works
+      // at the class level and avoid the BeginPlay crash on optimized town maps.
+      continue;
+    }
 
     if(!Component->IsVisible() || !Component->GetStaticMesh())
     {

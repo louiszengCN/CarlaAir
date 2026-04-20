@@ -18,7 +18,7 @@ struct CARLA_API FShaderFloatParameterValue
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
-  int ShaderIndex;
+  int ShaderIndex = 0;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   FName ParameterName;

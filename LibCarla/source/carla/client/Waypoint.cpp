@@ -52,7 +52,7 @@ namespace client {
     std::vector<SharedPtr<Waypoint>> result;
     result.reserve(waypoints.size());
     for (auto &waypoint : waypoints) {
-      result.emplace_back(MakeShared<Waypoint>(_parent, std::move(waypoint)));
+      result.emplace_back(SharedPtr<Waypoint>(new Waypoint(_parent, std::move(waypoint))));
     }
     return result;
   }
@@ -62,7 +62,7 @@ namespace client {
     std::vector<SharedPtr<Waypoint>> result;
     result.reserve(waypoints.size());
     for (auto &waypoint : waypoints) {
-      result.emplace_back(MakeShared<Waypoint>(_parent, std::move(waypoint)));
+      result.emplace_back(SharedPtr<Waypoint>(new Waypoint(_parent, std::move(waypoint))));
     }
     return result;
   }
@@ -131,7 +131,7 @@ namespace client {
     auto right_lane_waypoint =
         _parent->GetMap().GetRight(_waypoint);
     if (right_lane_waypoint.has_value()) {
-      return MakeShared<Waypoint>(_parent, std::move(*right_lane_waypoint));
+      return SharedPtr<Waypoint>(new Waypoint(_parent, std::move(*right_lane_waypoint)));
     }
     return nullptr;
   }
@@ -140,7 +140,7 @@ namespace client {
     auto left_lane_waypoint =
         _parent->GetMap().GetLeft(_waypoint);
     if (left_lane_waypoint.has_value()) {
-      return MakeShared<Waypoint>(_parent, std::move(*left_lane_waypoint));
+      return SharedPtr<Waypoint>(new Waypoint(_parent, std::move(*left_lane_waypoint)));
     }
     return nullptr;
   }
@@ -232,7 +232,7 @@ namespace client {
         continue;
       }
       added_signals.insert(signal_data.signal);
-      auto waypoint = MakeShared<Waypoint>(_parent, signal_data.waypoint);
+      auto waypoint = SharedPtr<Waypoint>(new Waypoint(_parent, signal_data.waypoint));
       result.emplace_back(
           new Landmark(waypoint, _parent, signal_data.signal, signal_data.accumulated_s));
     }
@@ -250,7 +250,7 @@ namespace client {
         if(added_signals.count(signal_data.signal) > 0) {
           continue;
         }
-        auto waypoint = MakeShared<Waypoint>(_parent, signal_data.waypoint);
+        auto waypoint = SharedPtr<Waypoint>(new Waypoint(_parent, signal_data.waypoint));
         result.emplace_back(
             new Landmark(waypoint, _parent, signal_data.signal, signal_data.accumulated_s));
       }

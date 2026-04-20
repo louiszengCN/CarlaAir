@@ -12,7 +12,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> IMUSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return MakeShared<data::IMUMeasurement>(DESERIALIZE_MOVE_DATA(data));
+    return SharedPtr<data::IMUMeasurement>(new data::IMUMeasurement(DESERIALIZE_MOVE_DATA(data)));
   }
 
 } // namespace s11n

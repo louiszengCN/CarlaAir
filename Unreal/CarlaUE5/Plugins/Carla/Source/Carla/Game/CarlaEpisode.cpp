@@ -31,6 +31,11 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
+namespace
+{
+  constexpr TCHAR CarlaParametersPath[] = TEXT("/Game/Carla/Blueprints/Game/CarlaParameters.CarlaParameters");
+}
+
 static FString UCarlaEpisode_GetTrafficSignId(ETrafficSignState State)
 {
   using TSS = ETrafficSignState;
@@ -50,6 +55,47 @@ static FString UCarlaEpisode_GetTrafficSignId(ETrafficSignState State)
     case TSS::StopSign:           return TEXT("traffic.stop");
     case TSS::YieldSign:          return TEXT("traffic.yield");
     default:                      return TEXT("traffic.unknown");
+  }
+}
+
+UMaterialParameterCollectionInstance *UCarlaEpisode::ResolveMaterialParameters()
+{
+  if (MaterialParameters != nullptr && IsValid(MaterialParameters) && MaterialParameters->IsCollectionValid())
+  {
+    return MaterialParameters;
+  }
+
+  MaterialParameters = nullptr;
+
+  UWorld *World = GetWorld();
+  if (World == nullptr)
+  {
+    return nullptr;
+  }
+
+  UMaterialParameterCollection *Collection = LoadObject<UMaterialParameterCollection>(nullptr, CarlaParametersPath, nullptr, LOAD_None, nullptr);
+  if (Collection == nullptr)
+  {
+    return nullptr;
+  }
+
+  MaterialParameters = World->GetParameterCollectionInstance(Collection);
+  if (MaterialParameters != nullptr && MaterialParameters->IsCollectionValid())
+  {
+    return MaterialParameters;
+  }
+
+  MaterialParameters = nullptr;
+  return nullptr;
+}
+
+void UCarlaEpisode::SetVisualGameTime(double Time)
+{
+  VisualGameTime = Time;
+
+  if (UMaterialParameterCollectionInstance *Parameters = ResolveMaterialParameters())
+  {
+    Parameters->SetScalarParameterValue(FName("VisualTime"), VisualGameTime);
   }
 }
 
@@ -100,7 +146,7 @@ bool UCarlaEpisode::LoadNewEpisode(const FString &MapString, bool ResetSettings)
 
   if (bIsFileFound)
   {
-    UE_LOG(LogCarla, Warning, TEXT("Loading a new episode: %s"), *FinalPath);
+    UE_LOG(LogCarla, Log, TEXT("Loading a new episode: %s"), *FinalPath);
     UGameplayStatics::OpenLevel(GetWorld(), *FinalPath, true);
     if (ResetSettings)
       ApplySettings(FEpisodeSettings{});
@@ -350,14 +396,16 @@ void UCarlaEpisode::InitializeAtBeginPlay()
   }
   else
   {
-    UE_LOG(LogCarla, Error, TEXT("Can't find spectator!"));
+    // No possessed pawn yet — ASimWorldGameMode creates and registers the spectator
+    // after Super::BeginPlay() returns. Not an error.
+    UE_LOG(LogCarla, Log, TEXT("No spectator pawn possessed at BeginPlay; will be registered by GameMode."));
   }
 
   // material parameters collection
-  UMaterialParameterCollection *Collection = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Game/Carla/Blueprints/Game/CarlaParameters.CarlaParameters"), nullptr, LOAD_None, nullptr);
+  UMaterialParameterCollection *Collection = LoadObject<UMaterialParameterCollection>(nullptr, CarlaParametersPath, nullptr, LOAD_None, nullptr);
 	if (Collection != nullptr)
   {
-    MaterialParameters = World->GetParameterCollectionInstance(Collection);
+    MaterialParameters = ResolveMaterialParameters();
     if (MaterialParameters == nullptr)
     {
       UE_LOG(LogCarla, Error, TEXT("Can't find CarlaParameters instance!"));

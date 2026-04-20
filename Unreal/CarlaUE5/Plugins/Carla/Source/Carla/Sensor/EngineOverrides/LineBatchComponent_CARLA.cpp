@@ -5,6 +5,23 @@
 #include "Sensor/CosmosControlSensor.h"
 #include "ConstructorHelpers.h"
 #include "DynamicMeshBuilder.h" // UE5: FDynamicMeshBuilder
+#include "Misc/PackageName.h"
+#include "UObject/SoftObjectPath.h"
+
+namespace
+{
+	template <typename TObject>
+	TObject* LoadOptionalObject(const TCHAR* ObjectPath)
+	{
+		const FSoftObjectPath SoftPath(ObjectPath);
+		const FString PackageName = SoftPath.GetLongPackageName();
+		if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+		{
+			return nullptr;
+		}
+		return LoadObject<TObject>(nullptr, ObjectPath);
+	}
+}
 
 FLineBatcherSceneProxy_CARLA::FLineBatcherSceneProxy_CARLA(const ULineBatchComponent_CARLA* InComponent) :
 	// UE5: FLineBatcherSceneProxy is private; use FPrimitiveSceneProxy directly
@@ -26,15 +43,20 @@ FLineBatcherSceneProxy_CARLA::~FLineBatcherSceneProxy_CARLA()
 ULineBatchComponent_CARLA::ULineBatchComponent_CARLA(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
 	: Super(ObjectInitializer)
 {
-	ConstructorHelpers::FObjectFinder<UMaterial> Loader(TEXT("Material'/Carla/PostProcessingMaterials/DebugCosmosMeshMaterial.DebugCosmosMeshMaterial'"));
-	CosmosMeshMaterial = Loader.Object;
+	// CosmosMeshMaterial is loaded lazily in CreateSceneProxy() to avoid CDO-time
+	// asset loading failures (package filesystem not ready during module startup).
 }
 
 FPrimitiveSceneProxy* ULineBatchComponent_CARLA::CreateSceneProxy()
 {
+	if (!CosmosMeshMaterial)
+	{
+		CosmosMeshMaterial = LoadOptionalObject<UMaterial>(
+			TEXT("Material'/Carla/PostProcessingMaterials/DebugCosmosMeshMaterial.DebugCosmosMeshMaterial'"));
+	}
 	FLineBatcherSceneProxy_CARLA* proxy = new FLineBatcherSceneProxy_CARLA(this);
 	proxy->CosmosMeshMaterial = CosmosMeshMaterial;
-	
+
 	return proxy;
 }
 

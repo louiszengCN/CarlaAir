@@ -4,11 +4,14 @@
 #ifndef msr_airlib_vehicles_MultiRotorParamsFactory_hpp
 #define msr_airlib_vehicles_MultiRotorParamsFactory_hpp
 
+#include "vehicles/multirotor/firmwares/simple_flight/SimpleFlightQuadXParams.hpp"
+
+#if defined(WITH_MAVLINKCOM_BINDING) && WITH_MAVLINKCOM_BINDING
 #include "vehicles/multirotor/firmwares/mavlink/MavLinkMultirotorApi.hpp"
 #include "vehicles/multirotor/firmwares/mavlink/Px4MultiRotorParams.hpp"
-#include "vehicles/multirotor/firmwares/simple_flight/SimpleFlightQuadXParams.hpp"
 #include "vehicles/multirotor/firmwares/mavlink/ArduCopterSoloParams.hpp"
 #include "vehicles/multirotor/firmwares/arducopter/ArduCopterParams.hpp"
+#endif
 
 namespace msr
 {
@@ -23,7 +26,9 @@ namespace airlib
         {
             std::unique_ptr<MultiRotorParams> config;
 
-            if (vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypePX4) {
+            if (
+#if defined(WITH_MAVLINKCOM_BINDING) && WITH_MAVLINKCOM_BINDING
+                vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypePX4) {
                 config.reset(new Px4MultiRotorParams(*static_cast<const AirSimSettings::MavLinkVehicleSetting*>(vehicle_setting),
                                                      sensor_factory));
             }
@@ -33,7 +38,9 @@ namespace airlib
             else if (vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypeArduCopter) {
                 config.reset(new ArduCopterParams(*static_cast<const AirSimSettings::MavLinkVehicleSetting*>(vehicle_setting), sensor_factory));
             }
-            else if (vehicle_setting->vehicle_type == "" || //default config
+            else if (
+#endif
+                     vehicle_setting->vehicle_type == "" || //default config
                      vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypeSimpleFlight) {
                 config.reset(new SimpleFlightQuadXParams(vehicle_setting, sensor_factory));
             }

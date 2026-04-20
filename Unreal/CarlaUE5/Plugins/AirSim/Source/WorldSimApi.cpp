@@ -784,7 +784,9 @@ bool WorldSimApi::testLineOfSightBetweenPoints(const msr::airlib::GeoPoint& lla1
                 color = FLinearColor{ 0, 1.0f, 0, 0.4f };
             }
 
-            simmode_->GetWorld()->PersistentLineBatcher->DrawLine(point1, point2, color, SDPG_World, 4, 999999);
+            if (ULineBatchComponent* line_batcher = simmode_->GetWorld()->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)) {
+                line_batcher->DrawLine(point1, point2, color, SDPG_World, 4, 999999);
+            }
         }
     },
                                              true);
@@ -1050,16 +1052,16 @@ std::vector<msr::airlib::DetectionInfo> WorldSimApi::getDetections(ImageCaptureB
 
             Vector3r nedWrtOrigin = ned_transform.toGlobalNed(detections[i].Actor->GetActorLocation());
             result[i].geo_point = msr::airlib::EarthUtils::nedToGeodetic(nedWrtOrigin,
-                                                                         AirSimSettings::singleton().origin_geopoint);
+                                                                         msr::airlib::AirSimSettings::singleton().origin_geopoint);
 
-            result[i].box2D.min = Vector2r(detections[i].Box2D.Min.X, detections[i].Box2D.Min.Y);
-            result[i].box2D.max = Vector2r(detections[i].Box2D.Max.X, detections[i].Box2D.Max.Y);
+            result[i].box2D.min = msr::airlib::Vector2r(detections[i].Box2D.Min.X, detections[i].Box2D.Min.Y);
+            result[i].box2D.max = msr::airlib::Vector2r(detections[i].Box2D.Max.X, detections[i].Box2D.Max.Y);
 
             result[i].box3D.min = ned_transform.toLocalNed(detections[i].Box3D.Min);
             result[i].box3D.max = ned_transform.toLocalNed(detections[i].Box3D.Max);
 
             const Vector3r& position = ned_transform.toLocalNed(detections[i].RelativeTransform.GetTranslation());
-            const Quaternionr& orientation = ned_transform.toNed(detections[i].RelativeTransform.GetRotation());
+            const msr::airlib::Quaternionr& orientation = ned_transform.toNed(detections[i].RelativeTransform.GetRotation());
 
             result[i].relative_pose = Pose(position, orientation);
         }

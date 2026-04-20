@@ -1,5 +1,3 @@
-#pragma once
-
 #include "AirsimLevelStreaming.h"
 #include "Engine/World.h"
 

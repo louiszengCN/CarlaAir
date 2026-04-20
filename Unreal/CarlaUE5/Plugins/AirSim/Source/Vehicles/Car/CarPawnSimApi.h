@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WheeledVehicleMovementComponent4W.h"
 
 #include "CarPawn.h"
 #include "CarPawnApi.h"

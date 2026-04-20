@@ -27,13 +27,13 @@ struct CARLA_API FLargeMapTileData
   GENERATED_USTRUCT_BODY()
 
   UPROPERTY()
-  float FirstTileCenterX;
+  float FirstTileCenterX = 0.0f;
 
   UPROPERTY()
-  float FirstTileCenterY;
+  float FirstTileCenterY = 0.0f;
 
   UPROPERTY()
-  float Size;
+  float Size = 0.0f;
 };
 
 struct FDecalsProperties;
@@ -77,15 +77,15 @@ private:
   TArray<FAssetData> AssetDatas;
 
   UPROPERTY()
-  UWorld *World;
+  UWorld *World = nullptr;
 
   UPROPERTY()
-  UWorld *NewWorldToLoad;
+  UWorld *NewWorldToLoad = nullptr;
 
   /// Used for loading maps in object library. Loaded Data is stored in
   /// AssetDatas.
   UPROPERTY()
-  UObjectLibrary *MapObjectLibrary;
+  UObjectLibrary *MapObjectLibrary = nullptr;
 
   /// Subclass for acquiring the RoadPainter blueprint
   UPROPERTY()
@@ -109,7 +109,7 @@ private:
 
   FDecalsProperties DecalsProperties;
 
-  bool FilledData;
+  bool FilledData = false;
 
-  bool ReadConfigFile;
+  bool ReadConfigFile = false;
 };

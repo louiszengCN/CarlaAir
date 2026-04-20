@@ -25,7 +25,14 @@ void UTaggedComponent::OnRegister()
 
   if (!IsValid(TaggedMID))
   {
-    UE_LOG(LogCarla, Error, TEXT("Failed to create MID!"));
+    // TaggedOpaqueMaterial is missing (no cooked PostProcessingMaterials);
+    // semantic segmentation unavailable but not a code bug. Log once to avoid spam.
+    static bool bWarningLogged = false;
+    if (!bWarningLogged)
+    {
+      bWarningLogged = true;
+      UE_LOG(LogCarla, Warning, TEXT("Failed to create MID: TaggedOpaqueMaterial missing. Semantic segmentation unavailable (missing PostProcessingMaterials content)."));
+    }
   }
 
   if(USceneComponent* ParentSceneComponent = GetAttachParent()) {

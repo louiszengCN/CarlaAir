@@ -53,7 +53,7 @@ class AIRSIM_API UWeatherLib : public UBlueprintFunctionLibrary
 
     static const FSoftClassPath getWeatherActorPath()
     {
-        return FSoftClassPath(TEXT("AActor'/AirSim/Weather/WeatherFX/WeatherActor.WeatherActor_C'"));
+        return FSoftClassPath(TEXT("AActor'/Game/Carla/Blueprints/Weather/BP_CarlaWeather.BP_CarlaWeather_C'"));
     }
 
     static const FSoftClassPath getWeatherMenuWidgetClass()

@@ -27,7 +27,7 @@
 		},
 		{
 			"Name": "AirSim",
-			"Enabled": false
+			"Enabled": true
 		},
 		{
 			"Name": "OnlineSubsystemGooglePlay",
@@ -119,6 +119,10 @@
 		},
 		{
 			"Name": "CarlaTools",
+			"Enabled": true
+		},
+		{
+			"Name": "StreetMapRuntime",
 			"Enabled": true
 		},
 		{

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <string>
 #include "Components/SceneComponent.h"
 #include "ObjectFilter.h"
 #include "DetectionComponent.generated.h"
@@ -11,6 +12,14 @@ USTRUCT()
 struct FDetectionInfo
 {
     GENERATED_BODY()
+
+    FDetectionInfo()
+        : Actor(nullptr),
+          Box2D(EForceInit::ForceInit),
+          Box3D(EForceInit::ForceInit),
+          RelativeTransform(FTransform::Identity)
+    {
+    }
 
     UPROPERTY()
     AActor* Actor;

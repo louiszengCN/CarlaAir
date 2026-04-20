@@ -15,6 +15,8 @@
 
 #include "UObject/ConstructorHelpers.h"
 #include "EngineUtils.h"
+#include "Misc/PackageName.h"
+#include "UObject/SoftObjectPath.h"
 
 #include <compiler/disable-ue4-macros.h>
 #include <carla/rpc/String.h>
@@ -24,115 +26,68 @@
 
 #include <string>
 
+namespace
+{
+  template <typename TObject>
+  TSubclassOf<TObject> LoadOptionalBlueprintClass(const TCHAR* AssetPath)
+  {
+    const FString AssetPathString(AssetPath);
+    if (!FPackageName::DoesPackageExist(AssetPathString))
+    {
+      return nullptr;
+    }
+
+    const FString AssetName = FPackageName::GetLongPackageAssetName(AssetPathString);
+    const FString ClassPath = FString::Printf(TEXT("%s.%s_C"), AssetPath, *AssetName);
+    const FSoftClassPath SoftClassPath(ClassPath);
+    return SoftClassPath.TryLoadClass<TObject>();
+  }
+}
+
 ATrafficLightManager::ATrafficLightManager()
 {
   PrimaryActorTick.bCanEverTick = false;
   SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
   RootComponent = SceneComponent;
 
-  // Hard coded default traffic light blueprint
-  static ConstructorHelpers::FClassFinder<AActor> TrafficLightRHTFinder(
-      TEXT( "/Game/Carla/Blueprints/TrafficLight/BP_TLOpenDrive_RHT" ) );
-  if (TrafficLightRHTFinder.Succeeded())
-  {
-    TSubclassOf<AActor> Model = TrafficLightRHTFinder.Class;
-    TrafficLightModel_RHT = Model;
-  }
+  TrafficLightModel_RHT = LoadOptionalBlueprintClass<AActor>(
+      TEXT("/Game/Carla/Blueprints/TrafficLight/BP_TLOpenDrive_RHT"));
+  TrafficLightModel_LHT = LoadOptionalBlueprintClass<AActor>(
+      TEXT("/Game/Carla/Blueprints/TrafficLight/BP_TLOpenDrive_LHT"));
 
-  // Hard coded default traffic light blueprint
-  static ConstructorHelpers::FClassFinder<AActor> TrafficLightLHTFinder(
-    TEXT( "/Game/Carla/Blueprints/TrafficLight/BP_TLOpenDrive_LHT" ) );
-  if (TrafficLightLHTFinder.Succeeded())
+  if (TSubclassOf<AActor> StopSignModel = LoadOptionalBlueprintClass<AActor>(
+          TEXT("/Game/Carla/Static/TrafficSign/BP_Stop")))
   {
-    TSubclassOf<AActor> Model = TrafficLightLHTFinder.Class;
-    TrafficLightModel_LHT = Model;
-  }
-  // Default traffic signs models
-  static ConstructorHelpers::FClassFinder<AActor> StopFinder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_Stop" ) );
-  if (StopFinder.Succeeded())
-  {
-    TSubclassOf<AActor> StopSignModel = StopFinder.Class;
     TrafficSignsModels.Add(carla::road::SignalType::StopSign().c_str(), StopSignModel);
     SignComponentModels.Add(carla::road::SignalType::StopSign().c_str(), UStopSignComponent::StaticClass());
   }
-  static ConstructorHelpers::FClassFinder<AActor> YieldFinder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_Yield" ) );
-  if (YieldFinder.Succeeded())
+
+  if (TSubclassOf<AActor> YieldSignModel = LoadOptionalBlueprintClass<AActor>(
+          TEXT("/Game/Carla/Static/TrafficSign/BP_Yield")))
   {
-    TSubclassOf<AActor> YieldSignModel = YieldFinder.Class;
     TrafficSignsModels.Add(carla::road::SignalType::YieldSign().c_str(), YieldSignModel);
     SignComponentModels.Add(carla::road::SignalType::YieldSign().c_str(), UYieldSignComponent::StaticClass());
   }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit30Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit30" ) );
-  if (SpeedLimit30Finder.Succeeded())
+
+  const TPair<const TCHAR*, const TCHAR*> SpeedLimitAssets[] = {
+    { TEXT("30"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit30") },
+    { TEXT("40"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit40") },
+    { TEXT("50"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit50") },
+    { TEXT("60"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit60") },
+    { TEXT("70"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit70") },
+    { TEXT("80"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit80") },
+    { TEXT("90"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit90") },
+    { TEXT("100"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit100") },
+    { TEXT("110"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit110") },
+    { TEXT("120"), TEXT("/Game/Carla/Static/TrafficSign/BP_SpeedLimit120") },
+  };
+
+  for (const TPair<const TCHAR*, const TCHAR*>& SpeedLimitAsset : SpeedLimitAssets)
   {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit30Finder.Class;
-    SpeedLimitModels.Add("30", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit40Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit40" ) );
-  if (SpeedLimit40Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit40Finder.Class;
-    SpeedLimitModels.Add("40", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit50Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit50" ) );
-  if (SpeedLimit50Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit50Finder.Class;
-    SpeedLimitModels.Add("50", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit60Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit60" ) );
-  if (SpeedLimit60Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit60Finder.Class;
-    SpeedLimitModels.Add("60", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit70Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit70" ) );
-  if (SpeedLimit70Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit70Finder.Class;
-    SpeedLimitModels.Add("70", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit80Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit80" ) );
-  if (SpeedLimit80Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit80Finder.Class;
-    SpeedLimitModels.Add("80", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit90Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit90" ) );
-  if (SpeedLimit90Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit90Finder.Class;
-    SpeedLimitModels.Add("90", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit100Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit100" ) );
-  if (SpeedLimit100Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit100Finder.Class;
-    SpeedLimitModels.Add("100", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit110Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit110" ) );
-  if (SpeedLimit110Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit110Finder.Class;
-    SpeedLimitModels.Add("110", SpeedLimitModel);
-  }
-  static ConstructorHelpers::FClassFinder<AActor> SpeedLimit120Finder(
-      TEXT( "/Game/Carla/Static/TrafficSign/BP_SpeedLimit120" ) );
-  if (SpeedLimit120Finder.Succeeded())
-  {
-    TSubclassOf<AActor> SpeedLimitModel = SpeedLimit120Finder.Class;
-    SpeedLimitModels.Add("120", SpeedLimitModel);
+    if (TSubclassOf<AActor> SpeedLimitModel = LoadOptionalBlueprintClass<AActor>(SpeedLimitAsset.Value))
+    {
+      SpeedLimitModels.Add(SpeedLimitAsset.Key, SpeedLimitModel);
+    }
   }
   TrafficLightGroupMissingId = -2;
 }

@@ -6,6 +6,7 @@
 #include "UObject/SavePackage.h" // UE5: FSavePackageArgs
 #include "Interfaces/IPluginManager.h"
 #include "HAL/FileManager.h"
+#include "Misc/PackageName.h"
 
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -16,18 +17,33 @@
 #include "Materials/MaterialExpressionSetMaterialAttributes.h"
 #include "Materials/MaterialExpressionMakeMaterialAttributes.h"
 
+namespace
+{
+  bool CarlaPackageExists(const TCHAR *ObjectPath)
+  {
+    const FSoftObjectPath SoftPath(ObjectPath);
+    const FString PackageName = SoftPath.GetLongPackageName();
+    return !PackageName.IsEmpty() && FPackageName::DoesPackageExist(PackageName);
+  }
+}
+
 const FString UTaggedMaterialsRegistry::TaggedMaterialsRootDir = TEXT("/Carla/PostProcessingMaterials/TaggedMaterials");
 UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Registry = nullptr;
 
 UTaggedMaterialsRegistry::UTaggedMaterialsRegistry() {
-  FString MaterialPath = TEXT("Material'/Carla/PostProcessingMaterials/AnnotationColor.AnnotationColor'");
-  static ConstructorHelpers::FObjectFinder<UMaterial> TaggedOpaqueMaterialObject(*MaterialPath);
-  // TODO: Replace with VertexColorViewModeMaterial_ColorOnly?
-  TaggedOpaqueMaterial = TaggedOpaqueMaterialObject.Object;
+  if (CarlaPackageExists(TEXT("/Carla/PostProcessingMaterials/AnnotationColor.AnnotationColor"))) {
+    TaggedOpaqueMaterial = LoadObject<UMaterial>(nullptr, TEXT("/Carla/PostProcessingMaterials/AnnotationColor.AnnotationColor"));
+  }
+  if (!TaggedOpaqueMaterial) {
+    UE_LOG(LogCarla, Warning, TEXT("Tagged opaque annotation material is unavailable; segmentation fallback will be limited."));
+  }
 
-  FString TaggingMPCPath = TEXT("Material'/Carla/PostProcessingMaterials/MPC/MPC_Tagging.MPC_Tagging'");
-  static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> TaggingMPCObject(*TaggingMPCPath);
-  TaggingParamerCollection = TaggingMPCObject.Object;
+  if (CarlaPackageExists(TEXT("/Carla/PostProcessingMaterials/MPC/MPC_Tagging.MPC_Tagging"))) {
+    TaggingParamerCollection = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Carla/PostProcessingMaterials/MPC/MPC_Tagging.MPC_Tagging"));
+  }
+  if (!TaggingParamerCollection) {
+    UE_LOG(LogCarla, Warning, TEXT("Tagging material parameter collection is unavailable; translucency tagging controls are disabled."));
+  }
 }
 
 UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Create(const FString& RegistryName) {
@@ -48,9 +64,11 @@ UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Create(const FString& Regist
 UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Get() {
   if (!Registry) {
 #if WITH_EDITOR
-    // Try loading if editor-registry already exists, else instantiate new one
+    // Try loading if editor-registry already exists, else instantiate new one.
+    // Suppress the missing-registry warning: on a clean checkout the asset hasn't
+    // been generated yet (it's saved by OnWorldCleanup on the first editor session).
     FString RegistryNameEditor = TEXT("Editor");
-    Registry = Load(RegistryNameEditor);
+    Registry = Load(RegistryNameEditor, /*bIsSuffix=*/true, /*bWarnIfMissing=*/false);
     if (!Registry) {
       Registry = Create(RegistryNameEditor);
     }
@@ -74,11 +92,20 @@ UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Get() {
 }
 
 void UTaggedMaterialsRegistry::SetTaggingTraverseTranslucency(UCarlaEpisode* Episode, bool bTaggingTraverseTranslucency) {
+  if (!Episode || !Episode->GetWorld() || !TaggingParamerCollection) {
+    return;
+  }
   UMaterialParameterCollectionInstance* MPCInstance = Episode->GetWorld()->GetParameterCollectionInstance(TaggingParamerCollection);
+  if (!MPCInstance) {
+    return;
+  }
   MPCInstance->SetScalarParameterValue("TraverseTranslucency", bTaggingTraverseTranslucency);
 }
 
 UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial() {
+  if (!TaggedOpaqueMaterial) {
+    return nullptr;
+  }
   return UMaterialInstanceDynamic::Create(TaggedOpaqueMaterial, this);
 }
 
@@ -87,6 +114,9 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
   // Using SetTaggingTraverseTranslucency, it can be globally enabled/disabled that these materials appear invisible or not.
   if (UsedMaterial && UsedMaterial->GetBlendMode() == EBlendMode::BLEND_Translucent) {
     UMaterialInstanceDynamic* TranslucentMaterial = GetTaggedMaterial();
+    if (!TranslucentMaterial) {
+      return nullptr;
+    }
     TranslucentMaterial->SetScalarParameterValue("IsTranslucent", true);
     return TranslucentMaterial;
   }
@@ -107,7 +137,7 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
     if (GIsEditor || IsRunningCommandlet()) {
       UTaggedMaterialsRegistry::InjectTag(UsedMaterial);
     } else {
-      UE_LOG(LogCarla, Warning, TEXT("Can only create new materials in editor (PIE) or during cooking. %s will render coarsely in instance segmentation."),
+      UE_LOG(LogCarla, Log, TEXT("Can only create new materials in editor (PIE) or during cooking. %s will render coarsely in instance segmentation."),
              *UsedMaterial->GetPathName());
     }
   }
@@ -120,7 +150,9 @@ UMaterialInstanceDynamic* UTaggedMaterialsRegistry::GetTaggedMaterial(UMaterialI
     UMaterialInterface** TagInjectedParent = TaggedMaskedMaterials.Find(UsedMaterialMID->Parent->GetPathName());
     if (TagInjectedParent) {
       UMaterialInstanceDynamic* TagInjectedMID = UMaterialInstanceDynamic::Create(*TagInjectedParent, this);
-      TagInjectedMID->CopyParameterOverrides(UsedMaterialMID);
+      if (TagInjectedMID) {
+        TagInjectedMID->CopyParameterOverrides(UsedMaterialMID);
+      }
       return TagInjectedMID;
     }
   } else {
@@ -411,7 +443,7 @@ void UTaggedMaterialsRegistry::Save() {
 }
 #endif // WITH_EDITOR
 
-UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Load(const FString& RegistryName, bool bIsSuffix /* = true */) {
+UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Load(const FString& RegistryName, bool bIsSuffix /* = true */, bool bWarnIfMissing /* = true */) {
   FString FullRegistryName = RegistryName;
   if (bIsSuffix) {
     FullRegistryName = TEXT("TaggedMaterials_") + RegistryName;
@@ -419,13 +451,21 @@ UTaggedMaterialsRegistry* UTaggedMaterialsRegistry::Load(const FString& Registry
   FSoftObjectPath RegistryPath = FSoftObjectPath(*(TaggedMaterialsRootDir / FullRegistryName + TEXT(".") + FullRegistryName));
 
   UTaggedMaterialsRegistry* LoadedRegistry = nullptr;
+  // Check before TryLoad to avoid triggering LogUObjectGlobals/LogStreaming warnings
+  // when the package simply doesn't exist (e.g. clean checkout, no editor session yet).
+  const FString PackageName = RegistryPath.GetLongPackageName();
+  if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+  {
+    if (bWarnIfMissing)
+    {
+      UE_LOG(LogCarla, Warning, TEXT("Failed to load UTaggedMaterialsRegistry '%s' in '%s'."), *RegistryName, *TaggedMaterialsRootDir);
+    }
+    return nullptr;
+  }
   UObject* RegistryObject = RegistryPath.TryLoad();
   if (RegistryObject) {
     LoadedRegistry = Cast<UTaggedMaterialsRegistry>(RegistryObject);
   }
 
-  if (!LoadedRegistry) {
-    UE_LOG(LogCarla, Warning, TEXT("Failed to load UTaggedMaterialsRegistry '%s' in '%s'."), *RegistryName, *TaggedMaterialsRootDir);
-  }
   return LoadedRegistry;
 }

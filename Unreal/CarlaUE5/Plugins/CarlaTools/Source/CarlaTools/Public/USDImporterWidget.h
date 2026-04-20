@@ -17,13 +17,13 @@ struct FWheelTemplates
 {
   GENERATED_BODY()
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UChaosVehicleWheel> WheelFR;
+  TSubclassOf<UChaosVehicleWheel> WheelFR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UChaosVehicleWheel> WheelFL;
+  TSubclassOf<UChaosVehicleWheel> WheelFL = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UChaosVehicleWheel> WheelRR;
+  TSubclassOf<UChaosVehicleWheel> WheelRR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Wheel")
-  TSubclassOf<UChaosVehicleWheel> WheelRL;
+  TSubclassOf<UChaosVehicleWheel> WheelRL = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -33,9 +33,9 @@ struct FVehicleLight
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Light")
   FString Name;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Light")
-  FVector Location;
+  FVector Location = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Light")
-  FLinearColor Color;
+  FLinearColor Color = FLinearColor::Black;
 };
 
 USTRUCT(BlueprintType)
@@ -44,27 +44,27 @@ struct CARLATOOLS_API FVehicleMeshAnchorPoints
   GENERATED_BODY();
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector DoorFR;
+  FVector DoorFR = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector DoorFL;
+  FVector DoorFL = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector DoorRR;
+  FVector DoorRR = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector DoorRL;
+  FVector DoorRL = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector WheelFR;
+  FVector WheelFR = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector WheelFL;
+  FVector WheelFL = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector WheelRR;
+  FVector WheelRR = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector WheelRL;
+  FVector WheelRL = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector Hood;
+  FVector Hood = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  FVector Trunk;
+  FVector Trunk = FVector::ZeroVector;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "USD Importer")
-  FVector Body;
+  FVector Body = FVector::ZeroVector;
 };
 
 USTRUCT(BlueprintType)
@@ -106,27 +106,27 @@ struct CARLATOOLS_API FMergedVehicleMeshParts
   GENERATED_BODY();
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* DoorFR;
+  UStaticMesh* DoorFR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* DoorFL;
+  UStaticMesh* DoorFL = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* DoorRR;
+  UStaticMesh* DoorRR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* DoorRL;
+  UStaticMesh* DoorRL = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* Trunk;
+  UStaticMesh* Trunk = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* Hood;
+  UStaticMesh* Hood = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* WheelFR;
+  UStaticMesh* WheelFR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* WheelFL;
+  UStaticMesh* WheelFL = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* WheelRR;
+  UStaticMesh* WheelRR = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* WheelRL;
+  UStaticMesh* WheelRL = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
-  UStaticMesh* Body;
+  UStaticMesh* Body = nullptr;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")
   FVehicleMeshAnchorPoints Anchors;
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="USD Importer")

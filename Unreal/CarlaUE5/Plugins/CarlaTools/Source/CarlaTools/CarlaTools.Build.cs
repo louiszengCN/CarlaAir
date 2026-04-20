@@ -14,7 +14,7 @@ public class CarlaTools : ModuleRules
 
 	public CarlaTools(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseSharedPCHs; // UE5: disable IWYU enforcement for legacy includes
+    PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
     // PrivatePCHHeaderFile = "Carla.h";
 
@@ -80,6 +80,10 @@ public class CarlaTools : ModuleRules
 				"UMG",
 				"EditorScriptingUtilities",
 			"LevelEditor",          // UE5: ULevelEditorSubsystem (replaces UEditorLevelLibrary::LoadLevel)
+				"BlueprintGraph",   // K2Node_BreakStruct, K2Node_MakeStruct, K2Node_DynamicCast
+				"KismetCompiler",   // FKismetEditorUtilities::CompileBlueprint
+				"Kismet",           // FBlueprintEditorUtils
+				"StreetMapRuntime", // Stub types: FStreetMapBuilding, AStreetMapActor, etc.
 				"Landscape",
 				"Foliage",
 				"FoliageEdit",

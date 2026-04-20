@@ -25,11 +25,11 @@ struct CARLA_API FDecalsProperties
 
   /// Scale of each decal on the road
   UPROPERTY(BlueprintReadOnly, Category = "Decals Properties")
-  FVector DecalScale;
+  FVector DecalScale = FVector(1.0f, 1.0f, 1.0f);
 
   /// Min offset from one decal to another
   UPROPERTY(BlueprintReadOnly, Category = "Decals Properties")
-  FVector FixedDecalOffset;
+  FVector FixedDecalOffset = FVector::ZeroVector;
 
   /// Maximum scale to be applied to the decals
   UPROPERTY(BlueprintReadOnly, Category = "Decals Properties")

@@ -7,6 +7,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/FileHelper.h"
+#include "Misc/PackageName.h"
 #include "IImageWrapperModule.h"
 
 #include "Vehicles/Multirotor/SimModeWorldMultiRotor.h"
@@ -27,6 +28,7 @@
 #include "Carla/Trigger/TriggerFactory.h"
 #include "Carla/Actor/UtilActorFactory.h"
 #include "Carla/AI/AIControllerFactory.h"
+#include "Carla/Actor/NativeVehicleFactory.h"
 #include "Carla/Actor/ActorDispatcher.h"
 #include "Carla/Game/CarlaGameInstance.h"
 
@@ -39,6 +41,7 @@
 #include "Widgets/Layout/SSpacer.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Styling/CoreStyle.h"
+#include "Fonts/CompositeFont.h"
 
 #include <stdexcept>
 #include <cmath>
@@ -74,6 +77,38 @@ public:
 };
 
 static ASimWorldUnrealLog GlobalSimWorldLog;
+
+namespace
+{
+    constexpr bool bEnableOptionalCarlaWeatherBlueprint = true;
+    constexpr bool bEnableOptionalCarlaPropFactoryBlueprint = false;
+
+    template <typename TObject>
+    TObject* LoadOptionalObject(const TCHAR* ObjectPath)
+    {
+        const FSoftObjectPath SoftPath(ObjectPath);
+        const FString PackageName = SoftPath.GetLongPackageName();
+        if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+        {
+            return nullptr;
+        }
+
+        return LoadObject<TObject>(nullptr, ObjectPath);
+    }
+
+    template <typename TObject>
+    TSubclassOf<TObject> LoadOptionalClass(const TCHAR* ObjectPath)
+    {
+        const FSoftObjectPath SoftPath(ObjectPath);
+        const FString PackageName = SoftPath.GetLongPackageName();
+        if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+        {
+            return nullptr;
+        }
+
+        return LoadClass<TObject>(nullptr, ObjectPath);
+    }
+}
 
 // ========================== FDroneControlWorker ==========================
 // Background thread: reads shared velocity/yaw, calls blocking moveByVelocity()
@@ -233,11 +268,14 @@ ASimWorldGameMode::ASimWorldGameMode(const FObjectInitializer& ObjectInitializer
 
     // --- CARLA Blueprint properties (normally set in CarlaGameMode blueprint) ---
 
-    // Weather blueprint class
-    static ConstructorHelpers::FClassFinder<AWeather> weather_class(
-        TEXT("/Game/Carla/Blueprints/Weather/BP_Weather"));
-    if (weather_class.Succeeded()) {
-        WeatherClass = weather_class.Class;
+    // UE5 CARLA renamed the weather actor blueprint and prefixed factory blueprints.
+    if (bEnableOptionalCarlaWeatherBlueprint) {
+        WeatherClass = LoadOptionalClass<AWeather>(TEXT("/Game/Carla/Blueprints/Weather/BP_CarlaWeather.BP_CarlaWeather_C"));
+    } else {
+        WeatherClass = nullptr;
+    }
+    if (WeatherClass == nullptr) {
+        UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: Optional weather blueprint is disabled or unavailable."));
     }
 
     // Actor Factories — C++ factories
@@ -247,21 +285,27 @@ ASimWorldGameMode::ASimWorldGameMode(const FObjectInitializer& ObjectInitializer
     ActorFactories.Add(AUtilActorFactory::StaticClass());
     ActorFactories.Add(AAIControllerFactory::StaticClass());
 
-    // Actor Factories — Blueprint factories (vehicles, walkers, props)
-    static ConstructorHelpers::FClassFinder<ACarlaActorFactoryBlueprint> vehicle_factory(
-        TEXT("/Game/Carla/Blueprints/Vehicles/VehicleFactory"));
-    if (vehicle_factory.Succeeded())
-        ActorFactories.Add(vehicle_factory.Class);
+    // Native C++ vehicle factory — reads VehicleParameters.json, no Blueprint graph needed.
+    ActorFactories.Add(ANativeVehicleFactory::StaticClass());
 
-    static ConstructorHelpers::FClassFinder<ACarlaActorFactoryBlueprint> walker_factory(
-        TEXT("/Game/Carla/Blueprints/Walkers/WalkerFactory"));
-    if (walker_factory.Succeeded())
-        ActorFactories.Add(walker_factory.Class);
+    // Actor Factories — Blueprint factories (walkers, props)
+    // Note: BP_VehicleFactory is intentionally skipped; ANativeVehicleFactory replaces it.
 
-    static ConstructorHelpers::FClassFinder<ACarlaActorFactoryBlueprint> prop_factory(
-        TEXT("/Game/Carla/Blueprints/Props/PropFactory"));
-    if (prop_factory.Succeeded())
-        ActorFactories.Add(prop_factory.Class);
+    if (UClass* walker_factory = LoadOptionalClass<ACarlaActorFactoryBlueprint>(TEXT("/Game/Carla/Blueprints/Walkers/BP_WalkerFactory.BP_WalkerFactory_C"))) {
+        ActorFactories.Add(walker_factory);
+    } else {
+        UE_LOG(LogAirSim, Warning, TEXT("SimWorldGameMode: Walker factory blueprint is unavailable; CARLA walker spawning is disabled."));
+    }
+
+    if (bEnableOptionalCarlaPropFactoryBlueprint) {
+        if (UClass* prop_factory = LoadOptionalClass<ACarlaActorFactoryBlueprint>(TEXT("/Game/Carla/Blueprints/Props/BP_PropFactory.BP_PropFactory_C"))) {
+            ActorFactories.Add(prop_factory);
+        } else {
+            UE_LOG(LogAirSim, Warning, TEXT("SimWorldGameMode: Prop factory blueprint is unavailable; CARLA prop spawning is disabled."));
+        }
+    } else {
+        UE_LOG(LogAirSim, Log, TEXT("SimWorldGameMode: Prop factory blueprint is disabled; CARLA prop spawning is disabled."));
+    }
 
     // --- AirSim setup ---
 
@@ -482,7 +526,7 @@ void ASimWorldGameMode::SetupFPSControl()
     if (UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport())
     {
         ViewportClient->SetMouseLockMode(EMouseLockMode::LockAlways);
-        ViewportClient->SetCaptureMouseOnClick(EMouseCaptureMode::CapturePermanently);
+        ViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
     }
 
     // Set view target to spectator
@@ -672,7 +716,7 @@ void ASimWorldGameMode::InputEventToggleMouseCapture()
         if (ViewportClient)
         {
             ViewportClient->SetMouseLockMode(EMouseLockMode::LockAlways);
-            ViewportClient->SetCaptureMouseOnClick(EMouseCaptureMode::CapturePermanently);
+            ViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
         }
     }
     else
@@ -684,7 +728,7 @@ void ASimWorldGameMode::InputEventToggleMouseCapture()
         if (ViewportClient)
         {
             ViewportClient->SetMouseLockMode(EMouseLockMode::DoNotLock);
-            ViewportClient->SetCaptureMouseOnClick(EMouseCaptureMode::NoCapture);
+            ViewportClient->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
         }
     }
     UE_LOG(LogAirSim, Log, TEXT("Mouse capture: %s"),
@@ -752,16 +796,13 @@ void ASimWorldGameMode::CreateHelpOverlayWidget()
 
     // Font setup — DroidSansFallback for CJK support
     FString FontPath = FPaths::EngineContentDir() / TEXT("Slate/Fonts/DroidSansFallback.ttf");
-    FSlateFontInfo TitleFont(FontPath, 36);
-    TitleFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo SubtitleFont(FontPath, 18);
-    SubtitleFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo ContentFont(FontPath, 28);
-    ContentFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo StatusFont(FontPath, 22);
-    StatusFont.TypefaceFontName = FName("Bold");
-    FSlateFontInfo KeyFont(FontPath, 18);
-    KeyFont.TypefaceFontName = FName("Bold");
+    TSharedRef<FCompositeFont> CjkFont = MakeShared<FCompositeFont>(
+        FName("Regular"), FontPath, EFontHinting::Default, EFontLoadingPolicy::LazyLoad);
+    FSlateFontInfo TitleFont(TSharedPtr<const FCompositeFont>(CjkFont), 36.f);
+    FSlateFontInfo SubtitleFont(TSharedPtr<const FCompositeFont>(CjkFont), 18.f);
+    FSlateFontInfo ContentFont(TSharedPtr<const FCompositeFont>(CjkFont), 28.f);
+    FSlateFontInfo StatusFont(TSharedPtr<const FCompositeFont>(CjkFont), 22.f);
+    FSlateFontInfo KeyFont(TSharedPtr<const FCompositeFont>(CjkFont), 18.f);
 
     // Color palette — high contrast, solid dark background
     FLinearColor TitleColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -996,7 +1037,7 @@ void ASimWorldGameMode::CreateAirSimWidget()
 {
     if (WidgetClass_ != nullptr) {
         APlayerController* player_controller = GetWorld()->GetFirstPlayerController();
-        auto* pawn = player_controller->GetPawn();
+        APawn* pawn = player_controller->GetPawn();
         if (pawn) {
             std::string pawn_name = std::string(TCHAR_TO_ANSI(*pawn->GetName()));
             Utils::log(pawn_name);

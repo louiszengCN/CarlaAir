@@ -18,6 +18,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import threading
 from typing import Any
 
@@ -31,6 +32,70 @@ _MIN_SOURCE_NAME_PARTS = 2
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Go two directories above the current script
 CARLA_ROOT_PATH = os.path.normpath(SCRIPT_DIR + "/../..")
+
+
+def get_unreal_project_dir() -> str:
+    """Return the active Unreal project directory for this checkout."""
+    for project_name in ("CarlaUE5", "CarlaUnreal", "CarlaUE4"):
+        project_dir = os.path.join(CARLA_ROOT_PATH, "Unreal", project_name)
+        project_file = os.path.join(project_dir, f"{project_name}.uproject")
+        if os.path.isfile(project_file):
+            return project_dir
+
+    raise FileNotFoundError("Could not find a Carla Unreal project under Unreal/")
+
+
+def get_uproject_path() -> str:
+    project_dir = get_unreal_project_dir()
+    project_name = os.path.basename(project_dir)
+    return os.path.join(project_dir, f"{project_name}.uproject")
+
+
+def get_content_root() -> str:
+    return os.path.join(get_unreal_project_dir(), "Content")
+
+
+def get_unreal_root() -> str:
+    for env_var in ("UE5_ROOT", "UE4_ROOT"):
+        engine_root = os.environ.get(env_var)
+        if engine_root:
+            return engine_root
+
+    raise KeyError("Expected UE5_ROOT or UE4_ROOT to point to the Unreal Engine installation")
+
+
+def get_editor_executable() -> str:
+    """Resolve the correct editor binary across UE4/UE5 and host platforms."""
+    engine_root = get_unreal_root()
+
+    candidate_paths = []
+    if os.name == "nt":
+        candidate_paths.extend([
+            os.path.join(engine_root, "Engine", "Binaries", "Win64", "UnrealEditor-Cmd.exe"),
+            os.path.join(engine_root, "Engine", "Binaries", "Win64", "UnrealEditor.exe"),
+            os.path.join(engine_root, "Engine", "Binaries", "Win64", "UE4Editor-Cmd.exe"),
+            os.path.join(engine_root, "Engine", "Binaries", "Win64", "UE4Editor.exe"),
+        ])
+    elif sys.platform == "darwin":
+        candidate_paths.extend([
+            os.path.join(engine_root, "Engine", "Binaries", "Mac", "UnrealEditor.app", "Contents", "MacOS", "UnrealEditor"),
+            os.path.join(engine_root, "Engine", "Binaries", "Mac", "UE4Editor.app", "Contents", "MacOS", "UE4Editor"),
+        ])
+    else:
+        candidate_paths.extend([
+            os.path.join(engine_root, "Engine", "Binaries", "Linux", "UnrealEditor"),
+            os.path.join(engine_root, "Engine", "Binaries", "Linux", "UE4Editor"),
+        ])
+
+    for candidate_path in candidate_paths:
+        if os.path.isfile(candidate_path):
+            return candidate_path
+
+    raise FileNotFoundError(
+        "Could not resolve an Unreal editor executable. Checked: {}".format(
+            ", ".join(candidate_paths),
+        ),
+    )
 
 
 def get_packages_json_list(folder: str) -> list[list[str]]:
@@ -80,11 +145,11 @@ def generate_json_package(folder: str, package_name: str, *, use_carla_materials
     # write the json
     if (len(maps) > 0):
         # build all the maps in .json format
-        json_maps = []
+        json_maps: list[dict[str, Any]] = []
         for map_name in maps:
-            path = map_name[0].replace("\\", "/")
-            name = map_name[1]
-            tiles = map_name[2]
+            path = str(map_name[0]).replace("\\", "/")
+            name = str(map_name[1])
+            tiles = list(map_name[2])
             tiles = [f"{path}/{x}" for x in tiles]
             map_dict = {
                 "name": name,
@@ -191,21 +256,13 @@ def generate_decals_file(folder: str) -> None:
 
 def invoke_commandlet(name: str, arguments: list[str]) -> None:
     """Generic function for running a commandlet with its arguments."""
-    ue4_path = os.environ["UE4_ROOT"]
-    uproject_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "CarlaUE4.uproject")
+    editor_path = get_editor_executable()
+    uproject_path = get_uproject_path()
     run = f"-run={name}"
+    command = [editor_path, uproject_path, run]
+    command.extend(arguments)
 
-    if os.name == "nt":
-        sys_name = "Win64"
-        editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
-        command = [editor_path, uproject_path, run]
-        command.extend(arguments)
-        subprocess.check_call(command, shell=True)
-    elif os.name == "posix":
-        sys_name = "Linux"
-        editor_path = f"{ue4_path}/Engine/Binaries/{sys_name}/UE4Editor"
-        full_command = "{} {} {} {}".format(editor_path, uproject_path, run, " ".join(arguments))
-        subprocess.call([full_command], shell=True)
+    subprocess.check_call(command)
 
 
 def generate_import_setting_file(
@@ -281,7 +338,7 @@ def generate_import_setting_file(
 
 def generate_package_file(package_name: str, props: list[dict[str, Any]], maps: list[dict[str, Any]]) -> None:
     """Creates the PackageName.Package.json file for the package."""
-    output_json = {}
+    output_json: dict[str, Any] = {}
 
     output_json["props"] = []
     for prop in props:
@@ -311,7 +368,7 @@ def generate_package_file(package_name: str, props: list[dict[str, Any]], maps: 
             "use_carla_materials": use_carla_materials,
         })
 
-    package_config_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Config")
+    package_config_path = os.path.join(get_content_root(), package_name, "Config")
     if not os.path.exists(package_config_path):
         try:
             os.makedirs(package_config_path)
@@ -329,7 +386,7 @@ def copy_roadpainter_config_files(package_name: str) -> None:
     two_directories_up = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     final_path = os.path.join(two_directories_up, "Import", "roadpainter_decals.json")
     if os.path.exists(final_path):
-        package_config_path = os.path.join(CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Config")
+        package_config_path = os.path.join(get_content_root(), package_name, "Config")
         if not os.path.exists(package_config_path):
             try:
                 os.makedirs(package_config_path)
@@ -363,7 +420,7 @@ def import_assets(
             int(total_tiles / batch_size)
             current_tile = 0
             current_batch = 0
-            current_batch_size = 0
+            current_batch_size = 0.0
             current_batch_map = copy.deepcopy(map_template)
             # get groups of tiles
             while current_tile < total_tiles:
@@ -416,10 +473,7 @@ def import_assets(
             xodr_name = ".".join([umap_name, "xodr"])
 
             xodr_folder_destin = os.path.join(
-                CARLA_ROOT_PATH,
-                "Unreal",
-                "CarlaUE4",
-                "Content",
+                get_content_root(),
                 package_name,
                 "Maps",
                 umap_name,
@@ -439,7 +493,7 @@ def import_assets(
 
 
 def import_assets_from_json_list(json_list: list[list[str]], batch_size: float) -> None:
-    maps = []
+    maps: list[dict[str, Any]] = []
     package_name = ""
     for dirname, filename in json_list:
         # Read json file
@@ -448,7 +502,7 @@ def import_assets_from_json_list(json_list: list[list[str]], batch_size: float) 
             # Take all the fbx registered in the provided json files
             # and place it inside unreal in the provided path (by the json file)
             maps = []
-            props = []
+            props: list[dict[str, Any]] = []
             tile_size = 2000
             if "maps" in data:
                 maps = data["maps"]
@@ -555,7 +609,7 @@ def build_binary_for_navigation(package_name: str, dirname: str, maps: list[dict
             # copy the binary file
             nav_path_source = os.path.join(folder, f"{fbx_name_no_ext}.bin")
             nav_folder_target = os.path.join(
-                CARLA_ROOT_PATH, "Unreal", "CarlaUE4", "Content", package_name, "Maps", target_name, "Nav",
+                get_content_root(), package_name, "Maps", target_name, "Nav",
             )
             if os.path.exists(nav_path_source):
                 if not os.path.exists(nav_folder_target):
@@ -585,10 +639,7 @@ def build_binary_for_tm(package_name: str, dirname: str, maps: list[dict[str, An
 
         # copy the binary file
         tm_folder_target = os.path.join(
-            CARLA_ROOT_PATH,
-            "Unreal",
-            "CarlaUE4",
-            "Content",
+            get_content_root(),
             package_name,
             "Maps",
             target_name,

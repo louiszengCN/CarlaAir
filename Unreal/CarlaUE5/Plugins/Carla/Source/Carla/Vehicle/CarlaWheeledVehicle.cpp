@@ -86,6 +86,18 @@ void ACarlaWheeledVehicle::BeginPlay()
 
   UDefaultMovementComponent::CreateDefaultMovementComponent(this);
 
+  if (auto *Mesh = GetMesh())
+  {
+    Mesh->PhysicsTransformUpdateMode = EPhysicsTransformUpdateMode::SimulationUpatesComponentTransform;
+    Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+    Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Mesh->SetCollisionProfileName(TEXT("Vehicle"));
+    if (FBodyInstance *BodyInstance = Mesh->GetBodyInstance(NAME_None))
+    {
+      BodyInstance->SetInstanceSimulatePhysics(true);
+    }
+  }
+
   // Get constraint components and their initial transforms
   FTransform ActorInverseTransform = GetActorTransform().Inverse();
   ConstraintsComponents.Empty();
@@ -146,6 +158,30 @@ void ACarlaWheeledVehicle::BeginPlay()
 
   if (MovementComponent)
   {
+    for (int32 WheelIndex = 0; WheelIndex < MovementComponent->WheelSetups.Num(); ++WheelIndex)
+    {
+      const FChaosWheelSetup &WheelSetup = MovementComponent->WheelSetups[WheelIndex];
+      const UChaosVehicleWheel *Wheel = WheelSetup.WheelClass.GetDefaultObject();
+      const int32 BoneIndex = GetMesh() ? GetMesh()->GetBoneIndex(WheelSetup.BoneName) : INDEX_NONE;
+      const FVector BoneLocation = (GetMesh() && BoneIndex != INDEX_NONE)
+          ? GetMesh()->GetBoneLocation(WheelSetup.BoneName)
+          : FVector::ZeroVector;
+      UE_LOG(LogCarla, Log,
+          TEXT("BeginPlay wheel setup: %s wheel=%d bone=%s boneIndex=%d boneLoc=(%.3f, %.3f, %.3f) offset=(%.3f, %.3f, %.3f) class=%s radius=%.3f"),
+          *GetName(),
+          WheelIndex,
+          *WheelSetup.BoneName.ToString(),
+          BoneIndex,
+          BoneLocation.X,
+          BoneLocation.Y,
+          BoneLocation.Z,
+          WheelSetup.AdditionalOffset.X,
+          WheelSetup.AdditionalOffset.Y,
+          WheelSetup.AdditionalOffset.Z,
+          Wheel ? *Wheel->GetClass()->GetName() : TEXT("None"),
+          Wheel ? Wheel->WheelRadius : 0.0f);
+    }
+
     // Setup Tire Configs with default value. This is needed to avoid getting
     // friction values of previously created TireConfigs for the same vehicle
     // blueprint.
@@ -177,6 +213,7 @@ void ACarlaWheeledVehicle::BeginPlay()
     MovementComponent->WheelSetups = NewWheelSetups;
 
     LastAppliedPhysicsControl = GetVehiclePhysicsControl();
+    RestoreVehiclePhysicsControl();
 
     // Update physics in the Ackermann Controller
     AckermannController.UpdateVehiclePhysics(this);
@@ -326,6 +363,23 @@ void ACarlaWheeledVehicle::FlushVehicleControl()
   if (IsAckermannControlActive()) {
     AckermannController.UpdateVehicleState(this);
     AckermannController.RunLoop(InputControl.Control);
+  }
+
+    if (InputControl.Control.Throttle != 0.0f ||
+      InputControl.Control.Steer != 0.0f ||
+      InputControl.Control.Brake != 0.0f ||
+      InputControl.Control.Gear != 0)
+  {
+    UE_LOG(LogCarla, Log,
+        TEXT("FlushVehicleControl: %s throttle=%.3f steer=%.3f brake=%.3f reverse=%d gear=%d priority=%d controller=%s"),
+        *GetName(),
+        InputControl.Control.Throttle,
+        InputControl.Control.Steer,
+        InputControl.Control.Brake,
+        InputControl.Control.bReverse ? 1 : 0,
+        InputControl.Control.Gear,
+        static_cast<int32>(InputControl.Priority),
+        GetController() ? *GetController()->GetName() : TEXT("None"));
   }
 
   BaseMovementComponent->ProcessControl(InputControl.Control);
@@ -793,11 +847,18 @@ void ACarlaWheeledVehicle::SetSimulatePhysics(bool enabled) {
   UChaosWheeledVehicleMovementComponent* Movement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
   if (Movement)
   {
-    if(bPhysicsEnabled == enabled)
+    auto RootComponent = Cast<UPrimitiveComponent>(GetRootComponent());
+    if (RootComponent == nullptr)
+    {
+      return;
+    }
+
+    const bool bRootSimulatingPhysics = RootComponent->IsSimulatingPhysics();
+    const bool bNeedsStateRefresh = (enabled && !bRootSimulatingPhysics) || (!enabled && bRootSimulatingPhysics);
+    if (bPhysicsEnabled == enabled && !bNeedsStateRefresh)
       return;
 
     SetActorEnableCollision(true);
-    auto RootComponent = Cast<UPrimitiveComponent>(GetRootComponent());
     RootComponent->SetSimulatePhysics(enabled);
     RootComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 

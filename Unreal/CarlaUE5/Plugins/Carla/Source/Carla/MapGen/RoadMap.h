@@ -18,11 +18,11 @@ struct CARLA_API FRoadMapIntersectionResult
 
   /// Percentage of the box lying off-road.
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-  float OffRoad;
+  float OffRoad = 0.0f;
 
   /// Percentage of the box invading opposite lane (wrong direction).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-  float OppositeLane;
+  float OppositeLane = 0.0f;
 };
 
 /// Data stored in a road map pixel. See URoadMap.
@@ -170,23 +170,23 @@ private:
 
   /// World-to-map transform.
   UPROPERTY(VisibleAnywhere)
-  FTransform WorldToMap;
+  FTransform WorldToMap = FTransform::Identity;
 
   /// Offset of the map in map coordinates.
   UPROPERTY(VisibleAnywhere)
-  FVector MapOffset;
+  FVector MapOffset = FVector::ZeroVector;
 
   /// Number of pixels per centimeter.
   UPROPERTY(VisibleAnywhere)
-  float PixelsPerCentimeter;
+  float PixelsPerCentimeter = 0.0f;
 
   /// Width of the map in pixels.
   UPROPERTY(VisibleAnywhere)
-  uint32 Width;
+  uint32 Width = 0u;
 
   /// Height of the map in pixels.
   UPROPERTY(VisibleAnywhere)
-  uint32 Height;
+  uint32 Height = 0u;
 
   UPROPERTY()
   TArray<uint16> RoadMapData;

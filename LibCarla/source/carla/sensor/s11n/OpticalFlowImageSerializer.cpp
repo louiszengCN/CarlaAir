@@ -12,7 +12,7 @@ namespace carla {
     namespace s11n {
 
       SharedPtr<SensorData> OpticalFlowImageSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-        auto image = MakeShared<data::OpticalFlowImage>(DESERIALIZE_MOVE_DATA(data));
+        auto image = SharedPtr<data::OpticalFlowImage>(new data::OpticalFlowImage(DESERIALIZE_MOVE_DATA(data)));
         return image;
       }
 

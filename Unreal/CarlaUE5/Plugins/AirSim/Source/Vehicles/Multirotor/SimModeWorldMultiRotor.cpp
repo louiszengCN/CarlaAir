@@ -94,10 +94,14 @@ void ASimModeWorldMultiRotor::getExistingVehiclePawns(TArray<AActor*>& pawns) co
 
 bool ASimModeWorldMultiRotor::isVehicleTypeSupported(const std::string& vehicle_type) const
 {
+#if defined(WITH_MAVLINKCOM_BINDING) && WITH_MAVLINKCOM_BINDING
     return ((vehicle_type == AirSimSettings::kVehicleTypeSimpleFlight) ||
             (vehicle_type == AirSimSettings::kVehicleTypePX4) ||
             (vehicle_type == AirSimSettings::kVehicleTypeArduCopterSolo) ||
             (vehicle_type == AirSimSettings::kVehicleTypeArduCopter));
+#else
+    return (vehicle_type == AirSimSettings::kVehicleTypeSimpleFlight || vehicle_type.empty());
+#endif
 }
 
 std::string ASimModeWorldMultiRotor::getVehiclePawnPathName(const AirSimSettings::VehicleSetting& vehicle_setting) const

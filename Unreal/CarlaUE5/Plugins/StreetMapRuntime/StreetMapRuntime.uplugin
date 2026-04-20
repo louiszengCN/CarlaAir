@@ -1,0 +1,26 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1.0",
+  "FriendlyName": "StreetMap Runtime (Stub)",
+  "Description": "Minimal stub for StreetMap types referenced by CarlaTools Blueprints. Functions are no-ops.",
+  "Category": "Other",
+  "CreatedBy": "Durandal CarlaAir UE5 Migration",
+  "CanContainContent": false,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "StreetMapRuntime",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "ProceduralMeshComponent",
+      "Enabled": true
+    }
+  ]
+}

@@ -54,6 +54,32 @@ void FPixelReader::WritePixelsToBuffer(
     return;
   }
 
+#if PLATFORM_MAC
+  {
+    TRACE_CPUPROFILER_EVENT_SCOPE_STR("ReadSurfaceData_Metal");
+
+    TArray<FColor> Pixels;
+    FReadSurfaceDataFlags ReadPixelFlags(RCM_UNorm);
+    ReadPixelFlags.SetLinearToGamma(false);
+
+    RHICmdList.ReadSurfaceData(
+        Texture,
+        FIntRect(0, 0, Texture->GetSizeX(), Texture->GetSizeY()),
+        Pixels,
+        ReadPixelFlags);
+
+    if (Pixels.IsEmpty())
+    {
+      return;
+    }
+
+    const uint32 ExpectedRowBytes = Texture->GetSizeX() * sizeof(FColor);
+    const uint32 Size = Pixels.Num() * sizeof(FColor);
+    FuncForSending(Pixels.GetData(), Size, Offset, ExpectedRowBytes);
+    return;
+  }
+#endif
+
   GPendingReadbacks.fetch_add(1, std::memory_order_relaxed);
 
   auto BackBufferReadback = std::make_unique<FRHIGPUTextureReadback>(TEXT("CameraBufferReadback"));

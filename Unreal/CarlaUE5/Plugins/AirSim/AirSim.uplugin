@@ -7,7 +7,7 @@
   "Category" : "Science",
   "CreatedBy": "Shital Shah",
   "CreatedByURL": "http://github.com/Microsoft/AirSim",
-  "EngineVersion": "4.26.0",
+  "EngineVersion": "5.7.0",
   "DocsURL" : "https://github.com/Microsoft/AirSim/blob/master/README.md",
   "MarketplaceURL" : "",
   "SupportURL" : "https://github.com/Microsoft/AirSim/issues",
@@ -23,8 +23,12 @@
     }
   ],
   "Plugins": [
+    {
+      "Name": "Carla",
+      "Enabled": true
+    },
 	  {
-		  "Name": "PhysXVehicles",
+      "Name": "ChaosVehiclesPlugin",
 		  "Enabled": true
 	  }
   ]

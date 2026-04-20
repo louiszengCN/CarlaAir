@@ -11,15 +11,39 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Actor/ActorBlueprintFunctionLibrary.h"
+#include "Misc/PackageName.h"
+
+namespace
+{
+  bool CarlaPackageExists(const FString &ObjectPath)
+  {
+    const FSoftObjectPath SoftPath(ObjectPath);
+    const FString PackageName = SoftPath.GetLongPackageName();
+    return !PackageName.IsEmpty() && FPackageName::DoesPackageExist(PackageName);
+  }
+}
 
 bool AShaderBasedSensor::AddPostProcessingMaterial(const FString &Path)
 {
-  ConstructorHelpers::FObjectFinder<UMaterial> Loader(*Path);
-  if (Loader.Succeeded())
+  // During CDO construction the plugin content directory is not yet mounted, so
+  // DoesPackageExist returns false for plugin assets.  Skip silently — the
+  // per-instance constructor (called at actual spawn time) will load correctly.
+  if (IsTemplate())
+    return true;
+
+  UMaterial *LoadedMaterial = nullptr;
+  if (CarlaPackageExists(Path))
   {
-    MaterialsFound.Add(Loader.Object);
+    LoadedMaterial = LoadObject<UMaterial>(nullptr, *Path);
   }
-  return Loader.Succeeded();
+  if (LoadedMaterial != nullptr)
+  {
+    MaterialsFound.Add(LoadedMaterial);
+    return true;
+  }
+
+  UE_LOG(LogCarla, Warning, TEXT("Post-process material not found: %s"), *Path);
+  return false;
 }
 
 void AShaderBasedSensor::SetUpSceneCaptureComponent(USceneCaptureComponent2D &SceneCapture)

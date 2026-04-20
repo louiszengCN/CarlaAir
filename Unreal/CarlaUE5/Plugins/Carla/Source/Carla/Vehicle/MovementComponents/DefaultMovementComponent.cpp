@@ -27,6 +27,7 @@ void UDefaultMovementComponent::ProcessControl(FVehicleControl &Control)
   MovementComponent->SetSteeringInput(Control.Steer);
   MovementComponent->SetBrakeInput(Control.Brake);
   MovementComponent->SetHandbrakeInput(Control.bHandBrake);
+  const int32 CurrentGear = MovementComponent->GetCurrentGear();
   if (CarlaVehicle->GetVehicleControl().bReverse != Control.bReverse)
   {
     // MovementComponent->SetUseAutoGears(!Control.bReverse); // UE5: SetUseAutoGears removed from ChaosVehicles
@@ -38,6 +39,12 @@ void UDefaultMovementComponent::ProcessControl(FVehicleControl &Control)
     if (Control.bManualGearShift)
     {
       MovementComponent->SetTargetGear(Control.Gear, true);
+    }
+    else if (CurrentGear == 0)
+    {
+      // ChaosVehicles can leave freshly spawned vehicles in neutral. Force the
+      // initial drive gear so throttle input can take effect.
+      MovementComponent->SetTargetGear(Control.bReverse ? -1 : 1, true);
     }
   }
   Control.Gear = MovementComponent->GetCurrentGear();

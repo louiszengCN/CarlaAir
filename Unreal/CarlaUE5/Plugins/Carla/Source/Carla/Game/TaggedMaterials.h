@@ -18,7 +18,7 @@ class CARLA_API UTaggedMaterialsRegistry : public UObject
 public:
   static UTaggedMaterialsRegistry* Create(const FString& RegistryName);
   static UTaggedMaterialsRegistry* Get();
-  static UTaggedMaterialsRegistry* Load(const FString& RegistryName, bool bIsSuffix = true);
+  static UTaggedMaterialsRegistry* Load(const FString& RegistryName, bool bIsSuffix = true, bool bWarnIfMissing = true);
 
   UMaterialInstanceDynamic* GetTaggedMaterial();
   UMaterialInstanceDynamic* GetTaggedMaterial(UMaterialInterface* UsedMaterial);

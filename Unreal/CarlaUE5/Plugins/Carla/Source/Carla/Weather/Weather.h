@@ -6,16 +6,18 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "Carla/Weather/SkyBase.h"
 #include "Carla/Weather/WeatherParameters.h"
+#include "Particles/ParticleSystemComponent.h"
 
 #include "Weather.generated.h"
 
 class ASensor;
 class ASceneCaptureCamera;
+class AStaticMeshActor;
 
 UCLASS(Abstract)
-class CARLA_API AWeather : public AActor
+class CARLA_API AWeather : public ASkyBase
 {
   GENERATED_BODY()
 
@@ -50,6 +52,13 @@ public:
 
   /// Update the day night cycle
   void SetDayNightCycle(const bool &active);
+
+  /// Generic target actor reference (used by BP_CarlaWeather)
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CARLA|Sky")
+  AActor* Target = nullptr;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CARLA|Sky")
+  UFXSystemComponent* RainTarget = nullptr;
 
 protected:
 

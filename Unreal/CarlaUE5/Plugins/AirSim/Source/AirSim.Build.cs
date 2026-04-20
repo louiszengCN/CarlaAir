@@ -29,6 +29,17 @@ public class AirSim : ModuleRules
     {
         get { return Path.Combine(AirSimPluginPath, "Dependencies"); }
     }
+    private string CarlaDependenciesPath
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(
+                AirSimPluginPath,
+                "..",
+                "Carla",
+                "CarlaDependencies"));
+        }
+    }
 
     private enum CompileMode
     {
@@ -40,8 +51,6 @@ public class AirSim : ModuleRules
 
     private void SetupCompileMode(CompileMode mode, ReadOnlyTargetRules Target)
     {
-        LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
-
         switch (mode)
         {
             case CompileMode.HeaderOnlyNoRpc:
@@ -78,8 +87,9 @@ public class AirSim : ModuleRules
 
         bEnableExceptions = true;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ImageWrapper", "RenderCore", "RHI", "AssetRegistry", "PhysicsCore", "PhysXVehicles", "PhysXVehicleLib", "PhysX", "APEX", "Landscape", "CinematicCamera" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ImageWrapper", "RenderCore", "RHI", "AssetRegistry", "PhysicsCore", "Landscape", "CinematicCamera", "ChaosVehicles" }); // UE5: PhysXVehicles/PhysXVehicleLib/PhysX/APEX removed
         PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "Carla", "Foliage" });
+        AddEngineThirdPartyPrivateStaticDependencies(Target, "Eigen");
 
         //suppress VC++ proprietary warnings
         PublicDefinitions.Add("_SCL_SECURE_NO_WARNINGS=1");
@@ -87,10 +97,9 @@ public class AirSim : ModuleRules
         PublicDefinitions.Add("HMD_MODULE_INCLUDED=0");
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
-        PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
         AddOSLibDependencies(Target);
 
-        SetupCompileMode(CompileMode.HeaderOnlyWithRpc, Target);
+        SetupCompileMode(CompileMode.CppCompileWithRpc, Target);
     }
 
     private void AddOSLibDependencies(ReadOnlyTargetRules Target)
@@ -135,22 +144,65 @@ public class AirSim : ModuleRules
         string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Mac) ? "x64" : "x86";
         string ConfigurationString = (Target.Configuration == UnrealTargetConfiguration.Debug) ? "Debug" : "Release";
         bool isLibrarySupported = false;
+        string libraryPath = "";
+        string includePath = Path.Combine(AirLibPath, "deps", LibName, "include");
 
+        if (LibName == "rpclib")
+        {
+            string carlaRpcLib = Path.Combine(CarlaDependenciesPath, "lib", "librpc.a");
+            string carlaRpcInclude = Path.Combine(CarlaDependenciesPath, "include");
+
+            if (Target.Platform == UnrealTargetPlatform.Win64)
+            {
+                libraryPath = Path.Combine(LibPath, PlatformString, ConfigurationString, LibFileName + ".lib");
+            }
+            else if (File.Exists(carlaRpcLib))
+            {
+                libraryPath = carlaRpcLib;
+                includePath = carlaRpcInclude;
+            }
+            else
+            {
+                libraryPath = Path.Combine(LibPath, "lib" + LibFileName + ".a");
+            }
+        }
+        else if (LibName == "MavLinkCom")
+        {
+            if (Target.Platform == UnrealTargetPlatform.Win64)
+            {
+                libraryPath = Path.Combine(LibPath, PlatformString, ConfigurationString, LibFileName + ".lib");
+            }
+            else
+            {
+                libraryPath = Path.Combine(LibPath, "lib" + LibFileName + ".a");
+            }
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            libraryPath = Path.Combine(LibPath, PlatformString, ConfigurationString, LibFileName + ".lib");
+        }
+        else
+        {
+            libraryPath = Path.Combine(LibPath, "lib" + LibFileName + ".a");
+        }
 
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-            isLibrarySupported = true;
+            isLibrarySupported = File.Exists(libraryPath);
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.Mac)
+        {
+            isLibrarySupported = File.Exists(libraryPath);
+        }
 
-            PublicAdditionalLibraries.Add(Path.Combine(LibPath, PlatformString, ConfigurationString, LibFileName + ".lib"));
-        } else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.Mac) {
-            isLibrarySupported = true;
-            PublicAdditionalLibraries.Add(Path.Combine(LibPath, "lib" + LibFileName + ".a"));
+        if (isLibrarySupported)
+        {
+            PublicAdditionalLibraries.Add(libraryPath);
         }
 
         if (isLibrarySupported && IsAddLibInclude)
         {
-            // Include path
-            PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", LibName, "include"));
+            PublicIncludePaths.Add(includePath);
         }
         PublicDefinitions.Add(string.Format("WITH_" + LibName.ToUpper() + "_BINDING={0}", isLibrarySupported ? 1 : 0));
 

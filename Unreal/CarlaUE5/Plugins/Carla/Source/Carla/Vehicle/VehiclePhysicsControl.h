@@ -78,7 +78,7 @@ struct CARLA_API FVehiclePhysicsControl
 
   // Center Of Mass
   UPROPERTY(Category = "Vehicle Center Of Mass", EditAnywhere, BlueprintReadWrite)
-  FVector CenterOfMass;
+  FVector CenterOfMass = FVector::ZeroVector;
 
   // Wheels Setup
   TArray<FWheelPhysicsControl> Wheels;

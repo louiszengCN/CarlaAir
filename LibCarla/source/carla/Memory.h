@@ -26,8 +26,11 @@ namespace carla {
   using EnableSharedFromThis = boost::enable_shared_from_this<T>;
 
   template <typename T, typename... Args>
-  static inline auto MakeShared(Args &&... args) {
-    return boost::make_shared<T>(std::forward<Args>(args)...);
+  static inline SharedPtr<T> MakeShared(Args &&... args) {
+    // Use new directly so callers that are friends of T can construct
+    // private types — boost::make_shared in Boost 1.74+ no longer threads
+    // friend access through its internal allocator.
+    return SharedPtr<T>(new T(std::forward<Args>(args)...));
   }
 
 } // namespace carla

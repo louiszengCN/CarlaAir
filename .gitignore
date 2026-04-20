@@ -30,6 +30,19 @@ Thumbs.db
 
 # Logs
 *.log
+carlaair_server_*.log
+smoke_ue57_unrealeditor_unattended_*.log
+
+# Local run markers
+.latest_build_log_path
+.latest_smoke_log_path
+.fixblueprints_commandlet_path
+.fixbp_run_status
+
+# Downloaded asset caches and generated media
+Import/cache/
+report/generated_images/
+report/generated_showcase/
 
 # Compiled objects
 *.o

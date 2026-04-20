@@ -52,7 +52,11 @@ namespace actors {
   template<>
   float ActorAttributeValueAccess::As<float>() const {
     LIBCARLA_THROW_BAD_VALUE_CAST(Float);
-    double x = std::stod(GetValue());
+    const auto &raw = GetValue();
+    if (raw.empty()) {
+      return 0.0f;
+    }
+    double x = std::stod(raw);
     if ((x > std::numeric_limits<float>::max()) ||
         (x < std::numeric_limits<float>::lowest())) {
       LIBCARLA_THROW_INVALID_VALUE("float overflow");

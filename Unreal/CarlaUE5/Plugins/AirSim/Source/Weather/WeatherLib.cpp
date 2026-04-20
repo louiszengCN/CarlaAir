@@ -8,6 +8,11 @@
 
 AExponentialHeightFog* UWeatherLib::weather_fog_ = nullptr;
 
+namespace
+{
+    constexpr bool bEnableOptionalCarlaWeatherActor = false;
+}
+
 UMaterialParameterCollectionInstance* UWeatherLib::getWeatherMaterialCollectionInstance(UWorld* World)
 {
     //UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
@@ -38,7 +43,9 @@ void UWeatherLib::initWeather(UWorld* World, TArray<AActor*> ActorsToAttachTo)
 {
     //UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
     if (World) {
-        UClass* WeatherActorClass = getWeatherActorPath().TryLoadClass<AActor>();
+        UClass* WeatherActorClass = bEnableOptionalCarlaWeatherActor
+            ? getWeatherActorPath().TryLoadClass<AActor>()
+            : nullptr;
         if (WeatherActorClass) {
             for (int32 i = 0; i < ActorsToAttachTo.Num(); i++) {
                 const FVector Location = ActorsToAttachTo[i]->GetActorLocation();
@@ -51,7 +58,7 @@ void UWeatherLib::initWeather(UWorld* World, TArray<AActor*> ActorsToAttachTo)
             }
         }
         else {
-            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI got invalid weather actor class!"));
+            UE_LOG(LogAirSim, Warning, TEXT("Warning, WeatherAPI weather actor is disabled or unavailable."));
         }
         // still need the menu class for f10
         UClass* MenuActorClass = getWeatherMenuObjectPath().TryLoadClass<AActor>();

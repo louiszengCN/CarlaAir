@@ -16,12 +16,28 @@
 #include "FileHelpers.h"
 #endif
 #include "Misc/FileHelper.h"
+#include "Misc/PackageName.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "HAL/PlatformFilemanager.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Carla/MapGen/LargeMapManager.h"
+
+namespace
+{
+  template <typename TObject>
+  TObject* LoadOptionalObject(const TCHAR* ObjectPath)
+  {
+    const FSoftObjectPath SoftPath(ObjectPath);
+    const FString PackageName = SoftPath.GetLongPackageName();
+    if (PackageName.IsEmpty() || !FPackageName::DoesPackageExist(PackageName))
+    {
+      return nullptr;
+    }
+    return LoadObject<TObject>(nullptr, ObjectPath);
+  }
+}
 
 static bool ValidateStaticMesh(UStaticMesh *Mesh)
 {
@@ -62,28 +78,20 @@ UPrepareAssetsForCookingCommandlet::UPrepareAssetsForCookingCommandlet()
 #if WITH_EDITORONLY_DATA
   // Get Carla Default materials, these will be used for maps that need to use
   // Carla materials
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> MarkingNodeYellowMaterial(TEXT(
-    "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/LargeMaps/M_Road_03_Tiled_V3.M_Road_03_Tiled_V3'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> MarkingNodeWhiteMaterial(TEXT(
-    "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/M_Road_03_LMW.M_Road_03_LMW'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> RoadNode(TEXT(
-      "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/LargeMaps/M_Road_03_Tiled_V2.M_Road_03_Tiled_V2'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> TerrainNodeMaterial(TEXT(
-      "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/00_MastersOpt/Large_Maps/materials/MI_LargeLandscape_Grass.MI_LargeLandscape_Grass'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CurbNodeMaterial(TEXT(
-      "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_curb/MI_largeM_curb01.MI_largeM_curb01'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> GutterNodeMaterial(TEXT(
-      "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_gutter/MI_largeM_gutter01.MI_largeM_gutter01'"));
-  static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> SidewalkNode(TEXT(
-      "MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_sidewalk/tile01/MI_largeM_tile02.MI_largeM_tile02'"));
-
-  GutterNodeMaterialInstance = (UMaterialInstance *) GutterNodeMaterial.Object;
-  CurbNodeMaterialInstance = (UMaterialInstance *) CurbNodeMaterial.Object;
-  TerrainNodeMaterialInstance = (UMaterialInstance *) TerrainNodeMaterial.Object;
-  MarkingNodeYellow = (UMaterialInstance *)MarkingNodeYellowMaterial.Object;
-  MarkingNodeWhite = (UMaterialInstance *)MarkingNodeWhiteMaterial.Object;
-  RoadNodeMaterial = (UMaterialInstance *) RoadNode.Object;
-  SidewalkNodeMaterialInstance = (UMaterialInstance *) SidewalkNode.Object;
+  GutterNodeMaterialInstance = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_gutter/MI_largeM_gutter01.MI_largeM_gutter01'"));
+  CurbNodeMaterialInstance = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_curb/MI_largeM_curb01.MI_largeM_curb01'"));
+  TerrainNodeMaterialInstance = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/00_MastersOpt/Large_Maps/materials/MI_LargeLandscape_Grass.MI_LargeLandscape_Grass'"));
+  MarkingNodeYellow = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/LargeMaps/M_Road_03_Tiled_V3.M_Road_03_Tiled_V3'"));
+  MarkingNodeWhite = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/M_Road_03_LMW.M_Road_03_LMW'"));
+  RoadNodeMaterial = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/RoadPainterMaterials/LargeMaps/M_Road_03_Tiled_V2.M_Road_03_Tiled_V2'"));
+  SidewalkNodeMaterialInstance = LoadOptionalObject<UMaterialInstanceConstant>(
+    TEXT("MaterialInstanceConstant'/Game/Carla/Static/GenericMaterials/LargeMap_materials/largeM_sidewalk/tile01/MI_largeM_tile02.MI_largeM_tile02'"));
 #endif
 }
 #if WITH_EDITORONLY_DATA

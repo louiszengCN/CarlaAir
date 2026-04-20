@@ -128,7 +128,7 @@ public:
 
     template <class UserClass>
     static FInputActionBinding& BindActionToKey(const FName action_name, const FKey in_key, UserClass* actor,
-                                                typename FInputActionHandlerSignature::TUObjectMethodDelegate<UserClass>::FMethodPtr func, bool on_press_or_release = false,
+                                                typename FInputActionHandlerSignature::TMethodPtr<UserClass> func, bool on_press_or_release = false,
                                                 bool shift_key = false, bool control_key = false, bool alt_key = false, bool command_key = false)
     {
         FInputActionKeyMapping action(action_name, in_key, shift_key, control_key, alt_key, command_key);
@@ -141,7 +141,7 @@ public:
 
     template <class UserClass>
     static FInputAxisBinding& BindAxisToKey(const FName axis_name, const FKey in_key, AActor* actor, UserClass* obj,
-                                            typename FInputAxisHandlerSignature::TUObjectMethodDelegate<UserClass>::FMethodPtr func)
+                                            typename FInputAxisHandlerSignature::TMethodPtr<UserClass> func)
     {
         FInputAxisKeyMapping axis(axis_name, in_key);
 
@@ -150,7 +150,7 @@ public:
 
     template <class UserClass>
     static FInputAxisBinding& BindAxisToKey(const FInputAxisKeyMapping& axis, AActor* actor, UserClass* obj,
-                                            typename FInputAxisHandlerSignature::TUObjectMethodDelegate<UserClass>::FMethodPtr func)
+                                            typename FInputAxisHandlerSignature::TMethodPtr<UserClass> func)
     {
         APlayerController* controller = actor->GetWorld()->GetFirstPlayerController();
 

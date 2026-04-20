@@ -230,7 +230,7 @@ msr::airlib::RCData PawnSimApi::getRCData() const
 
 void PawnSimApi::displayCollisionEffect(FVector hit_location, const FHitResult& hit)
 {
-    if (params_.collision_display_template != nullptr && Utils::isDefinitelyLessThan(hit.ImpactNormal.Z, 0.0f)) {
+    if (params_.collision_display_template != nullptr && Utils::isDefinitelyLessThan(hit.ImpactNormal.Z, 0.0)) {
         UParticleSystemComponent* particles = UGameplayStatics::SpawnEmitterAtLocation(params_.pawn->GetWorld(),
                                                                                        params_.collision_display_template,
                                                                                        FTransform(hit_location),
@@ -291,15 +291,20 @@ bool PawnSimApi::testLineOfSightToPoint(const msr::airlib::GeoPoint& lla) const
         //		common_utils::Utils::log("NED from LLA: " + std::to_string(target_location.X) + ", " + std::to_string(target_location.Y) + ", " + std::to_string(target_location.Z), common_utils::Utils::kLogLevelInfo);
 
         if (AirSimSettings::singleton().show_los_debug_lines_) {
+            ULineBatchComponent* line_batcher = params_.pawn->GetWorld()->GetLineBatcher(UWorld::ELineBatcherType::World);
             if (hit) {
                 // No LOS, so draw red line
                 FLinearColor color{ 1.0f, 0, 0, 0.4f };
-                params_.pawn->GetWorld()->LineBatcher->DrawLine(params_.pawn->GetActorLocation(), target_location, color, SDPG_World, 10, -1);
+                if (line_batcher != nullptr) {
+                    line_batcher->DrawLine(params_.pawn->GetActorLocation(), target_location, color, SDPG_World, 10, -1);
+                }
             }
             else {
                 // Yes LOS, so draw green line
                 FLinearColor color{ 0, 1.0f, 0, 0.4f };
-                params_.pawn->GetWorld()->LineBatcher->DrawLine(params_.pawn->GetActorLocation(), target_location, color, SDPG_World, 10, -1);
+                if (line_batcher != nullptr) {
+                    line_batcher->DrawLine(params_.pawn->GetActorLocation(), target_location, color, SDPG_World, 10, -1);
+                }
             }
         }
     },

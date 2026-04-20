@@ -1631,7 +1631,7 @@ class basic_json
             alloc.deallocate(object, 1);
         };
         std::unique_ptr<T, decltype(deleter)> object(alloc.allocate(1), deleter);
-        alloc.construct(object.get(), std::forward<Args>(args)...);
+        std::allocator_traits<AllocatorType<T>>::construct(alloc, object.get(), std::forward<Args>(args)...);
         assert(object != nullptr);
         return object.release();
     }
@@ -2581,7 +2581,7 @@ class basic_json
             case value_t::object:
             {
                 AllocatorType<object_t> alloc;
-                alloc.destroy(m_value.object);
+                std::allocator_traits<AllocatorType<object_t>>::destroy(alloc, m_value.object);
                 alloc.deallocate(m_value.object, 1);
                 break;
             }
@@ -2589,7 +2589,7 @@ class basic_json
             case value_t::array:
             {
                 AllocatorType<array_t> alloc;
-                alloc.destroy(m_value.array);
+                std::allocator_traits<AllocatorType<array_t>>::destroy(alloc, m_value.array);
                 alloc.deallocate(m_value.array, 1);
                 break;
             }
@@ -2597,7 +2597,7 @@ class basic_json
             case value_t::string:
             {
                 AllocatorType<string_t> alloc;
-                alloc.destroy(m_value.string);
+                std::allocator_traits<AllocatorType<string_t>>::destroy(alloc, m_value.string);
                 alloc.deallocate(m_value.string, 1);
                 break;
             }
@@ -4324,7 +4324,7 @@ class basic_json
                 if (is_string())
                 {
                     AllocatorType<string_t> alloc;
-                    alloc.destroy(m_value.string);
+                    std::allocator_traits<AllocatorType<string_t>>::destroy(alloc, m_value.string);
                     alloc.deallocate(m_value.string, 1);
                     m_value.string = nullptr;
                 }
@@ -4431,7 +4431,7 @@ class basic_json
                 if (is_string())
                 {
                     AllocatorType<string_t> alloc;
-                    alloc.destroy(m_value.string);
+                    std::allocator_traits<AllocatorType<string_t>>::destroy(alloc, m_value.string);
                     alloc.deallocate(m_value.string, 1);
                     m_value.string = nullptr;
                 }
@@ -12966,7 +12966,7 @@ if no parse error occurred.
 
 @since version 1.0.0
 */
-inline nlohmann::json operator "" _json(const char* s, std::size_t n)
+inline nlohmann::json operator ""_json(const char* s, std::size_t n)
 {
     return nlohmann::json::parse(s, s + n);
 }
@@ -12984,7 +12984,7 @@ object if no parse error occurred.
 
 @since version 2.0.0
 */
-inline nlohmann::json::json_pointer operator "" _json_pointer(const char* s, std::size_t n)
+inline nlohmann::json::json_pointer operator ""_json_pointer(const char* s, std::size_t n)
 {
     return nlohmann::json::json_pointer(std::string(s, n));
 }

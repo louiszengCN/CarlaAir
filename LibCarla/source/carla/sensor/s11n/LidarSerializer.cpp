@@ -13,7 +13,7 @@ namespace sensor {
 namespace s11n {
 
   SharedPtr<SensorData> LidarSerializer::Deserialize(RawData DESERIALIZE_DECL_DATA(data)) {
-    return MakeShared<data::LidarMeasurement>(DESERIALIZE_MOVE_DATA(data));
+    return SharedPtr<data::LidarMeasurement>(new data::LidarMeasurement(DESERIALIZE_MOVE_DATA(data)));
   }
 
 } // namespace s11n

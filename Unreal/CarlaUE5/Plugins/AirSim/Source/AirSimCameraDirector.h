@@ -7,7 +7,7 @@
 #include "ManualPoseController.h"
 #include "common/common_utils/Utils.hpp"
 #include "GameFramework/SpringArmComponent.h"
-#include "CameraDirector.generated.h"
+#include "AirSimCameraDirector.generated.h"
 
 UENUM(BlueprintType)
 enum class ECameraDirectorMode : uint8
@@ -23,12 +23,11 @@ enum class ECameraDirectorMode : uint8
 };
 
 UCLASS()
-class AIRSIM_API ACameraDirector : public AActor
+class AIRSIM_API AAirSimCameraDirector : public AActor
 {
     GENERATED_BODY()
 
 public:
-    /** Spring arm that will offset the camera */
     UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     USpringArmComponent* SpringArm;
 
@@ -46,7 +45,7 @@ public:
     void inputEventFrontView();
 
 public:
-    ACameraDirector();
+    AAirSimCameraDirector();
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void Tick(float DeltaSeconds) override;
@@ -82,7 +81,7 @@ private:
     USceneComponent* last_parent_ = nullptr;
 
     ECameraDirectorMode mode_;
-    ECameraDirectorMode mode_before_front_;  // saved mode before I-key toggle
+    ECameraDirectorMode mode_before_front_;
     UPROPERTY()
     UManualPoseController* manual_pose_controller_;
 

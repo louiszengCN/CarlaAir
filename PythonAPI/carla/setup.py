@@ -26,6 +26,72 @@ def is_rss_variant_enabled() -> bool:
     return bool("BUILD_RSS_VARIANT" in os.environ and os.environ["BUILD_RSS_VARIANT"] == "true")
 
 
+def _build_darwin_extensions(
+    pwd: str,
+    include_dirs: list[str],
+    library_dirs: list[str],
+    libraries: list[str],
+    sources: list[str],
+    walk_fn: object,
+) -> list[Extension]:
+    """Build extension list for macOS (Darwin) — supports arm64 and x86_64."""
+    pylib = f"libboost_python{sys.version_info.major}{sys.version_info.minor}.a"
+
+    if is_rss_variant_enabled():
+        extra_link_args = [os.path.join(pwd, "dependencies/lib/libcarla_client_rss.a")]
+    else:
+        extra_link_args = [os.path.join(pwd, "dependencies/lib/libcarla_client.a")]
+
+    extra_link_args += [
+        os.path.join(pwd, "dependencies/lib/librpc.a"),
+        os.path.join(pwd, "dependencies/lib/libboost_filesystem.a"),
+        os.path.join(pwd, "dependencies/lib/libRecast.a"),
+        os.path.join(pwd, "dependencies/lib/libDetour.a"),
+        os.path.join(pwd, "dependencies/lib/libDetourCrowd.a"),
+        os.path.join(pwd, "dependencies/lib/libosm2odr.a"),
+        os.path.join(pwd, "dependencies/lib/libxerces-c.a"),
+        os.path.join(pwd, "dependencies/lib/libproj.a"),
+        os.path.join(pwd, "dependencies/lib/libsqlite3.a"),
+        os.path.join(pwd, "dependencies/lib", pylib),
+    ]
+    homebrew_prefix = os.environ.get("HOMEBREW_PREFIX", "/opt/homebrew")
+    extra_link_args += [
+        f"-L{os.path.join(homebrew_prefix, 'lib')}",
+        "-lz", "-lpng", "-ljpeg", "-ltiff",
+    ]
+
+    extra_compile_args = [
+        "-isystem", os.path.join(pwd, "dependencies/include/system"),
+        "-isystem", os.path.join(homebrew_prefix, "include"),
+        "-fPIC", "-std=c++17",
+        "-Wno-unused-command-line-argument",
+        "-DBOOST_ERROR_CODE_HEADER_ONLY", "-DLIBCARLA_WITH_PYTHON_SUPPORT",
+        "-DBOOST_NO_EXCEPTIONS", "-DASIO_NO_EXCEPTIONS",
+        "-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true",
+        "-DLIBCARLA_IMAGE_WITH_JPEG_SUPPORT=false",
+        "-DLIBCARLA_IMAGE_WITH_TIFF_SUPPORT=false",
+        "-stdlib=libc++",
+    ]
+    extra_link_args += ["-stdlib=libc++"]
+
+    depends = list(walk_fn("source/libcarla"))  # type: ignore[operator]
+    depends += list(walk_fn("dependencies"))  # type: ignore[operator]
+
+    def make_extension(name: str, sources: list[str]) -> Extension:
+        return Extension(
+            name,
+            sources=sources,
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+            libraries=libraries,
+            extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
+            language="c++",
+            depends=depends)
+
+    return [make_extension("carla.libcarla", sources)]
+
+
 def _build_posix_extensions(
     pwd: str,
     include_dirs: list[str],
@@ -199,6 +265,8 @@ def get_libcarla_extensions() -> list[Extension]:
 
     pwd = os.path.dirname(os.path.realpath(__file__))
 
+    if sys.platform == "darwin":
+        return _build_darwin_extensions(pwd, include_dirs, library_dirs, libraries, sources, walk)
     if os.name == "posix":
         return _build_posix_extensions(pwd, include_dirs, library_dirs, libraries, sources, walk)
     if os.name == "nt":

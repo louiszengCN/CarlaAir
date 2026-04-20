@@ -24,10 +24,10 @@ struct FTrafficLightStage
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
-  float Time;
+  float Time = 0.0f;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
-  ETrafficLightState State;
+  ETrafficLightState State = ETrafficLightState::Red;
 };
 
 /// Maps a controller from OpenDrive.
@@ -160,7 +160,7 @@ private:
   TArray<FCarlaActor *> TrafficLightCarlaActors;
 
   UPROPERTY(Category = "Traffic Controller", VisibleAnywhere)
-  ATrafficLightGroup* TrafficLightGroup;
+  ATrafficLightGroup* TrafficLightGroup = nullptr;
 
   // Sequence within junction (unused for now)
   UPROPERTY(Category = "Traffic Controller", EditAnywhere)

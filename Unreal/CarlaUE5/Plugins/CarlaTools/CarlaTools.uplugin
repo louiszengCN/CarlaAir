@@ -38,10 +38,9 @@
 			"Name": "ProceduralMeshComponent",
 			"Enabled": true
 		},
-    	{
-			"Name": "StreetMap",
-			"Enabled": false,
-			"Optional": true
+		{
+			"Name": "StreetMapRuntime",
+			"Enabled": true
 		},
 		{
 			"Name": "SimReady",

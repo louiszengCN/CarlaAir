@@ -108,16 +108,7 @@ public:
     return VisualGameTime;
   }
 
-  void SetVisualGameTime(double Time)
-  {
-    VisualGameTime = Time;
-
-    // update time in material parameters also
-    if (MaterialParameters)
-    {
-      MaterialParameters->SetScalarParameterValue(FName("VisualTime"), VisualGameTime);
-    }
-  }
+  void SetVisualGameTime(double Time);
 
   /// Return the list of actor definitions that are available to be spawned this
   /// episode.
@@ -340,6 +331,8 @@ private:
   friend class FCarlaEngine;
 
   void InitializeAtBeginPlay();
+
+  UMaterialParameterCollectionInstance *ResolveMaterialParameters();
 
   void EndPlay();
 

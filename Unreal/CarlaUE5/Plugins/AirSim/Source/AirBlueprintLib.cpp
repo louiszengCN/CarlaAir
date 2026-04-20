@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "AirBlueprintLib.h"
+#include "AirSim.h"
 #include <cstring>
 #include "GameFramework/WorldSettings.h"
 #include "Components/SceneCaptureComponent2D.h"
@@ -13,6 +14,7 @@
 #include "Runtime/Engine/Classes/Engine/LevelStreamingDynamic.h"
 #include "UObject/UObjectIterator.h"
 #include "Camera/CameraComponent.h"
+#include "CineCameraComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerStart.h"
 #include "Misc/MessageDialog.h"
 #include "Engine/LocalPlayer.h"
@@ -25,8 +27,8 @@
 #include <exception>
 #include "common/common_utils/Utils.hpp"
 #include "Modules/ModuleManager.h"
-#include "ARFilter.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/ARFilter.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "DetectionComponent.h"
 
 DEFINE_LOG_CATEGORY(LogAirSim);
@@ -239,8 +241,8 @@ void UAirBlueprintLib::GenerateAssetRegistryMap(const UObject* context, TMap<FSt
 {
     UAirBlueprintLib::RunCommandOnGameThread([context, &asset_map]() {
         FARFilter Filter;
-        Filter.ClassNames.Add(UStaticMesh::StaticClass()->GetFName());
-        Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
+        Filter.ClassPaths.Add(UStaticMesh::StaticClass()->GetClassPathName());
+        Filter.ClassPaths.Add(UBlueprint::StaticClass()->GetClassPathName());
         Filter.bRecursivePaths = true;
 
         auto world = context->GetWorld();
@@ -316,6 +318,7 @@ template USceneCaptureComponent2D* UAirBlueprintLib::GetActorComponent(AActor*, 
 template UStaticMeshComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template URotatingMovementComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template UCameraComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
+template UCineCameraComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 template UDetectionComponent* UAirBlueprintLib::GetActorComponent(AActor*, FString);
 
 bool UAirBlueprintLib::IsInGameThread()
@@ -446,7 +449,6 @@ std::vector<std::string> UAirBlueprintLib::ListMatchingActors(const UObject* con
 std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::GetStaticMeshComponents()
 {
     std::vector<msr::airlib::MeshPositionVertexBuffersResponse> meshes;
-    int num_meshes = 0;
     for (TObjectIterator<UStaticMeshComponent> comp; comp; ++comp) {
         *comp;
 
@@ -457,9 +459,12 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
         }
 
         //Various checks if there is even a valid mesh
-        if (!comp->GetStaticMesh()) continue;
-        if (!comp->GetStaticMesh()->RenderData) continue;
-        if (comp->GetStaticMesh()->RenderData->LODResources.Num() == 0) continue;
+        UStaticMesh* static_mesh = comp->GetStaticMesh();
+        if (!static_mesh) continue;
+        if (!static_mesh->HasValidRenderData()) continue;
+
+        const FStaticMeshRenderData* render_data = static_mesh->GetRenderData();
+        if (render_data == nullptr || render_data->LODResources.Num() == 0) continue;
 
         msr::airlib::MeshPositionVertexBuffersResponse mesh;
         mesh.name = name;
@@ -474,79 +479,24 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
         mesh.orientation.y() = att.Y;
         mesh.orientation.z() = att.Z;
 
-        FPositionVertexBuffer* vertex_buffer = &comp->GetStaticMesh()->RenderData->LODResources[0].VertexBuffers.PositionVertexBuffer;
-        if (vertex_buffer) {
-            const int32 vertex_count = vertex_buffer->VertexBufferRHI->GetSize();
-            TArray<FVector> vertices;
-            vertices.SetNum(vertex_count);
-            FVector* data = vertices.GetData();
+        const FStaticMeshLODResources& lod = render_data->LODResources[0];
+        const FPositionVertexBuffer& vertex_buffer = lod.VertexBuffers.PositionVertexBuffer;
+        const FIndexArrayView indices_view = lod.IndexBuffer.GetArrayView();
 
-            ENQUEUE_RENDER_COMMAND(GetVertexBuffer)
-            (
-                [vertex_buffer, data](FRHICommandListImmediate& RHICmdList) {
-                    FVector* indices = (FVector*)RHILockVertexBuffer(vertex_buffer->VertexBufferRHI, 0, vertex_buffer->VertexBufferRHI->GetSize(), RLM_ReadOnly);
-                    std::memcpy(data, indices, vertex_buffer->VertexBufferRHI->GetSize());
-                    RHIUnlockVertexBuffer(vertex_buffer->VertexBufferRHI);
-                });
-
-            FStaticMeshLODResources& lod = comp->GetStaticMesh()->RenderData->LODResources[0];
-            FRawStaticIndexBuffer* IndexBuffer = &lod.IndexBuffer;
-            int num_indices = IndexBuffer->IndexBufferRHI->GetSize() / IndexBuffer->IndexBufferRHI->GetStride();
-
-            if (IndexBuffer->IndexBufferRHI->GetStride() == 2) {
-                TArray<uint16_t> indices_vec;
-                indices_vec.SetNum(num_indices);
-
-                uint16_t* data_ptr = indices_vec.GetData();
-
-                ENQUEUE_RENDER_COMMAND(GetIndexBuffer)
-                (
-                    [IndexBuffer, data_ptr](FRHICommandListImmediate& RHICmdList) {
-                        uint16_t* indices = (uint16_t*)RHILockIndexBuffer(IndexBuffer->IndexBufferRHI, 0, IndexBuffer->IndexBufferRHI->GetSize(), RLM_ReadOnly);
-                        std::memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
-                        RHIUnlockIndexBuffer(IndexBuffer->IndexBufferRHI);
-                    });
-
-                //Need to force the render command to go through cause on the next iteration the buffer no longer exists
-                FlushRenderingCommands();
-
-                mesh.indices.resize(num_indices);
-                for (int idx = 0; idx < num_indices; ++idx) {
-                    mesh.indices[idx] = indices_vec[idx];
-                }
+        if (indices_view.Num() > 0) {
+            mesh.indices.resize(indices_view.Num());
+            for (int32 idx = 0; idx < indices_view.Num(); ++idx) {
+                mesh.indices[idx] = indices_view[idx];
             }
 
-            else { //stride ==4
-                TArray<uint32_t> indices_vec;
-                indices_vec.SetNum(num_indices);
+            const uint32 max_vertex_index = *std::max_element(mesh.indices.begin(), mesh.indices.end());
+            const int32 vertex_count = FMath::Min<int32>(vertex_buffer.GetNumVertices(), static_cast<int32>(max_vertex_index + 1));
 
-                uint32_t* data_ptr = indices_vec.GetData();
-
-                ENQUEUE_RENDER_COMMAND(GetIndexBuffer)
-                (
-                    [IndexBuffer, data_ptr](FRHICommandListImmediate& RHICmdList) {
-                        uint32_t* indices = (uint32_t*)RHILockIndexBuffer(IndexBuffer->IndexBufferRHI, 0, IndexBuffer->IndexBufferRHI->GetSize(), RLM_ReadOnly);
-                        std::memcpy(data_ptr, indices, IndexBuffer->IndexBufferRHI->GetSize());
-                        RHIUnlockIndexBuffer(IndexBuffer->IndexBufferRHI);
-                    });
-
-                FlushRenderingCommands();
-
-                mesh.indices.resize(num_indices);
-                for (int idx = 0; idx < num_indices; ++idx) {
-                    mesh.indices[idx] = indices_vec[idx];
-                }
-            }
-
-            //Unreal stores more vertices than triangles. So here we find the highest referenced vertex and ignore any after that
-            auto result_iter = std::max_element(mesh.indices.begin(), mesh.indices.end());
-            auto max_triangle_index = std::distance(mesh.indices.begin(), result_iter);
-
-            mesh.vertices.resize(max_triangle_index * 3);
+            mesh.vertices.resize(vertex_count * 3);
             int aligned_index = 0;
-            FTransform transform = comp->GetComponentTransform();
-            for (int vertex_idx = 0; vertex_idx < max_triangle_index; ++vertex_idx) {
-                FVector transformed_vec = pos + transform.TransformVector(vertices[vertex_idx]);
+            const FTransform transform = comp->GetComponentTransform();
+            for (int32 vertex_idx = 0; vertex_idx < vertex_count; ++vertex_idx) {
+                const FVector transformed_vec = transform.TransformPosition(FVector(vertex_buffer.VertexPosition(vertex_idx)));
                 mesh.vertices[aligned_index++] = transformed_vec.X;
                 mesh.vertices[aligned_index++] = transformed_vec.Y;
                 mesh.vertices[aligned_index++] = transformed_vec.Z;
@@ -562,7 +512,7 @@ std::vector<msr::airlib::MeshPositionVertexBuffersResponse> UAirBlueprintLib::Ge
 TArray<FName> UAirBlueprintLib::ListWorldsInRegistry()
 {
     FARFilter Filter;
-    Filter.ClassNames.Add(UWorld::StaticClass()->GetFName());
+    Filter.ClassPaths.Add(UWorld::StaticClass()->GetClassPathName());
     Filter.bRecursivePaths = true;
 
     TArray<FAssetData> AssetData;
@@ -578,7 +528,7 @@ TArray<FName> UAirBlueprintLib::ListWorldsInRegistry()
 UObject* UAirBlueprintLib::GetMeshFromRegistry(const std::string& load_object)
 {
     FARFilter Filter;
-    Filter.ClassNames.Add(UStaticMesh::StaticClass()->GetFName());
+    Filter.ClassPaths.Add(UStaticMesh::StaticClass()->GetClassPathName());
     Filter.bRecursivePaths = true;
 
     TArray<FAssetData> AssetData;

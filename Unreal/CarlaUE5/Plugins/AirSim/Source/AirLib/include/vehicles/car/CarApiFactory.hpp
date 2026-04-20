@@ -5,7 +5,10 @@
 #define msr_airlib_vehicles_CarApiFactory_hpp
 
 #include "vehicles/car/firmwares/physxcar/PhysXCarApi.hpp"
+
+#if defined(WITH_MAVLINKCOM_BINDING) && WITH_MAVLINKCOM_BINDING
 #include "vehicles/car/firmwares/ardurover/ArduRoverApi.hpp"
+#endif
 
 namespace msr
 {
@@ -19,10 +22,12 @@ namespace airlib
                                                      std::shared_ptr<SensorFactory> sensor_factory,
                                                      const Kinematics::State& state, const Environment& environment)
         {
+#if defined(WITH_MAVLINKCOM_BINDING) && WITH_MAVLINKCOM_BINDING
             if (vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypeArduRover) {
                 return std::unique_ptr<CarApiBase>(new ArduRoverApi(vehicle_setting, sensor_factory, state, environment));
             }
-            else if (vehicle_setting->vehicle_type == "" || //default config
+#endif
+            if (vehicle_setting->vehicle_type == "" || //default config
                      vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypePhysXCar) {
                 return std::unique_ptr<CarApiBase>(new PhysXCarApi(vehicle_setting, sensor_factory, state, environment));
             }

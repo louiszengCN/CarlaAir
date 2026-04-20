@@ -352,18 +352,14 @@ void UBoundingBoxCalculator::GetISMBoundingBox(
   }
 
   const UStaticMesh *Mesh = ISMComp->GetStaticMesh();
-  const FBoundingBox SMBoundingBox = GetStaticMeshBoundingBox(Mesh);
 
   if(!Mesh)
   {
-  #if WITH_EDITOR
-    UE_LOG(LogCarla, Error, TEXT("Actor Name: %s Actor Labe: %s has no SM assigned to the ISM"), *ISMComp->GetOwner()->GetName(), *ISMComp->GetOwner()->GetActorLabel());
-  #else
-    UE_LOG(LogCarla, Error, TEXT("Actor Name: %s has no SM assigned to the ISM"), *ISMComp->GetOwner()->GetName());
-
-  #endif
+    // ISM with no mesh assigned — common in Town01 spline actors; skip silently.
     return;
   }
+
+  const FBoundingBox SMBoundingBox = GetStaticMeshBoundingBox(Mesh);
 
   const TArray<FInstancedStaticMeshInstanceData>& PerInstanceSMData = ISMComp->PerInstanceSMData;
 
