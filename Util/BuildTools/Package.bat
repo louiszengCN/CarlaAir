@@ -652,9 +652,26 @@ rem ============================================================================
     if not exist "!RESULT_ENGINE!" mkdir "!RESULT_ENGINE!"
     if not exist "!RESULT_CONTENT!" mkdir "!RESULT_CONTENT!"
 
-    for %%f in (AgentInterface.dll dxil.dll embree.2.14.0.dll hdf5.dll libfbxsdk.dll tbb.dll tbbmalloc.dll turbojpeg.dll) do (
-        if exist "!PROJECT_BIN!\%%f" (
-            echo f | xcopy /y "!PROJECT_BIN!\%%f" "!RESULT_BIN!\" >nul
+    rem Stage required Windows runtime DLLs from project binaries first, then
+    rem fall back to the common UE4 engine/plugin locations where these files
+    rem actually live in source builds.
+    for %%d in (
+        "!PROJECT_BIN!"
+        "%UE4_ROOT%\Engine\Binaries\Win64"
+        "%UE4_ROOT%\Engine\Binaries\DotNET"
+        "%UE4_ROOT%\Engine\Binaries\ThirdParty\Windows\DirectX\x64"
+        "%UE4_ROOT%\Engine\Plugins\Importers\AlembicHairImporter\Binaries\Win64"
+        "%UE4_ROOT%\Engine\Plugins\Experimental\AlembicImporter\Binaries\Win64"
+        "%UE4_ROOT%\Engine\Source\ThirdParty\Intel\Embree\Embree2140\Win64\lib"
+        "%UE4_ROOT%\Engine\Source\ThirdParty\Intel\TBB\IntelTBB-2019u8\lib\Win64\vc14"
+        "%UE4_ROOT%\Engine\Source\ThirdParty\Intel\OIDN\bin"
+    ) do (
+        for %%f in (AgentInterface.dll dxil.dll embree.2.14.0.dll hdf5.dll libfbxsdk.dll tbb.dll tbbmalloc.dll turbojpeg.dll) do (
+            if not exist "!RESULT_BIN!\%%f" (
+                if exist "%%~d\%%f" (
+                    echo f | xcopy /y "%%~d\%%f" "!RESULT_BIN!\" >nul
+                )
+            )
         )
     )
 
