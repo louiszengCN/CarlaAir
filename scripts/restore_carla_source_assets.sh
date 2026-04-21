@@ -123,18 +123,35 @@ free_gb_for_path() {
 
 verify_restored_assets() {
   local missing=0
-  local required_paths=(
-    "$TARGET_CONTENT_DIR/Static/Pole/SM_Pole09.uasset"
-    "$TARGET_CONTENT_DIR/Static/GenericMaterials/Sidewalk/Textures/T_Sidewalk_05_d.uasset"
-    "$TARGET_CONTENT_DIR/Static/GenericMaterials/Vehicles/CarPaints/MI_CarPaint_Metallic_Blue01.uasset"
-    "$TARGET_CONTENT_DIR/Static/Static/00_LegacyAssets/SM_PlantpotM2.uasset"
-    "$TARGET_CONTENT_DIR/Static/Static/00_LegacyAssets/SMF_PlantpotM2.uasset"
-    "$TARGET_CONTENT_DIR/Static/Vegetation/Bushes/SMF_Pine_Bush.uasset"
+  local required_groups=(
+    "pole sentinel:$TARGET_CONTENT_DIR/Static/Pole/SM_Pole09.uasset|$TARGET_CONTENT_DIR/Static/Pole/BP_AddPole.uasset"
+    "sidewalk sentinel:$TARGET_CONTENT_DIR/Static/GenericMaterials/Sidewalk/Textures/T_Sidewalk_05_d.uasset"
+    "car paint sentinel:$TARGET_CONTENT_DIR/Static/GenericMaterials/Vehicles/CarPaints/MI_CarPaint_Metallic_Blue01.uasset|$TARGET_CONTENT_DIR/Static/GenericMaterials/00_MastersOpt/M_CarPaint_Master.uasset|$TARGET_CONTENT_DIR/Static/GenericMaterials/000_Masters/Vehicles/M_CarPaintMaster.uasset"
+    "plantpot sentinel:$TARGET_CONTENT_DIR/Static/Static/00_LegacyAssets/SM_PlantpotM2.uasset|$TARGET_CONTENT_DIR/Static/Static/SM_PlantpotM2.uasset"
+    "plantpot facade sentinel:$TARGET_CONTENT_DIR/Static/Static/00_LegacyAssets/SMF_PlantpotM2.uasset|$TARGET_CONTENT_DIR/Static/Static/SMF_PlantpotM2.uasset"
+    "pine bush sentinel:$TARGET_CONTENT_DIR/Static/Vegetation/Bushes/SMF_Pine_Bush.uasset"
   )
+  local group_spec=""
+  local group_name=""
+  local candidates=""
+  local found=""
+  local candidate=""
 
-  for path in "${required_paths[@]}"; do
-    if [[ ! -f "$path" ]]; then
-      printf '[restore-assets] missing after restore: %s\n' "$path" >&2
+  for group_spec in "${required_groups[@]}"; do
+    group_name="${group_spec%%:*}"
+    candidates="${group_spec#*:}"
+    found=0
+
+    IFS='|' read -r -a candidate_paths <<< "$candidates"
+    for candidate in "${candidate_paths[@]}"; do
+      if [[ -f "$candidate" ]]; then
+        found=1
+        break
+      fi
+    done
+
+    if [[ "$found" -ne 1 ]]; then
+      printf '[restore-assets] missing after restore (%s): %s\n' "$group_name" "$candidates" >&2
       missing=1
     fi
   done
