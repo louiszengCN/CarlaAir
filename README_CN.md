@@ -42,7 +42,7 @@
   <a href="https://pan.baidu.com/s/1RguWqwKrN-3KEgyKvWiiug?pwd=d5ai"><img src="https://img.shields.io/badge/Ubuntu-百度网盘-2932E1?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+" alt="Ubuntu — 百度网盘"/></a>
   <a href="https://huggingface.co/tianlezeng/CarlaAIr-v0.1.7"><img src="https://img.shields.io/badge/Ubuntu-HuggingFace-FFD21E?logo=huggingface&logoColor=black" alt="Ubuntu — Hugging Face"/></a>
   <a href="https://pan.baidu.com/s/1bToSuL2U5PeA_8CidpsIeg?pwd=cswm"><img src="https://img.shields.io/badge/Windows-百度网盘-0078D6?logo=windows&logoColor=white" alt="Windows — 百度网盘"/></a>
-  <a href="docs/images/wxg.jpg?v=20260419"><img src="https://img.shields.io/badge/微信-交流群-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
+  <a href="docs/images/wxg.jpg?v=20260427"><img src="https://img.shields.io/badge/微信-交流群-07C160?logo=wechat&logoColor=white" alt="WeChat Group"/></a>
 </p>
 
 ## 📌 目录
