@@ -104,6 +104,41 @@ function Resolve-TrafficPython {
     return $null
 }
 
+function Invoke-CarlaMapLoad {
+    param(
+        [string]$PythonExe,
+        [string]$MapName,
+        [int]$Port
+    )
+
+    $code = @'
+import sys
+import carla
+
+map_name = sys.argv[1]
+port = int(sys.argv[2])
+
+client = carla.Client('127.0.0.1', port)
+client.set_timeout(60.0)
+
+world = client.get_world()
+current = world.get_map().name
+if not current.endswith('/' + map_name):
+    world = client.load_world(map_name)
+    current = world.get_map().name
+
+if not current.endswith('/' + map_name):
+    raise RuntimeError(f'expected {map_name}, got {current}')
+
+print(current)
+'@
+
+    & $PythonExe -c $code $MapName $Port
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to load CARLA map '$MapName'."
+    }
+}
+
 function Resolve-CarlaBinary {
     param([string]$RepoRoot, [string]$ExplicitPackageRoot)
 
@@ -250,6 +285,7 @@ if ($showLog) {
 
 $binaryInfo = Resolve-CarlaBinary -RepoRoot $repoRoot -ExplicitPackageRoot $explicitPackageRoot
 $trafficPython = if ($autoTraffic) { Resolve-TrafficPython -ExplicitPath $explicitPython } else { $null }
+$carlaPython = if ($trafficPython) { $trafficPython } else { Resolve-TrafficPython -ExplicitPath $explicitPython }
 
 $airsimSettingsSource = Join-Path $repoRoot "AirSimConfig\settings.json"
 if (-not (Test-Path $airsimSettingsSource)) {
@@ -335,6 +371,22 @@ for ($attempt = 0; $attempt -lt 60; $attempt++) {
 }
 if (-not $airsimReady) {
     throw "AirSim port $airsimPort did not become ready within 120 seconds. Check $logFile"
+}
+
+if ($carlaPython) {
+    Write-Host "Verifying CARLA map..."
+    for ($attempt = 1; $attempt -le 6; $attempt++) {
+        try {
+            Invoke-CarlaMapLoad -PythonExe $carlaPython -MapName $mapName -Port $carlaPort
+            break
+        } catch {
+            if ($attempt -eq 6) { throw }
+            Write-Warning "CARLA map verification attempt $attempt failed. Retrying..."
+            Start-Sleep -Seconds 5
+        }
+    }
+} else {
+    Write-Warning "Could not verify or force-load map '$mapName' because no Python with the 'carla' module was found."
 }
 
 if ($autoTraffic) {
