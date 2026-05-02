@@ -21,7 +21,7 @@
   <a href="https://arxiv.org/abs/2603.28032"><img src="https://img.shields.io/badge/arXiv-2603.28032-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/stargazers"><img src="https://img.shields.io/github/stars/louiszengCN/CarlaAir?style=social" alt="GitHub Stars"/></a>
   <a href="https://github.com/louiszengCN/CarlaAir/releases/tag/v0.1.7"><img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version"/></a>
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+  <img src="https://img.shields.io/badge/License-Custom%20(Non--Commercial)-red.svg" alt="License: Non-Commercial"/>
   <img src="https://img.shields.io/badge/python-3.8+-blue" alt="Python 3.8+"/>
   <img src="https://img.shields.io/badge/CARLA-0.9.16-green" alt="CARLA 0.9.16"/>
   <img src="https://img.shields.io/badge/AirSim-1.8.1-orange" alt="AirSim 1.8.1"/>

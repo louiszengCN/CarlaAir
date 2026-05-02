@@ -1,18 +1,61 @@
-MIT License
+CarlaAir License
 
-Copyright (c) 2017 Computer Vision Center (CVC) at the Universitat Autonoma de
-Barcelona (UAB).
+Copyright (c) 2025-2026 CarlaAir Team, Southern University of Science and Technology (SUSTech).
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and associated documentation files (the "Software") are provided
+for academic and non-commercial research purposes only.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+PERMISSIONS
+-----------
+You are permitted to:
+  - Use the Software for personal, academic, and non-commercial research purposes.
+  - Modify the Software for personal or academic use.
+  - Distribute unmodified or modified copies of the Software for non-commercial
+    purposes, provided that this license and the copyright notice are retained
+    in all copies or substantial portions of the Software.
+  - Publish research results obtained using the Software, with appropriate
+    citation of the original work.
 
+RESTRICTIONS
+------------
+You are NOT permitted to:
+  - Use the Software, in whole or in part, for any commercial purpose, including
+    but not limited to: selling, licensing, sublicensing, or incorporating the
+    Software into commercial products or services, without prior written
+    permission from the CarlaAir Team.
+  - Remove or alter any copyright notices, license terms, or attribution
+    statements contained in the Software.
+  - Use the name "CarlaAir", "SimWorld", or the names of the contributors to
+    endorse or promote products derived from this Software without prior written
+    permission.
+
+COMMERCIAL USE
+--------------
+Commercial use of this Software requires a separate commercial license.
+For commercial licensing inquiries, please contact the CarlaAir Team.
+
+THIRD-PARTY COMPONENTS
+-----------------------
+This Software incorporates components from the following open-source projects,
+each governed by their respective licenses:
+
+  - CARLA Simulator (https://github.com/carla-simulator/carla)
+    Licensed under the MIT License.
+    Copyright (c) 2017 Computer Vision Center (CVC) at the Universitat
+    Autonoma de Barcelona (UAB).
+
+  - Microsoft AirSim / Colosseum (https://github.com/CodexLabsLLC/Colosseum)
+    Licensed under the MIT License.
+    Copyright (c) Microsoft Corporation.
+
+The CarlaAir-specific contributions — including but not limited to the unified
+air-ground simulation architecture, the SimWorldGameMode integration layer, and
+all associated documentation and tooling — are the exclusive intellectual
+property of the CarlaAir Team and are subject to the restrictions above.
+
+DISCLAIMER
+----------
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
