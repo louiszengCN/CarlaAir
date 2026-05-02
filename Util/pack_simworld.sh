@@ -7,10 +7,22 @@
 # Usage:
 #   bash pack_simworld.sh                    # default output to current dir
 #   bash pack_simworld.sh /path/to/output    # custom output directory
+#
+# Environment variables:
+#   CARLA_ROOT   Path to your CARLA source directory (default: current directory)
 
 set -e
 
-SRC="/mnt/data1/tianle/carla_source/Dist/CARLA_Shipping_1ae5356-dirty/LinuxNoEditor"
+# Resolve CARLA source root
+CARLA_ROOT="${CARLA_ROOT:-$(pwd)}"
+SHIPPING_DIR=$(ls -d "${CARLA_ROOT}/Dist/"CARLA_Shipping_* 2>/dev/null | head -1)
+if [ -z "${SHIPPING_DIR}" ]; then
+    echo "ERROR: No CARLA_Shipping_* directory found under ${CARLA_ROOT}/Dist/"
+    echo "       Please set CARLA_ROOT to your CARLA source directory, or run this"
+    echo "       script from within the CARLA source directory after building."
+    exit 1
+fi
+SRC="${SHIPPING_DIR}/LinuxNoEditor"
 OUTDIR="${1:-.}"
 DATE=$(date +%Y%m%d)
 ARCHIVE="SimWorld_${DATE}.tar.gz"
