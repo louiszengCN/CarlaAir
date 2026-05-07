@@ -409,6 +409,82 @@ function Sync-PluginEditorBinaries {
     }
 }
 
+function Sync-WindowsPackageLauncherFiles {
+    param([string]$SourceRoot, [string]$BuildRoot)
+
+    $packageContainer = Join-Path $BuildRoot "UE4Carla"
+    if (-not (Test-Path $packageContainer)) {
+        return
+    }
+
+    $runtimeSources = @(
+        @{
+            Source = Join-Path $SourceRoot "CarlaAir.ps1"
+            Destination = "CarlaAir.ps1"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "auto_traffic.py"
+            Destination = "auto_traffic.py"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "StartCarlaAir.bat"
+            Destination = "StartCarlaAir.bat"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "StopCarlaAir.bat"
+            Destination = "StopCarlaAir.bat"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "SetupEnv.bat"
+            Destination = "SetupEnv.bat"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "TestEnv.bat"
+            Destination = "TestEnv.bat"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "AirSimConfig"
+            Destination = "AirSimConfig"
+            Type = "directory"
+        },
+        @{
+            Source = Join-Path $SourceRoot "env_setup"
+            Destination = "env_setup"
+            Type = "directory"
+        }
+    )
+
+    $packageRoots = Get-ChildItem -Path $packageContainer -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        Join-Path $_.FullName "WindowsNoEditor"
+    }
+
+    foreach ($packageRoot in $packageRoots | Select-Object -Unique) {
+        if (-not (Test-Path $packageRoot)) {
+            continue
+        }
+
+        foreach ($runtimeSource in $runtimeSources) {
+            if (-not (Test-Path $runtimeSource.Source)) {
+                continue
+            }
+
+            $destinationPath = Join-Path $packageRoot $runtimeSource.Destination
+            if ($runtimeSource.Type -eq "directory") {
+                New-Item -ItemType Directory -Force -Path $destinationPath | Out-Null
+                Copy-Item -Path (Join-Path $runtimeSource.Source "*") -Destination $destinationPath -Recurse -Force
+            } else {
+                Copy-Item -Path $runtimeSource.Source -Destination $destinationPath -Force
+            }
+        }
+    }
+}
+
 $sourceRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootPath = ((Resolve-Path $sourceRoot).Path.TrimEnd("\")) + "\"
 $buildPath = if ($InstallationDir) { $InstallationDir } else { Join-Path $sourceRoot "Build" }
@@ -498,6 +574,9 @@ if ($Full -or $Package) {
 
     Write-Phase "Package"
     Invoke-BatchScript -BatchPath (Join-Path $sourceRoot "Util\BuildTools\Package.bat") -Arguments @("--config", $Configuration, "--no-zip") -VsDevCmd $vsDevCmd -Environment $commonEnv
+
+    Write-Phase "Sync Windows Launchers"
+    Sync-WindowsPackageLauncherFiles -SourceRoot $sourceRoot -BuildRoot $buildPath
 }
 
 Write-Host ""

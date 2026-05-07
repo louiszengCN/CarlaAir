@@ -80,7 +80,6 @@ void UCarlaEpisode::BeginDestroy()
 
 bool UCarlaEpisode::LoadNewEpisode(const FString &MapString, bool ResetSettings)
 {
-  bool bIsFileFound = false;
   FString MapToLoad;
   if (MapString.IsEmpty()) {
     MapToLoad = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
@@ -92,13 +91,7 @@ bool UCarlaEpisode::LoadNewEpisode(const FString &MapString, bool ResetSettings)
    
   FString FinalPath = UCarlaStatics::FindMapPath(MapToLoad);
 
-  if(FPaths::FileExists(FinalPath))
-  {
-    bIsFileFound = true;
-    FinalPath = MapToLoad;
-  }
-
-  if (bIsFileFound)
+  if (!FinalPath.IsEmpty())
   {
     UE_LOG(LogCarla, Warning, TEXT("Loading a new episode: %s"), *FinalPath);
     UGameplayStatics::OpenLevel(GetWorld(), *FinalPath, true);
@@ -119,8 +112,11 @@ bool UCarlaEpisode::LoadNewEpisode(const FString &MapString, bool ResetSettings)
         }
       }
     }
+    return true;
   }
-  return bIsFileFound;
+
+  UE_LOG(LogCarla, Warning, TEXT("Failed to resolve map '%s' to a loadable package path"), *MapToLoad);
+  return false;
 }
 
 static FString BuildRecastBuilderFile()

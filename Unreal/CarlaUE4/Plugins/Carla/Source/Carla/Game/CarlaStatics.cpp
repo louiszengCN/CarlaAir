@@ -10,6 +10,7 @@
 #include "Misc/Paths.h"
 #include "Modules/ModuleManager.h"
 #include "HAL/FileManagerGeneric.h"
+#include "Misc/PackageName.h"
 #include "PluginDescriptor.h"
 #include "Runtime/Core/Public/HAL/FileManagerGeneric.h"
 
@@ -78,7 +79,7 @@ FString UCarlaStatics::FindMapPath(const FString &MapName)
           FString FileName = FPaths::GetBaseFilename(FilePath); // just "MyMap", no path, no extension
           if (FileName.Equals(MapName, ESearchCase::IgnoreCase))
           {
-              return FilePath; // Return the full path of the first matching map. Only one map is expected.
+              return FPackageName::FilenameToLongPackageName(FilePath);
           }
       }
   }

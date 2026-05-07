@@ -111,6 +111,7 @@ function Resolve-CarlaBinary {
     if ($ExplicitPackageRoot) {
         $packageRoots += $ExplicitPackageRoot
     } else {
+        $packageRoots += $RepoRoot
         $packageRoots += Join-Path $RepoRoot "WindowsNoEditor"
         $packageRoots += Get-ChildItem (Join-Path $RepoRoot "Build\UE4Carla") -Directory -ErrorAction SilentlyContinue | ForEach-Object {
             Join-Path $_.FullName "WindowsNoEditor"
@@ -120,21 +121,21 @@ function Resolve-CarlaBinary {
     foreach ($packageRoot in $packageRoots | Select-Object -Unique) {
         if (-not $packageRoot) { continue }
 
-        $rootExe = Join-Path $packageRoot "CarlaUE4.exe"
-        if (Test-Path $rootExe) {
-            return @{
-                Binary = (Resolve-Path $rootExe).Path
-                WorkingDirectory = (Resolve-Path $packageRoot).Path
-                NeedsProjectArg = $false
-            }
-        }
-
         $shippingExe = Join-Path $packageRoot "CarlaUE4\Binaries\Win64\CarlaUE4-Win64-Shipping.exe"
         if (Test-Path $shippingExe) {
             return @{
                 Binary = (Resolve-Path $shippingExe).Path
                 WorkingDirectory = (Resolve-Path $packageRoot).Path
                 NeedsProjectArg = $true
+            }
+        }
+
+        $rootExe = Join-Path $packageRoot "CarlaUE4.exe"
+        if (Test-Path $rootExe) {
+            return @{
+                Binary = (Resolve-Path $rootExe).Path
+                WorkingDirectory = (Resolve-Path $packageRoot).Path
+                NeedsProjectArg = $false
             }
         }
     }
@@ -149,6 +150,43 @@ function Resolve-CarlaBinary {
     }
 
     throw "No Windows Carla binary found. Build the project first with .\BuildWindows.ps1."
+}
+
+function Resolve-CarlaLogFile {
+    param(
+        [string]$RepoRoot,
+        [string]$ExplicitPackageRoot
+    )
+
+    $candidates = New-Object System.Collections.Generic.List[string]
+    $candidates.Add((Join-Path $RepoRoot "CarlaAir.log"))
+
+    $packageRoots = @()
+    if ($ExplicitPackageRoot) {
+        $packageRoots += $ExplicitPackageRoot
+    } else {
+        $packageRoots += $RepoRoot
+        $packageRoots += Join-Path $RepoRoot "WindowsNoEditor"
+        $packageRoots += Get-ChildItem (Join-Path $RepoRoot "Build\UE4Carla") -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            Join-Path $_.FullName "WindowsNoEditor"
+        }
+    }
+
+    foreach ($packageRoot in $packageRoots | Select-Object -Unique) {
+        if (-not $packageRoot) { continue }
+        $candidates.Add((Join-Path $packageRoot "CarlaAir.log"))
+        $candidates.Add((Join-Path $packageRoot "CarlaUE4\Saved\Logs\CarlaUE4.log"))
+        $candidates.Add((Join-Path $packageRoot "CarlaUE4\Binaries\Win64\CarlaUE4.log"))
+    }
+
+    foreach ($candidate in $candidates | Select-Object -Unique) {
+        if (Test-Path $candidate) {
+            return (Resolve-Path $candidate).Path
+        }
+    }
+
+    $checkedPaths = ($candidates | Select-Object -Unique) -join ", "
+    throw "No log file found. Checked: $checkedPaths"
 }
 
 function Assert-NonNegative {
@@ -241,10 +279,8 @@ if ($killOnly) {
 }
 
 if ($showLog) {
-    if (-not (Test-Path $logFile)) {
-        throw "No log file found at $logFile"
-    }
-    Get-Content $logFile -Wait -Tail 100
+    $resolvedLogFile = Resolve-CarlaLogFile -RepoRoot $repoRoot -ExplicitPackageRoot $explicitPackageRoot
+    Get-Content $resolvedLogFile -Wait -Tail 100
     exit 0
 }
 
