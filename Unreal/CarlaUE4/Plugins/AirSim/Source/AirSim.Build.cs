@@ -15,9 +15,25 @@ public class AirSim : ModuleRules
     {
         get { return Path.Combine(ModulePath, "AirLib"); }
     }
+    private string MavLinkComPath
+    {
+        get { return Path.Combine(ModulePath, "MavLinkCom"); }
+    }
     private string AirSimPluginPath
     {
         get { return Directory.GetParent(ModulePath).FullName; }
+    }
+    private string CarlaAirRootPath
+    {
+        get { return Path.GetFullPath(Path.Combine(AirSimPluginPath, "..", "..", "..", "..")); }
+    }
+    private string RpclibInstallPath
+    {
+        get { return Path.Combine(CarlaAirRootPath, "Build", "rpclib-install"); }
+    }
+    private string EigenInstallIncludePath
+    {
+        get { return Path.Combine(CarlaAirRootPath, "Build", "eigen-install", "include"); }
     }
     private string ProjectBinariesPath
     {
@@ -40,7 +56,7 @@ public class AirSim : ModuleRules
 
     private void SetupCompileMode(CompileMode mode, ReadOnlyTargetRules Target)
     {
-        LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
+        LoadMavLinkComDependency(Target);
 
         switch (mode)
         {
@@ -53,16 +69,15 @@ public class AirSim : ModuleRules
             case CompileMode.HeaderOnlyWithRpc:
                 PublicDefinitions.Add("AIRLIB_HEADER_ONLY=1");
                 AddLibDependency("AirLib", Path.Combine(AirLibPath, "lib"), "AirLib", Target, false);
-                LoadAirSimDependency(Target, "rpclib", "rpc");
+                LoadRpclibDependency(Target);
                 break;
 
             case CompileMode.CppCompileNoRpc:
-                LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
                 PublicDefinitions.Add("AIRLIB_NO_RPC=1");
                 break;
 
             case CompileMode.CppCompileWithRpc:
-                LoadAirSimDependency(Target, "rpclib", "rpc");
+                LoadRpclibDependency(Target);
                 break;
 
             default:
@@ -88,7 +103,8 @@ public class AirSim : ModuleRules
         PublicDefinitions.Add("NOMINMAX");
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
-        PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
+        PublicIncludePaths.Add(EigenInstallIncludePath);
+        PublicIncludePaths.Add(Path.Combine(ModulePath, "MavLinkCom", "include"));
         PublicIncludePaths.Add(Path.Combine(ModulePath, "MavLinkCom", "common_utils"));
         AddOSLibDependencies(Target);
 
@@ -130,6 +146,45 @@ public class AirSim : ModuleRules
     {
         string LibrariesPath = Path.Combine(AirLibPath, "deps", LibName, "lib");
         return AddLibDependency(LibName, LibrariesPath, LibFileName, Target, true);
+    }
+
+    private bool LoadMavLinkComDependency(ReadOnlyTargetRules Target)
+    {
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            string ConfigurationString = (Target.Configuration == UnrealTargetConfiguration.Debug) ? "Debug" : "Release";
+            string LibraryPath = Path.Combine(MavLinkComPath, "lib", "x64", ConfigurationString, "MavLinkCom.lib");
+            if (!File.Exists(LibraryPath))
+            {
+                throw new BuildException("MavLinkCom library was not found at its Windows build output: " + LibraryPath);
+            }
+
+            PublicAdditionalLibraries.Add(LibraryPath);
+            PublicDefinitions.Add("WITH_MAVLINKCOM_BINDING=1");
+            return true;
+        }
+
+        return LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
+    }
+
+    private bool LoadRpclibDependency(ReadOnlyTargetRules Target)
+    {
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            string IncludePath = Path.Combine(RpclibInstallPath, "include");
+            string LibraryPath = Path.Combine(RpclibInstallPath, "lib", "rpc.lib");
+            if (!Directory.Exists(IncludePath) || !File.Exists(LibraryPath))
+            {
+                throw new BuildException("rpclib was not found at its Windows install output: " + RpclibInstallPath);
+            }
+
+            PublicIncludePaths.Add(IncludePath);
+            PublicAdditionalLibraries.Add(LibraryPath);
+            PublicDefinitions.Add("WITH_RPCLIB_BINDING=1");
+            return true;
+        }
+
+        return LoadAirSimDependency(Target, "rpclib", "rpc");
     }
 
     private bool AddLibDependency(string LibName, string LibPath, string LibFileName, ReadOnlyTargetRules Target, bool IsAddLibInclude)

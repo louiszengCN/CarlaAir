@@ -181,6 +181,7 @@ public class Carla : ModuleRules
   private void AddCarlaServerDependency(ReadOnlyTargetRules Target)
   {
     string LibCarlaInstallPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../CarlaDependencies"));
+    string ZlibInstallPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../../../../Build/zlib-install"));
 
     ADelegate GetLibName = (string BaseName) => {
       if (IsWindows(Target))
@@ -225,7 +226,12 @@ public class Carla : ModuleRules
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "xerces-c_3.lib"));
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "proj.lib"));
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "osm2odr.lib"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "zlibstatic.lib"));
+      string ZlibStaticLibraryPath = Path.Combine(ZlibInstallPath, "lib", "zlibstatic.lib");
+      if (!File.Exists(ZlibStaticLibraryPath))
+      {
+        throw new BuildException("zlibstatic.lib was not found at its Windows install output: " + ZlibStaticLibraryPath);
+      }
+      PublicAdditionalLibraries.Add(ZlibStaticLibraryPath);
     }
     else
     {

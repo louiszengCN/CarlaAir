@@ -40,6 +40,40 @@ function Resolve-VsDevCmd {
     return $devCmd
 }
 
+function Resolve-WindowsSdkBin {
+    $sdkRoots = New-Object System.Collections.Generic.List[string]
+
+    try {
+        $installedRoots = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" -ErrorAction Stop
+        if ($installedRoots.KitsRoot10) {
+            $sdkRoots.Add($installedRoots.KitsRoot10)
+        }
+    } catch {
+    }
+
+    $sdkRoots.Add((Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10"))
+
+    foreach ($sdkRoot in $sdkRoots | Where-Object { $_ } | Select-Object -Unique) {
+        $sdkBinRoot = Join-Path $sdkRoot "bin"
+        if (-not (Test-Path $sdkBinRoot)) {
+            continue
+        }
+
+        $versionDirectories = Get-ChildItem -Path $sdkBinRoot -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+            Sort-Object { [version]$_.Name } -Descending
+
+        foreach ($versionDirectory in $versionDirectories) {
+            $x64Bin = Join-Path $versionDirectory.FullName "x64"
+            if (Test-Path (Join-Path $x64Bin "mt.exe")) {
+                return $x64Bin
+            }
+        }
+    }
+
+    throw "Windows SDK x64 mt.exe was not found. Install the Windows 10/11 SDK component."
+}
+
 function Resolve-UE4Root {
     param([string]$ExplicitRoot)
 
@@ -243,6 +277,8 @@ function Invoke-BatchScript {
             $lines.Add(('set "{0}={1}"' -f $pair.Key, $pair.Value))
         }
     }
+    $lines.Add('if defined WINDOWS_SDK_BIN set "PATH=%WINDOWS_SDK_BIN%;%PATH%"')
+    $lines.Add('if defined WINDOWS_SDK_MT if not exist "%WINDOWS_SDK_MT%" exit /b 1')
 
     $argLine = ""
     if ($Arguments) {
@@ -271,142 +307,74 @@ function Get-PluginEditorModuleMap {
     }
 }
 
-function Get-EngineEditorBuildId {
-    param([string]$UE4Root)
+function Read-EditorModuleManifest {
+    param([string]$Path)
 
-    $versionPath = Join-Path $UE4Root "Engine\Binaries\Win64\UE4Editor.version"
-    if (Test-Path $versionPath) {
-        $versionJson = Get-Content -Path $versionPath -Raw | ConvertFrom-Json
-        if ($versionJson.BuildId) {
-            return [string]$versionJson.BuildId
-        }
+    if (-not (Test-Path $Path)) {
+        throw "Editor module manifest was not found: $Path"
     }
 
-    $manifestPath = Join-Path $UE4Root "Engine\Binaries\Win64\UE4Editor.modules"
-    if (Test-Path $manifestPath) {
-        $manifestJson = Get-Content -Path $manifestPath -Raw | ConvertFrom-Json
-        if ($manifestJson.BuildId) {
-            return [string]$manifestJson.BuildId
-        }
+    try {
+        $manifest = Get-Content -Path $Path -Raw | ConvertFrom-Json
+    } catch {
+        throw "Editor module manifest is not valid JSON: $Path"
     }
 
-    throw "Unable to resolve the engine editor BuildId from $UE4Root"
+    if (-not $manifest.BuildId) {
+        throw "Editor module manifest has no BuildId: $Path"
+    }
+    if (-not $manifest.Modules) {
+        throw "Editor module manifest has no module entries: $Path"
+    }
+
+    return $manifest
 }
 
-function Set-JsonBuildId {
+function Assert-EditorModuleBinary {
     param(
-        [string]$Path,
-        [string]$BuildId
+        [object]$Manifest,
+        [string]$ManifestPath,
+        [string]$BinariesDirectory,
+        [string]$ModuleName
     )
 
-    $json = Get-Content -Path $Path -Raw | ConvertFrom-Json
-    $updated = $false
-
-    if ($json.PSObject.Properties.Name -contains "BuildId") {
-        $json.BuildId = $BuildId
-        $updated = $true
-    }
-    if (($json.PSObject.Properties.Name -contains "Version") -and $json.Version -and ($json.Version.PSObject.Properties.Name -contains "BuildId")) {
-        $json.Version.BuildId = $BuildId
-        $updated = $true
+    $moduleBinaryName = $Manifest.Modules.$ModuleName
+    if (-not $moduleBinaryName) {
+        throw "Module '$ModuleName' was not found in $ManifestPath"
     }
 
-    if ($updated) {
-        $jsonText = $json | ConvertTo-Json -Depth 100
-        [System.IO.File]::WriteAllText($Path, $jsonText, [System.Text.Encoding]::ASCII)
+    $moduleBinaryPath = Join-Path $BinariesDirectory $moduleBinaryName
+    if (-not (Test-Path $moduleBinaryPath)) {
+        throw "Module binary '$moduleBinaryName' was not found: $moduleBinaryPath"
     }
 }
 
-function Sync-EditorBuildIds {
-    param(
-        [string]$SourceRoot,
-        [string]$UE4Root
-    )
-
-    $engineBuildId = Get-EngineEditorBuildId -UE4Root $UE4Root
-    $projectRoot = Join-Path $SourceRoot "Unreal\CarlaUE4"
-    $candidateDirectories = New-Object System.Collections.Generic.List[string]
-    $candidateDirectories.Add((Join-Path $projectRoot "Binaries\Win64"))
-
-    $pluginRoot = Join-Path $projectRoot "Plugins"
-    if (Test-Path $pluginRoot) {
-        foreach ($pluginDir in Get-ChildItem -Path $pluginRoot -Directory) {
-            $pluginBinaries = Join-Path $pluginDir.FullName "Binaries\Win64"
-            if (Test-Path $pluginBinaries) {
-                $candidateDirectories.Add($pluginBinaries)
-            }
-        }
-    }
-
-    foreach ($directory in $candidateDirectories | Select-Object -Unique) {
-        Get-ChildItem -Path $directory -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -in @(".modules", ".version", ".target") } |
-            ForEach-Object { Set-JsonBuildId -Path $_.FullName -BuildId $engineBuildId }
-    }
-
-    return $engineBuildId
-}
-
-function Sync-PluginEditorBinaries {
-    param(
-        [string]$SourceRoot,
-        [string]$UE4Root
-    )
+function Test-EditorModuleManifests {
+    param([string]$SourceRoot)
 
     $projectRoot = Join-Path $SourceRoot "Unreal\CarlaUE4"
     $projectBinaries = Join-Path $projectRoot "Binaries\Win64"
-    $editorManifestPath = Join-Path $projectBinaries "CarlaUE4Editor.modules"
-    if (-not (Test-Path $editorManifestPath)) {
-        throw "Editor module manifest was not found: $editorManifestPath"
-    }
+    $projectManifestPath = Join-Path $projectBinaries "UE4Editor.modules"
+    $projectManifest = Read-EditorModuleManifest -Path $projectManifestPath
+    Assert-EditorModuleBinary -Manifest $projectManifest -ManifestPath $projectManifestPath -BinariesDirectory $projectBinaries -ModuleName "CarlaUE4"
 
-    $engineBuildId = Sync-EditorBuildIds -SourceRoot $SourceRoot -UE4Root $UE4Root
-
-    $editorManifest = Get-Content -Path $editorManifestPath -Raw | ConvertFrom-Json
-    if (-not $editorManifest.Modules) {
-        throw "Editor module manifest is missing module entries: $editorManifestPath"
-    }
-
+    $projectBuildId = [string]$projectManifest.BuildId
     foreach ($pluginEntry in (Get-PluginEditorModuleMap).GetEnumerator()) {
         $pluginName = $pluginEntry.Key
-        $pluginRoot = Join-Path $projectRoot ("Plugins\" + $pluginName)
-        if (-not (Test-Path $pluginRoot)) {
-            throw "Plugin root was not found: $pluginRoot"
-        }
-
-        $pluginBinaries = Join-Path $pluginRoot "Binaries\Win64"
-        New-Item -ItemType Directory -Force -Path $pluginBinaries | Out-Null
-
-        $pluginModules = [ordered]@{}
-        foreach ($moduleName in $pluginEntry.Value) {
-            $moduleBinaryName = $editorManifest.Modules.$moduleName
-            if (-not $moduleBinaryName) {
-                throw "Module '$moduleName' was not found in $editorManifestPath"
-            }
-
-            $sourceBinaryPath = Join-Path $projectBinaries $moduleBinaryName
-            if (-not (Test-Path $sourceBinaryPath)) {
-                throw "Module binary '$moduleBinaryName' was not found in $projectBinaries"
-            }
-
-            Get-ChildItem -Path $pluginBinaries -Filter "*$moduleName*" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-            Copy-Item -Path $sourceBinaryPath -Destination $pluginBinaries -Force
-
-            $sourcePdbPath = [System.IO.Path]::ChangeExtension($sourceBinaryPath, ".pdb")
-            if (Test-Path $sourcePdbPath) {
-                Copy-Item -Path $sourcePdbPath -Destination $pluginBinaries -Force
-            }
-
-            $pluginModules[$moduleName] = $moduleBinaryName
-        }
-
+        $pluginBinaries = Join-Path $projectRoot ("Plugins\" + $pluginName + "\Binaries\Win64")
         $pluginManifestPath = Join-Path $pluginBinaries "UE4Editor.modules"
-        $pluginManifestJson = [ordered]@{
-            BuildId = [string]$engineBuildId
-            Modules = $pluginModules
-        } | ConvertTo-Json -Depth 4
-        [System.IO.File]::WriteAllText($pluginManifestPath, $pluginManifestJson, [System.Text.Encoding]::ASCII)
+        $pluginManifest = Read-EditorModuleManifest -Path $pluginManifestPath
+
+        if ([string]$pluginManifest.BuildId -ne $projectBuildId) {
+            throw "Plugin '$pluginName' BuildId '$($pluginManifest.BuildId)' does not match project BuildId '$projectBuildId'. Rebuild the plugin with this CarlaUE4Editor target."
+        }
+
+        foreach ($moduleName in $pluginEntry.Value) {
+            Assert-EditorModuleBinary -Manifest $pluginManifest -ManifestPath $pluginManifestPath -BinariesDirectory $pluginBinaries -ModuleName $moduleName
+        }
     }
+
+    Write-Host "Validated CarlaUE4 and plugin UE4Editor.modules manifests (BuildId: $projectBuildId)."
 }
 
 function Sync-WindowsPackageLauncherFiles {
@@ -499,6 +467,7 @@ $needPython310 = $Full -or $Setup -or $BuildPythonApi
 $needAnyPython = $needPython310 -or $BuildUE4 -or $Package
 
 $vsDevCmd = Resolve-VsDevCmd
+$windowsSdkBin = if ($needUE4) { Resolve-WindowsSdkBin } else { $null }
 $resolvedPython = $null
 if ($needPython310) {
     $resolvedPython = Resolve-Python310 -ExplicitPython $PythonExe
@@ -529,11 +498,14 @@ $commonEnv = @{
     CARLAAIR_PYTHON_EXE = $resolvedPython
     CARLAAIR_PYTHON_VERSION = $resolvedPythonVersion
     CARLAAIR_PYTHON_ROOT = $resolvedPythonRoot
+    WINDOWS_SDK_BIN = $windowsSdkBin
+    WINDOWS_SDK_MT = if ($windowsSdkBin) { Join-Path $windowsSdkBin "mt.exe" } else { $null }
 }
 
 Write-Host "SourceRoot: $sourceRoot"
 Write-Host "BuildRoot:  $buildPath"
 Write-Host "VS DevCmd:  $vsDevCmd"
+Write-Host "SDK Bin:    $windowsSdkBin"
 Write-Host "UE4_ROOT:   $resolvedUE4"
 Write-Host "PythonExe:  $resolvedPython"
 
@@ -564,13 +536,13 @@ if ($Full -or $BuildUE4) {
     Write-Phase "UE4 Build"
     Invoke-BatchScript -BatchPath (Join-Path $sourceRoot "Util\BuildTools\BuildCarlaUE4.bat") -Arguments @("--build") -VsDevCmd $vsDevCmd -Environment $commonEnv
 
-    Write-Phase "Sync Plugin Editor Binaries"
-    Sync-PluginEditorBinaries -SourceRoot $sourceRoot -UE4Root $resolvedUE4
+    Write-Phase "Validate Editor Module Manifests"
+    Test-EditorModuleManifests -SourceRoot $sourceRoot
 }
 
 if ($Full -or $Package) {
-    Write-Phase "Sync Plugin Editor Binaries"
-    Sync-PluginEditorBinaries -SourceRoot $sourceRoot -UE4Root $resolvedUE4
+    Write-Phase "Validate Editor Module Manifests"
+    Test-EditorModuleManifests -SourceRoot $sourceRoot
 
     Write-Phase "Package"
     Invoke-BatchScript -BatchPath (Join-Path $sourceRoot "Util\BuildTools\Package.bat") -Arguments @("--config", $Configuration, "--no-zip") -VsDevCmd $vsDevCmd -Environment $commonEnv
