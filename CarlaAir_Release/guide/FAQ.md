@@ -55,6 +55,29 @@ world.apply_settings(settings)
 
 建议在脚本中使用 `try/finally` 结构确保退出时始终恢复。
 
+### Q: 同步模式下调用 AirSim `simGetImages()` 卡住或超时
+**A**: 这是 CARLA 同步 tick 与 AirSim 图像 RPC 的兼容性限制。不要在唯一的 tick 线程中按下面的顺序直接调用：
+
+```python
+world.tick()
+responses = airsim_client.simGetImages(requests)  # 可能等待下一次渲染
+```
+
+Windows 发行版提供了 `examples/airsim_image_fetcher.py`。它在独立线程中执行图像 RPC，由调用线程继续推进 CARLA：
+
+```python
+from airsim_image_fetcher import AirSimImageFetcher
+
+with AirSimImageFetcher.for_multirotor(
+    host="127.0.0.1", port=41451, rpc_timeout=10.0
+) as fetcher:
+    responses = fetcher.get_images_while_ticking(
+        world, requests, timeout=10.0
+    )
+```
+
+请只让一个线程或进程负责 `world.tick()`。该方法可以避免卡死，但 AirSim 响应不包含 CARLA frame ID，因此不能保证它与某个 CARLA 传感器回调严格属于同一帧。
+
 ---
 
 ## 坐标系统 / Coordinate Systems

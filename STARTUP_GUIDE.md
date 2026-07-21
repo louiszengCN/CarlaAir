@@ -149,3 +149,26 @@ to:
 ```
 
 Then start CarlaAir again through `CarlaAir.ps1`.
+
+## Capturing AirSim Images in Synchronous Mode
+
+AirSim's `simGetImages()` waits for an Unreal render frame. In CARLA synchronous mode, the next frame is only produced when the script calls `world.tick()`. Calling `simGetImages()` directly from the only tick-owning thread can therefore deadlock and eventually time out.
+
+Start the Windows release without automatic traffic:
+
+```powershell
+StartCarlaAir.bat Town10HD --no-traffic
+```
+
+Then run the compatibility example from another terminal with the `carlaAir` environment active:
+
+```powershell
+python examples\sync_airsim_images.py --frames 3 --output recordings\sync_airsim
+```
+
+The example uses `examples\airsim_image_fetcher.py` to perform the image RPC on a worker thread while the calling thread continues to run `world.tick()`.
+
+- Only one thread or process may own `world.tick()`.
+- Create a new `AirSimImageFetcher` after a capture timeout.
+- Always restore the original World settings in `finally`.
+- This avoids the RPC deadlock, but AirSim images do not carry a CARLA frame ID and are not guaranteed to be atomically aligned with a CARLA sensor callback.

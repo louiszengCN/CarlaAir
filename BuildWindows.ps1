@@ -409,7 +409,7 @@ function Sync-PluginEditorBinaries {
     }
 }
 
-function Sync-WindowsPackageLauncherFiles {
+function Sync-WindowsPackageRuntimeFiles {
     param([string]$SourceRoot, [string]$BuildRoot)
 
     $packageContainer = Join-Path $BuildRoot "UE4Carla"
@@ -457,6 +457,36 @@ function Sync-WindowsPackageLauncherFiles {
             Source = Join-Path $SourceRoot "env_setup"
             Destination = "env_setup"
             Type = "directory"
+        },
+        @{
+            Source = Join-Path $SourceRoot "CarlaAir_Release\source\python_api\examples\airsim_image_fetcher.py"
+            Destination = "examples\airsim_image_fetcher.py"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "CarlaAir_Release\source\python_api\examples\sync_airsim_images.py"
+            Destination = "examples\sync_airsim_images.py"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "README_WINDOWS_CN.md"
+            Destination = "README_WINDOWS_CN.md"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "STARTUP_GUIDE.md"
+            Destination = "STARTUP_GUIDE.md"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "STARTUP_GUIDE_CN.md"
+            Destination = "STARTUP_GUIDE_CN.md"
+            Type = "file"
+        },
+        @{
+            Source = Join-Path $SourceRoot "CarlaAir_Release\guide\FAQ.md"
+            Destination = "guide\FAQ.md"
+            Type = "file"
         }
     )
 
@@ -479,6 +509,10 @@ function Sync-WindowsPackageLauncherFiles {
                 New-Item -ItemType Directory -Force -Path $destinationPath | Out-Null
                 Copy-Item -Path (Join-Path $runtimeSource.Source "*") -Destination $destinationPath -Recurse -Force
             } else {
+                $destinationParent = Split-Path -Parent $destinationPath
+                if ($destinationParent) {
+                    New-Item -ItemType Directory -Force -Path $destinationParent | Out-Null
+                }
                 Copy-Item -Path $runtimeSource.Source -Destination $destinationPath -Force
             }
         }
@@ -575,8 +609,8 @@ if ($Full -or $Package) {
     Write-Phase "Package"
     Invoke-BatchScript -BatchPath (Join-Path $sourceRoot "Util\BuildTools\Package.bat") -Arguments @("--config", $Configuration, "--no-zip") -VsDevCmd $vsDevCmd -Environment $commonEnv
 
-    Write-Phase "Sync Windows Launchers"
-    Sync-WindowsPackageLauncherFiles -SourceRoot $sourceRoot -BuildRoot $buildPath
+    Write-Phase "Sync Windows Runtime Files"
+    Sync-WindowsPackageRuntimeFiles -SourceRoot $sourceRoot -BuildRoot $buildPath
 }
 
 Write-Host ""

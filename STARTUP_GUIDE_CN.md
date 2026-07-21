@@ -149,3 +149,26 @@ AirSimConfig\settings.json
 ```
 
 然后重新通过 `CarlaAir.ps1` 启动。
+
+## 同步模式采集 AirSim 图像
+
+同步模式下，AirSim 的 `simGetImages()` 需要等待 Unreal 渲染帧，而 CARLA 只有在脚本调用 `world.tick()` 后才会生成下一帧。如果在唯一的 tick 线程中直接调用 `simGetImages()`，脚本可能互相等待并最终超时。
+
+Windows 发行版提供了兼容示例。先关闭自动交通启动：
+
+```powershell
+StartCarlaAir.bat Town10HD --no-traffic
+```
+
+然后在已激活 `carlaAir` 环境的新终端中运行：
+
+```powershell
+python examples\sync_airsim_images.py --frames 3 --output recordings\sync_airsim
+```
+
+示例通过 `examples\airsim_image_fetcher.py` 在后台线程执行图像 RPC，同时由调用线程持续执行 `world.tick()`。使用时请注意：
+
+- 只能由一个线程或进程负责 `world.tick()`。
+- 捕获超时后应创建新的 `AirSimImageFetcher`，不要复用原实例。
+- 示例退出时会恢复原始 World 设置；自定义脚本也必须使用 `try/finally` 恢复设置。
+- 该方案避免 RPC 卡住，但 AirSim 图像没有 CARLA frame ID，不保证与 CARLA 传感器严格原子级同帧。
