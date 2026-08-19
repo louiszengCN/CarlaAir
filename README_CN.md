@@ -452,10 +452,10 @@ CARLA-Air 特有的代码基于 **MIT License** 分发。CARLA 相关的资产�
 
 ## ⭐ Star History
 
-<a href="https://star-history.com/#louiszengCN/CarlaAir&Date">
+<a href="https://star-history.dera.page/#louiszengCN/CarlaAir&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=louiszengCN/CarlaAir&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=louiszengCN/CarlaAir&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=louiszengCN/CarlaAir&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=louiszengCN/CarlaAir&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=louiszengCN/CarlaAir&type=Date" />
+   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=louiszengCN/CarlaAir&type=Date" />
  </picture>
 </a>
